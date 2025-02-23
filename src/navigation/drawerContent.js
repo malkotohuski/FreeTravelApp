@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { TouchableOpacity, ImageBackground, StyleSheet } from 'react-native';
 //import Register from '../Register';
-import Login from '../screens/Home/Login/Login';
+import Login from '../screens/Login';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import HomePage from '../screens/Home';
 
