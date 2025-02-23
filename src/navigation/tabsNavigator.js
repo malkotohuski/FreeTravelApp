@@ -7,9 +7,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import HomePage from '../Screens/Home/Home';
 import Login from '../Login';
 import MyAccount from '../Account';
-import Basket from '../Basket';
 import Video from '../Video';
-import Garage from '../Garage';
 import Vehicle from '../Category/Vehicle';
 import { useTranslation } from 'react-i18next';
 
