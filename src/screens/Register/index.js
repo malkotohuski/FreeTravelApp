@@ -4,7 +4,7 @@ import axios from 'axios';
 import styles from '../Screens/styles';
 import { useTranslation } from 'react-i18next';
 import ImagePicker from 'react-native-image-crop-picker';
-import { useAuth } from '../Authentication/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 const API_BASE_URL = 'http://10.0.2.2:3000'; // JSON server
 const api = axios.create({

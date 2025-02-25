@@ -1,48 +1,31 @@
-import * as React from 'react';
-import { View, Text } from 'react-native';
-import {
-  createStaticNavigation,
-  useNavigation,
-} from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Button } from '@react-navigation/elements';
+import 'react-native-gesture-handler';
+import React, { useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import { NavigationContainer } from '@react-navigation/native';
+import { Navigator } from './src/navigation/drawerContent';
+import { RouteProvider } from './src/context/RouteContext';
+import { AuthProvider } from './src/context/AuthContext';
+import { DarkModeProvider } from './src/navigation/DarkModeContext';
 
-function HomeScreen() {
-  const navigation = useNavigation();
+const Drawer = createDrawerNavigator();
 
-  return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Home Screen</Text>
-      <Button onPress={() => navigation.navigate('Details')}>
-        Go to Details
-      </Button>
-    </View>
-  );
+function App() {
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    return (
+        <SafeAreaView style={{ flex: 1 }}>
+            <DarkModeProvider>
+                <NavigationContainer>
+                    < AuthProvider>
+                        <RouteProvider>
+                            <Navigator isLoggedIn={isLoggedIn} />
+                        </RouteProvider>
+                    </AuthProvider>
+                </NavigationContainer>
+            </DarkModeProvider>
+        </SafeAreaView>
+    );
 }
 
-function DetailsScreen() {
-  const navigation = useNavigation();
-
-  return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Details Screen</Text>
-      <Button onPress={() => navigation.navigate('Details')}>
-        Go to Details... again
-      </Button>
-    </View>
-  );
-}
-
-const RootStack = createNativeStackNavigator({
-  initialRouteName: 'Home',
-  screens: {
-    Home: HomeScreen,
-    Details: DetailsScreen,
-  },
-});
-
-const Navigation = createStaticNavigation(RootStack);
-
-export default function App() {
-  return <Navigation />;
-}
+export default App;
