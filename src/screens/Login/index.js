@@ -2,17 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, ScrollView, Animated } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
-import { useTranslation } from 'react-i18next';
+//import { useTranslation } from 'react-i18next';
 import styles from './styles';
-import i18next from 'i18next';
-import { useAuth } from '../Authentication/AuthContext';
+//import i18next from 'i18next';
+import { useAuth } from '../../context/AuthContext';
 
 const API_BASE_URL = 'http://10.0.2.2:3000';
 
 export default function Login({ navigation, route }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const { t } = useTranslation();
+   // const { t } = useTranslation();
     const { login } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
     const opacity = useState(new Animated.Value(0))[0];
@@ -75,17 +75,17 @@ export default function Login({ navigation, route }) {
                     {isLoading ? (
                         <>
                             <Image
-                                source={require('../../images/loading_image.png')}
+                                source={require('../../../images/loading_image.png')}
                                 style={styles.backgroundImage}
                             />
                             <Animated.Text style={{ fontSize: 42, color: '#010101', fontWeight: 'bold', position: 'absolute', top: '50%', alignSelf: 'center', opacity }}>
-                                {t('Loading...')}
+                                Loading...
                             </Animated.Text>
                         </>
                     ) : (
                         <>
                             <Image
-                                source={require('../../images/login-background.jpg')}
+                                source={require('../../../images/login-background.jpg')}
                                 style={styles.backgroundImage}
                             />
                             <View>
@@ -95,10 +95,10 @@ export default function Login({ navigation, route }) {
                                         onPress={() => changeLanguage('en')}
                                     >
                                         <Image
-                                            source={require('../../images/eng1-flag.png')}
+                                            source={require('../../../images/eng1-flag.png')}
                                             style={styles.flagImage}
                                         />
-                                        <Text style={styles.languageText}>{t('English')}</Text>
+                                        <Text style={styles.languageText}>English</Text>
                                     </TouchableOpacity>
                                     <View style={{ margin: 60 }} />
                                     <TouchableOpacity
@@ -106,27 +106,27 @@ export default function Login({ navigation, route }) {
                                         onPress={() => changeLanguage('bg')}
                                     >
                                         <Image
-                                            source={require('../../images/bulg-flag.png')}
+                                            source={require('../../../images/bulg-flag.png')}
                                             style={styles.flagImage}
                                         />
-                                        <Text style={styles.languageText}>{t('Bulgarian')}</Text>
+                                        <Text style={styles.languageText}>Bulgarian</Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>
                             <TouchableOpacity onPress={skipLogin}>
-                                <Text style={styles.title}>{t('Login')}</Text>
+                                <Text style={styles.title}>Login'</Text>
                             </TouchableOpacity>
                             <TextInput
                                 placeholderTextColor={'white'}
                                 style={styles.input}
-                                placeholder={t("Email")}
+                                placeholder="Email"
                                 value={email}
                                 onChangeText={(text) => setEmail(text)}
                             />
                             <TextInput
                                 placeholderTextColor={'white'}
                                 style={styles.input}
-                                placeholder={t("Password")}
+                                placeholder="Password"
                                 secureTextEntry={true}
                                 value={password}
                                 onChangeText={(text) => setPassword(text)}
@@ -136,14 +136,14 @@ export default function Login({ navigation, route }) {
                                     style={styles.loginButtons}
                                     onPress={handleLogin}
                                 >
-                                    <Text style={styles.textButtons}>{t("Log in")}</Text>
+                                    <Text style={styles.textButtons}>Log in</Text>
                                 </TouchableOpacity>
                                 <View style={styles.buttonSeparator} />
                                 <TouchableOpacity
                                     style={styles.loginButtons}
                                     onPress={() => navigation.navigate('Register')}
                                 >
-                                    <Text style={styles.textButtons}>{t("Create your account")}</Text>
+                                    <Text style={styles.textButtons}>Create your account</Text>
                                 </TouchableOpacity>
                             </View>
                         </>

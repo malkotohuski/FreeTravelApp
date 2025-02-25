@@ -1,14 +1,14 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, Dimensions } from 'react-native';
-import { useTranslation } from 'react-i18next';
+//import { useTranslation } from 'react-i18next';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useAuth } from '../Authentication/AuthContext';
+import { useAuth } from '../context/AuthContext';
 
 const { width, height } = Dimensions.get('window'); // За адаптивност на различни екрани
 
 function CustomerDrawer({ navigation }) {
-    const { t } = useTranslation();
+   // const { t } = useTranslation();
     const { user } = useAuth();
     const noImage = require('../../images/emptyUserImage.png');
     const profilePicture = user?.user?.userImage;
@@ -79,7 +79,7 @@ function CustomerDrawer({ navigation }) {
 
                                 <Text
                                     style={styles.textButtons}
-                                >{t('Home')}
+                                >Home
                                 </Text>
                             </TouchableOpacity>
                         </View >
@@ -88,7 +88,7 @@ function CustomerDrawer({ navigation }) {
                                 <Icon name="streetview" size={30} color="#0721B6" />
                                 <Text
                                     style={styles.textButtons}
-                                >{t('Routes History')}</Text>
+                                >Routes History</Text>
                             </TouchableOpacity>
                         </View>
                         {/*     <View style={styles.topLeft}>
@@ -104,7 +104,7 @@ function CustomerDrawer({ navigation }) {
                                 <Icon name="report" size={30} color="#0721B6" />
                                 <Text
                                     style={styles.textButtons}
-                                >{t('Reporting')}</Text>
+                                >Reporting</Text>
                             </TouchableOpacity>
                         </View>
                         <View style={styles.topLeft}>
@@ -112,7 +112,7 @@ function CustomerDrawer({ navigation }) {
                                 <Icons name="routes" size={30} color="#0721B6" />
                                 <Text
                                     style={styles.textButtons}
-                                >{t('Route request')}</Text>
+                                >Route request</Text>
                             </TouchableOpacity>
                         </View>
                         <View style={styles.topLeft}>
@@ -120,7 +120,7 @@ function CustomerDrawer({ navigation }) {
                                 <Icon name="settings" size={30} color="#0721B6" />
                                 <Text
                                     style={styles.textButtons}
-                                >{t('Settings')}</Text>
+                                >Settings</Text>
                             </TouchableOpacity>
                         </View>
                         <View style={styles.topLeft}>
@@ -128,7 +128,7 @@ function CustomerDrawer({ navigation }) {
                                 <Icons name="logout" size={30} color="#0721B6" />
                                 <Text
                                     style={styles.textButtons}
-                                >{t('Logout')}</Text>
+                                >Logout</Text>
                             </TouchableOpacity>
                         </View>
                     </View>

@@ -4,7 +4,7 @@ import { TouchableOpacity, ImageBackground, StyleSheet } from 'react-native';
 import Login from '../screens/Login';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import HomePage from '../screens/Home';
-
+import CustomerDrawer from './customDrawer';
 //import MarkSeatsScreen from '../Category/MarkSeatsScreen';
 //import Vehicle from '../Category/Vehicle';
 //import SelectRouteScreen from '../Category/SelectRoute';
@@ -13,8 +13,8 @@ import HomePage from '../screens/Home';
 //import ViewRoutes from '../Category/ViewRoutes';
 //import ReportingScreen from '../ReportingScreen';
 //import RouteRequestScreen from '../RouteRequest';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
+//import Icon from 'react-native-vector-icons/MaterialIcons';
+//import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 //import AccountManager from '../Account/AccountManager';
 //import AccountSettings from '../Account/AccountSettings';
 //import WelcomeScreen from '../Account/Welcome';
@@ -24,7 +24,7 @@ import { RouteDetails } from '../RequestScreen/index'
 //import ChatScreen from '../Screens/ChatScreen';
 /* import AddFriendScreen from '../Chats/AddFriendScreen';
 import Messages from '../Chats/Messages';
-import CustomerDrawer from './customDrawer';
+
 import RouteHistory from '../Category/RouteHistory';
 import UsersScreen from '../Users/UsersScreen';
 import Notifications from '../Screens/Notifications';
@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
 });
 
 export const Navigator = ({ isLoggedIn }) => {
-    const { t } = useTranslation();
+   // const { t } = useTranslation();
     const { darkMode } = useContext(DarkModeContext);
     //const backgroundImage = require('../../images/drawer.jpg');
 
@@ -160,7 +160,7 @@ export const Navigator = ({ isLoggedIn }) => {
                 name="Login"
                 component={Login}
                 options={{
-                    title: t('Login'),
+                    title: 'Login',
                     ...screenStyles,
                     headerShown: false,
                     drawerItemStyle: { display: 'none' }

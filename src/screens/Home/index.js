@@ -1,15 +1,15 @@
-import i18n from '../i18n';
-import i18next from 'i18next';
-import { initReactI18next } from 'react-i18next';
+//import i18n from '../i18n';
+//import i18next from 'i18next';
+//import { initReactI18next } from 'react-i18next';
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, Image, TouchableOpacity, Alert, ScrollView, SafeAreaView } from 'react-native';
 import { useRoute } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
+//import { useTranslation } from 'react-i18next';
 import styles from './styles';
-import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
+//import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import axios from 'axios';
-import { useAuth } from '../../Authentication/AuthContext';
-import { DarkModeContext } from '../../DrawerContent/DarkModeContext';
+import { useAuth } from '../../context/AuthContext';
+import { DarkModeProvider } from '../../navigation/DarkModeContext';
 
 const API_BASE_URL = 'http://10.0.2.2:3000'; // JSON server
 const api = axios.create({
