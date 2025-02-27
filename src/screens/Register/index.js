@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, Image, ScrollView, SafeAreaView } from 'react-native';
 import axios from 'axios';
-import styles from '../Screens/styles';
+import styles from './styles'
 import { useTranslation } from 'react-i18next';
 import ImagePicker from 'react-native-image-crop-picker';
 import { useAuth } from '../../context/AuthContext';
@@ -120,7 +120,7 @@ export default function Register({ navigation }) {
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <View style={styles.container}>
           <Image
-            source={require('../../images/login-background.jpg')}
+            source={require('../../../images/login-background.jpg')}
             style={styles.backgroundImage}
           />
           <TouchableOpacity
@@ -192,6 +192,7 @@ export default function Register({ navigation }) {
               onChangeText={(text) => setConfirmationCode(text)}
             />
           )}
+            <View style={styles.buttonsContent}>
           <TouchableOpacity style={styles.loginButtons} onPress={handleRegister}>
             <Text style={styles.textButtons}>
               {!showConfirmationCodeInput ? t('Continue') : t('Verify Confirmation Code')}
@@ -201,6 +202,7 @@ export default function Register({ navigation }) {
           <TouchableOpacity style={styles.loginButtons} onPress={handlerBackLogin}>
             <Text style={styles.textButtons}>{t('I have an account')}</Text>
           </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
