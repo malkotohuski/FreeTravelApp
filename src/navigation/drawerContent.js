@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { TouchableOpacity, ImageBackground, StyleSheet } from 'react-native';
-//import Register from '../Register';
+import Register from '../screens/Register';
 import Login from '../screens/Login';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import HomePage from '../screens/Home';
@@ -8,6 +8,7 @@ import CustomerDrawer from './customDrawer';
 //import MarkSeatsScreen from '../Category/MarkSeatsScreen';
 //import Vehicle from '../Category/Vehicle';
 //import SelectRouteScreen from '../Category/SelectRoute';
+import { useTranslation } from 'react-i18next';
 //import { useTranslation } from 'react-i18next';
 //import Confirm from '../Category/Confirm';
 //import ViewRoutes from '../Category/ViewRoutes';
@@ -43,7 +44,7 @@ const styles = StyleSheet.create({
 });
 
 export const Navigator = ({ isLoggedIn }) => {
-   // const { t } = useTranslation();
+    const { t } = useTranslation();
     const { darkMode } = useContext(DarkModeContext);
     //const backgroundImage = require('../../images/drawer.jpg');
 
@@ -166,7 +167,7 @@ export const Navigator = ({ isLoggedIn }) => {
                     drawerItemStyle: { display: 'none' }
                 }}
             />
-           {/*  <Drawer.Screen
+             <Drawer.Screen
                 name="Register"
                 component={Register}
                 options={{
@@ -176,6 +177,7 @@ export const Navigator = ({ isLoggedIn }) => {
                     drawerItemStyle: { display: 'none' }
                 }}
             />
+            {/*
             <Drawer.Screen
                 name="Messages"
                 component={Messages}
