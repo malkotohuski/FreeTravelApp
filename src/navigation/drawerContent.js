@@ -14,8 +14,8 @@ import { useTranslation } from 'react-i18next';
 //import ViewRoutes from '../Category/ViewRoutes';
 //import ReportingScreen from '../ReportingScreen';
 //import RouteRequestScreen from '../RouteRequest';
-//import Icon from 'react-native-vector-icons/MaterialIcons';
-//import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 //import AccountManager from '../Account/AccountManager';
 //import AccountSettings from '../Account/AccountSettings';
 //import WelcomeScreen from '../Account/Welcome';
@@ -167,7 +167,7 @@ export const Navigator = ({ isLoggedIn }) => {
                     drawerItemStyle: { display: 'none' }
                 }}
             />
-             <Drawer.Screen
+           {/*   <Drawer.Screen
                 name="Register"
                 component={Register}
                 options={{
@@ -177,7 +177,7 @@ export const Navigator = ({ isLoggedIn }) => {
                     drawerItemStyle: { display: 'none' }
                 }}
             />
-            {/*
+           
             <Drawer.Screen
                 name="Messages"
                 component={Messages}
@@ -187,7 +187,7 @@ export const Navigator = ({ isLoggedIn }) => {
                     headerShown: false,
                     drawerItemStyle: { display: 'none' }
                 }}
-            />
+            /> */}
             <Drawer.Screen
                 name='Home'
                 component={HomePage}
@@ -206,6 +206,7 @@ export const Navigator = ({ isLoggedIn }) => {
                     },
                 })}
             />
+             {/*
             <Drawer.Screen
                 name="Vehicle"
                 component={Vehicle}
