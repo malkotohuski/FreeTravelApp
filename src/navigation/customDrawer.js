@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, Dimensions } from 'react-native';
-//import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useAuth } from '../context/AuthContext';
@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthContext';
 const { width, height } = Dimensions.get('window'); // За адаптивност на различни екрани
 
 function CustomerDrawer({ navigation }) {
-   // const { t } = useTranslation();
+    const { t } = useTranslation()
     const { user } = useAuth();
     const noImage = require('../../images/emptyUserImage.png');
     const profilePicture = user?.user?.userImage;
@@ -55,87 +55,87 @@ function CustomerDrawer({ navigation }) {
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
-            <ScrollView
-                contentContainerStyle={{ flexGrow: 1 }}
-                style={{ flex: 1, backgroundColor: 'grey' }}
-                showsVerticalScrollIndicator={false} // Скрива скрол индикатора (по желание)
-            >
-                <View style={styles.mainContainer}>
-                    <Image
-                        source={require('../../images/d6.png')}
-                        style={styles.backgroundImage}
-                    />
-                    <View style={styles.drawerContainer}>
-                        <TouchableOpacity style={styles.userInfoContainer} onPress={handlerAccountScreen}>
-                            <Image source={profilePicture ? { uri: profilePicture } : noImage} style={styles.userImage} />
-                            <Text style={styles.userInfo}>
-                                {user?.user?.username}
+        <ScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            style={{ flex: 1, backgroundColor: 'grey' }}
+            showsVerticalScrollIndicator={false} // Скрива скрол индикатора (по желание)
+        >
+            <View style={styles.mainContainer}>
+                <Image
+                    source={require('../../images/d6.png')}
+                    style={styles.backgroundImage}
+                />
+                <View style={styles.drawerContainer}>
+                    <TouchableOpacity style={styles.userInfoContainer} onPress={handlerAccountScreen}>
+                        <Image source={profilePicture ? { uri: profilePicture } : noImage} style={styles.userImage} />
+                        <Text style={styles.userInfo}>
+                            {user?.user?.username}
+                        </Text>
+                    </TouchableOpacity>
+                    <View style={styles.topLeft}>
+                        <TouchableOpacity style={styles.drawerScreen} onPress={handlerHomeScreen} >
+
+                            <Icon name="home" size={30} color="#0721B6" />
+
+                            <Text
+                                style={styles.textButtons}
+                            >{t('Home')}
                             </Text>
                         </TouchableOpacity>
-                        <View style={styles.topLeft}>
-                            <TouchableOpacity style={styles.drawerScreen} onPress={handlerHomeScreen} >
-
-                                <Icon name="home" size={30} color="#0721B6" />
-
-                                <Text
-                                    style={styles.textButtons}
-                                >Home
-                                </Text>
-                            </TouchableOpacity>
-                        </View >
-                        <View style={styles.topLeft}>
-                            <TouchableOpacity style={styles.drawerScreen} onPress={handlerRouteViewer} >
-                                <Icon name="streetview" size={30} color="#0721B6" />
-                                <Text
-                                    style={styles.textButtons}
-                                >Routes History</Text>
-                            </TouchableOpacity>
-                        </View>
-                        {/*     <View style={styles.topLeft}>
-                    <TouchableOpacity style={styles.drawerScreen} onPress={handlerUsersScreen} >
-                        <Icon name="streetview" size={30} color="#0721B6" />
-                        <Text
-                            style={styles.textButtons}
-                        >{t('Users')}</Text>
-                    </TouchableOpacity>
-                </View> */}
-                        <View style={styles.topLeft}>
-                            <TouchableOpacity style={styles.drawerScreen} onPress={handlerReporting} >
-                                <Icon name="report" size={30} color="#0721B6" />
-                                <Text
-                                    style={styles.textButtons}
-                                >Reporting</Text>
-                            </TouchableOpacity>
-                        </View>
-                        <View style={styles.topLeft}>
-                            <TouchableOpacity style={styles.drawerScreen} onPress={handlerRequest} >
-                                <Icons name="routes" size={30} color="#0721B6" />
-                                <Text
-                                    style={styles.textButtons}
-                                >Route request</Text>
-                            </TouchableOpacity>
-                        </View>
-                        <View style={styles.topLeft}>
-                            <TouchableOpacity style={styles.drawerScreen} onPress={handlerSettings} >
-                                <Icon name="settings" size={30} color="#0721B6" />
-                                <Text
-                                    style={styles.textButtons}
-                                >Settings</Text>
-                            </TouchableOpacity>
-                        </View>
-                        <View style={styles.topLeft}>
-                            <TouchableOpacity style={styles.drawerScreen} onPress={handlerLogout} >
-                                <Icons name="logout" size={30} color="#0721B6" />
-                                <Text
-                                    style={styles.textButtons}
-                                >Logout</Text>
-                            </TouchableOpacity>
-                        </View>
+                    </View >
+                    <View style={styles.topLeft}>
+                        <TouchableOpacity style={styles.drawerScreen} onPress={handlerRouteViewer} >
+                            <Icon name="streetview" size={30} color="#0721B6" />
+                            <Text
+                                style={styles.textButtons}
+                            >{t('Routes History')}</Text>
+                        </TouchableOpacity>
+                    </View>
+                    {/*     <View style={styles.topLeft}>
+                <TouchableOpacity style={styles.drawerScreen} onPress={handlerUsersScreen} >
+                    <Icon name="streetview" size={30} color="#0721B6" />
+                    <Text
+                        style={styles.textButtons}
+                    >{t('Users')}</Text>
+                </TouchableOpacity>
+            </View> */}
+                    <View style={styles.topLeft}>
+                        <TouchableOpacity style={styles.drawerScreen} onPress={handlerReporting} >
+                            <Icon name="report" size={30} color="#0721B6" />
+                            <Text
+                                style={styles.textButtons}
+                            >{t('Reporting')}</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.topLeft}>
+                        <TouchableOpacity style={styles.drawerScreen} onPress={handlerRequest} >
+                            <Icons name="routes" size={30} color="#0721B6" />
+                            <Text
+                                style={styles.textButtons}
+                            >{t('Route request')}</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.topLeft}>
+                        <TouchableOpacity style={styles.drawerScreen} onPress={handlerSettings} >
+                            <Icon name="settings" size={30} color="#0721B6" />
+                            <Text
+                                style={styles.textButtons}
+                            >{t('Settings')}</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.topLeft}>
+                        <TouchableOpacity style={styles.drawerScreen} onPress={handlerLogout} >
+                            <Icons name="logout" size={30} color="#0721B6" />
+                            <Text
+                                style={styles.textButtons}
+                            >{t('Logout')}</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
-            </ScrollView>
-        </SafeAreaView>
-    )
+            </View>
+        </ScrollView>
+    </SafeAreaView>
+)
 }
 
 const styles = StyleSheet.create({
