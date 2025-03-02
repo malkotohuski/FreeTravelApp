@@ -1,14 +1,14 @@
 import React, { useContext, useState } from 'react';
-import { View, Text, Switch, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, Switch, StyleSheet, ScrollView} from 'react-native';
 import { ListItem, Icon } from 'react-native-elements';
 import { useTranslation } from 'react-i18next';
-import { DarkModeContext } from '../DrawerContent/DarkModeContext'; // Път към DarkModeContext
+import { DarkModeContext } from '../../navigation/DarkModeContext';
 
 const SettingsScreen = () => {
     const { darkMode, toggleDarkMode } = useContext(DarkModeContext); // Използване на контекста тук
     console.log(darkMode, toggleDarkMode);
     const [toggleValues, setToggleValues] = useState({});
-    const { t } = useTranslation();
+    const { t } = useTranslation()
 
     const SECTIONS = [
         {
