@@ -20,7 +20,7 @@ import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 //import AccountSettings from '../Account/AccountSettings';
 //import WelcomeScreen from '../Account/Welcome';
 //import LogoutScreen from '../Logout';
-//import SettingsScreen from '../Settings/SettingsScreen';
+import SettingsScreen from '../screens/Settings';
 import { RouteDetails } from '../RequestScreen/index'
 //import ChatScreen from '../Screens/ChatScreen';
 /* import AddFriendScreen from '../Chats/AddFriendScreen';
@@ -167,7 +167,7 @@ export const Navigator = ({ isLoggedIn }) => {
                     drawerItemStyle: { display: 'none' }
                 }}
             />
-           {/*   <Drawer.Screen
+           <Drawer.Screen
                 name="Register"
                 component={Register}
                 options={{
@@ -177,7 +177,7 @@ export const Navigator = ({ isLoggedIn }) => {
                     drawerItemStyle: { display: 'none' }
                 }}
             />
-           
+            {/*  
             <Drawer.Screen
                 name="Messages"
                 component={Messages}
@@ -351,6 +351,7 @@ export const Navigator = ({ isLoggedIn }) => {
                     },
                 })}
             />
+             /> */}
             <Drawer.Screen
                 name="Settings"
                 component={SettingsScreen}
@@ -369,6 +370,7 @@ export const Navigator = ({ isLoggedIn }) => {
                     },
                 })}
             />
+               {/* 
             <Drawer.Screen
                 name="AccountManager"
                 component={AccountManager}
@@ -459,8 +461,8 @@ export const Navigator = ({ isLoggedIn }) => {
                     headerShown: false,
                     drawerItemStyle: { display: 'none' }
                 }}
-            /> */}
-          {/*   <Drawer.Screen
+           
+         <Drawer.Screen
                 name="WelcomeScreen"
                 component={WelcomeScreen}
                 key="WelcomeScreen"
