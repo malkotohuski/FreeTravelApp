@@ -197,7 +197,7 @@ function SelectRouteScreen({ route, navigation }) {
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                 <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center' }}>
                     <Image
-                        source={require('../../images/forests.jpg')}
+                        source={require('../../../images/forests.jpg')}
                         style={{
                             flex: 1,
                             width: '100%',

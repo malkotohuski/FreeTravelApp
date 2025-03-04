@@ -49,7 +49,7 @@ const Vehicle = () => {
     return (
         <View style={{ flex: 1, backgroundColor: 'grey' }}>
             <Image
-                source={require('../../images/car-background.jpg')}
+                source={require('../../../images/car-background.jpg')}
                 style={styles.backgroundImage}
             />
             <View style={styles.container}>

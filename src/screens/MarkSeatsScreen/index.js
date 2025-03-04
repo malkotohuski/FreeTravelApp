@@ -60,7 +60,7 @@ function MarkSeatsScreen() {
         <SafeAreaView style={styles.mainContainer}>
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 <Image
-                    source={require('../../images/register-number-background.jpg')}
+                    source={require('../../../images/register-number-background.jpg')}
                     style={styles.backgroundImage}
                 />
                 <Text style={styles.title}>
