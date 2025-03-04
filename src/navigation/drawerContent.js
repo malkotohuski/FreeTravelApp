@@ -5,9 +5,10 @@ import Login from '../screens/Login';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import HomePage from '../screens/Home';
 import CustomerDrawer from './customDrawer';
-//import MarkSeatsScreen from '../Category/MarkSeatsScreen';
-//import Vehicle from '../Category/Vehicle';
-//import SelectRouteScreen from '../Category/SelectRoute';
+import MarkSeatsScreen from '../screens/MarkSeatsScreen';
+import Vehicle from '../screens/Vehicle';
+import SelectRouteScreen from '../screens/SelectRoute';
+//import { SelectRouteScreen} from '../screens/SelectRoute';
 import { useTranslation } from 'react-i18next';
 //import { useTranslation } from 'react-i18next';
 //import Confirm from '../Category/Confirm';
@@ -206,7 +207,7 @@ export const Navigator = ({ isLoggedIn }) => {
                     },
                 })}
             />
-             {/*
+            
             <Drawer.Screen
                 name="Vehicle"
                 component={Vehicle}
@@ -223,6 +224,7 @@ export const Navigator = ({ isLoggedIn }) => {
                     },
                 })}
             />
+            
             <Drawer.Screen
                 name="Mark Seats"
                 component={MarkSeatsScreen}
@@ -239,6 +241,7 @@ export const Navigator = ({ isLoggedIn }) => {
                     },
                 })}
             />
+             {/*
             <Drawer.Screen
                 name="Chat"
                 component={ChatScreen}
@@ -259,6 +262,7 @@ export const Navigator = ({ isLoggedIn }) => {
                     drawerItemStyle: { display: 'none' }
                 }}
             />
+            /> */}
             <Drawer.Screen
                 name="SelectRoute"
                 component={SelectRouteScreen}
@@ -275,6 +279,7 @@ export const Navigator = ({ isLoggedIn }) => {
                     },
                 })}
             />
+                 {/*
             <Drawer.Screen
                 name="Confirm"
                 component={Confirm}
