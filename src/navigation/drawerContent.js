@@ -8,12 +8,12 @@ import CustomerDrawer from './customDrawer';
 import MarkSeatsScreen from '../screens/MarkSeatsScreen';
 import Vehicle from '../screens/Vehicle';
 import SelectRouteScreen from '../screens/SelectRoute';
-//import { SelectRouteScreen} from '../screens/SelectRoute';
 import { useTranslation } from 'react-i18next';
 //import { useTranslation } from 'react-i18next';
 //import Confirm from '../Category/Confirm';
+import ViewRoutes from '../screens/ViewRoutes';
 //import ViewRoutes from '../Category/ViewRoutes';
-//import ReportingScreen from '../ReportingScreen';
+import ReportingScreen from '../screens/ReportingScreen';
 //import RouteRequestScreen from '../RouteRequest';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -279,24 +279,7 @@ export const Navigator = ({ isLoggedIn }) => {
                     },
                 })}
             />
-                 {/*
-            <Drawer.Screen
-                name="Confirm"
-                component={Confirm}
-                options={{
-                    title: t('Confirm'),
-                    ...screenStyles,
-                    drawerItemStyle: { display: 'none' }
-                }}
-                listeners={({ navigation }) => ({
-                    focus: () => {
-                        navigation.setOptions({
-                            headerRight: () => renderBackButtonIcons({ navigation }),
-                        });
-                    },
-                })}
-            />
-            <Drawer.Screen
+              <Drawer.Screen
                 name="View routes"
                 component={ViewRoutes}
                 options={{
@@ -314,7 +297,7 @@ export const Navigator = ({ isLoggedIn }) => {
                     },
                 })}
             />
-            <Drawer.Screen
+               <Drawer.Screen
                 name="Reporting"
                 component={ReportingScreen}
                 options={{
@@ -325,6 +308,23 @@ export const Navigator = ({ isLoggedIn }) => {
                         <Icon name="report" size={size} color={color} />
                     ),
                 }}
+            />
+                 {/*
+            <Drawer.Screen
+                name="Confirm"
+                component={Confirm}
+                options={{
+                    title: t('Confirm'),
+                    ...screenStyles,
+                    drawerItemStyle: { display: 'none' }
+                }}
+                listeners={({ navigation }) => ({
+                    focus: () => {
+                        navigation.setOptions({
+                            headerRight: () => renderBackButtonIcons({ navigation }),
+                        });
+                    },
+                })}
             />
             <Drawer.Screen
                 name="UsersScreen"

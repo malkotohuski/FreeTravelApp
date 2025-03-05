@@ -4,8 +4,8 @@ import { View, TextInput, Alert, Image, TouchableOpacity, StyleSheet, Text, Safe
 import ImagePicker from 'react-native-image-crop-picker';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as Animatable from 'react-native-animatable';
-import { useAuth } from '../Authentication/AuthContext';
-import { DarkModeContext } from '../DrawerContent/DarkModeContext';
+import { useAuth } from '../../context/AuthContext';
+import { DarkModeContext } from '../../navigation/DarkModeContext';
 
 const ReportingScreen = ({ navigation }) => {
     const { darkMode } = useContext(DarkModeContext);
@@ -99,7 +99,7 @@ const ReportingScreen = ({ navigation }) => {
         <SafeAreaView style={styles.mainContainer}>
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                 <Image
-                    source={require('../../images/road-wallpapers-reporting.jpg')}
+                    source={require('../../../images/road-wallpapers-reporting.jpg')}
                     style={styles.backgroundImage}
                 />
                 <View style={{ flex: 1, justifyContent: 'flex-start' }}>

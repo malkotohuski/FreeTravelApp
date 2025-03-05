@@ -11,9 +11,9 @@ import {
     Modal,
     Pressable,
 } from 'react-native';
-import { useRouteContext } from './RouteContext';
+import { useRouteContext } from '../../context/RouteContext';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../Authentication/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 
 const API_BASE_URL = 'http://10.0.2.2:3000';
@@ -136,7 +136,7 @@ function ViewRoutes({ navigation }) {
     return (
         <SafeAreaView style={styles.mainContainer}>
             <Image
-                source={require('../../images/d7.png')}
+                source={require('../../../images/d7.png')}
                 style={styles.backgroundImage}
             />
             <TouchableOpacity style={styles.filterButton} onPress={toggleFilterModal}>
