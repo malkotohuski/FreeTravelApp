@@ -22,7 +22,7 @@ const AccountSettings = ({ navigation }) => {
     const { user, updateProfilePicture } = useAuth();
     const [profilePicture, setProfilePicture] = useState(null);
     const { t } = useTranslation();
-    const noImage = require('../../images/emptyUserImage.png')
+    const noImage = require('../../../images/emptyUserImage.png')
 
     const handleImagePicker = async () => {
         try {
@@ -62,7 +62,7 @@ const AccountSettings = ({ navigation }) => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Image source={require('../../images/acountSettings.png')} style={styles.backgroundImage} />
+            <Image source={require('../../../images/acountSettings.png')} style={styles.backgroundImage} />
             <View style={styles.userInfoContainer}>
                 <View style={styles.infoRow}>
                     <Text style={styles.label}>{t('Username')}:</Text>

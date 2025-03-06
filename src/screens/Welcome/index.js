@@ -2,7 +2,8 @@ import React, { useRef, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, Animated, TouchableOpacity, Dimensions } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRoute } from '@react-navigation/native';
-import { useAuth } from '../Authentication/AuthContext';
+import { useAuth } from '../../context/AuthContext';
+
 
 const { width } = Dimensions.get('window');
 
@@ -36,7 +37,7 @@ const WelcomeScreen = ({ navigation }) => {
         <View style={styles.container}>
             {/* Background Image */}
             <Image
-                source={require('../../images/welocme-background.jpg')}
+                source={require('../../../images/welocme-background.jpg')}
                 style={styles.backgroundImage}
             />
 

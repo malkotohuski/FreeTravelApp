@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, SafeAreaView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { DarkModeContext } from '../DrawerContent/DarkModeContext';
+import { DarkModeContext } from '../../navigation/DarkModeContext';
 
 const Comments = ({ navigation }) => {
     const { t } = useTranslation();
@@ -21,7 +21,7 @@ const Comments = ({ navigation }) => {
     return (
         <SafeAreaView style={styles.mainContainer}>
             <Image
-                source={require('../../images/register-number-background2.jpg')}
+                source={require('../../../images/register-number-background2.jpg')}
                 style={styles.backgroundImage}
             />
             <View style={styles.mainContent}>

@@ -1,8 +1,8 @@
 import React, { useState, useContext } from "react";
 import { Pressable, StyleSheet, Text, Image, View, SafeAreaView, TouchableOpacity, TextInput, ScrollView } from 'react-native';
-import { useAuth } from "../Authentication/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { DarkModeContext } from "../DrawerContent/DarkModeContext";
+import { DarkModeContext } from "../../navigation/DarkModeContext";
 
 const Messages = ({ navigation }) => {
     const { user } = useAuth();
@@ -35,7 +35,7 @@ const Messages = ({ navigation }) => {
     return (
         <SafeAreaView style={styles.mainContainer}>
             <Image
-                source={require('../../images/confirm_test.jpeg')}
+                source={require('../../../images/confirm_test.jpeg')}
                 style={styles.backgroundImage}
             />
             <View style={{ flex: 1 }}>

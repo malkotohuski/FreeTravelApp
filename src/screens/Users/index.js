@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, SafeAreaView, Image, TouchableOpacity } from 'react-native';
-import { useAuth } from "../Authentication/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 import { useTranslation } from 'react-i18next';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -13,7 +13,7 @@ function UsersScreen({ navigation }) {
     return (
         <View style={styles.container}>
             <Image
-                source={require('../../images/road-wallpapers-reporting.jpg')}
+                source={require('../../../images/road-wallpapers-reporting.jpg')}
                 style={{
                     flex: 1,
                     width: '100%',
@@ -84,7 +84,6 @@ const styles = StyleSheet.create({
     userInfoContainer: {
         fontSize: 20,
         fontWeight: 'bold',
-
     },
     label: {
         fontSize: 24,

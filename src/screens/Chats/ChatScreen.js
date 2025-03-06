@@ -2,10 +2,10 @@ import React, { useState, useContext } from 'react';
 import { View, Text, TouchableOpacity, SafeAreaView, StyleSheet, Image, TextInput, FlatList } from 'react-native';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { useAuth } from '../Authentication/AuthContext';
-import { useRouteContext } from '../Category/RouteContext';
+import { useAuth } from '../../context/AuthContext';
+import { useRouteContext } from '../../context/RouteContext';
 import { useTranslation } from 'react-i18next';
-import { DarkModeContext } from '../DrawerContent/DarkModeContext';
+import { DarkModeContext } from '../../navigation/DarkModeContext';
 
 const ChatScreen = ({ navigation }) => {
     const { darkMode } = useContext(DarkModeContext);
@@ -50,7 +50,7 @@ const ChatScreen = ({ navigation }) => {
     return (
         <SafeAreaView style={styles.mainContainer}>
             <Image
-                source={require('../../images/messa.jpg')}
+                source={require('../../../images/messa.jpg')}
                 style={styles.backgroundImage}
             />
             <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center' }}>

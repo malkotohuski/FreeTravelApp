@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { View, Text, TouchableOpacity, SafeAreaView, StyleSheet, Image, FlatList, Modal } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useAuth } from "../Authentication/AuthContext";
+import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
-import { DarkModeContext } from '../DrawerContent/DarkModeContext';
+import { DarkModeContext } from '../../navigation/DarkModeContext';
 
 const API_BASE_URL = 'http://10.0.2.2:3000'; // JSON server
 const api = axios.create({
@@ -106,7 +106,7 @@ const Notifications = ({ navigation, route }) => {
     return (
         <SafeAreaView style={styles.mainContainer}>
             <Image
-                source={require('../../images/user-background.jpg')}
+                source={require('../../../images/user-background.jpg')}
                 style={styles.backgroundImage}
             />
             <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center' }}>

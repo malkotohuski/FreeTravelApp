@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, TextInput } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { useAuth } from '../Authentication/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 
 const API_BASE_URL = 'http://10.0.2.2:3000'; // JSON server
@@ -138,7 +138,7 @@ function RouteDetails({ route }) {
     return (
         <View style={styles.container}>
             <Image
-                source={require('../../images/confirm2-background.jpg')}
+                source={require('../../../images/confirm2-background.jpg')}
                 style={{
                     flex: 1,
                     width: '100%',
