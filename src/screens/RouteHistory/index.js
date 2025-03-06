@@ -2,10 +2,10 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView, Alert, SafeAreaView, TextInput } from 'react-native';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useAuth } from '../Authentication/AuthContext';
-import { useRouteContext } from './RouteContext';
+import { useAuth } from '../../context/AuthContext';
+import { useRouteContext } from '../../context/RouteContext';
 import axios from 'axios';
-import { DarkModeContext } from '../DrawerContent/DarkModeContext';
+import { DarkModeContext } from '../../navigation/DarkModeContext';
 
 const API_BASE_URL = 'http://10.0.2.2:3000';
 
@@ -150,7 +150,7 @@ const RouteHistory = ({ navigation }) => {
     return (
         <SafeAreaView style={styles.mainContainer}>
             <Image
-                source={require('../../images/roadHistory2.png')}
+                source={require('../../../images/roadHistory2.png')}
                 style={styles.backgroundImage}
             />
             <View style={styles.mainContent}>

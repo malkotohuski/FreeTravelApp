@@ -2,8 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Alert, Image, ScrollView } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../Authentication/AuthContext';
-import { useRouteContext } from '../Category/RouteContext';
+import { useAuth } from '../../context/AuthContext';
+import { useRouteContext } from '../../context/RouteContext';
 import axios from 'axios';
 
 const API_BASE_URL = 'http://10.0.2.2:3000'; // JSON server
@@ -124,7 +124,7 @@ function RouteRequestScreen({ route, navigation }) {
         <SafeAreaView style={styles.mainContainer}>
             <ScrollView contentContainerStyle={styles.scrollViewContainer}>
                 <Image
-                    source={require('../../images/routes2-background.jpg')}
+                    source={require('../../../images/routes2-background.jpg')}
                     style={styles.backgroundImage}
                 />
                 <View style={styles.container}>

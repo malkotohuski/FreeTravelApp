@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, ActivityIndicator, SafeAreaView, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { useRouteContext } from './RouteContext';
-import { useAuth } from '../Authentication/AuthContext';
-
+import { useRouteContext } from '../../context/RouteContext';
+import { useAuth } from '../../context/AuthContext';
 
 function Confirm() {
     const { t } = useTranslation();
@@ -117,7 +116,7 @@ function Confirm() {
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 <View style={styles.container}>
                     <Image
-                        source={require('../../images/d8.png')}
+                        source={require('../../../images/d8.png')}
                         style={styles.backgroundImage}
                     />
                     <Text style={styles.headerText}>{t('Review')}:</Text>

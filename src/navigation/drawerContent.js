@@ -9,28 +9,26 @@ import MarkSeatsScreen from '../screens/MarkSeatsScreen';
 import Vehicle from '../screens/Vehicle';
 import SelectRouteScreen from '../screens/SelectRoute';
 import { useTranslation } from 'react-i18next';
+import Comments from '../screens/Comments';
 //import { useTranslation } from 'react-i18next';
-//import Confirm from '../Category/Confirm';
+import Confirm from '../screens/Confirm';
 import ViewRoutes from '../screens/ViewRoutes';
-//import ViewRoutes from '../Category/ViewRoutes';
 import ReportingScreen from '../screens/ReportingScreen';
-//import RouteRequestScreen from '../RouteRequest';
+import RouteRequestScreen from '../screens/RouteRequest';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
-//import AccountManager from '../Account/AccountManager';
-//import AccountSettings from '../Account/AccountSettings';
-//import WelcomeScreen from '../Account/Welcome';
-//import LogoutScreen from '../Logout';
+import AccountManager from '../screens/AccountManager';
+import Messages from '../screens/Chats/Messages';
+import AccountSettings from '../screens/AccountSettings';
+import WelcomeScreen from '../screens/Welcome';
+import LogoutScreen from '../screens/Logout';
 import SettingsScreen from '../screens/Settings';
-import { RouteDetails } from '../RequestScreen/index'
-//import ChatScreen from '../Screens/ChatScreen';
-/* import AddFriendScreen from '../Chats/AddFriendScreen';
-import Messages from '../Chats/Messages';
-
-import RouteHistory from '../Category/RouteHistory';
-import UsersScreen from '../Users/UsersScreen';
-import Notifications from '../Screens/Notifications';
-import Comments from '../Category/Comments'; */
+import { RouteDetails } from '../screens/RequestScreen';
+import ChatScreen from '../screens/Chats/ChatScreen';
+import AddFriendScreen from '../screens/Chats/AddFriendScreen';
+import RouteHistory from '../screens/RouteHistory';
+import UsersScreen from '../screens/Users';
+import Notifications from '../screens/Notifications';
 import { DarkModeContext } from './DarkModeContext';
 
 const Drawer = createDrawerNavigator();
@@ -55,8 +53,6 @@ export const Navigator = ({ isLoggedIn }) => {
         },
         headerTintColor: darkMode ? '#f1f1f1' : '#F1F1F1', // Промяна на цвета на текста
     };
-
-
 
     const renderLogoutIcon = ({ navigation }) => (
         <TouchableOpacity
@@ -177,8 +173,7 @@ export const Navigator = ({ isLoggedIn }) => {
                     headerShown: false,
                     drawerItemStyle: { display: 'none' }
                 }}
-            />
-            {/*  
+            />     
             <Drawer.Screen
                 name="Messages"
                 component={Messages}
@@ -188,7 +183,7 @@ export const Navigator = ({ isLoggedIn }) => {
                     headerShown: false,
                     drawerItemStyle: { display: 'none' }
                 }}
-            /> */}
+            /> 
             <Drawer.Screen
                 name='Home'
                 component={HomePage}
@@ -206,8 +201,7 @@ export const Navigator = ({ isLoggedIn }) => {
                         });
                     },
                 })}
-            />
-            
+            />  
             <Drawer.Screen
                 name="Vehicle"
                 component={Vehicle}
@@ -224,7 +218,6 @@ export const Navigator = ({ isLoggedIn }) => {
                     },
                 })}
             />
-            
             <Drawer.Screen
                 name="Mark Seats"
                 component={MarkSeatsScreen}
@@ -241,8 +234,7 @@ export const Navigator = ({ isLoggedIn }) => {
                     },
                 })}
             />
-             {/*
-            <Drawer.Screen
+             <Drawer.Screen
                 name="Chat"
                 component={ChatScreen}
                 options={{
@@ -262,7 +254,6 @@ export const Navigator = ({ isLoggedIn }) => {
                     drawerItemStyle: { display: 'none' }
                 }}
             />
-            /> */}
             <Drawer.Screen
                 name="SelectRoute"
                 component={SelectRouteScreen}
@@ -309,8 +300,18 @@ export const Navigator = ({ isLoggedIn }) => {
                     ),
                 }}
             />
-                 {/*
-            <Drawer.Screen
+              <Drawer.Screen
+                name="Comments"
+                component={Comments}
+                key="Comments"
+                options={{
+                    title: t('Comments'),
+                    ...screenStyles,
+                    headerShown: false,
+                    drawerItemStyle: { display: 'none' }
+                }}
+            />
+             <Drawer.Screen
                 name="Confirm"
                 component={Confirm}
                 options={{
@@ -326,19 +327,7 @@ export const Navigator = ({ isLoggedIn }) => {
                     },
                 })}
             />
-            <Drawer.Screen
-                name="UsersScreen"
-                component={UsersScreen}
-                options={{
-                    title: t('UsersScreen'),
-                    ...screenStyles,
-                    headerShown: false,
-                    drawerIcon: ({ color, size }) => (
-                        <Icon name="report" size={size} color={color} />
-                    ),
-                }}
-            />
-            <Drawer.Screen
+             <Drawer.Screen
                 name="Route request"
                 component={RouteRequestScreen}
                 options={{
@@ -356,7 +345,18 @@ export const Navigator = ({ isLoggedIn }) => {
                     },
                 })}
             />
-             /> */}
+              <Drawer.Screen
+                name="UsersScreen"
+                component={UsersScreen}
+                options={{
+                    title: t('UsersScreen'),
+                    ...screenStyles,
+                    headerShown: false,
+                    drawerIcon: ({ color, size }) => (
+                        <Icon name="report" size={size} color={color} />
+                    ),
+                }}
+            />
             <Drawer.Screen
                 name="Settings"
                 component={SettingsScreen}
@@ -375,7 +375,6 @@ export const Navigator = ({ isLoggedIn }) => {
                     },
                 })}
             />
-               {/* 
             <Drawer.Screen
                 name="AccountManager"
                 component={AccountManager}
@@ -392,18 +391,7 @@ export const Navigator = ({ isLoggedIn }) => {
                     },
                 })}
             />
-            <Drawer.Screen
-                name="LogoutScreen"
-                component={LogoutScreen}
-                options={{
-                    title: t('Logout'),
-                    ...screenStyles,
-                    drawerIcon: ({ color, size }) => (
-                        <Icons name="logout" size={size} color={color} />
-                    ),
-                }}
-            />
-            <Drawer.Screen
+             <Drawer.Screen
                 name="AccountSettings"
                 component={AccountSettings}
                 key="AccountSettings"
@@ -421,17 +409,37 @@ export const Navigator = ({ isLoggedIn }) => {
                 })}
             />
             <Drawer.Screen
-                name="Comments"
-                component={Comments}
-                key="Comments"
+                name="LogoutScreen"
+                component={LogoutScreen}
                 options={{
-                    title: t('Comments'),
+                    title: t('Logout'),
+                    ...screenStyles,
+                    drawerIcon: ({ color, size }) => (
+                        <Icons name="logout" size={size} color={color} />
+                    ),
+                }}
+            />
+               <Drawer.Screen
+                name="WelcomeScreen"
+                component={WelcomeScreen}
+                key="WelcomeScreen"
+                options={{
+                    title: t('Welcome'),
+                    ...screenStyles,
+                    drawerItemStyle: { display: 'none' }
+                }}
+            />
+               <Drawer.Screen
+                name="RoutesHistory"
+                component={RouteHistory}
+                options={{
+                    title: t('Routes History'),
                     ...screenStyles,
                     headerShown: false,
                     drawerItemStyle: { display: 'none' }
                 }}
             />
-            <Drawer.Screen
+             <Drawer.Screen
                 name="RouteDetails"
                 component={RouteDetails}
                 options={{
@@ -448,16 +456,6 @@ export const Navigator = ({ isLoggedIn }) => {
                 })}
             />
             <Drawer.Screen
-                name="RoutesHistory"
-                component={RouteHistory}
-                options={{
-                    title: t('Routes History'),
-                    ...screenStyles,
-                    headerShown: false,
-                    drawerItemStyle: { display: 'none' }
-                }}
-            />
-            <Drawer.Screen
                 name="Notifications"
                 component={Notifications}
                 options={{
@@ -466,18 +464,8 @@ export const Navigator = ({ isLoggedIn }) => {
                     headerShown: false,
                     drawerItemStyle: { display: 'none' }
                 }}
-           
-         <Drawer.Screen
-                name="WelcomeScreen"
-                component={WelcomeScreen}
-                key="WelcomeScreen"
-                options={{
-                    title: t('Welcome'),
-                    ...screenStyles,
-                    drawerItemStyle: { display: 'none' }
-                }}
-            />
-            {isLoggedIn ? dynamicScreens : null} */}
+                    />
+            {isLoggedIn ? dynamicScreens : null} 
         </Drawer.Navigator>
     );
 };

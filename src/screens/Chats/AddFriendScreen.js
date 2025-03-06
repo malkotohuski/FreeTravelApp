@@ -3,8 +3,8 @@ import { View, Text, TextInput, FlatList, SafeAreaView, StyleSheet, TouchableOpa
 import axios from 'axios';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../Authentication/AuthContext';
-import { DarkModeContext } from '../DrawerContent/DarkModeContext';
+import { useAuth } from '../../context/AuthContext';
+import { DarkModeContext } from '../../navigation/DarkModeContext';
 
 const API_BASE_URL = 'http://10.0.2.2:3000';
 
@@ -12,7 +12,7 @@ const AddFriendScreen = ({ navigation }) => {
     const { darkMode } = useContext(DarkModeContext);
     const { user } = useAuth();
     const currentUserId = user?.user?.username;
-    const noImage = require('../../images/no_image.png');
+    const noImage = require('../../../images/no_image.png');
 
     const [users, setUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -73,7 +73,7 @@ const AddFriendScreen = ({ navigation }) => {
     return (
         <SafeAreaView style={styles.mainContainer}>
             <Image
-                source={require('../../images/d2.png')}
+                source={require('../../../images/d2.png')}
                 style={styles.backgroundImage}
             />
             <KeyboardAvoidingView

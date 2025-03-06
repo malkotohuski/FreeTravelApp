@@ -10,7 +10,7 @@ import {
     ScrollView
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../Authentication/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const { width, height } = Dimensions.get('window'); // За адаптивност на различни екрани
@@ -18,7 +18,7 @@ const { width, height } = Dimensions.get('window'); // За адаптивнос
 const AccountManager = ({ navigation }) => {
     const { user } = useAuth();
     const { profilePicture } = useAuth();
-    const defaultProfilePicture = require('../../images/emptyUserImage.png')
+    const defaultProfilePicture = require('../../../images/emptyUserImage.png')
     const { t } = useTranslation();
 
     const handlerCommendSection = () => navigation.navigate('Comments');
@@ -29,7 +29,7 @@ const AccountManager = ({ navigation }) => {
         <SafeAreaView style={{ flex: 1 }}>
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}  >
                 <Image
-                    source={require('../../images/user-background.jpg')}
+                    source={require('../../../images/user-background.jpg')}
                     style={styles.backgroundImage}
                 />
                 <View style={styles.mainContainer}>
