@@ -18,6 +18,8 @@
     "@react-navigation/native-stack": "^7.2.0",
     "axios": "^1.7.9",
     "i18next": "^24.2.2",
+    "json-server": "^0.17.4",
+    "nodemailer": "^6.10.0",
     "react": "18.3.1",
     "react-i18next": "^15.4.1",
     "react-native": "0.77.1",
