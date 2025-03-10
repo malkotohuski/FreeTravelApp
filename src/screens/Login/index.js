@@ -24,11 +24,6 @@ export default function Login({ navigation, route }) {
         setisBulgaria(lng === 'bg');
     };
 
- /*    const changeLanguage = (lng) => {
-        i18next.changeLanguage(lng);
-        setisBulgaria(lng === 'bg');
-    }; */
-
     useEffect(() => {
         const timer = setTimeout(() => {
             setIsLoading(false);
