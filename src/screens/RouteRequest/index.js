@@ -14,11 +14,42 @@ const api = axios.create({
 function RouteRequestScreen({ route, navigation }) {
     const { t } = useTranslation();
     const { user } = useAuth();
+    const { username, userFname, userLname, userEmail, departureCity, arrivalCity, routeId } = route.params;
     const { requests, refreshUserData } = useRouteContext();
     const [routeRequests, setRouteRequests] = useState([]);
     const requestUserFirstName = user?.user?.fName;
     const requestUserLastName = user?.user?.lName;
     const userNow = user?.user?.id;
+    const loginUser = user?.user?.username;
+
+    const requesterUsername = user?.user?.username;
+    const requestUserEmail = user?.user?.email;
+
+     useEffect(() => {
+            const fetchNotifications = async () => {
+                try {
+                    if (!loginUser) {
+                        console.error('No logged-in username found.');
+                        return;
+                    }
+    
+                    // Извличане на всички нотификации
+                    const response = await api.get('/notifications');
+    
+                    // Филтриране на нотификациите за логнатия потребител
+                    const userNotifications = response.data.filter(
+                        notification => notification.requester.username === loginUser && !notification.read
+                    );
+    
+                    // Актуализация на броя нотификации
+                    setNotificationCount(userNotifications.length > 9 ? '9+' : userNotifications.length);
+                } catch (error) {
+                    console.error('Failed to fetch notifications:', error);
+                }
+            };
+    
+            fetchNotifications();
+        }, [loginUser]);
 
     const getRequestsForCurrentUser = () => {
 
@@ -34,12 +65,14 @@ function RouteRequestScreen({ route, navigation }) {
 
     useFocusEffect(
         useCallback(() => {
-            const requestsForCurrentUser = getRequestsForCurrentUser();
-            setRouteRequests(requestsForCurrentUser);
-            refreshUserData();
-        }, []),
+            const fetchData = async () => {
+                await refreshUserData(); // Презареждане на заявките от сървъра
+                setRouteRequests(getRequestsForCurrentUser()); // Обновяване на списъка с заявки
+            };
+    
+            fetchData();
+        }, [requests]) // Изпълнява се при промяна в requests
     );
-
 
     const [isMigrating, setIsMigrating] = useState(false);
 
@@ -70,6 +103,40 @@ function RouteRequestScreen({ route, navigation }) {
                                 email: request.userEmail,
                                 text: t(`Your request has been approved by: ${requestUserFirstName} ${requestUserLastName}.`),
                             });
+
+                            const response = await api.post('/send-request-to-user', {
+                                requestingUser: {
+                                    username: user?.user?.username,
+                                    userFname: user?.user?.fName,
+                                    userLname: user?.user?.lName,
+                                    userEmail: requestUserEmail,
+                                    userID: user?.user?.id,
+                                    userRouteId: route.params.userId,
+                                    departureCity: route.params.departureCity,
+                                    arrivalCity: route.params.arrivalCity,
+                                    routeId: route.params.routeId,
+                                    dataTime: route.params.selectedDateTime
+                                },
+                            });;
+
+                                // Съхранение на нотификация
+                                await api.post('/notifications', {
+                                    recipient: username, // Потребител, който е създал маршрута
+                                    message: t(`You have a new request for your route from: ${requesterUsername}.
+                                                About the route: ${departureCity}-${arrivalCity}.
+                                                For date: ${dataTime}`),
+                                    routeId,
+                                    routeChecker: true,
+                                    status: 'active',
+                                    requester: {
+                                        username: requesterUsername,
+                                        userFname: requestUserFirstName,
+                                        userLname: requestUserLastName,
+                                        email: requestUserEmail,
+                                    },
+                                    createdAt: new Date().toISOString(),
+                                });
+
                             console.log('Email Response:', emailResponse);
                             Alert.alert('Success', 'Trip request sent successfully.');
 

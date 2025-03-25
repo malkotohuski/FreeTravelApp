@@ -4025,6 +4025,23 @@
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
       "id": 1742898655540
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A2121AC",
+      "selectedDateTime": "2025-03-27T11:30:00.000Z",
+      "departureCity": "Stara Zagora",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Vasil Levski (Stara Zagora)",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1742902293921
     }
   ],
   "requests": [
@@ -4728,6 +4745,19 @@
       "routeId": 1742898655540,
       "dataTime": "2025-03-26T10:30:00.000Z",
       "id": 1742898848481
+    },
+    {
+      "username": "huskyPower",
+      "userFname": "daniel",
+      "userLname": "dimitorv",
+      "userEmail": "malkotohuski@gmail.com",
+      "userID": 1733840997419,
+      "userRouteId": 1711358014466,
+      "departureCity": "Stara Zagora",
+      "arrivalCity": "Vasil Levski (Stara Zagora)",
+      "routeId": 1742902293921,
+      "dataTime": "2025-03-27T11:30:00.000Z",
+      "id": 1742902336115
     }
   ],
   "userChanges": [],
@@ -5077,6 +5107,22 @@
       },
       "createdAt": "2025-03-25T10:34:02.753Z",
       "id": 23,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "You have a new request for your route from: huskyPower.\n                                            About the route: Stara Zagora-Vasil Levski (Stara Zagora).\n                                            For date: 2025-03-27 11:30:00",
+      "routeId": 1742902293921,
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "huskyPower",
+        "userFname": "daniel",
+        "userLname": "dimitorv",
+        "email": "malkotohuski@gmail.com"
+      },
+      "createdAt": "2025-03-25T11:32:10.386Z",
+      "id": 24,
       "read": true
     }
   ]
