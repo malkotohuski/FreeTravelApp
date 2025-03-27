@@ -3,9 +3,11 @@ import { Pressable, StyleSheet, Text, Image, View, SafeAreaView, TouchableOpacit
 import { useAuth } from "../../context/AuthContext";
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { DarkModeContext } from "../../navigation/DarkModeContext";
+import { useTranslation } from 'react-i18next';
 
 const Messages = ({ navigation }) => {
     const { user } = useAuth();
+    const { t } = useTranslation();
     const { darkMode } = useContext(DarkModeContext);
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([]);
@@ -40,7 +42,8 @@ const Messages = ({ navigation }) => {
             />
             <View style={{ flex: 1 }}>
                 <View style={getHeaderStyles()}>
-                    <Text style={styles.headerText}>Messages</Text>
+                    <Text style={styles.headerText}>{t('Messages')}
+                    </Text>
                     <TouchableOpacity onPress={() => navigation.navigate('Chat')}>
                         <Icons name="keyboard-backspace" size={24} color="white" />
                     </TouchableOpacity>
@@ -67,7 +70,7 @@ const Messages = ({ navigation }) => {
                 <View style={styles.inputContainer}>
                     <TextInput
                         style={styles.input}
-                        placeholder="Type a message..."
+                        placeholder={t("Type a message...")}
                         value={message}
                         onChangeText={text => setMessage(text)}
                     />
