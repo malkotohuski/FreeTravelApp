@@ -24,7 +24,6 @@ function RouteRequestScreen({ route, navigation }) {
 
     const requesterUsername = user?.user?.username;
     const requestUserEmail = user?.user?.email;
-    //work!!!
 
      useEffect(() => {
             const fetchNotifications = async () => {
