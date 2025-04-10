@@ -14,7 +14,7 @@ const api = axios.create({
 function RouteRequestScreen({ route, navigation }) {
     const { t } = useTranslation();
     const { user } = useAuth();
-    const { username, userFname, userLname, userEmail, departureCity, arrivalCity, routeId } = route.params;
+    //const { username, userFname, userLname, userEmail, departureCity, arrivalCity, routeId } = route.params;
     const { requests, refreshUserData } = useRouteContext();
     const [routeRequests, setRouteRequests] = useState([]);
     const requestUserFirstName = user?.user?.fName;
@@ -121,7 +121,7 @@ function RouteRequestScreen({ route, navigation }) {
 
                                 // Съхранение на нотификация
                                 await api.post('/notifications', {
-                                    recipient: username, // Потребител, който е създал маршрута
+                                    recipient: loginUser, // Потребител, който е създал маршрута
                                     message: t(`You have a new request for your route from: ${requesterUsername}.
                                                 About the route: ${departureCity}-${arrivalCity}.
                                                 For date: ${dataTime}`),

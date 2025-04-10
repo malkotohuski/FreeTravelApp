@@ -19,7 +19,7 @@
       "password": "123",
       "fName": "asdasd",
       "lName": "sdsd",
-      "userImage": "file:///storage/emulated/0/Android/data/com.awesomeproject/files/Pictures/cf202c82-374f-4641-9da0-5e4775727b7e.jpg",
+      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/a5ffaabe-ac93-4d00-bc9f-53a1165056ae.jpg",
       "confirmationCode": null,
       "isActive": true,
       "routes": [],
@@ -5114,7 +5114,7 @@
       "message": "You have a new request for your route from: huskyPower.\n                                            About the route: Stara Zagora-Vasil Levski (Stara Zagora).\n                                            For date: 2025-03-27 11:30:00",
       "routeId": 1742902293921,
       "routeChecker": true,
-      "status": "active",
+      "status": "deleted",
       "requester": {
         "username": "huskyPower",
         "userFname": "daniel",

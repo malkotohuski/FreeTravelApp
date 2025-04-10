@@ -17,8 +17,7 @@ const Notifications = ({ navigation, route }) => {
     const { darkMode } = useContext(DarkModeContext);
     const [notifications, setNotifications] = useState([]);
     const [notificationCount, setNotificationCount] = useState(0);
-    const [modalVisible, setModalVisible] = useState(false);
-    const [selectedNotification, setSelectedNotification] = useState(null);
+    const [visibleModalId, setVisibleModalId] = useState(null);
     const { t } = useTranslation();
 
     useEffect(() => {
@@ -90,9 +89,8 @@ const Notifications = ({ navigation, route }) => {
         }
     };
 
-    const handleDotsPress = (item) => {
-        setSelectedNotification(item);
-        setModalVisible(true);
+    const handleDotsPress = (id) => {
+        setVisibleModalId(id);
     };
 
     const isNewNotification = (createdAt) => {
@@ -116,13 +114,13 @@ const Notifications = ({ navigation, route }) => {
                         <Icons name="keyboard-backspace" size={24} color="white" />
                     </TouchableOpacity>
                 </View>
-
+    
                 {notifications.length > 0 ? (
                     <FlatList
                         data={notifications}
                         keyExtractor={(item) => item.id.toString()}
                         contentContainerStyle={styles.notificationList}
-                        renderItem={({ item, index }) => (
+                        renderItem={({ item }) => (
                             <View
                                 style={[
                                     styles.notification,
@@ -132,11 +130,44 @@ const Notifications = ({ navigation, route }) => {
                                 <Text style={styles.newLabel}>
                                     {isNewNotification(item.createdAt) ? t('New') : t('Earlier')}
                                 </Text>
-                                <TouchableOpacity style={styles.dotsButton} onPress={() => handleDotsPress(item)}>
+                                <TouchableOpacity
+                                    style={styles.dotsButton}
+                                    onPress={() => handleDotsPress(item.id)}
+                                >
                                     <Icons name="dots-vertical" size={25} color="#000" />
                                 </TouchableOpacity>
                                 <Text style={styles.message}>{item.message}</Text>
                                 <Text style={styles.date}>{formatDate(item.createdAt)}</Text>
+    
+                                {/* Modal вътре в нотификацията */}
+                                <Modal
+                                    transparent={true}
+                                    visible={visibleModalId === item.id}
+                                    animationType="fade"
+                                    onRequestClose={() => setVisibleModalId(null)}
+                                >
+                                    <View style={styles.modalOverlay}>
+                                        <View style={styles.modalContent}>
+                                            <Text style={styles.modalTitle}>{t('Notification Options')}</Text>
+                                            <Text style={styles.modalMessage}>{item.message}</Text>
+                                            <TouchableOpacity
+                                                style={styles.modalButton}
+                                                onPress={() => {
+                                                    deleteNotification(item.id);
+                                                    setVisibleModalId(null);
+                                                }}
+                                            >
+                                                <Text style={styles.modalButtonText}>{t('Delete')}</Text>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity
+                                                style={[styles.modalButton, styles.cancelButton]}
+                                                onPress={() => setVisibleModalId(null)}
+                                            >
+                                                <Text style={styles.modalButtonText}>{t('Cancel')}</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                </Modal>
                             </View>
                         )}
                     />
@@ -146,36 +177,9 @@ const Notifications = ({ navigation, route }) => {
                         <Text style={styles.emptyMessage}>{t('No new notifications')}</Text>
                     </View>
                 )}
-
-                {/* Modal for notification actions */}
-                <Modal
-                    transparent={true}
-                    visible={modalVisible}
-                    animationType="fade"
-                    onRequestClose={() => setModalVisible(false)}
-                >
-                    <View style={styles.modalOverlay}>
-                        <View style={styles.modalContent}>
-                            <Text style={styles.modalTitle}>{t('Notification Options')}</Text>
-                            <Text style={styles.modalMessage}>{selectedNotification?.message}</Text>
-                            <TouchableOpacity
-                                style={styles.modalButton}
-                                onPress={() => deleteNotification(selectedNotification.id)}
-                            >
-                                <Text style={styles.modalButtonText}>{t('Delete')}</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.modalButton, styles.cancelButton]}
-                                onPress={() => setModalVisible(false)}
-                            >
-                                <Text style={styles.modalButtonText}>{t('Cancel')}</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </Modal>
             </View>
         </SafeAreaView>
-    );
+    );    
 };
 
 const styles = StyleSheet.create({
@@ -214,6 +218,8 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginBottom: 20, 
         elevation: 2,
+        borderWidth: 1,
+        borderColor: '#ddd', // лека сива рамка
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
@@ -262,7 +268,7 @@ const styles = StyleSheet.create({
     dotsButton: {
         position: 'absolute',
         top: 10,
-        right: -30,
+        right: 10, // вместо -30
         zIndex: 1,
         padding: 5,
     },

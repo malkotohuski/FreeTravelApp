@@ -158,13 +158,15 @@ function ViewRoutes({ navigation }) {
                         <View style={styles.searchContainer}>
                             <TextInput
                                 style={styles.input}
-                                placeholder={t('Enter Departure City')}
+                                placeholder={t('Departure City')}
+                                placeholderTextColor="grey"
                                 value={enteredDepartureCity}
                                 onChangeText={(text) => setEnteredDepartureCity(text)}
                             />
                             <TextInput
                                 style={styles.input}
-                                placeholder={t('Enter Arrival City')}
+                                placeholder={t('Arrival City')}
+                                placeholderTextColor="grey"
                                 value={enteredArrivalCity}
                                 onChangeText={(text) => setEnteredArrivalCity(text)}
                             />
@@ -260,13 +262,17 @@ const styles = StyleSheet.create({
     },
     input: {
         flex: 1,
-        height: 60,
+        height: 70, // Увеличена височина
         borderColor: 'gray',
         borderWidth: 1,
         borderRadius: 10,
         paddingHorizontal: 10,
         marginHorizontal: 5,
         backgroundColor: '#fff',
+        textAlignVertical: 'center', // Подравняване на текста
+        multiline: true, // Разрешава няколко реда
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     routeText: {
         fontSize: 20,

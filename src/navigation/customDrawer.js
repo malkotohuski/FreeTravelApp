@@ -85,7 +85,7 @@ function CustomerDrawer({ navigation }) {
                     </View >
                     <View style={styles.topLeft}>
                         <TouchableOpacity style={styles.drawerScreen} onPress={handlerRouteViewer} >
-                            <Icon name="streetview" size={30} color="#0721B6" />
+                            <Icon name="work-history" size={30} color="#0721B6" />
                             <Text
                                 style={styles.textButtons}
                             >{t('Routes History')}</Text>
