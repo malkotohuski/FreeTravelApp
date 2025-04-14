@@ -4960,7 +4960,8 @@ i18next.use(initReactI18next).init({
                 'Yastrebovo (Stara Zagora Province)': 'Yastrebovo (Stara Zagora Province)',
                 'Yastrebovo (Ruse Province)': 'Yastrebovo (Ruse Province)',
                 'Yakhinovo': 'Yakhinovo',
-                "routeRequestNotification": "You have a new request for your route from: {{requesterUsername}}. About the route: {{departureCity}}-{{arrivalCity}}. For date: {{formattedDateTime}}."
+                "routeRequestNotification": "You have a new request for your route from: {{requesterUsername}}. About the route: {{departureCity}}-{{arrivalCity}}. For date: {{formattedDateTime}}.",
+                "routeRequestNotification": "Your route request {{departureCity}}-{{arrivalCity}} with date {{formattedDateTime}} has been approved from {{requesterUsername}}!"
             }
 
         },
@@ -4968,6 +4969,7 @@ i18next.use(initReactI18next).init({
             translation: {
                 // Bulgarian translations here...
                 "routeRequestNotification": "Имате нова заявка за вашия маршрут от: {{requesterUsername}}. За маршрута: {{departureCity}}-{{arrivalCity}}. Дата: {{formattedDateTime}}.",
+                "routeRequestNotification": "Вашата заявка за маршрут {{departureCity}}-{{arrivalCity}} c дата {{formattedDateTime}} e одобрен от {{requesterUsername}}!",
                 'Register your vehicle': 'Регистрирай автомобила си ',
                 'Route request': 'Запитване за маршрут',
                 'View routes': 'Преглед на маршрутите',

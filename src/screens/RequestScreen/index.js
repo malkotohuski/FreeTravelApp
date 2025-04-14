@@ -102,9 +102,7 @@ function RouteDetails({ route }) {
                             // Съхранение на нотификация
                             await api.post('/notifications', {
                                 recipient: username, // Потребител, който е създал маршрута
-                                message: t(`You have a new request for your route from: ${requesterUsername}.
-                                            About the route: ${departureCity}-${arrivalCity}.
-                                            For date: ${dataTime}`),
+                                message: t(`Your route request ${departureCity}-${arrivalCity} with date ${formattedDateTime} has been approved from ${requesterUsername}!`),
                                 routeId,
                                 routeChecker: true,
                                 status: 'active',

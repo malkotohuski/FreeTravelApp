@@ -14,14 +14,14 @@ const api = axios.create({
 function RouteRequestScreen({ route, navigation }) {
     const { t } = useTranslation();
     const { user } = useAuth();
-    //const { username, userFname, userLname, userEmail, departureCity, arrivalCity, routeId } = route.params;
     const { requests, refreshUserData } = useRouteContext();
+    
     const [routeRequests, setRouteRequests] = useState([]);
+    const [notificationCount, setNotificationCount] = useState(0);
     const requestUserFirstName = user?.user?.fName;
     const requestUserLastName = user?.user?.lName;
     const userNow = user?.user?.id;
     const loginUser = user?.user?.username;
-
     const requesterUsername = user?.user?.username;
     const requestUserEmail = user?.user?.email;
 
@@ -91,6 +91,10 @@ function RouteRequestScreen({ route, navigation }) {
     }, [isMigrating]);
 
     const handlePress = async (request) => {
+        const dateObj = new Date(request.dataTime);
+        const formattedDate = `${dateObj.toLocaleDateString('bg-BG')}, ${dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}`;
+
+
         setIsMigrating(true);
         Alert.alert(
             `${t('There is a request from:')} ${request.userFname} ${request.userLname}`,
@@ -104,7 +108,7 @@ function RouteRequestScreen({ route, navigation }) {
                                 text: t(`Your request has been approved by: ${requestUserFirstName} ${requestUserLastName}.`),
                             });
 
-                            const response = await api.post('/send-request-to-user', {
+                         /*    const response = await api.post('/send-request-to-user', {
                                 requestingUser: {
                                     username: user?.user?.username,
                                     userFname: user?.user?.fName,
@@ -117,15 +121,14 @@ function RouteRequestScreen({ route, navigation }) {
                                     routeId: route.params.routeId,
                                     dataTime: route.params.selectedDateTime
                                 },
-                            });;
+                            });; */
 
                                 // Съхранение на нотификация
                                 await api.post('/notifications', {
                                     recipient: loginUser, // Потребител, който е създал маршрута
                                     message: t(`You have a new request for your route from: ${requesterUsername}.
-                                                About the route: ${departureCity}-${arrivalCity}.
-                                                For date: ${dataTime}`),
-                                    routeId,
+                                        About the route: ${request.departureCity}-${request.arrivalCity}.
+                                        For date: ${formattedDate}`),                                    
                                     routeChecker: true,
                                     status: 'active',
                                     requester: {
@@ -140,12 +143,12 @@ function RouteRequestScreen({ route, navigation }) {
                             console.log('Email Response:', emailResponse);
                             Alert.alert('Success', 'Trip request sent successfully.');
 
-                            /* const response = await api.post('/send-request-to-user', {
+                          /*   const response = await api.post('/send-request-to-user', {
                                 // Тук можеш да използваш request.requestingUser.userEmail за да направиш заявката
                             });
                             // Handle the response from the server if needed
-                            console.log('Route Approval Response:', response); */
-
+                            console.log('Route Approval Response:', response); 
+ */
                             // After handling the request, you can navigate back to the previous screen
                             navigation.navigate('Home');
                         } catch (error) {
