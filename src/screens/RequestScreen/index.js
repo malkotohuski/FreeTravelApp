@@ -16,6 +16,9 @@ function RouteDetails({ route }) {
     const { user } = useAuth();
     const routeInfo = useRoute();
     const loggedInUser = route.params.loggedInUser;
+    
+    console.log(loggedInUser, '2221');
+    
     const { username, userFname, userLname, userEmail, departureCity, arrivalCity, routeId } = route.params;
     const loginUser = user?.user?.username;
 
@@ -32,42 +35,50 @@ function RouteDetails({ route }) {
     const [tripRequestText, setTripRequestText] = useState('');
     const [notificationCount, setNotificationCount] = useState(0);
     const [hasRequested, setHasRequested] = useState(false);
-
+    const isOwnRoute = requesterUsername === username;
     // Проверка за съществуваща заявка
     useEffect(() => {
         const fetchNotifications = async () => {
             try {
-                if (!loginUser) {
-                    console.error('No logged-in username found.');
+                if (!loginUser || !routeId) {
+                    console.error('Missing login user or route ID.');
                     return;
                 }
-
-                // Извличане на всички нотификации
+    
                 const response = await api.get('/notifications');
-
-                // Филтриране на нотификациите за логнатия потребител
-                const userNotifications = response.data.filter(
-                    notification => notification.requester.username === loginUser && !notification.read
+    
+                const alreadyRequested = response.data.some(
+                    notification =>
+                        notification.requester?.username === loginUser &&
+                        notification.routeId === routeId
                 );
-
-                // Актуализация на броя нотификации
+    
+                if (alreadyRequested) {
+                    setHasRequested(true);
+                } else {
+                    setHasRequested(false); // важно, ако юзер смени маршрут
+                }
+    
+                const userNotifications = response.data.filter(
+                    notification => notification.requester?.username === loginUser && !notification.read
+                );
+    
                 setNotificationCount(userNotifications.length > 9 ? '9+' : userNotifications.length);
             } catch (error) {
                 console.error('Failed to fetch notifications:', error);
             }
         };
-
+    
         fetchNotifications();
-    }, [loginUser]);
-
-
+    }, [loginUser, routeId]);
+    
     const handlerTripRequest = async () => {
         try {
             if (hasRequested) {
                 Alert.alert(t('Error'), t('You have already submitted a request for this route.'));
                 return;
             }
-
+    
             Alert.alert(
                 t('Confirm'),
                 t('Would you like to submit a request for this route?'),
@@ -82,9 +93,8 @@ function RouteDetails({ route }) {
                             const message = tripRequestText
                                 ? `${tripRequestText}\n\n${t(`You have a new request for your route. From: ${requesterUsername} ${requestUserFirstName} ${requestUserLastName}. About the route: ${departureCity}-${arrivalCity}`)}`
                                 : t(`You have a new request for your route. From: ${requesterUsername} ${requestUserFirstName} ${requestUserLastName}. About the route: ${departureCity}-${arrivalCity}`);
-
-                            // Съхранение на заявката
-                            const response = await api.post('/send-request-to-user', {
+    
+                            await api.post('/send-request-to-user', {
                                 requestingUser: {
                                     username: user?.user?.username,
                                     userFname: user?.user?.fName,
@@ -97,12 +107,11 @@ function RouteDetails({ route }) {
                                     routeId: route.params.routeId,
                                     dataTime: route.params.selectedDateTime
                                 },
-                            });;
-
-                            // Съхранение на нотификация
+                            });
+    
                             await api.post('/notifications', {
-                                recipient: username, // Потребител, който е създал маршрута
-                                message: t(`Your route request ${departureCity}-${arrivalCity} with date ${formattedDateTime} has been approved from ${requesterUsername}!`),
+                                recipient: username,
+                                message: t(`You have a candidate for your route: ${departureCity}-${arrivalCity} with username: ${requesterUsername}!`),
                                 routeId,
                                 routeChecker: true,
                                 status: 'active',
@@ -114,8 +123,8 @@ function RouteDetails({ route }) {
                                 },
                                 createdAt: new Date().toISOString(),
                             });
-
-                            Alert.alert('Success', 'Trip request sent successfully.');
+    
+                            Alert.alert(t('Success'), t('You have successfully applied for this route!'));
                             setHasRequested(true);
                             navigation.navigate('Home');
                         },
@@ -160,9 +169,19 @@ function RouteDetails({ route }) {
                 numberOfLines={4}
             />
 
-            <TouchableOpacity style={styles.buttonConfirm} onPress={handlerTripRequest}>
-                <Text style={styles.buttonText}>{t('Trip request')}</Text>
-            </TouchableOpacity>
+<TouchableOpacity
+    style={[styles.buttonConfirm, isOwnRoute && { backgroundColor: '#ccc' }]}
+    onPress={() => {
+        if (isOwnRoute) {
+            Alert.alert(t('Error'), t('You cannot apply for this route because you created it.'));
+        } else {
+            handlerTripRequest();
+        }
+    }}
+    disabled={isOwnRoute}
+>
+    <Text style={styles.buttonText}>{t('Trip request')}</Text>
+</TouchableOpacity>
 
             <TouchableOpacity style={styles.buttonBack} onPress={handlerBackToViewRoute}>
                 <Text style={styles.buttonText}>{t('Back')}</Text>
