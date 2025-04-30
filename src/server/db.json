@@ -4144,6 +4144,74 @@
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
       "id": 1745304230668
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "B2155TP",
+      "selectedDateTime": "2025-04-28T13:13:00.000Z",
+      "departureCity": "Varna",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Sofia",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1745586852615
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A2423AA",
+      "selectedDateTime": "2025-04-29T14:29:00.000Z",
+      "departureCity": "Burgas",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Sofia",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1745591414044
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "K0122AT",
+      "selectedDateTime": "2025-05-03T11:49:00.000Z",
+      "departureCity": "Kardzhali",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Haskovo",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1746013829515
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A1221TH",
+      "selectedDateTime": "2025-05-03T11:49:00.000Z",
+      "departureCity": "Karageorgievo",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Vladimirovo_Haskovo",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1746019751757
     }
   ],
   "requests": [
@@ -5094,6 +5162,60 @@
       "routeId": 1745304230668,
       "dataTime": "2025-04-26T06:43:00.000Z",
       "id": 1745304578213
+    },
+    {
+      "username": "sdds",
+      "userFname": "asdasd",
+      "userLname": "sdsd",
+      "userEmail": "devmasterstech@gmail.com",
+      "userID": 1730713699917,
+      "userRouteId": 1711358014466,
+      "departureCity": "Varna",
+      "arrivalCity": "Sofia",
+      "routeId": 1745586852615,
+      "dataTime": "2025-04-28T13:13:00.000Z",
+      "id": 1745586887112
+    },
+    {
+      "username": "sdds",
+      "userFname": "asdasd",
+      "userLname": "sdsd",
+      "userEmail": "devmasterstech@gmail.com",
+      "userID": 1730713699917,
+      "userRouteId": 1711358014466,
+      "departureCity": "Burgas",
+      "arrivalCity": "Sofia",
+      "routeId": 1745591414044,
+      "dataTime": "2025-04-29T14:29:00.000Z",
+      "id": 1745591435058
+    },
+    {
+      "username": "sdds",
+      "userFname": "asdasd",
+      "userLname": "sdsd",
+      "userEmail": "devmasterstech@gmail.com",
+      "userID": 1730713699917,
+      "userRouteId": 1711358014466,
+      "departureCity": "Kardzhali",
+      "arrivalCity": "Haskovo",
+      "routeId": 1746013829515,
+      "dataTime": "2025-05-03T11:49:00.000Z",
+      "id": 1746015483009,
+      "status": "approved"
+    },
+    {
+      "username": "sdds",
+      "userFname": "asdasd",
+      "userLname": "sdsd",
+      "userEmail": "devmasterstech@gmail.com",
+      "userID": 1730713699917,
+      "userRouteId": 1711358014466,
+      "departureCity": "Karageorgievo",
+      "arrivalCity": "Vladimirovo_Haskovo",
+      "routeId": 1746019751757,
+      "dataTime": "2025-05-03T11:49:00.000Z",
+      "id": 1746019783930,
+      "status": "approved"
     }
   ],
   "userChanges": [],
@@ -5675,6 +5797,347 @@
       },
       "createdAt": "2025-04-22T06:49:26.319Z",
       "id": 38,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "You have a new request for your route from: Shushkata7@gmail.com.\n                                        About the route: Ruse-Pleven.\n                                        For date: 26.04.2025 г., 08:47",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-04-23T15:26:08.186Z",
+      "id": 39,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "You have a new request for your route from: Shushkata7@gmail.com.\n                                        About the route: Haskovo-Kardzhali.\n                                        For date: 26.04.2025 г., 09:43",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-04-23T15:26:25.473Z",
+      "id": 40,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "You have a candidate for your route: Varna-Sofia with username: sdds!",
+      "routeId": 1745586852615,
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "sdds",
+        "userFname": "asdasd",
+        "userLname": "sdsd",
+        "email": "devmasterstech@gmail.com"
+      },
+      "createdAt": "2025-04-25T13:14:37.405Z",
+      "id": 41,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "You have a new request for your route from: Shushkata7@gmail.com.\n                                        About the route: Varna-Sofia.\n                                        For date: 28.04.2025 г., 16:13",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-04-25T13:15:06.457Z",
+      "id": 42,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "You have a new request for your route from: Shushkata7@gmail.com.\n                                        About the route: Varna-Sofia.\n                                        For date: 28.04.2025 г., 16:13",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-04-25T13:50:37.266Z",
+      "id": 43,
+      "read": true
+    },
+    {
+      "recipient": 1730713699917,
+      "message": "You have a new request for your route from: Shushkata7@gmail.com.\n                                        About the route: Varna-Sofia.\n                                        For date: 28.04.2025 г., 16:13",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-04-25T14:26:23.389Z",
+      "id": 44
+    },
+    {
+      "recipient": 1730713699917,
+      "message": "You have a new request for your route from: Shushkata7@gmail.com.\n                                        About the route: Varna-Sofia.\n                                        For date: 28.04.2025 г., 16:13",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-04-25T14:27:26.014Z",
+      "id": 45
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "You have a candidate for your route: Burgas-Sofia with username: sdds!",
+      "routeId": 1745591414044,
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "sdds",
+        "userFname": "asdasd",
+        "userLname": "sdsd",
+        "email": "devmasterstech@gmail.com"
+      },
+      "createdAt": "2025-04-25T14:30:25.348Z",
+      "id": 46,
+      "read": true
+    },
+    {
+      "recipient": 1730713699917,
+      "message": "You have a new request for your route from: Shushkata7@gmail.com.\n                                        About the route: Burgas-Sofia.\n                                        For date: 29.04.2025 г., 17:29",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-04-25T14:30:49.818Z",
+      "id": 47
+    },
+    {
+      "message": "You have a new request for your route from: Shushkata7@gmail.com.\n                                        About the route: Burgas-Sofia.\n                                        For date: 29.04.2025 г., 17:29",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-04-25T14:35:25.240Z",
+      "id": 48
+    },
+    {
+      "message": "You have a new request for your route from: Shushkata7@gmail.com.\n                                        About the route: Burgas-Sofia.\n                                        For date: 29.04.2025 г., 17:29",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-04-25T14:36:50.149Z",
+      "id": 49
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "You have a new request for your route from: Shushkata7@gmail.com.\n                                        About the route: Burgas-Sofia.\n                                        For date: 29.04.2025 г., 17:29",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-04-25T14:42:47.518Z",
+      "id": 50,
+      "read": true
+    },
+    {
+      "recipient": 1730713699917,
+      "message": "You have a new request for your route from: Shushkata7@gmail.com.\n                                        About the route: Burgas-Sofia.\n                                        For date: 29.04.2025 г., 17:29",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-04-25T14:46:31.576Z",
+      "id": 51
+    },
+    {
+      "recipient": "sdds",
+      "message": "You have a new request for your route from: Shushkata7@gmail.com.\n                                        About the route: Burgas-Sofia.\n                                        For date: 29.04.2025 г., 17:29",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-04-25T14:47:39.685Z",
+      "id": 52,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "message": "Your request has been approved from Shushkata7@gmail.com.\n                                        About the route: Burgas-Sofia.\n                                        For date: 29.04.2025 г., 17:29",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-04-25T15:48:23.364Z",
+      "id": 53,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "You have a candidate for your route: Kardzhali-Haskovo with username: sdds!",
+      "routeId": 1746013829515,
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "sdds",
+        "userFname": "asdasd",
+        "userLname": "sdsd",
+        "email": "devmasterstech@gmail.com"
+      },
+      "createdAt": "2025-04-30T12:17:51.581Z",
+      "id": 54,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "message": "Your request has been approved from Shushkata7@gmail.com.\n                                        About the route: Kardzhali-Haskovo.\n                                        For date: 3.05.2025 г., 14:49",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-04-30T12:18:52.156Z",
+      "id": 55,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "message": "Your request has NOT been approved from Shushkata7@gmail.com.\n                About the route: Kardzhali-Haskovo.\n                For date: 3.05.2025 г., 14:49",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-04-30T12:58:03.766Z",
+      "id": 56,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "message": "Your request has been approved from Shushkata7@gmail.com.\n                About the route: Kardzhali-Haskovo.\n                For date: 3.05.2025 г., 14:49",
+      "routeChecker": false,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-04-30T12:59:44.859Z",
+      "id": 57,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "message": "Your request has been approved from Shushkata7@gmail.com.\nAbout the route: Kardzhali-Haskovo.\nFor date: 3.05.2025 г., 14:49",
+      "routeChecker": false,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-04-30T13:05:31.927Z",
+      "id": 58,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "message": "Your request has been approved from Shushkata7@gmail.com.\nAbout the route: Kardzhali-Haskovo.\nFor date: 3.05.2025 г., 14:49",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-04-30T13:28:10.132Z",
+      "id": 59,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "You have a candidate for your route: Karageorgievo-Vladimirovo_Haskovo with username: sdds!",
+      "routeId": 1746019751757,
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "sdds",
+        "userFname": "asdasd",
+        "userLname": "sdsd",
+        "email": "devmasterstech@gmail.com"
+      },
+      "createdAt": "2025-04-30T13:29:32.502Z",
+      "id": 60,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "message": "Your request has been approved from Shushkata7@gmail.com.\nAbout the route: Karageorgievo-Vladimirovo_Haskovo.\nFor date: 3.05.2025 г., 14:49",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-04-30T13:30:26.042Z",
+      "id": 61,
       "read": true
     }
   ]

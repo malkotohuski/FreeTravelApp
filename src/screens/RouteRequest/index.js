@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Alert, Image, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Alert, Image, ScrollView, Button } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
@@ -15,7 +15,6 @@ function RouteRequestScreen({ route, navigation }) {
     const { t } = useTranslation();
     const { user } = useAuth();
     const { requests, refreshUserData } = useRouteContext();
-    
     const [routeRequests, setRouteRequests] = useState([]);
     const [notificationCount, setNotificationCount] = useState(0);
     const requestUserFirstName = user?.user?.fName;
@@ -24,170 +23,135 @@ function RouteRequestScreen({ route, navigation }) {
     const loginUser = user?.user?.username;
     const requesterUsername = user?.user?.username;
     const requestUserEmail = user?.user?.email;
-
-     useEffect(() => {
-            const fetchNotifications = async () => {
-                try {
-                    if (!loginUser) {
-                        console.error('No logged-in username found.');
-                        return;
-                    }
-    
-                    // Извличане на всички нотификации
-                    const response = await api.get('/notifications');
-    
-                    // Филтриране на нотификациите за логнатия потребител
-                    const userNotifications = response.data.filter(
-                        notification => notification.requester.username === loginUser && !notification.read
-                    );
-    
-                    // Актуализация на броя нотификации
-                    setNotificationCount(userNotifications.length > 9 ? '9+' : userNotifications.length);
-                } catch (error) {
-                    console.error('Failed to fetch notifications:', error);
-                }
-            };
-    
-            fetchNotifications();
-        }, [loginUser]);
+    const requestUserID = user?.user?.userID;
 
     const getRequestsForCurrentUser = () => {
-
         return requests.filter(request => {
-
-            if (request.userRouteId === userNow) {
-                const currentDate = new Date();
-                return new Date(request.dataTime) >= currentDate;
-            }
-            return false;
+            const currentDate = new Date();
+            return (
+                request.userRouteId === userNow &&
+                new Date(request.dataTime) >= currentDate &&
+                (request.status === undefined || request.status === 'pending')
+            );
         });
+    };
+
+    const fetchAndSetRequests = async () => {
+        await refreshUserData();
+        setRouteRequests(getRequestsForCurrentUser());
     };
 
     useFocusEffect(
         useCallback(() => {
-            const fetchData = async () => {
-                await refreshUserData(); // Презареждане на заявките от сървъра
-                setRouteRequests(getRequestsForCurrentUser()); // Обновяване на списъка с заявки
-            };
-    
-            fetchData();
-        }, [requests]) // Изпълнява се при промяна в requests
+            fetchAndSetRequests();
+        }, [requests])
     );
 
     const [isMigrating, setIsMigrating] = useState(false);
 
     useEffect(() => {
         let interval;
-
         if (isMigrating) {
             interval = setInterval(() => {
                 setIsMigrating((prev) => !prev);
-            }, 500); // Промяна на стиловете на всеки 500 милисекунди
+            }, 500);
         }
-
         return () => {
             clearInterval(interval);
         };
     }, [isMigrating]);
 
-    const handlePress = async (request) => {
+    const sendRouteResponse = async (request, isApproved) => {
         const dateObj = new Date(request.dataTime);
         const formattedDate = `${dateObj.toLocaleDateString('bg-BG')}, ${dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}`;
 
+        try {
+            const emailText = isApproved
+                ? t(`Your request has been approved by: ${requestUserFirstName} ${requestUserLastName}.`)
+                : t(`Your request has NOT been approved by: ${requestUserFirstName} ${requestUserLastName}.`);
 
+            await api.post('/send-request-to-email', {
+                email: request.userEmail,
+                text: emailText,
+            });
+
+            const notificationMessage = isApproved
+                ? t(`Your request has been approved from ${requesterUsername}.
+About the route: ${request.departureCity}-${request.arrivalCity}.
+For date: ${formattedDate}`)
+                : t(`Your request has NOT been approved from ${requesterUsername}.
+About the route: ${request.departureCity}-${request.arrivalCity}.
+For date: ${formattedDate}`);
+
+            await api.post('/notifications', {
+                recipient: request.username,
+                message: notificationMessage,
+                routeChecker: true,
+                status: 'active',
+                requester: {
+                    username: requesterUsername,
+                    userFname: requestUserFirstName,
+                    userLname: requestUserLastName,
+                    email: requestUserEmail,
+                },
+                createdAt: new Date().toISOString(),
+            });
+
+            // Обновяване на статуса на заявката
+            await api.patch(`/requests/${request.id}`, {
+                status: isApproved ? 'approved' : 'rejected',
+            });
+
+            await fetchAndSetRequests();
+            Alert.alert('Success', isApproved ? 'Request approved.' : 'Request rejected.');
+        } catch (error) {
+            console.error('Error while handling request:', error);
+            Alert.alert('Error', 'An error occurred while handling the request.');
+        } finally {
+            setIsMigrating(false);
+        }
+    };
+
+    const handlePress = (request) => {
         setIsMigrating(true);
         Alert.alert(
             `${t('There is a request from:')} ${request.userFname} ${request.userLname}`,
             t('Do you want to approve the request?'),
             [
                 {
-                    text: t('Yes'), onPress: async () => {
-                        try {
-                            const emailResponse = await api.post('/send-request-to-email', {
-                                email: request.userEmail,
-                                text: t(`Your request has been approved by: ${requestUserFirstName} ${requestUserLastName}.`),
-                            });
-
-                         /*    const response = await api.post('/send-request-to-user', {
-                                requestingUser: {
-                                    username: user?.user?.username,
-                                    userFname: user?.user?.fName,
-                                    userLname: user?.user?.lName,
-                                    userEmail: requestUserEmail,
-                                    userID: user?.user?.id,
-                                    userRouteId: route.params.userId,
-                                    departureCity: route.params.departureCity,
-                                    arrivalCity: route.params.arrivalCity,
-                                    routeId: route.params.routeId,
-                                    dataTime: route.params.selectedDateTime
-                                },
-                            });; */
-
-                                // Съхранение на нотификация
-                                await api.post('/notifications', {
-                                    recipient: loginUser, // Потребител, който е създал маршрута
-                                    message: t(`You have a new request for your route from: ${requesterUsername}.
-                                        About the route: ${request.departureCity}-${request.arrivalCity}.
-                                        For date: ${formattedDate}`),                                    
-                                    routeChecker: true,
-                                    status: 'active',
-                                    requester: {
-                                        username: requesterUsername,
-                                        userFname: requestUserFirstName,
-                                        userLname: requestUserLastName,
-                                        email: requestUserEmail,
-                                    },
-                                    createdAt: new Date().toISOString(),
-                                });
-
-                            console.log('Email Response:', emailResponse);
-                            Alert.alert('Success', 'Trip request sent successfully.');
-
-                          /*   const response = await api.post('/send-request-to-user', {
-                                // Тук можеш да използваш request.requestingUser.userEmail за да направиш заявката
-                            });
-                            // Handle the response from the server if needed
-                            console.log('Route Approval Response:', response); 
- */
-                            // After handling the request, you can navigate back to the previous screen
-                            navigation.navigate('Home');
-                        } catch (error) {
-                            console.error('Error while handling request:', error);
-                            Alert.alert('Error', 'An error occurred while handling the request.');
-                        } finally {
-                            setIsMigrating(false);
-                        }
-                    },
+                    text: t('Yes'), onPress: () => sendRouteResponse(request, true)
                 },
-                { text: t('No'), onPress: () => setIsMigrating(false), style: 'cancel' }
+                {
+                    text: t('No'), onPress: () => sendRouteResponse(request, false), style: 'cancel'
+                }
             ],
             { cancelable: false }
         );
     };
 
     const renderRoutes = () => {
-        const requestsForCurrentUser = getRequestsForCurrentUser();
-
-        const renderedRoutes = requestsForCurrentUser.map((request) => (
-            <TouchableOpacity
-                key={request.id}
-                style={[
-                    styles.requestContainer,
-                    request.requestingUser ? (isMigrating ? styles.migratingGreenBorder : styles.greenBorder) : null
-                ]}
-                onPress={() => handlePress(request)}
-            >
-                <View style={styles.userContainer}>
-                    <Image source={{ uri: user?.user?.userImage }} style={styles.userImage} />
-                    <Text style={styles.userName}>{request.username}</Text>
-                </View>
-                <Text style={styles.text}>
-                    {t('Direction')}: {t(`${request.departureCity}-${request.arrivalCity}`)}
-                </Text>
-            </TouchableOpacity>
-        ));
-
-        return renderedRoutes.length > 0 ? renderedRoutes : <Text>{t('No new requests.')}</Text>;
+        return routeRequests.length > 0 ? (
+            routeRequests.map((request) => (
+                <TouchableOpacity
+                    key={request.id}
+                    style={[
+                        styles.requestContainer,
+                        request.requestingUser ? (isMigrating ? styles.migratingGreenBorder : styles.greenBorder) : null
+                    ]}
+                    onPress={() => handlePress(request)}
+                >
+                    <View style={styles.userContainer}>
+                        <Image source={{ uri: user?.user?.userImage }} style={styles.userImage} />
+                        <Text style={styles.userName}>{request.username}</Text>
+                    </View>
+                    <Text style={styles.text}>
+                        {t('Direction')}: {t(`${request.departureCity}-${request.arrivalCity}`)}
+                    </Text>
+                </TouchableOpacity>
+            ))
+        ) : (
+            <Text>{t('No new requests.')}</Text>
+        );
     };
 
     return (
@@ -199,13 +163,8 @@ function RouteRequestScreen({ route, navigation }) {
                 />
                 <View style={styles.container}>
                     <Text style={styles.headerText}>{t('Route Requests')}:</Text>
-                    {routeRequests.length > 0 ? (
-                        <View>
-                            {renderRoutes()}
-                        </View>
-                    ) : (
-                        <Text>{t('There are no requests for this route.')}</Text>
-                    )}
+                    <Button title="🔄 Refresh" onPress={fetchAndSetRequests} />
+                    {renderRoutes()}
                 </View>
             </ScrollView>
         </SafeAreaView>
@@ -213,22 +172,10 @@ function RouteRequestScreen({ route, navigation }) {
 };
 
 const styles = StyleSheet.create({
-    mainContainer: {
-        flex: 1,
-    },
-    scrollViewContainer: {
-        flexGrow: 1,
-    },
-    container: {
-        flex: 1,
-        alignItems: 'flex-start',
-        position: 'relative',
-    },
-    headerText: {
-        fontWeight: 'bold',
-        fontSize: 24,
-        paddingBottom: 10,
-    },
+    mainContainer: { flex: 1 },
+    scrollViewContainer: { flexGrow: 1 },
+    container: { flex: 1, alignItems: 'flex-start', position: 'relative' },
+    headerText: { fontWeight: 'bold', fontSize: 24, paddingBottom: 10 },
     requestContainer: {
         margin: 10,
         padding: 15,
@@ -236,10 +183,7 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         elevation: 3,
     },
-    migratingGreenBorder: {
-        borderColor: 'red',
-        borderWidth: 2,
-    },
+    migratingGreenBorder: { borderColor: 'red', borderWidth: 2 },
     backgroundImage: {
         flex: 1,
         width: '100%',
@@ -255,10 +199,7 @@ const styles = StyleSheet.create({
         color: '#1b1c1e',
         alignSelf: 'center'
     },
-    greenBorder: {
-        borderColor: 'green',
-        borderWidth: 2,
-    },
+    greenBorder: { borderColor: 'green', borderWidth: 2 },
     userContainer: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -270,9 +211,7 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         marginRight: 10,
     },
-    userName: {
-        fontWeight: 'bold',
-    },
+    userName: { fontWeight: 'bold' },
 });
 
 export default RouteRequestScreen;
