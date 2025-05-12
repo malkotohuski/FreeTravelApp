@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { TouchableOpacity, ImageBackground, StyleSheet } from 'react-native';
+import { TouchableOpacity, ImageBackground, StyleSheet, Text } from 'react-native';
 import Register from '../screens/Register';
 import Login from '../screens/Login';
 import { createDrawerNavigator } from '@react-navigation/drawer';
@@ -118,7 +118,7 @@ export const Navigator = ({ isLoggedIn }) => {
     const renderBackButtonIcons = ({ navigation }) => (
         <TouchableOpacity
             style={{
-                marginRight: 16
+                marginRight: 16,
             }}
             onPress={() => {
                 navigation.navigate('Vehicle');
@@ -208,15 +208,28 @@ export const Navigator = ({ isLoggedIn }) => {
                 options={{
                     title: t('Vehicle'),
                     ...screenStyles,
+                    headerTitleStyle: {
+                    fontSize: 18, // <-- промени размера тук
+        },
                     drawerItemStyle: { display: 'none' }
                 }}
                 listeners={({ navigation }) => ({
-                    focus: () => {
-                        navigation.setOptions({
-                            headerRight: () => renderBackButtonIcon({ navigation }),
-                        });
-                    },
-                })}
+    focus: () => {
+        navigation.setOptions({
+            headerRight: () => (
+                <TouchableOpacity
+                    style={{ marginRight: 16, flexDirection: 'row', alignItems: 'center' }}
+                    onPress={() => navigation.navigate('Home')} // или друга логика за връщане
+                >
+                    <Text style={{ color: 'white', marginRight: 8 , fontSize: 18, }}>{t('Step 1 of 4')}</Text>
+                    <Icons name="keyboard-backspace" size={24} color="white" />
+                   
+                </TouchableOpacity>
+            ),
+        });
+    },
+})}
+
             />
             <Drawer.Screen
                 name="Mark Seats"
@@ -224,15 +237,27 @@ export const Navigator = ({ isLoggedIn }) => {
                 options={{
                     title: t('Mark Seats'),
                     ...screenStyles,
+                      headerTitleStyle: {
+                    fontSize: 18, // <-- промени размера тук
+        },
                     drawerItemStyle: { display: 'none' }
                 }}
-                listeners={({ navigation }) => ({
-                    focus: () => {
-                        navigation.setOptions({
-                            headerRight: () => renderBackButtonIcons({ navigation }),
-                        });
-                    },
-                })}
+              listeners={({ navigation }) => ({
+    focus: () => {
+        navigation.setOptions({
+            headerRight: () => (
+                <TouchableOpacity
+                    style={{ marginRight: 16, flexDirection: 'row', alignItems: 'center' }}
+                    onPress={() => navigation.navigate('Vehicle')} // или друга логика за връщане
+                >
+                    <Text style={{ color: 'white', marginRight: 8 , fontSize: 18,}}>{t('Step 2 of 4')}</Text>
+                    <Icons name="keyboard-backspace" size={24} color="white" />
+                   
+                </TouchableOpacity>
+            ),
+        });
+    },
+})}
             />
              <Drawer.Screen
                 name="Chat"
@@ -260,15 +285,27 @@ export const Navigator = ({ isLoggedIn }) => {
                 options={{
                     title: t('SelectRoute'),
                     ...screenStyles,
+                      headerTitleStyle: {
+                    fontSize: 18, // <-- промени размера тук
+        },
                     drawerItemStyle: { display: 'none' }
                 }}
                 listeners={({ navigation }) => ({
-                    focus: () => {
-                        navigation.setOptions({
-                            headerRight: () => renderBackButtonIcons({ navigation }),
-                        });
-                    },
-                })}
+    focus: () => {
+        navigation.setOptions({
+            headerRight: () => (
+                <TouchableOpacity
+                    style={{ marginRight: 16, flexDirection: 'row', alignItems: 'center' }}
+                    onPress={() => navigation.navigate('Mark Seats')} // или друга логика за връщане
+                >
+                    <Text style={{ color: 'white', marginRight: 8 , fontSize: 18,}}>{t('Step 3 of 4')}</Text>
+                    <Icons name="keyboard-backspace" size={24} color="white" />
+                   
+                </TouchableOpacity>
+            ),
+        });
+    },
+})}
             />
               <Drawer.Screen
                 name="View routes"
@@ -317,15 +354,27 @@ export const Navigator = ({ isLoggedIn }) => {
                 options={{
                     title: t('Confirm'),
                     ...screenStyles,
+                      headerTitleStyle: {
+                    fontSize: 18, // <-- промени размера тук
+        },
                     drawerItemStyle: { display: 'none' }
                 }}
                 listeners={({ navigation }) => ({
-                    focus: () => {
-                        navigation.setOptions({
-                            headerRight: () => renderBackButtonIcons({ navigation }),
-                        });
-                    },
-                })}
+    focus: () => {
+        navigation.setOptions({
+            headerRight: () => (
+                <TouchableOpacity
+                    style={{ marginRight: 16, flexDirection: 'row', alignItems: 'center' }}
+                    onPress={() => navigation.navigate('SelectRoute')} // или друга логика за връщане
+                >
+                    <Text style={{ color: 'white', marginRight: 8 , fontSize: 18,}}>{t('Step 4 of 4')}</Text>
+                    <Icons name="keyboard-backspace" size={24} color="white" />
+                   
+                </TouchableOpacity>
+            ),
+        });
+    },
+})}
             />
              <Drawer.Screen
                 name="Route request"
