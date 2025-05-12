@@ -4212,6 +4212,23 @@
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
       "id": 1746019751757
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "H2342AT",
+      "selectedDateTime": "2025-05-16T13:01:00.000Z",
+      "departureCity": "Haskovo",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Sliven",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1747054918156
     }
   ],
   "requests": [
@@ -5216,6 +5233,20 @@
       "dataTime": "2025-05-03T11:49:00.000Z",
       "id": 1746019783930,
       "status": "approved"
+    },
+    {
+      "username": "sdds",
+      "userFname": "asdasd",
+      "userLname": "sdsd",
+      "userEmail": "devmasterstech@gmail.com",
+      "userID": 1730713699917,
+      "userRouteId": 1711358014466,
+      "departureCity": "Haskovo",
+      "arrivalCity": "Sliven",
+      "routeId": 1747054918156,
+      "dataTime": "2025-05-16T13:01:00.000Z",
+      "id": 1747054969173,
+      "status": "rejected"
     }
   ],
   "userChanges": [],
@@ -6138,6 +6169,37 @@
       },
       "createdAt": "2025-04-30T13:30:26.042Z",
       "id": 61,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "You have a candidate for your route: Haskovo-Sliven with username: sdds!",
+      "routeId": 1747054918156,
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "sdds",
+        "userFname": "asdasd",
+        "userLname": "sdsd",
+        "email": "devmasterstech@gmail.com"
+      },
+      "createdAt": "2025-05-12T13:02:46.223Z",
+      "id": 62,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "message": "Your request has NOT been approved from Shushkata7@gmail.com.\nAbout the route: Haskovo-Sliven.\nFor date: 16.05.2025 г., 16:01",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-05-12T13:03:38.110Z",
+      "id": 63,
       "read": true
     }
   ]
