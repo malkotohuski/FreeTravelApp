@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext  } from 'react';
 import { TouchableOpacity, ImageBackground, StyleSheet, Text } from 'react-native';
 import Register from '../screens/Register';
 import Login from '../screens/Login';
@@ -280,33 +280,18 @@ export const Navigator = ({ isLoggedIn }) => {
                 }}
             />
             <Drawer.Screen
-                name="SelectRoute"
-                component={SelectRouteScreen}
-                options={{
-                    title: t('SelectRoute'),
-                    ...screenStyles,
-                      headerTitleStyle: {
-                    fontSize: 18, // <-- промени размера тук
+    name="SelectRoute"
+    component={SelectRouteScreen}
+    options={{
+        title: t('SelectRoute'),
+        ...screenStyles,
+        headerTitleStyle: {
+            fontSize: 18,
         },
-                    drawerItemStyle: { display: 'none' }
-                }}
-                listeners={({ navigation }) => ({
-    focus: () => {
-        navigation.setOptions({
-            headerRight: () => (
-                <TouchableOpacity
-                    style={{ marginRight: 16, flexDirection: 'row', alignItems: 'center' }}
-                    onPress={() => navigation.navigate('Mark Seats')} // или друга логика за връщане
-                >
-                    <Text style={{ color: 'white', marginRight: 8 , fontSize: 18,}}>{t('Step 3 of 4')}</Text>
-                    <Icons name="keyboard-backspace" size={24} color="white" />
-                   
-                </TouchableOpacity>
-            ),
-        });
-    },
-})}
-            />
+        drawerItemStyle: { display: 'none' }
+    }}
+/>
+
               <Drawer.Screen
                 name="View routes"
                 component={ViewRoutes}
@@ -349,33 +334,17 @@ export const Navigator = ({ isLoggedIn }) => {
                 }}
             />
              <Drawer.Screen
-                name="Confirm"
-                component={Confirm}
-                options={{
-                    title: t('Confirm'),
-                    ...screenStyles,
-                      headerTitleStyle: {
-                    fontSize: 18, // <-- промени размера тук
+    name="Confirm"
+    component={Confirm}
+    options={{
+        title: t('Confirm'),
+        ...screenStyles,
+        headerTitleStyle: {
+            fontSize: 18,
         },
-                    drawerItemStyle: { display: 'none' }
-                }}
-                listeners={({ navigation }) => ({
-    focus: () => {
-        navigation.setOptions({
-            headerRight: () => (
-                <TouchableOpacity
-                    style={{ marginRight: 16, flexDirection: 'row', alignItems: 'center' }}
-                    onPress={() => navigation.navigate('SelectRoute')} // или друга логика за връщане
-                >
-                    <Text style={{ color: 'white', marginRight: 8 , fontSize: 18,}}>{t('Step 4 of 4')}</Text>
-                    <Icons name="keyboard-backspace" size={24} color="white" />
-                   
-                </TouchableOpacity>
-            ),
-        });
-    },
-})}
-            />
+        drawerItemStyle: { display: 'none' }
+    }}
+/>
              <Drawer.Screen
                 name="Route request"
                 component={RouteRequestScreen}

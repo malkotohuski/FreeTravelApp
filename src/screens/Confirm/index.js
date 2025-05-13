@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect  } from 'react';
+import Icons from 'react-native-vector-icons/MaterialIcons';
 import { View, Text, TouchableOpacity, StyleSheet, Image, ActivityIndicator, SafeAreaView, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRoute, useNavigation } from '@react-navigation/native';
@@ -110,6 +111,25 @@ function Confirm() {
     const handlerBackRoutes = () => {
         navigation.navigate('View routes');
     };
+
+    useLayoutEffect(() => {
+    navigation.setOptions({
+        headerRight: () => (
+            <TouchableOpacity
+                style={{ marginRight: 16, flexDirection: 'row', alignItems: 'center' }}
+                onPress={() => navigation.navigate('SelectRoute', {
+                    selectedVehicle,
+                    registrationNumber,
+                })}
+            >
+                <Text style={{ color: 'white', marginRight: 8, fontSize: 18 }}>
+                    {t('Step 3 of 4')}
+                </Text>
+                <Icons name="keyboard-backspace" size={24} color="white" />
+            </TouchableOpacity>
+        ),
+    });
+}, [navigation, selectedVehicle, registrationNumber]);
 
     return (
         <SafeAreaView style={styles.mainContainer}>
