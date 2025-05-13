@@ -56,7 +56,9 @@ server.post('/register', (req, res) => {
         confirmationCode,
         isActive: false, // ново поле за статус
         routes: [],
-        friends: []
+        friends: [],
+        ratings: [],
+        averageRating: 0
     };
 
     router.db.get('users').push(user).write();
@@ -261,6 +263,46 @@ server.get('/get-requests', (req, res) => {
 
     return res.status(201).json({ message: 'Route created successfully.', request: requestingUser });
 });
+
+server.post('/rateUser', (req, res) => {
+    const { userId, fromUserId, stars, comment } = req.body;
+
+    if (!userId || !fromUserId || typeof stars !== 'number') {
+        return res.status(400).json({ error: 'Missing or invalid fields.' });
+    }
+
+    const user = router.db.get('users').find({ id: userId }).value();
+    if (!user) {
+        return res.status(404).json({ error: 'User not found.' });
+    }
+
+    // Забрана за повече от 1 оценка от един и същ потребител (можеш да я премахнеш ако искаш)
+    const alreadyRated = user.ratings.find(r => r.fromUserId === fromUserId);
+    if (alreadyRated) {
+        return res.status(400).json({ error: 'You have already rated this user.' });
+    }
+
+    const rating = {
+        fromUserId,
+        stars,
+        comment: comment || '',
+        date: new Date().toISOString()
+    };
+
+    user.ratings.push(rating);
+
+    // Изчисляване на средната стойност
+    const totalStars = user.ratings.reduce((sum, r) => sum + r.stars, 0);
+    const avg = totalStars / user.ratings.length;
+
+    user.averageRating = parseFloat(avg.toFixed(1)); // например 4.5
+
+    // Записване обратно в базата
+    router.db.get('users').find({ id: userId }).assign(user).write();
+
+    res.status(200).json({ message: 'Rating submitted successfully.', averageRating: user.averageRating });
+});
+
 
 
 // Handle user login

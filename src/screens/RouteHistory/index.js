@@ -102,50 +102,71 @@ const RouteHistory = ({ navigation }) => {
         );
     };
 
-    const handleMarkAsCompleted = (routeId) => {
-        const matchingRequest = requests.find(request => request.routeId === routeId);
-        const completedRoute = originalRoutesState.find(route => route.id === routeId);
-        setCompletedRoutes(prevRoutes => [...prevRoutes, completedRoute]);
-        if (matchingRequest) {
-            Alert.alert(
-                t('Complete the route'),
-                `${t('Are you sure you want to mark this route as completed?')} ${t('Users')}: ${matchingRequest.username}${matchingRequest.userEmail}`,
-                [
-                    {
-                        text: t('Cancel'),
-                        onPress: () => console.log('Cancel Pressed'),
-                        style: 'cancel',
-                    },
-                    {
-                        text: t('Mark as Completed'), onPress: () => {
-                            fetch(`http://10.0.2.2:3000/routes/${routeId}`, {
+  const handleMarkAsCompleted = (routeId) => {
+    const matchingRequest = requests.find(request => request.routeId === routeId);
+    const completedRoute = originalRoutesState.find(route => route.id === routeId);
+    const mainRouteUser = user?.user?.username;
+
+    setCompletedRoutes(prevRoutes => [...prevRoutes, completedRoute]);
+
+    if (matchingRequest) {
+        Alert.alert(
+            t('Complete the route'),
+            `${t('Are you sure you want to mark this route as completed?')} ${t('Users')}: ${matchingRequest.username} ${matchingRequest.userEmail}`,
+            [
+                {
+                    text: t('Cancel'),
+                    onPress: () => console.log('Cancel Pressed'),
+                    style: 'cancel',
+                },
+                {
+                    text: t('Mark as Completed'),
+                    onPress: async () => {
+                        try {
+                            const response = await fetch(`http://10.0.2.2:3000/routes/${routeId}`, {
                                 method: 'PATCH',
                                 headers: {
                                     'Content-Type': 'application/json',
                                 },
                                 body: JSON.stringify({ userRouteId: 'completed' }),
-                            })
-                                .then(response => {
-                                    if (response.ok) {
-                                        const updatedRoutes = originalRoutesState.filter(route => route.id !== routeId);
-                                        setOriginalRoutesState(updatedRoutes);
-                                        setFilteredRoutesState(updatedRoutes);
-                                        navigation.navigate('Notifications', { matchingRequest });
-                                    } else {
-                                        throw new Error('Failed to delete route');
-                                    }
-                                })
-                                .catch(error => console.error('Error deleting route:', error));
+                            });
+
+                            if (!response.ok) throw new Error('Failed to mark route as completed');
+
+                            // Обнови списъка с маршрути
+                            const updatedRoutes = originalRoutesState.filter(route => route.id !== routeId);
+                            setOriginalRoutesState(updatedRoutes);
+                            setFilteredRoutesState(updatedRoutes);
+
+                            // Изпрати известие към пътника да оцени създателя на маршрута
+                            await axios.post(`${API_BASE_URL}/notifications`, {
+                                 recipient: matchingRequest.username, // <-- вместо toUserId
+                                 fromUserId: user?.user?.id,
+                                type: 'rate_user',
+                                routeId: routeId,
+                                message: `Моля, оцени пътуването с ${mainRouteUser}.\n За маршрута ${matchingRequest.departureCity}-${matchingRequest.arrivalCity}`,
+                                status: 'active',
+                                isRead: false,
+                                createdAt: new Date().toISOString(),
+                                mainRouteUser: mainRouteUser
+                            });
+
+                            // Навигирай към екрана с известия
+                            navigation.navigate('Home', { matchingRequest });
+
+                        } catch (error) {
+                            console.error('Error completing route or sending notification:', error);
                         }
-                    },
-                ],
-                { cancelable: false }
-            );
-        } else {
-            // Handle case when no matching request is found
-            console.log("No matching request found. Cannot mark as completed.");
-        }
-    };
+                    }
+                },
+            ],
+            { cancelable: false }
+        );
+    } else {
+        console.log("No matching request found. Cannot mark as completed.");
+    }
+};
+
 
     return (
         <SafeAreaView style={styles.mainContainer}>

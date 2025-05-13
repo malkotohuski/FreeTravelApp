@@ -29,6 +29,7 @@ import AddFriendScreen from '../screens/Chats/AddFriendScreen';
 import RouteHistory from '../screens/RouteHistory';
 import UsersScreen from '../screens/Users';
 import Notifications from '../screens/Notifications';
+import RateUserScreen from '../screens/UserRating';
 import { DarkModeContext } from './DarkModeContext';
 
 const Drawer = createDrawerNavigator();
@@ -179,6 +180,16 @@ export const Navigator = ({ isLoggedIn }) => {
                 component={Messages}
                 options={{
                     title: t('Messages'),
+                    ...screenStyles,
+                    headerShown: false,
+                    drawerItemStyle: { display: 'none' }
+                }}
+            /> 
+             <Drawer.Screen
+                name="RateUser"
+                component={RateUserScreen}
+                options={{
+                    title: t('RateUserScreen'),
                     ...screenStyles,
                     headerShown: false,
                     drawerItemStyle: { display: 'none' }
