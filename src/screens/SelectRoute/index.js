@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useLayoutEffect } from 'react';
+import Icons from 'react-native-vector-icons/MaterialIcons';
 import { useFocusEffect } from '@react-navigation/native';
 import { View, Text, TouchableOpacity, Button, TextInput, StyleSheet, Alert, Image, FlatList, Modal, ScrollView, SafeAreaView } from 'react-native';
 import DatePicker from 'react-native-date-picker';
@@ -31,6 +32,25 @@ function SelectRouteScreen({ route, navigation }) {
     const [modalVisibleArrival, setModalVisibleArrival] = useState(false);
 
     const [searchText, setSearchText] = useState('');
+
+    useLayoutEffect(() => {
+    navigation.setOptions({
+        headerRight: () => (
+            <TouchableOpacity
+                style={{ marginRight: 16, flexDirection: 'row', alignItems: 'center' }}
+                onPress={() => navigation.navigate('Mark Seats', {
+                    selectedVehicle,
+                    registrationNumber,
+                })}
+            >
+                <Text style={{ color: 'white', marginRight: 8, fontSize: 18 }}>
+                    {t('Step 3 of 4')}
+                </Text>
+                <Icons name="keyboard-backspace" size={24} color="white" />
+            </TouchableOpacity>
+        ),
+    });
+}, [navigation, selectedVehicle, registrationNumber]);
 
     useFocusEffect(
         React.useCallback(() => {
