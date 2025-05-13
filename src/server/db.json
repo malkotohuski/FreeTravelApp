@@ -4075,7 +4075,8 @@
       "userFname": "asdasd",
       "userLname": "sdsd",
       "userEmail": "devmasterstech@gmail.com",
-      "id": 1744628844702
+      "id": 1744628844702,
+      "userRouteId": "completed"
     },
     {
       "selectedVehicle": "Car",
@@ -4126,7 +4127,8 @@
       "userFname": "Velichka",
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
-      "id": 1745300884880
+      "id": 1745300884880,
+      "userRouteId": "completed"
     },
     {
       "selectedVehicle": "Car",
@@ -4143,7 +4145,8 @@
       "userFname": "Velichka",
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
-      "id": 1745304230668
+      "id": 1745304230668,
+      "userRouteId": "completed"
     },
     {
       "selectedVehicle": "Car",
@@ -4160,7 +4163,8 @@
       "userFname": "Velichka",
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
-      "id": 1745586852615
+      "id": 1745586852615,
+      "userRouteId": "completed"
     },
     {
       "selectedVehicle": "Car",
@@ -4177,7 +4181,8 @@
       "userFname": "Velichka",
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
-      "id": 1745591414044
+      "id": 1745591414044,
+      "userRouteId": "completed"
     },
     {
       "selectedVehicle": "Car",
@@ -4194,7 +4199,8 @@
       "userFname": "Velichka",
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
-      "id": 1746013829515
+      "id": 1746013829515,
+      "userRouteId": "completed"
     },
     {
       "selectedVehicle": "Car",
@@ -4211,7 +4217,8 @@
       "userFname": "Velichka",
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
-      "id": 1746019751757
+      "id": 1746019751757,
+      "userRouteId": "completed"
     },
     {
       "selectedVehicle": "Car",
@@ -4228,7 +4235,8 @@
       "userFname": "Velichka",
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
-      "id": 1747054918156
+      "id": 1747054918156,
+      "userRouteId": "completed"
     }
   ],
   "requests": [
@@ -6200,6 +6208,101 @@
       },
       "createdAt": "2025-05-12T13:03:38.110Z",
       "id": 63,
+      "read": true
+    },
+    {
+      "toUserId": 1730713699917,
+      "fromUserId": 1711358014466,
+      "type": "rate_user",
+      "routeId": 1747054918156,
+      "message": "Моля, оцени пътуването с Shushkata7@gmail.com.",
+      "isRead": false,
+      "createdAt": "2025-05-13T10:05:39.205Z",
+      "id": 64
+    },
+    {
+      "recipient": "sdds",
+      "fromUserId": 1711358014466,
+      "type": "rate_user",
+      "routeId": 1746013829515,
+      "message": "Моля, оцени пътуването с devmasterstech@gmail.com.",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2025-05-13T10:14:47.739Z",
+      "id": 65,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "fromUserId": 1711358014466,
+      "type": "rate_user",
+      "routeId": 1746019751757,
+      "message": "Моля, оцени пътуването с Shushkata7@gmail.com.",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2025-05-13T10:20:48.056Z",
+      "id": 66,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "fromUserId": 1711358014466,
+      "type": "rate_user",
+      "routeId": 1745591414044,
+      "message": "Моля, оцени пътуването с Shushkata7@gmail.com.",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2025-05-13T10:28:01.305Z",
+      "id": 67,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "fromUserId": 1711358014466,
+      "type": "rate_user",
+      "routeId": 1745586852615,
+      "message": "Моля, оцени пътуването с Shushkata7@gmail.com.\n За маршрута NaN",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2025-05-13T10:59:30.281Z",
+      "id": 68,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "fromUserId": 1730713699917,
+      "type": "rate_user",
+      "routeId": 1744628844702,
+      "message": "Моля, оцени пътуването с sdds.\n За маршрута Pleven-Ruse",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2025-05-13T11:04:12.482Z",
+      "id": 69,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "fromUserId": 1711358014466,
+      "type": "rate_user",
+      "routeId": 1745304230668,
+      "message": "Моля, оцени пътуването с Shushkata7@gmail.com.\n За маршрута Haskovo-Kardzhali",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2025-05-13T11:33:35.381Z",
+      "id": 70,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "fromUserId": 1711358014466,
+      "type": "rate_user",
+      "routeId": 1745300884880,
+      "message": "Моля, оцени пътуването с Shushkata7@gmail.com.\n За маршрута Ruse-Pleven",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2025-05-13T14:36:05.893Z",
+      "mainRouteUser": "Shushkata7@gmail.com",
+      "id": 71,
       "read": true
     }
   ]
