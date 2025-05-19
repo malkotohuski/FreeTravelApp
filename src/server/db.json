@@ -9,19 +9,27 @@
       "lName": "Spasova",
       "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/37c93d64-0aea-4fd0-af47-61cfa98e0142.jpg",
       "confirmationCode": null,
-      "routes": [],
+      "routes": 1747646279333,
       "freinds": [],
       "ratings": [
         3.5,
         3.5,
-        2
+        2,
+        2,
+        0.5,
+        3,
+        5
       ],
       "comments": [
         "Stawa",
         "Stawa",
-        "Stawa"
+        "Stawa",
+        "Bad driver",
+        "Bad driver",
+        "Bad driver",
+        "Good driver , but driving very fast !"
       ],
-      "averageRating": 3
+      "averageRating": 2.79
     },
     {
       "id": 1730713699917,
@@ -33,8 +41,20 @@
       "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/a5ffaabe-ac93-4d00-bc9f-53a1165056ae.jpg",
       "confirmationCode": null,
       "isActive": true,
-      "routes": [],
-      "friends": []
+      "routes": [
+        1736957069792,
+        1736956628621
+      ],
+      "friends": [],
+      "ratings": [
+        3.5,
+        3.5
+      ],
+      "comments": [
+        "ops",
+        "ops"
+      ],
+      "averageRating": 3.5
     },
     {
       "id": 1733840997419,
@@ -4004,7 +4024,8 @@
       "userFname": "asdasd",
       "userLname": "sdsd",
       "userEmail": "devmasterstech@gmail.com",
-      "id": 1736957069792
+      "id": 1736957069792,
+      "userRouteId": "completed"
     },
     {
       "selectedVehicle": "Car",
@@ -4038,7 +4059,8 @@
       "userFname": "Velichka",
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
-      "id": 1742898655540
+      "id": 1742898655540,
+      "userRouteId": "completed"
     },
     {
       "selectedVehicle": "Car",
@@ -4055,7 +4077,8 @@
       "userFname": "Velichka",
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
-      "id": 1742902293921
+      "id": 1742902293921,
+      "userRouteId": "completed"
     },
     {
       "selectedVehicle": "Car",
@@ -4072,7 +4095,8 @@
       "userFname": "Velichka",
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
-      "id": 1744360892552
+      "id": 1744360892552,
+      "userRouteId": "completed"
     },
     {
       "selectedVehicle": "Car",
@@ -4252,6 +4276,24 @@
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
       "id": 1747054918156,
+      "userRouteId": "completed"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "EA0203TA",
+      "selectedDateTime": "2025-05-21T09:17:00.000Z",
+      "departureCity": "Sofia",
+      "departureStreet": "Dyrvenica",
+      "departureNumber": "",
+      "arrivalCity": "Sofia",
+      "arrivalStreet": "Lulin",
+      "arrivalNumber": "",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1747646279333,
       "userRouteId": "completed"
     }
   ],
@@ -5271,6 +5313,20 @@
       "dataTime": "2025-05-16T13:01:00.000Z",
       "id": 1747054969173,
       "status": "rejected"
+    },
+    {
+      "username": "sdds",
+      "userFname": "asdasd",
+      "userLname": "sdsd",
+      "userEmail": "devmasterstech@gmail.com",
+      "userID": 1730713699917,
+      "userRouteId": 1711358014466,
+      "departureCity": "Sofia",
+      "arrivalCity": "Sofia",
+      "routeId": 1747646279333,
+      "dataTime": "2025-05-21T09:17:00.000Z",
+      "id": 1747646306646,
+      "status": "approved"
     }
   ],
   "userChanges": [],
@@ -6358,6 +6414,119 @@
       "createdAt": "2025-05-19T07:36:27.071Z",
       "mainRouteUser": "Shushkata7@gmail.com",
       "id": 74,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "fromUserId": 1730713699917,
+      "type": "rate_user",
+      "routeId": 1736957069792,
+      "message": "Моля, оцени пътуването с sdds.\n За маршрута Varna-Pleven",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2025-05-19T08:01:42.765Z",
+      "mainRouteUser": "sdds",
+      "id": 75,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "fromUserId": 1711358014466,
+      "type": "rate_user",
+      "routeId": 1744360892552,
+      "message": "Моля, оцени пътуването с Shushkata7@gmail.com.\n За маршрута Burgas-Varna",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2025-05-19T08:06:14.138Z",
+      "mainRouteUser": "Shushkata7@gmail.com",
+      "id": 76,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "fromUserId": 1711358014466,
+      "type": "rate_user",
+      "routeId": 1742898655540,
+      "routeInfo": {
+        "selectedVehicle": "Car",
+        "registrationNumber": "A2121AA",
+        "selectedDateTime": "2025-03-26T10:30:00.000Z",
+        "departureCity": "Sofia",
+        "departureStreet": "",
+        "departureNumber": "",
+        "arrivalCity": "Bata (Pazardzhik)",
+        "arrivalStreet": "",
+        "arrivalNumber": "",
+        "userId": 1711358014466,
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "userEmail": "shushkata7@gmail.com",
+        "id": 1742898655540
+      },
+      "message": "Моля, оцени пътуването с Shushkata7@gmail.com.\n За маршрута Sofia-Bata (Pazardzhik)",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2025-05-19T08:11:14.488Z",
+      "mainRouteUser": "Shushkata7@gmail.com",
+      "id": 77,
+      "read": true
+    },
+    {
+      "recipient": "huskyPower",
+      "fromUserId": 1711358014466,
+      "type": "rate_user",
+      "routeId": 1742902293921,
+      "message": "Моля, оцени пътуването с Shushkata7@gmail.com.\n За маршрута Stara Zagora-Vasil Levski (Stara Zagora)",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2025-05-19T08:25:02.704Z",
+      "mainRouteUser": "Shushkata7@gmail.com",
+      "id": 78,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "You have a candidate for your route: Sofia-Sofia with username: sdds!",
+      "routeId": 1747646279333,
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "sdds",
+        "userFname": "asdasd",
+        "userLname": "sdsd",
+        "email": "devmasterstech@gmail.com"
+      },
+      "createdAt": "2025-05-19T09:18:22.333Z",
+      "id": 79,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "message": "Your request has been approved from Shushkata7@gmail.com.\nAbout the route: Sofia-Sofia.\nFor date: 21.05.2025 г., 12:17",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-05-19T09:18:50.050Z",
+      "id": 80,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "fromUserId": 1711358014466,
+      "type": "rate_user",
+      "routeId": 1747646279333,
+      "message": "Моля, оцени пътуването с Shushkata7@gmail.com.\n За маршрута Sofia-Sofia",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2025-05-19T09:20:15.038Z",
+      "mainRouteUser": "Shushkata7@gmail.com",
+      "id": 81,
       "read": true
     }
   ]

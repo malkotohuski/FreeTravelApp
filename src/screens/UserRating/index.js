@@ -18,7 +18,10 @@ const API_BASE_URL = 'http://10.0.2.2:3000';
 
 const RateUserScreen = ({ navigation }) => {
   const route = useRoute();
-  const { mainRouteUser } = route.params || {}; // Единствено това ни трябва
+  const { mainRouteUser, routeId  } = route.params; 
+  console.log('kdsf', routeId);
+  console.log('асдасд', mainRouteUser);
+  
   const { darkMode } = useContext(DarkModeContext);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
@@ -27,38 +30,47 @@ const RateUserScreen = ({ navigation }) => {
     if (rating === 0) {
       return Alert.alert('Грешка', 'Моля, избери брой звезди.');
     }
-
+  
     try {
       const usersResponse = await fetch(`${API_BASE_URL}/users`);
       const users = await usersResponse.json();
-
+  
       const userToRate = users.find(user => user?.username === mainRouteUser);
-
       if (!userToRate) {
         return Alert.alert('Грешка', 'Потребителят не е намерен.');
       }
-
+  
+      // 🔍 Проверка дали вече е оценяван този маршрут
+      const alreadyRated = (userToRate.routes || []).includes(routeId);
+  
+      if (alreadyRated) {
+        return Alert.alert('Информация', 'Вече си оценил този маршрут.');
+      }
+  
+      // Обновяване на рейтинги и коментари
       const updatedRatings = [...(userToRate.ratings || []), rating];
       const updatedComments = [...(userToRate.comments || []), comment];
+      const updatedRoutes = [...(userToRate.routes || []), routeId];
+  
       const averageRating =
         updatedRatings.reduce((sum, r) => sum + r, 0) / updatedRatings.length;
-
+  
       const response = await fetch(`${API_BASE_URL}/users/${userToRate.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ratings: updatedRatings,
           comments: updatedComments,
+          routes: updatedRoutes, // 👈 добавяме маршрута
           averageRating: parseFloat(averageRating.toFixed(2)),
         }),
       });
-
-      const data = await response.json();
-
+  
       if (response.ok) {
         Alert.alert('Успех', 'Успешно оцени потребителя.');
         navigation.navigate('Home');
       } else {
+        const data = await response.json();
         Alert.alert('Грешка', data.error || 'Неуспешна заявка');
       }
     } catch (error) {
@@ -66,6 +78,7 @@ const RateUserScreen = ({ navigation }) => {
       console.log(error);
     }
   };
+  
 
   const getHeaderStyles = () => ({
     flexDirection: 'row',
@@ -94,7 +107,7 @@ const RateUserScreen = ({ navigation }) => {
           <Text style={[styles.title, { color: darkMode ? '#fff' : '#000' }]}>Оцени потребителя</Text>
 
           <Text style={[styles.subText, { color: darkMode ? '#ccc' : '#000' }]}>
-            Оценяваш <Text style={styles.bold}>{mainRouteUser?.username}</Text>
+            Оценяваш <Text style={styles.bold}>{mainRouteUser}</Text>
           </Text>
 
           <StarRating

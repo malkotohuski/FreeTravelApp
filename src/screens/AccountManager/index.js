@@ -10,10 +10,38 @@ import {
     ScrollView
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import StarRating from 'react-native-star-rating-widget';
 import { useAuth } from '../../context/AuthContext';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const { width, height } = Dimensions.get('window'); // За адаптивност на различни екрани
+
+const StarRatingDisplay = ({ rating, size = 50 }) => {
+    const stars = [];
+  
+    // Закръгляне до най-близка половинка
+    const roundedRating = Math.round(rating * 2) / 2;
+  
+    const fullStars = Math.floor(roundedRating);
+    const hasHalfStar = roundedRating % 1 !== 0;
+  
+    // Пълни звезди
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(<Icons key={`full-${i}`} name="star" size={size} color="gold" />);
+    }
+  
+    // Половин звезда
+    if (hasHalfStar) {
+      stars.push(<Icons key="half" name="star-half" size={size} color="gold" />);
+    }
+  
+    return (
+      <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+        {stars}
+      </View>
+    );
+  };
+  
 
 const AccountManager = ({ navigation }) => {
     const { user } = useAuth();
@@ -65,15 +93,12 @@ const AccountManager = ({ navigation }) => {
 
                     {/* Rating Section */}
                     <View style={styles.ratingSection}>
-                        <Text style={styles.ratingTitle}>{t('Your rating')}</Text>
-                        <View style={styles.ratingStars}>
-                            <Icons name="star" size={54} color="gold" />
-                            <Icons name="star" size={54} color="gold" />
-                            <Icons name="star" size={54} color="gold" />
-                            <Icons name="star-half" size={54} color="gold" />
-                        </View>
+                      <Text style={styles.ratingTitle}>{t('Your rating')}</Text>
+                      <StarRatingDisplay rating={user?.user?.averageRating || 0} size={50} />
                     </View>
-
+                     <Text style={{ color: 'white', marginBottom: 5, fontSize: 20, fontWeight:'bold' }}>
+  ({user?.user?.averageRating?.toFixed(2) || '0.00'})
+                     </Text>        
                     {/* Buttons Section */}
                     <View style={styles.buttonsContainer}>
                         <TouchableOpacity style={styles.button} onPress={handlerCommendSection}>
