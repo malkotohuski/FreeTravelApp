@@ -18,9 +18,7 @@ const API_BASE_URL = 'http://10.0.2.2:3000';
 
 const RateUserScreen = ({ navigation }) => {
   const route = useRoute();
-  const { mainRouteUser } = route.params;
-  console.log('Main Route User:', mainRouteUser); // Използвай го както ти е нужно
-  const { ratedUserId, fromUserId, routeInfo } = route.params || {};
+  const { mainRouteUser } = route.params || {}; // Единствено това ни трябва
   const { darkMode } = useContext(DarkModeContext);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
@@ -30,19 +28,28 @@ const RateUserScreen = ({ navigation }) => {
       return Alert.alert('Грешка', 'Моля, избери брой звезди.');
     }
 
-    if (!ratedUserId || !fromUserId) {
-      return Alert.alert('Грешка', 'Липсват потребителски данни за оценяване.');
-    }
-
     try {
-      const response = await fetch(`${API_BASE_URL}/rateUser`, {
-        method: 'POST',
+      const usersResponse = await fetch(`${API_BASE_URL}/users`);
+      const users = await usersResponse.json();
+
+      const userToRate = users.find(user => user?.username === mainRouteUser);
+
+      if (!userToRate) {
+        return Alert.alert('Грешка', 'Потребителят не е намерен.');
+      }
+
+      const updatedRatings = [...(userToRate.ratings || []), rating];
+      const updatedComments = [...(userToRate.comments || []), comment];
+      const averageRating =
+        updatedRatings.reduce((sum, r) => sum + r, 0) / updatedRatings.length;
+
+      const response = await fetch(`${API_BASE_URL}/users/${userToRate.id}`, {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId: ratedUserId,
-          fromUserId,
-          rating,
-          comment,
+          ratings: updatedRatings,
+          comments: updatedComments,
+          averageRating: parseFloat(averageRating.toFixed(2)),
         }),
       });
 
@@ -50,7 +57,7 @@ const RateUserScreen = ({ navigation }) => {
 
       if (response.ok) {
         Alert.alert('Успех', 'Успешно оцени потребителя.');
-        navigation.goBack();
+        navigation.navigate('Home');
       } else {
         Alert.alert('Грешка', data.error || 'Неуспешна заявка');
       }
@@ -86,17 +93,9 @@ const RateUserScreen = ({ navigation }) => {
         <View style={[styles.container, { backgroundColor: darkMode ? '#121212' : '#fafafa' }]}>
           <Text style={[styles.title, { color: darkMode ? '#fff' : '#000' }]}>Оцени потребителя</Text>
 
-          {ratedUserId && routeInfo ? (
-            <Text style={[styles.subText, { color: darkMode ? '#ccc' : '#000' }]}>
-              Оценяваш <Text style={styles.bold}>{ratedUserId}</Text> за пътуване от{' '}
-              <Text style={styles.bold}>{routeInfo?.departureCity}</Text> до{' '}
-              <Text style={styles.bold}>{routeInfo?.arrivalCity}</Text>
-            </Text>
-          ) : (
-            <Text style={[styles.subText, { color: 'red', textAlign: 'center' }]}>
-              ⚠️ Липсват данни за потребителя или маршрута
-            </Text>
-          )}
+          <Text style={[styles.subText, { color: darkMode ? '#ccc' : '#000' }]}>
+            Оценяваш <Text style={styles.bold}>{mainRouteUser?.username}</Text>
+          </Text>
 
           <StarRating
             rating={rating}
@@ -131,6 +130,7 @@ const RateUserScreen = ({ navigation }) => {
 
 export default RateUserScreen;
 
+// --- StyleSheet остава непроменен ---
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,

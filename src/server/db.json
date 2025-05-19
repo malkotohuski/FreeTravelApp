@@ -10,7 +10,18 @@
       "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/37c93d64-0aea-4fd0-af47-61cfa98e0142.jpg",
       "confirmationCode": null,
       "routes": [],
-      "freinds": []
+      "freinds": [],
+      "ratings": [
+        3.5,
+        3.5,
+        2
+      ],
+      "comments": [
+        "Stawa",
+        "Stawa",
+        "Stawa"
+      ],
+      "averageRating": 3
     },
     {
       "id": 1730713699917,
@@ -3820,7 +3831,8 @@
       "userFname": "asdasd",
       "userLname": "sdsd",
       "userEmail": "devmasterstech@gmail.com",
-      "id": 1736872628770
+      "id": 1736872628770,
+      "userRouteId": "deleted"
     },
     {
       "selectedVehicle": "Car",
@@ -3888,7 +3900,8 @@
       "userFname": "asdasd",
       "userLname": "sdsd",
       "userEmail": "devmasterstech@gmail.com",
-      "id": 1736953714366
+      "id": 1736953714366,
+      "userRouteId": "deleted"
     },
     {
       "selectedVehicle": "Car",
@@ -3973,7 +3986,8 @@
       "userFname": "asdasd",
       "userLname": "sdsd",
       "userEmail": "devmasterstech@gmail.com",
-      "id": 1736956628621
+      "id": 1736956628621,
+      "userRouteId": "completed"
     },
     {
       "selectedVehicle": "Car",
@@ -4093,7 +4107,8 @@
       "userFname": "Velichka",
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
-      "id": 1744630032465
+      "id": 1744630032465,
+      "userRouteId": "completed"
     },
     {
       "selectedVehicle": "Лек автомобил",
@@ -4110,7 +4125,8 @@
       "userFname": "Velichka",
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
-      "id": 1744650571348
+      "id": 1744650571348,
+      "userRouteId": "completed"
     },
     {
       "selectedVehicle": "Car",
@@ -6303,6 +6319,45 @@
       "createdAt": "2025-05-13T14:36:05.893Z",
       "mainRouteUser": "Shushkata7@gmail.com",
       "id": 71,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "fromUserId": 1711358014466,
+      "type": "rate_user",
+      "routeId": 1744650571348,
+      "message": "Моля, оцени пътуването с Shushkata7@gmail.com.\n За маршрута Варна-София",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2025-05-19T06:59:44.288Z",
+      "mainRouteUser": "Shushkata7@gmail.com",
+      "id": 72,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "fromUserId": 1730713699917,
+      "type": "rate_user",
+      "routeId": 1736956628621,
+      "message": "Моля, оцени пътуването с sdds.\n За маршрута Pleven-Sofia",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2025-05-19T07:18:18.871Z",
+      "mainRouteUser": "sdds",
+      "id": 73,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "fromUserId": 1711358014466,
+      "type": "rate_user",
+      "routeId": 1744630032465,
+      "message": "Моля, оцени пътуването с Shushkata7@gmail.com.\n За маршрута Kardzhali-Haskovo",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2025-05-19T07:36:27.071Z",
+      "mainRouteUser": "Shushkata7@gmail.com",
+      "id": 74,
       "read": true
     }
   ]
