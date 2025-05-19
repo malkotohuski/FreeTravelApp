@@ -40,7 +40,8 @@ const Notifications = ({ navigation, route}) => {
   const handleNotificationPress = (notification) => {
     if (notification.message.includes('оцени пътуването')) {
       navigation.navigate('RateUser', {
-        mainRouteUser: notification.mainRouteUser
+        mainRouteUser: notification.mainRouteUser,
+        routeId: notification.routeId 
       });
     }
   };
