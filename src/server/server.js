@@ -58,7 +58,8 @@ server.post('/register', (req, res) => {
         routes: [],
         friends: [],
         ratings: [],
-        averageRating: 0
+        averageRating: 0,
+        comments: []
     };
 
     router.db.get('users').push(user).write();

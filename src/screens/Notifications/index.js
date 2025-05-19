@@ -12,10 +12,12 @@ const api = axios.create({
   baseURL: API_BASE_URL,
 });
 
-const Notifications = ({ navigation }) => {
+const Notifications = ({ navigation, route}) => {
   const { user } = useAuth();
   const { darkMode } = useContext(DarkModeContext);
   const { t } = useTranslation();
+  const { mainRouteUser } = route.params || {};
+  console.log('mainRouteUser:', mainRouteUser); 
 
   const [notifications, setNotifications] = useState([]);
   const [visibleModalId, setVisibleModalId] = useState(null);

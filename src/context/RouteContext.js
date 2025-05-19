@@ -10,6 +10,7 @@ export const RouteProvider = ({ children }) => {
     const [routes, setRoutes] = useState([]);
     const [requests, setRequests] = useState([]);
     const [matchingRequest, setMatchingRequest] = useState(null);
+    const [mainRouteUser, setMainRouteUser] = useState(null);
     const { user } = useAuth();
 
     useEffect(() => {
@@ -130,6 +131,7 @@ export const RouteProvider = ({ children }) => {
             routes,
             requests,
             matchingRequest,
+            mainRouteUser,
             addRoute,
             removeRoute,
             deleteRoute,

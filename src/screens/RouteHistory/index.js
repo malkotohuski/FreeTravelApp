@@ -152,7 +152,7 @@ const RouteHistory = ({ navigation }) => {
                             });
 
                             // Навигирай към екрана с известия
-                            navigation.navigate('Home', { matchingRequest });
+                            navigation.navigate('Notifications', { matchingRequest , mainRouteUser});
 
                         } catch (error) {
                             console.error('Error completing route or sending notification:', error);
