@@ -50,11 +50,11 @@ const RateUserScreen = ({ navigation }) => {
         return Alert.alert('Информация', 'Вече си оценил този маршрут.');
       }
   
-      const updatedRatings = [...(userToRate.ratings || []), rating];
-      const updatedComments = [
-        ...(userToRate.comments || []),
-        { user: currentUser, comment: comment || '' }
-      ];
+      const previousRatings = Array.isArray(userToRate.ratings) ? userToRate.ratings : [];
+      const previousComments = Array.isArray(userToRate.comments) ? userToRate.comments : [];
+      
+      const updatedRatings = [...previousRatings, rating];
+      const updatedComments = [...previousComments, { user: currentUser, comment: comment || '' }];
   
       const averageRating =
         updatedRatings.reduce((sum, r) => sum + r, 0) / updatedRatings.length;
@@ -71,7 +71,9 @@ const RateUserScreen = ({ navigation }) => {
       });
   
       // Актуализиране на профила на текущия потребител (добавяме routeId)
-      const updatedRoutes = [...(ratingUser.routes || []), routeId];
+      const updatedRoutes = Array.isArray(ratingUser.routes)
+       ? [...ratingUser.routes, routeId]
+       : [routeId];
       await fetch(`${API_BASE_URL}/users/${ratingUser.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },

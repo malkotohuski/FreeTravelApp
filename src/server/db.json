@@ -9,7 +9,9 @@
       "lName": "Spasova",
       "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/934839b7-5c2f-472d-9a08-e59d74d9a512.jpg",
       "confirmationCode": null,
-      "routes": 1747677134652,
+      "routes": [
+        1748268348478
+      ],
       "freinds": [],
       "ratings": [
         3.5,
@@ -24,6 +26,7 @@
         2.5,
         1.5,
         1.5,
+        5,
         5
       ],
       "comments": [
@@ -48,9 +51,13 @@
         {
           "user": "sdds",
           "comment": "Good driver !!!"
+        },
+        {
+          "user": "sdds",
+          "comment": "Perfect traveling :)"
         }
       ],
-      "averageRating": 2.77
+      "averageRating": 2.93
     },
     {
       "id": 1730713699917,
@@ -66,7 +73,8 @@
         1736957069792,
         1736956628621,
         1747679033547,
-        1748262223336
+        1748262223336,
+        1748269154351
       ],
       "friends": [],
       "ratings": [
@@ -74,6 +82,8 @@
         3.5,
         3.5,
         5,
+        4,
+        4,
         4
       ],
       "comments": [
@@ -87,9 +97,17 @@
         {
           "user": "Shushkata7@gmail.com",
           "comment": "Good driver !!!"
+        },
+        {
+          "user": "Shushkata7@gmail.com",
+          "comment": "Good driver "
+        },
+        {
+          "user": "Shushkata7@gmail.com",
+          "comment": "Good driver "
         }
       ],
-      "averageRating": 3.9
+      "averageRating": 3.93
     },
     {
       "id": 1733840997419,
@@ -4419,6 +4437,24 @@
       "userEmail": "devmasterstech@gmail.com",
       "id": 1748268348478,
       "userRouteId": "completed"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "CB2677AH",
+      "selectedDateTime": "2025-06-02T14:05:00.000Z",
+      "departureCity": "Sofia",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Bata (Pazardzhik)",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1748269154351,
+      "userRouteId": "completed"
     }
   ],
   "requests": [
@@ -5506,6 +5542,20 @@
       "routeId": 1748268348478,
       "dataTime": "2025-05-29T14:05:00.000Z",
       "id": 1748268390846,
+      "status": "approved"
+    },
+    {
+      "username": "sdds",
+      "userFname": "asdasd",
+      "userLname": "sdsd",
+      "userEmail": "devmasterstech@gmail.com",
+      "userID": 1730713699917,
+      "userRouteId": 1711358014466,
+      "departureCity": "Sofia",
+      "arrivalCity": "Bata (Pazardzhik)",
+      "routeId": 1748269154351,
+      "dataTime": "2025-06-02T14:05:00.000Z",
+      "id": 1748269184298,
       "status": "approved"
     }
   ],
@@ -6883,6 +6933,49 @@
       "createdAt": "2025-05-26T14:07:27.080Z",
       "mainRouteUser": "sdds",
       "id": 93,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "You have a candidate for your route: Sofia-Bata (Pazardzhik) with username: sdds!",
+      "routeId": 1748269154351,
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "sdds",
+        "userFname": "asdasd",
+        "userLname": "sdsd",
+        "email": "devmasterstech@gmail.com"
+      },
+      "createdAt": "2025-05-26T14:19:44.157Z",
+      "id": 94
+    },
+    {
+      "recipient": "sdds",
+      "message": "Your request has been approved from Shushkata7@gmail.com.\nAbout the route: Sofia-Bata (Pazardzhik).\nFor date: 2.06.2025 г., 17:05",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-05-26T14:20:11.845Z",
+      "id": 95,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "fromUserId": 1711358014466,
+      "type": "rate_user",
+      "routeId": 1748269154351,
+      "message": "Моля, оцени пътуването с Shushkata7@gmail.com.\n За маршрута Sofia-Bata (Pazardzhik)",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2025-05-26T14:20:26.030Z",
+      "mainRouteUser": "Shushkata7@gmail.com",
+      "id": 96,
       "read": true
     }
   ]
