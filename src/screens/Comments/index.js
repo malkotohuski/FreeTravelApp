@@ -11,6 +11,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useAuth } from '../../context/AuthContext';
+import StarRating from 'react-native-star-rating-widget';
 import { DarkModeContext } from '../../navigation/DarkModeContext';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
@@ -18,25 +19,52 @@ const Comments = ({ navigation }) => {
     const { user } = useAuth();
     const comments = user?.user?.comments || [];
     console.log('comments', comments);
+
+    const formatDate = (isoDate) => {
+        if (!isoDate) return 'Unknown date';
+        const date = new Date(isoDate);
+        return date.toLocaleDateString('bg-BG', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+    };
+
+    const validCommentObjects = comments.filter(
+        c => typeof c === 'object' && c.user && c.comment?.trim()
+    );
+    
+    // Вземи последните N рейтинга, колкото са валидните коментари
+    const relevantRatings = user?.user?.ratings?.slice(-validCommentObjects.length) || [];
+    
+    // Изгради структурата
+    const structuredComments = validCommentObjects.map((c, index) => ({
+        username: c.user,
+        text: c.comment,
+        rating: relevantRatings[index] ?? undefined,
+        date: c.date ?? null,
+    }));
     
     const { t } = useTranslation();
     const { darkMode } = useContext(DarkModeContext);
 
-    const renderStars = (rating) => {
+/*     const renderStars = (rating) => {
         const stars = [];
         const fullStars = Math.floor(rating);
         const hasHalfStar = rating - fullStars >= 0.5;
 
         for (let i = 0; i < fullStars; i++) {
-            stars.push(<FontAwesome key={`full-${i}`} name="star" size={16} color="#f1c40f" />);
+            stars.push(<FontAwesome key={`full-${i}`} name="star" size={26} color="#f1c40f" />);
         }
 
         if (hasHalfStar) {
-            stars.push(<FontAwesome key="half" name="star-half-empty" size={16} color="#f1c40f" />);
+            stars.push(<FontAwesome key="half" name="star-half-empty" size={26} color="#f1c40f" />);
         }
 
         return stars;
-    };
+    }; */
 
     const renderComment = (item, index) => {
         const { text, username, date, rating } = item;
@@ -54,7 +82,7 @@ const Comments = ({ navigation }) => {
                         {username || 'Anonymous'}
                     </Text>
                     <Text style={[styles.date, { color: darkMode ? '#ccc' : '#666' }]}>
-                        {date || 'Unknown date'}
+                       {formatDate(date)}
                     </Text>
                 </View>
 
@@ -63,13 +91,22 @@ const Comments = ({ navigation }) => {
                 </Text>
 
                 {rating !== undefined && (
-                    <View style={styles.starsContainer}>
-                        {renderStars(rating)}
-                        <Text style={{ marginLeft: 6, color: darkMode ? '#ccc' : '#333' }}>
-                            ({rating})
-                        </Text>
-                    </View>
-                )}
+    <View style={styles.starsContainer}>
+        <StarRating
+            rating={rating}
+            starSize={24}
+            enableHalfStar={true}
+            onChange={() => {}}
+            starStyle={{ marginHorizontal: 1 }}
+            animationConfig={{ scale: 0 }} // за да не се анимират
+            enableSwiping={false}
+        />
+        <Text style={{ marginLeft: 6, color: darkMode ? '#ccc' : '#333' }}>
+            ({rating})
+        </Text>
+    </View>
+)}
+
             </View>
         );
     };
@@ -92,7 +129,7 @@ const Comments = ({ navigation }) => {
             <View style={styles.mainContent}>
                 <ScrollView contentContainerStyle={styles.commentsContainer}>
                     {comments.length > 0 ? (
-                        comments.map(renderComment)
+                        structuredComments.map(renderComment)
                     ) : (
                         <Text style={[styles.noCommentsText, { color: darkMode ? '#ccc' : '#555' }]}>
                             {t('No comments yet')}
