@@ -18,7 +18,6 @@ const { width, height } = Dimensions.get('window'); // За адаптивнос
 
 const StarRatingDisplay = ({ rating, size = 50 }) => {
     const stars = [];
-  
     // Закръгляне до най-близка половинка
     const roundedRating = Math.round(rating * 2) / 2;
   

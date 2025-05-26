@@ -12,6 +12,7 @@ import {
 import StarRating from 'react-native-star-rating-widget';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { DarkModeContext } from "../../navigation/DarkModeContext";
+import { useAuth } from '../../context/AuthContext';
 import { useRoute } from '@react-navigation/native';
 
 const API_BASE_URL = 'http://10.0.2.2:3000';
@@ -19,6 +20,8 @@ const API_BASE_URL = 'http://10.0.2.2:3000';
 const RateUserScreen = ({ navigation }) => {
   const route = useRoute();
   const { mainRouteUser, routeId  } = route.params; 
+  const { user } = useAuth();
+  const currentUser = user?.user?.username;
   console.log('kdsf', routeId);
   console.log('асдасд', mainRouteUser);
   
@@ -36,50 +39,58 @@ const RateUserScreen = ({ navigation }) => {
       const users = await usersResponse.json();
   
       const userToRate = users.find(user => user?.username === mainRouteUser);
-      if (!userToRate) {
+      const ratingUser = users.find(u => u?.username === currentUser); // този, който оценява
+  
+      if (!userToRate || !ratingUser) {
         return Alert.alert('Грешка', 'Потребителят не е намерен.');
       }
   
-      // 🔍 Проверка дали вече е оценяван този маршрут
-      const alreadyRated = (userToRate.routes || []).includes(routeId);
-  
+      const alreadyRated = Array.isArray(ratingUser.routes) && ratingUser.routes.includes(routeId);
       if (alreadyRated) {
         return Alert.alert('Информация', 'Вече си оценил този маршрут.');
       }
   
-      // Обновяване на рейтинги и коментари
-      const updatedRatings = [...(userToRate.ratings || []), rating];
-      const updatedComments = [...(userToRate.comments || []), comment];
-      const updatedRoutes = [...(userToRate.routes || []), routeId];
+      const previousRatings = Array.isArray(userToRate.ratings) ? userToRate.ratings : [];
+      const previousComments = Array.isArray(userToRate.comments) ? userToRate.comments : [];
+      
+      const updatedRatings = [...previousRatings, rating];
+      const updatedComments = [...previousComments, { user: currentUser, comment: comment || '' }];
   
       const averageRating =
         updatedRatings.reduce((sum, r) => sum + r, 0) / updatedRatings.length;
   
-      const response = await fetch(`${API_BASE_URL}/users/${userToRate.id}`, {
+      // Актуализиране на профила на оценявания потребител
+      await fetch(`${API_BASE_URL}/users/${userToRate.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ratings: updatedRatings,
           comments: updatedComments,
-          routes: updatedRoutes, // 👈 добавяме маршрута
           averageRating: parseFloat(averageRating.toFixed(2)),
         }),
       });
   
-      if (response.ok) {
-        Alert.alert('Успех', 'Успешно оцени потребителя.');
-        navigation.navigate('Home');
-      } else {
-        const data = await response.json();
-        Alert.alert('Грешка', data.error || 'Неуспешна заявка');
-      }
+      // Актуализиране на профила на текущия потребител (добавяме routeId)
+      const updatedRoutes = Array.isArray(ratingUser.routes)
+       ? [...ratingUser.routes, routeId]
+       : [routeId];
+      await fetch(`${API_BASE_URL}/users/${ratingUser.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          routes: updatedRoutes,
+        }),
+      });
+  
+      Alert.alert('Успех', 'Успешно оцени потребителя.');
+      navigation.navigate('Home');
     } catch (error) {
       Alert.alert('Грешка', 'Проблем със заявката към сървъра.');
       console.log(error);
     }
   };
   
-
+  
   const getHeaderStyles = () => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
