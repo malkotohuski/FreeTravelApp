@@ -7,9 +7,9 @@
       "password": "123",
       "fName": "Velichka",
       "lName": "Spasova",
-      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/37c93d64-0aea-4fd0-af47-61cfa98e0142.jpg",
+      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/934839b7-5c2f-472d-9a08-e59d74d9a512.jpg",
       "confirmationCode": null,
-      "routes": 1747646279333,
+      "routes": 1747677134652,
       "freinds": [],
       "ratings": [
         3.5,
@@ -18,6 +18,12 @@
         2,
         0.5,
         3,
+        5,
+        3.5,
+        2.5,
+        2.5,
+        1.5,
+        1.5,
         5
       ],
       "comments": [
@@ -27,9 +33,24 @@
         "Bad driver",
         "Bad driver",
         "Bad driver",
-        "Good driver , but driving very fast !"
+        "Good driver , but driving very fast !",
+        "gg",
+        "",
+        "",
+        {
+          "user": "sdds",
+          "comment": ""
+        },
+        {
+          "user": "sdds",
+          "comment": ""
+        },
+        {
+          "user": "sdds",
+          "comment": "Good driver !!!"
+        }
       ],
-      "averageRating": 2.79
+      "averageRating": 2.77
     },
     {
       "id": 1730713699917,
@@ -43,18 +64,32 @@
       "isActive": true,
       "routes": [
         1736957069792,
-        1736956628621
+        1736956628621,
+        1747679033547,
+        1748262223336
       ],
       "friends": [],
       "ratings": [
         3.5,
-        3.5
+        3.5,
+        3.5,
+        5,
+        4
       ],
       "comments": [
         "ops",
-        "ops"
+        "ops",
+        "ooo",
+        {
+          "user": "Shushkata7@gmail.com",
+          "comment": "Good driver !!!"
+        },
+        {
+          "user": "Shushkata7@gmail.com",
+          "comment": "Good driver !!!"
+        }
       ],
-      "averageRating": 3.5
+      "averageRating": 3.9
     },
     {
       "id": 1733840997419,
@@ -4295,6 +4330,95 @@
       "userEmail": "shushkata7@gmail.com",
       "id": 1747646279333,
       "userRouteId": "completed"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "EA2677KA",
+      "selectedDateTime": "2025-05-21T17:51:00.000Z",
+      "departureCity": "Sofia",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Plovdiv",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1747677134652,
+      "userRouteId": "completed"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "AE2211AE",
+      "selectedDateTime": "2025-05-22T18:23:00.000Z",
+      "departureCity": "Ruse",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Burgas",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "userId": 1730713699917,
+      "username": "sdds",
+      "userFname": "asdasd",
+      "userLname": "sdsd",
+      "userEmail": "devmasterstech@gmail.com",
+      "id": 1747679033547,
+      "userRouteId": "completed"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "CB2144TA",
+      "selectedDateTime": "2025-05-24T18:23:00.000Z",
+      "departureCity": "Sofia",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Pleven",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "userId": 1730713699917,
+      "username": "sdds",
+      "userFname": "asdasd",
+      "userLname": "sdsd",
+      "userEmail": "devmasterstech@gmail.com",
+      "id": 1747679110736
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A2121AT",
+      "selectedDateTime": "2025-05-31T12:23:00.000Z",
+      "departureCity": "Sofia",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Burgas",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1748262223336,
+      "userRouteId": "completed"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "K2155KH",
+      "selectedDateTime": "2025-05-29T14:05:00.000Z",
+      "departureCity": "Kazanlak",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Stara Zagora",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "userId": 1730713699917,
+      "username": "sdds",
+      "userFname": "asdasd",
+      "userLname": "sdsd",
+      "userEmail": "devmasterstech@gmail.com",
+      "id": 1748268348478,
+      "userRouteId": "completed"
     }
   ],
   "requests": [
@@ -5326,6 +5450,62 @@
       "routeId": 1747646279333,
       "dataTime": "2025-05-21T09:17:00.000Z",
       "id": 1747646306646,
+      "status": "approved"
+    },
+    {
+      "username": "sdds",
+      "userFname": "asdasd",
+      "userLname": "sdsd",
+      "userEmail": "devmasterstech@gmail.com",
+      "userID": 1730713699917,
+      "userRouteId": 1711358014466,
+      "departureCity": "Sofia",
+      "arrivalCity": "Plovdiv",
+      "routeId": 1747677134652,
+      "dataTime": "2025-05-21T17:51:00.000Z",
+      "id": 1747677155276,
+      "status": "approved"
+    },
+    {
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "userID": 1711358014466,
+      "userRouteId": 1730713699917,
+      "departureCity": "Ruse",
+      "arrivalCity": "Burgas",
+      "routeId": 1747679033547,
+      "dataTime": "2025-05-22T18:23:00.000Z",
+      "id": 1747679155946,
+      "status": "approved"
+    },
+    {
+      "username": "sdds",
+      "userFname": "asdasd",
+      "userLname": "sdsd",
+      "userEmail": "devmasterstech@gmail.com",
+      "userID": 1730713699917,
+      "userRouteId": 1711358014466,
+      "departureCity": "Sofia",
+      "arrivalCity": "Burgas",
+      "routeId": 1748262223336,
+      "dataTime": "2025-05-31T12:23:00.000Z",
+      "id": 1748262265176,
+      "status": "approved"
+    },
+    {
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "userID": 1711358014466,
+      "userRouteId": 1730713699917,
+      "departureCity": "Kazanlak",
+      "arrivalCity": "Stara Zagora",
+      "routeId": 1748268348478,
+      "dataTime": "2025-05-29T14:05:00.000Z",
+      "id": 1748268390846,
       "status": "approved"
     }
   ],
@@ -6527,6 +6707,182 @@
       "createdAt": "2025-05-19T09:20:15.038Z",
       "mainRouteUser": "Shushkata7@gmail.com",
       "id": 81,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "You have a candidate for your route: Sofia-Plovdiv with username: sdds!",
+      "routeId": 1747677134652,
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "sdds",
+        "userFname": "asdasd",
+        "userLname": "sdsd",
+        "email": "devmasterstech@gmail.com"
+      },
+      "createdAt": "2025-05-19T17:52:30.963Z",
+      "id": 82,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "message": "Your request has been approved from Shushkata7@gmail.com.\nAbout the route: Sofia-Plovdiv.\nFor date: 21.05.2025 г., 20:51",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-05-19T17:52:56.874Z",
+      "id": 83,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "fromUserId": 1711358014466,
+      "type": "rate_user",
+      "routeId": 1747677134652,
+      "message": "Моля, оцени пътуването с Shushkata7@gmail.com.\n За маршрута Sofia-Plovdiv",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2025-05-19T17:53:06.953Z",
+      "mainRouteUser": "Shushkata7@gmail.com",
+      "id": 84,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "message": "You have a candidate for your route: Ruse-Burgas with username: Shushkata7@gmail.com!",
+      "routeId": 1747679033547,
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-05-19T18:25:51.633Z",
+      "id": 85,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "Your request has been approved from sdds.\nAbout the route: Ruse-Burgas.\nFor date: 22.05.2025 г., 21:23",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "sdds",
+        "userFname": "asdasd",
+        "userLname": "sdsd",
+        "email": "devmasterstech@gmail.com"
+      },
+      "createdAt": "2025-05-19T18:26:15.981Z",
+      "id": 86,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "fromUserId": 1730713699917,
+      "type": "rate_user",
+      "routeId": 1747679033547,
+      "message": "Моля, оцени пътуването с sdds.\n За маршрута Ruse-Burgas",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2025-05-19T18:26:34.420Z",
+      "mainRouteUser": "sdds",
+      "id": 87,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "You have a candidate for your route: Sofia-Burgas with username: sdds!",
+      "routeId": 1748262223336,
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "sdds",
+        "userFname": "asdasd",
+        "userLname": "sdsd",
+        "email": "devmasterstech@gmail.com"
+      },
+      "createdAt": "2025-05-26T12:24:25.035Z",
+      "id": 88,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "message": "Your request has been approved from Shushkata7@gmail.com.\nAbout the route: Sofia-Burgas.\nFor date: 31.05.2025 г., 15:23",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-05-26T12:25:08.812Z",
+      "id": 89,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "fromUserId": 1711358014466,
+      "type": "rate_user",
+      "routeId": 1748262223336,
+      "message": "Моля, оцени пътуването с Shushkata7@gmail.com.\n За маршрута Sofia-Burgas",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2025-05-26T12:25:19.914Z",
+      "mainRouteUser": "Shushkata7@gmail.com",
+      "id": 90,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "message": "You have a candidate for your route: Kazanlak-Stara Zagora with username: Shushkata7@gmail.com!",
+      "routeId": 1748268348478,
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-05-26T14:06:30.703Z",
+      "id": 91,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "Your request has been approved from sdds.\nAbout the route: Kazanlak-Stara Zagora.\nFor date: 29.05.2025 г., 17:05",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "sdds",
+        "userFname": "asdasd",
+        "userLname": "sdsd",
+        "email": "devmasterstech@gmail.com"
+      },
+      "createdAt": "2025-05-26T14:06:58.037Z",
+      "id": 92,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "fromUserId": 1730713699917,
+      "type": "rate_user",
+      "routeId": 1748268348478,
+      "message": "Моля, оцени пътуването с sdds.\n За маршрута Kazanlak-Stara Zagora",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2025-05-26T14:07:27.080Z",
+      "mainRouteUser": "sdds",
+      "id": 93,
       "read": true
     }
   ]
