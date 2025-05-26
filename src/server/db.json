@@ -27,7 +27,8 @@
         1.5,
         1.5,
         5,
-        5
+        5,
+        4.5
       ],
       "comments": [
         "Stawa",
@@ -55,9 +56,14 @@
         {
           "user": "sdds",
           "comment": "Perfect traveling :)"
+        },
+        {
+          "user": "sdds",
+          "comment": "Very Good !!!",
+          "date": "2025-05-26T14:51:56.999Z"
         }
       ],
-      "averageRating": 2.93
+      "averageRating": 3.03
     },
     {
       "id": 1730713699917,
@@ -74,7 +80,8 @@
         1736956628621,
         1747679033547,
         1748262223336,
-        1748269154351
+        1748269154351,
+        1748270995203
       ],
       "friends": [],
       "ratings": [
@@ -4455,6 +4462,24 @@
       "userEmail": "shushkata7@gmail.com",
       "id": 1748269154351,
       "userRouteId": "completed"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "B6733HT",
+      "selectedDateTime": "2025-06-05T14:05:00.000Z",
+      "departureCity": "Varna",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Sofia",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1748270995203,
+      "userRouteId": "completed"
     }
   ],
   "requests": [
@@ -5556,6 +5581,20 @@
       "routeId": 1748269154351,
       "dataTime": "2025-06-02T14:05:00.000Z",
       "id": 1748269184298,
+      "status": "approved"
+    },
+    {
+      "username": "sdds",
+      "userFname": "asdasd",
+      "userLname": "sdsd",
+      "userEmail": "devmasterstech@gmail.com",
+      "userID": 1730713699917,
+      "userRouteId": 1711358014466,
+      "departureCity": "Varna",
+      "arrivalCity": "Sofia",
+      "routeId": 1748270995203,
+      "dataTime": "2025-06-05T14:05:00.000Z",
+      "id": 1748271037755,
       "status": "approved"
     }
   ],
@@ -6948,7 +6987,8 @@
         "email": "devmasterstech@gmail.com"
       },
       "createdAt": "2025-05-26T14:19:44.157Z",
-      "id": 94
+      "id": 94,
+      "read": true
     },
     {
       "recipient": "sdds",
@@ -6976,6 +7016,50 @@
       "createdAt": "2025-05-26T14:20:26.030Z",
       "mainRouteUser": "Shushkata7@gmail.com",
       "id": 96,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "You have a candidate for your route: Varna-Sofia with username: sdds!",
+      "routeId": 1748270995203,
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "sdds",
+        "userFname": "asdasd",
+        "userLname": "sdsd",
+        "email": "devmasterstech@gmail.com"
+      },
+      "createdAt": "2025-05-26T14:50:37.614Z",
+      "id": 97,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "message": "Your request has been approved from Shushkata7@gmail.com.\nAbout the route: Varna-Sofia.\nFor date: 5.06.2025 г., 17:05",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-05-26T14:51:05.647Z",
+      "id": 98,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "fromUserId": 1711358014466,
+      "type": "rate_user",
+      "routeId": 1748270995203,
+      "message": "Моля, оцени пътуването с Shushkata7@gmail.com.\n За маршрута Varna-Sofia",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2025-05-26T14:51:17.314Z",
+      "mainRouteUser": "Shushkata7@gmail.com",
+      "id": 99,
       "read": true
     }
   ]

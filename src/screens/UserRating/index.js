@@ -39,7 +39,7 @@ const RateUserScreen = ({ navigation }) => {
       const users = await usersResponse.json();
   
       const userToRate = users.find(user => user?.username === mainRouteUser);
-      const ratingUser = users.find(u => u?.username === currentUser); // този, който оценява
+      const ratingUser = users.find(u => u?.username === currentUser);
   
       if (!userToRate || !ratingUser) {
         return Alert.alert('Грешка', 'Потребителят не е намерен.');
@@ -52,14 +52,20 @@ const RateUserScreen = ({ navigation }) => {
   
       const previousRatings = Array.isArray(userToRate.ratings) ? userToRate.ratings : [];
       const previousComments = Array.isArray(userToRate.comments) ? userToRate.comments : [];
-      
+  
       const updatedRatings = [...previousRatings, rating];
-      const updatedComments = [...previousComments, { user: currentUser, comment: comment || '' }];
+      const updatedComments = [
+        ...previousComments,
+        {
+          user: currentUser,
+          comment: comment || '',
+          date: new Date().toISOString(), // <-- добавена дата
+        }
+      ];
   
       const averageRating =
         updatedRatings.reduce((sum, r) => sum + r, 0) / updatedRatings.length;
   
-      // Актуализиране на профила на оценявания потребител
       await fetch(`${API_BASE_URL}/users/${userToRate.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -70,10 +76,10 @@ const RateUserScreen = ({ navigation }) => {
         }),
       });
   
-      // Актуализиране на профила на текущия потребител (добавяме routeId)
       const updatedRoutes = Array.isArray(ratingUser.routes)
-       ? [...ratingUser.routes, routeId]
-       : [routeId];
+        ? [...ratingUser.routes, routeId]
+        : [routeId];
+  
       await fetch(`${API_BASE_URL}/users/${ratingUser.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -89,7 +95,6 @@ const RateUserScreen = ({ navigation }) => {
       console.log(error);
     }
   };
-  
   
   const getHeaderStyles = () => ({
     flexDirection: 'row',
