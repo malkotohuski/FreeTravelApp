@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import {
     View,
     Text,
@@ -10,10 +10,10 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Animated } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import StarRating from 'react-native-star-rating-widget';
 import { DarkModeContext } from '../../navigation/DarkModeContext';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 const Comments = ({ navigation }) => {
     const { user } = useAuth();
@@ -45,71 +45,97 @@ const Comments = ({ navigation }) => {
         text: c.comment,
         rating: relevantRatings[index] ?? undefined,
         date: c.date ?? null,
-    }));
+        image: c.image ?? null, // добавено поле
+    }));    
     
     const { t } = useTranslation();
     const { darkMode } = useContext(DarkModeContext);
 
-/*     const renderStars = (rating) => {
-        const stars = [];
-        const fullStars = Math.floor(rating);
-        const hasHalfStar = rating - fullStars >= 0.5;
+    const fadeAnims = useRef(structuredComments.map(() => new Animated.Value(0))).current;
 
-        for (let i = 0; i < fullStars; i++) {
-            stars.push(<FontAwesome key={`full-${i}`} name="star" size={26} color="#f1c40f" />);
-        }
+useEffect(() => {
+    const animations = fadeAnims.map((fadeAnim, index) =>
+        Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 500,
+            delay: index * 150,
+            useNativeDriver: true,
+        })
+    );
 
-        if (hasHalfStar) {
-            stars.push(<FontAwesome key="half" name="star-half-empty" size={26} color="#f1c40f" />);
-        }
-
-        return stars;
-    }; */
+    Animated.stagger(100, animations).start();
+}, []);
 
     const renderComment = (item, index) => {
-        const { text, username, date, rating } = item;
-
+        const { text, username, date, rating, image } = item;
+        const fadeAnim = fadeAnims[index];
+    
         return (
-            <View
+            <Animated.View
                 key={index}
                 style={[
                     styles.commentCard,
-                    { backgroundColor: darkMode ? '#444' : '#fff' },
+                    {
+                        backgroundColor: darkMode ? '#444' : '#fff',
+                        opacity: fadeAnim,
+                        transform: [
+                            {
+                                translateY: fadeAnim.interpolate({
+                                    inputRange: [0, 1],
+                                    outputRange: [20, 0],
+                                }),
+                            },
+                        ],
+                        borderLeftWidth: 4,
+                        borderLeftColor: '#f4511e',
+                    },
                 ]}
             >
                 <View style={styles.commentHeader}>
-                    <Text style={[styles.username, { color: darkMode ? '#ffa726' : '#f4511e' }]}>
-                        {username || 'Anonymous'}
-                    </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        {image ? (
+                            <Image source={{ uri: image }} style={styles.avatar} />
+                        ) : (
+                            <View style={[styles.avatar, { backgroundColor: '#888', justifyContent: 'center', alignItems: 'center' }]}>
+                                <Text style={{ color: 'white', fontWeight: 'bold' }}>
+                                    {username?.slice(0, 2).toUpperCase()}
+                                </Text>
+                            </View>
+                        )}
+                        <Text style={[styles.username, { color: darkMode ? '#ffa726' : '#f4511e', marginLeft: 10 }]}>
+                            {username || 'Anonymous'}
+                        </Text>
+                    </View>
+    
                     <Text style={[styles.date, { color: darkMode ? '#ccc' : '#666' }]}>
-                       {formatDate(date)}
+                        {formatDate(date)}
                     </Text>
                 </View>
-
+    
                 <Text style={[styles.commentText, { color: darkMode ? '#fff' : '#000' }]}>
                     {text}
                 </Text>
-
+    
                 {rating !== undefined && (
-    <View style={styles.starsContainer}>
-        <StarRating
-            rating={rating}
-            starSize={24}
-            enableHalfStar={true}
-            onChange={() => {}}
-            starStyle={{ marginHorizontal: 1 }}
-            animationConfig={{ scale: 0 }} // за да не се анимират
-            enableSwiping={false}
-        />
-        <Text style={{ marginLeft: 6, color: darkMode ? '#ccc' : '#333' }}>
-            ({rating})
-        </Text>
-    </View>
-)}
-
-            </View>
+                    <View style={styles.starsContainer}>
+                        <StarRating
+                            rating={rating}
+                            starSize={24}
+                            enableHalfStar={true}
+                            onChange={() => {}}
+                            starStyle={{ marginHorizontal: 1 }}
+                            animationConfig={{ scale: 0 }}
+                            enableSwiping={false}
+                        />
+                        <Text style={{ marginLeft: 6, color: darkMode ? '#ccc' : '#333' }}>
+                            ({rating})
+                        </Text>
+                    </View>
+                )}
+            </Animated.View>
         );
     };
+    
 
     return (
         <SafeAreaView style={styles.mainContainer}>
@@ -207,6 +233,20 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontSize: 16,
         marginTop: 40,
+    },
+    userInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10, // ако имаш поддръжка за gap
+        marginBottom: 4,
+    },
+    avatar: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        borderWidth: 2,
+        borderColor: '#f4511e',
+        marginRight: 8,
     },
 });
 
