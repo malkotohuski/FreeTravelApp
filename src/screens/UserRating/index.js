@@ -22,6 +22,7 @@ const RateUserScreen = ({ navigation }) => {
   const { mainRouteUser, routeId  } = route.params; 
   const { user } = useAuth();
   const currentUser = user?.user?.username;
+  const currentUserImage = user?.user?.userImage;
   console.log('kdsf', routeId);
   console.log('асдасд', mainRouteUser);
   
@@ -59,6 +60,7 @@ const RateUserScreen = ({ navigation }) => {
         {
           user: currentUser,
           comment: comment || '',
+          image: currentUserImage,
           date: new Date().toISOString(), // <-- добавена дата
         }
       ];
