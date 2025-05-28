@@ -293,25 +293,40 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         flexDirection: 'row',
+        flexWrap: 'wrap',
         justifyContent: 'space-between',
+        gap: 10,
         marginTop: 10,
-    },
-    button_delete: {
-        backgroundColor: '#e74c3c',
-        padding: 10,
-        borderRadius: 5,
-    },
-    button_completed: {
+      },
+      
+      button_completed: {
         backgroundColor: '#2ecc71',
-        padding: 10,
+        paddingVertical: 10,
+        paddingHorizontal: 16,
         borderRadius: 5,
-    },
-    buttonText: {
+        flexGrow: 1,
+        flexBasis: '48%', // за да стоят 2 бутона на ред
+        alignItems: 'center',
+      },
+      
+      button_delete: {
+        backgroundColor: '#e74c3c',
+        paddingVertical: 10,
+        paddingHorizontal: 16,
+        borderRadius: 5,
+        flexGrow: 1,
+        flexBasis: '48%',
+        alignItems: 'center',
+      },
+      
+      buttonText: {
         color: 'white',
         fontSize: 14,
         fontWeight: 'bold',
         textAlign: 'center',
-    },
+        flexWrap: 'wrap',
+      },
+      
 });
 
 export default RouteHistory;

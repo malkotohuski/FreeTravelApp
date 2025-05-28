@@ -405,28 +405,37 @@ function SelectRouteScreen({ route, navigation }) {
                             color="#f4511e"
                             titleStyle={{ marginHorizontal: 30, color: 'black' }}
                         />
-                        <DatePicker
-                            modal
-                            open={open}
-                            date={date}
-                            theme="dark"
-                            mode="datetime"
-                            onConfirm={(selectedDate) => {
-                                setOpen(false);
-                                setDate(selectedDate);
-                                setSelectedDateTime(selectedDate);
-                            }}
-                            onCancel={() => {
-                                setOpen(false);
-                            }}
+                      <DatePicker
+                           modal
+                           open={open}
+                           date={date}
+                           theme="dark"
+                           is24Hour={true}
+                           mode="datetime"
+                           // 👉 ЕТО ТОВА ДОБАВЯШ
+                           onConfirm={(selectedDate) => {
+                           setOpen(false);
+                           setDate(selectedDate);
+                           setSelectedDateTime(selectedDate);
+                         }}
+                         onCancel={() => {
+                          setOpen(false);
+                          }}
                         />
-                        {selectedDateTime && (
-                            <View style={{ marginTop: 10 }}>
-                                <Text style={{ fontSize: 20, color: 'white', fontWeight: 'bold' }}>
-                                    {t('Selected Date and Time:')} {selectedDateTime.toString().slice(0, -8)}
-                                </Text>
-                            </View>
-                        )}
+                       {selectedDateTime && (
+                  <View style={{ marginTop: 10, alignItems: 'center' }}>
+                     <Text style={{ fontSize: 20, color: '#030303', fontWeight: 'bold', textAlign: 'center' }}>
+                     {t('Selected Date and Time:')} {selectedDateTime.toLocaleString('bg-BG', {
+                         weekday: 'short',
+                         year: 'numeric',
+                         month: 'short',
+                         day: 'numeric',
+                         hour: '2-digit',
+                         minute: '2-digit'
+                      })}
+                    </Text>
+                   </View>
+                      )}
                         <TouchableOpacity
                             onPress={handleContinue}
                             style={[continueButtonStyle, { marginTop: 50 }]} // Move the button further down
