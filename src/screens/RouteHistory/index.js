@@ -138,13 +138,15 @@ const RouteHistory = ({ navigation }) => {
                             setOriginalRoutesState(updatedRoutes);
                             setFilteredRoutesState(updatedRoutes);
 
+                            const message = `${t('Please rate the trip with')} ${mainRouteUser}.\n${t('About the route')} ${matchingRequest.departureCity}-${matchingRequest.arrivalCity}`;
+
                             // Изпрати известие към пътника да оцени създателя на маршрута
                             await axios.post(`${API_BASE_URL}/notifications`, {
                                  recipient: matchingRequest.username, // <-- вместо toUserId
                                  fromUserId: user?.user?.id,
                                 type: 'rate_user',
                                 routeId: routeId,
-                                message: `Моля, оцени пътуването с ${mainRouteUser}.\n За маршрута ${matchingRequest.departureCity}-${matchingRequest.arrivalCity}`,
+                                message: message,
                                 status: 'active',
                                 isRead: false,
                                 createdAt: new Date().toISOString(),

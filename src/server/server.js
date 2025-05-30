@@ -225,19 +225,25 @@ server.post('/send-request-to-email', async (req, res) => {
 server.post('/send-request-to-user', (req, res) => {
     const { requestingUser } = req.body;
 
-    // Check if requestingUser is defined
+    // Проверка дали е подаден потребител
     if (!requestingUser) {
         console.error('Requesting user is undefined');
         return res.status(400).json({ error: 'Invalid request. Requesting user is undefined.' });
     }
 
-    // Check if the routeId is defined in requestingUser
+    // Проверка за наличен routeId
     if (!requestingUser.routeId) {
         console.error('Route ID is undefined in requestingUser');
         return res.status(400).json({ error: 'Invalid request. Route ID is undefined in requestingUser.' });
     }
 
-    // Check if the route exists
+    // Проверка за наличен userID (идентификатор на кандидата)
+    if (!requestingUser.userID) {
+        console.error('User ID is undefined in requestingUser');
+        return res.status(400).json({ error: 'Invalid request. User ID is undefined in requestingUser.' });
+    }
+
+    // Проверка дали маршрута съществува
     const route = router.db.get('routes').find({ id: requestingUser.routeId }).value();
 
     if (!route) {
@@ -245,13 +251,24 @@ server.post('/send-request-to-user', (req, res) => {
         return res.status(404).json({ error: 'Route not found.' });
     }
 
-    // Add the request to the "requests" array
-    const newRequest = { ...requestingUser, id: Date.now(), };
+    // Проверка дали вече има заявка от този user за този маршрут
+    const existingRequest = router.db
+        .get('requests')
+        .find({ routeId: requestingUser.routeId, userID: requestingUser.userID })
+        .value();
 
-    // Push the new request to the "requests" array
+    if (existingRequest) {
+        console.log('User has already requested this route');
+        return res.status(400).json({ error: 'You have already submitted a request for this route.' });
+    }
+
+    // Създаване на нова заявка
+    const newRequest = { ...requestingUser, id: Date.now() };
+
+    // Запис в базата (requests)
     router.db.get('requests').push(newRequest).write();
 
-    console.log('Before sending response');
+    console.log('Request saved successfully');
     return res.status(200).json({ message: 'Route request processed successfully.' });
 });
 

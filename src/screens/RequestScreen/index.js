@@ -74,70 +74,72 @@ function RouteDetails({ route }) {
     
     const handlerTripRequest = async () => {
         try {
-            if (hasRequested) {
-                Alert.alert(t('Error'), t('You have already submitted a request for this route.'));
-                return;
-            }
-    
-            Alert.alert(
-                t('Confirm'),
-                t('Would you like to submit a request for this route?'),
-                [
-                    {
-                        text: t('Cancel'),
-                        style: 'cancel',
-                    },
-                    {
-                        text: 'OK',
-                        onPress: async () => {
-                            const message = tripRequestText
-                                ? `${tripRequestText}\n\n${t(`You have a new request for your route. From: ${requesterUsername} ${requestUserFirstName} ${requestUserLastName}. About the route: ${departureCity}-${arrivalCity}`)}`
-                                : t(`You have a new request for your route. From: ${requesterUsername} ${requestUserFirstName} ${requestUserLastName}. About the route: ${departureCity}-${arrivalCity}`);
-    
-                            await api.post('/send-request-to-user', {
-                                requestingUser: {
-                                    username: user?.user?.username,
-                                    userFname: user?.user?.fName,
-                                    userLname: user?.user?.lName,
-                                    userEmail: requestUserEmail,
-                                    userID: user?.user?.id,
-                                    userRouteId: route.params.userId,
-                                    departureCity: route.params.departureCity,
-                                    arrivalCity: route.params.arrivalCity,
-                                    routeId: route.params.routeId,
-                                    dataTime: route.params.selectedDateTime
-                                },
-                            });
-    
-                            await api.post('/notifications', {
-                                recipient: username,
-                                message: t(`You have a candidate for your route: ${departureCity}-${arrivalCity} with username: ${requesterUsername}!`),
-                                routeId,
-                                routeChecker: true,
-                                status: 'active',
-                                requester: {
-                                    username: requesterUsername,
-                                    userFname: requestUserFirstName,
-                                    userLname: requestUserLastName,
-                                    email: requestUserEmail,
-                                },
-                                createdAt: new Date().toISOString(),
-                            });
-    
-                            Alert.alert(t('Success'), t('You have successfully applied for this route!'));
-                            setHasRequested(true);
-                            navigation.navigate('Home');
-                        },
-                    },
-                ],
-                { cancelable: false }
-            );
+          if (hasRequested) {
+            Alert.alert(t('Error'), t('You have already submitted a request for this route.'));
+            return;
+          }
+      
+          Alert.alert(
+            t('Confirm'),
+            t('Would you like to submit a request for this route?'),
+            [
+              {
+                text: t('Cancel'),
+                style: 'cancel',
+              },
+              {
+                text: 'OK',
+                onPress: async () => {
+                  try {
+                    await api.post('/send-request-to-user', {
+                      requestingUser: {
+                        username: user?.user?.username,
+                        userFname: user?.user?.fName,
+                        userLname: user?.user?.lName,
+                        userEmail: requestUserEmail,
+                        userID: user?.user?.id,
+                        userRouteId: route.params.userId,
+                        departureCity: route.params.departureCity,
+                        arrivalCity: route.params.arrivalCity,
+                        routeId: route.params.routeId,
+                        dataTime: route.params.selectedDateTime
+                      },
+                    });
+                    setHasRequested(true);
+                    
+                    await api.post('/notifications', {
+                      recipient: username,
+                      message: t(`You have a candidate for your route: ${departureCity}-${arrivalCity} with username: ${requesterUsername}!`),
+                      routeId,
+                      routeChecker: true,
+                      status: 'active',
+                      requester: {
+                        username: requesterUsername,
+                        userFname: requestUserFirstName,
+                        userLname: requestUserLastName,
+                        email: requestUserEmail,
+                      },
+                      createdAt: new Date().toISOString(),
+                    });
+      
+                    Alert.alert(t('Success'), t('You have successfully applied for this route!'), [
+                      { text: 'OK', onPress: () => navigation.navigate('Home') }
+                    ]);
+                  } catch (err) {
+                    console.error('API error:', err);
+                    Alert.alert(t('Error'), err.response?.data?.message || 'Failed to send trip request.');
+                  }
+                },
+              },
+            ],
+            { cancelable: false }
+          );
         } catch (error) {
-            console.error('Error:', error);
-            Alert.alert('Error', 'Failed to send trip request.');
+          console.error('Error:', error);
+          Alert.alert('Error', 'Failed to send trip request.');
         }
-    };
-
+      };
+      
     const handlerBackToViewRoute = () => {
         navigation.navigate('View routes');
     };
@@ -170,23 +172,32 @@ function RouteDetails({ route }) {
             />
 
 <TouchableOpacity
-    style={[styles.buttonConfirm, isOwnRoute && { backgroundColor: '#ccc' }]}
-    onPress={() => {
-        if (isOwnRoute) {
-            Alert.alert(t('Error'), t('You cannot apply for this route because you created it.'));
-        } else {
-            handlerTripRequest();
-        }
-    }}
-    disabled={isOwnRoute}
+  style={[
+    styles.buttonConfirm,
+    (isOwnRoute || hasRequested) && { backgroundColor: '#ccc' }
+  ]}
+  onPress={() => {
+    if (isOwnRoute) {
+      Alert.alert(t('Error'), t('You cannot apply for this route because you created it.'));
+    } else if (hasRequested) {
+      Alert.alert(t('Error'), t('You have already submitted a request for this route.'));
+    } else {
+      handlerTripRequest();
+    }
+  }}
+  disabled={isOwnRoute || hasRequested}
 >
-    <Text style={styles.buttonText}>{t('Trip request')}</Text>
+  <Text style={styles.buttonText}>{t('Trip request')}</Text>
 </TouchableOpacity>
+{hasRequested && (
+  <Text style={styles.requestedText}>
+    {t('You have already applied for this route.')}
+  </Text>
+)}
 
-            <TouchableOpacity style={styles.buttonBack} onPress={handlerBackToViewRoute}>
-                <Text style={styles.buttonText}>{t('Back')}</Text>
-            </TouchableOpacity>
-
+<TouchableOpacity style={styles.buttonBack} onPress={handlerBackToViewRoute}>
+  <Text style={styles.buttonText}>{t('Back')}</Text>
+</TouchableOpacity>
             {requesterUsername === username && (
                 <Text style={styles.warningText}>
                     {t('This route was created by you, and you cannot request it!')}
@@ -260,6 +271,14 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontWeight: 'bold',
     },
+    requestedText: {
+        marginTop: 10,
+        marginBottom: 5,
+        fontSize: 16,
+        color: 'red',
+        textAlign: 'center',
+        fontWeight: 'bold',
+      },
 });
 
 export { RouteDetails };
