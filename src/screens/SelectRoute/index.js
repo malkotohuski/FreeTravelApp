@@ -64,6 +64,7 @@ function SelectRouteScreen({ route, navigation }) {
             setArrivalStreet('');
             setArrivalNumber('');
             setSelectedDateTime(null);
+            setDate(new Date());
             // Връщане на функция за "почистване", ако е нужно
             return () => {
                 // Тук може да се добавят действия за почистване (ако има такива)

@@ -38,12 +38,15 @@ const Notifications = ({ navigation, route}) => {
   }, [user]);
 
   const handleNotificationPress = (notification) => {
-    if (notification.message.includes('оцени пътуването')) {
-      navigation.navigate('RateUser', {
-        mainRouteUser: notification.mainRouteUser,
-        routeId: notification.routeId 
-      });
-    }
+  if (
+  notification.message.includes('оцени пътуването') ||
+  notification.message.includes('rate the trip')
+) {
+  navigation.navigate('RateUser', {
+    mainRouteUser: notification.mainRouteUser,
+    routeId: notification.routeId 
+  });
+}
   };
 
   const deleteNotification = async (id) => {
@@ -126,7 +129,12 @@ const Notifications = ({ navigation, route}) => {
                   <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
                       <Text style={styles.modalTitle}>{t('Notification Options')}</Text>
-                      <Text style={styles.modalMessage}>{item.message}</Text>
+                      <Text style={styles.modalMessage}>
+                         {t('Do you want to delete this notification:')}
+                         {"\n"}
+                         {"\n"}
+                         {item.message}
+                      </Text>
                       <TouchableOpacity
                         style={styles.modalButton}
                         onPress={() => deleteNotification(item.id)}
