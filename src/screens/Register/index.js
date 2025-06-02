@@ -1,19 +1,28 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, Image, ScrollView, SafeAreaView } from 'react-native';
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  Image,
+  ScrollView,
+  SafeAreaView,
+} from 'react-native';
 import axios from 'axios';
-import styles from './styles'
-import { useTranslation } from 'react-i18next';
+import styles from './styles';
+import {useTranslation} from 'react-i18next';
 import ImagePicker from 'react-native-image-crop-picker';
-import { useAuth } from '../../context/AuthContext';
+import {useAuth} from '../../context/AuthContext';
 
 const API_BASE_URL = 'http://10.0.2.2:3000'; // JSON server
 const api = axios.create({
   baseURL: API_BASE_URL,
 });
 
-export default function Register({ navigation }) {
-  const { t } = useTranslation();
-  const { login } = useAuth();
+export default function Register({navigation}) {
+  const {t} = useTranslation();
+  const {login} = useAuth();
 
   const [name, setName] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -22,7 +31,8 @@ export default function Register({ navigation }) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [confirmationCode, setConfirmationCode] = useState('');
-  const [showConfirmationCodeInput, setShowConfirmationCodeInput] = useState(false);
+  const [showConfirmationCodeInput, setShowConfirmationCodeInput] =
+    useState(false);
   const [profilePicture, setProfilePicture] = useState('');
 
   const handleImagePicker = async () => {
@@ -70,29 +80,44 @@ export default function Register({ navigation }) {
               setShowConfirmationCodeInput(true);
             } else {
               // Handle registration failure
-              Alert.alert(t('Registration Error'), t('Failed to register. Please try again.'));
+              Alert.alert(
+                t('Registration Error'),
+                t('Failed to register. Please try again.'),
+              );
             }
           } catch (error) {
             // Handle any error that occurred during the API call
             console.error('Registration Error:', error);
-            Alert.alert(t('Registration Error'), t('Email or username is already taken'));
+            Alert.alert(
+              t('Registration Error'),
+              t('Email or username is already taken'),
+            );
           }
         } else {
           // Invalid email address
-          Alert.alert(t('Invalid email address'), t('Please enter a valid email address.'));
+          Alert.alert(
+            t('Invalid email address'),
+            t('Please enter a valid email address.'),
+          );
         }
       } else {
         // Passwords do not match
-        Alert.alert(t('Password mismatch'), t('Password and confirm password do not match.'));
+        Alert.alert(
+          t('Password mismatch'),
+          t('Password and confirm password do not match.'),
+        );
       }
     } else {
       // Continue with the confirmation code verification step
       try {
         // Make a request to the server to verify the confirmation code
-        const verificationResponse = await api.post('/verify-confirmation-code', {
-          email,
-          confirmationCode,
-        });
+        const verificationResponse = await api.post(
+          '/verify-confirmation-code',
+          {
+            email,
+            confirmationCode,
+          },
+        );
 
         if (verificationResponse.status === 200) {
           // Confirmation code verified, navigate to the welcome screen
@@ -101,12 +126,18 @@ export default function Register({ navigation }) {
           });
         } else {
           // Handle verification failure
-          Alert.alert(t('Verification Error'), t('Invalid confirmation code. Please try again.'));
+          Alert.alert(
+            t('Verification Error'),
+            t('Invalid confirmation code. Please try again.'),
+          );
         }
       } catch (error) {
         // Handle any error that occurred during the API call
         console.error('Verification Error:', error);
-        Alert.alert(t('Verification Error'), t('Failed to verify confirmation code. Please try again.'));
+        Alert.alert(
+          t('Verification Error'),
+          t('Failed to verify confirmation code. Please try again.'),
+        );
       }
     }
   };
@@ -116,8 +147,8 @@ export default function Register({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, }}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+    <SafeAreaView style={{flex: 1}}>
+      <ScrollView contentContainerStyle={{flexGrow: 1}}>
         <View style={styles.container}>
           <Image
             source={require('../../../images/login-background.jpg')}
@@ -125,11 +156,10 @@ export default function Register({ navigation }) {
           />
           <TouchableOpacity
             onPress={handleImagePicker}
-            style={[styles.profilePictureContainer, styles.topRight]}
-          >
+            style={[styles.profilePictureContainer, styles.topRight]}>
             {profilePicture ? (
               <Image
-                source={{ uri: profilePicture }}
+                source={{uri: profilePicture}}
                 style={styles.profilePicture}
               />
             ) : (
@@ -144,21 +174,21 @@ export default function Register({ navigation }) {
             style={styles.input}
             placeholder={t('User name')}
             value={name}
-            onChangeText={(text) => setName(text)}
+            onChangeText={text => setName(text)}
           />
           <TextInput
             placeholderTextColor={'#F5FDFE'}
             style={styles.input}
             placeholder={t('First name')}
             value={firstName}
-            onChangeText={(text) => setFirstName(text)}
+            onChangeText={text => setFirstName(text)}
           />
           <TextInput
             placeholderTextColor={'#F5FDFE'}
             style={styles.input}
             placeholder={t('Last name')}
             value={lastName}
-            onChangeText={(text) => setLastName(text)}
+            onChangeText={text => setLastName(text)}
           />
           <TextInput
             placeholderTextColor={'#F5FDFE'}
@@ -173,7 +203,7 @@ export default function Register({ navigation }) {
             placeholder={t('Password')}
             secureTextEntry={true}
             value={password}
-            onChangeText={(text) => setPassword(text)}
+            onChangeText={text => setPassword(text)}
           />
           <TextInput
             placeholderTextColor={'#F5FDFE'}
@@ -181,7 +211,7 @@ export default function Register({ navigation }) {
             placeholder={t('Confirm Password')}
             secureTextEntry={true}
             value={confirmPassword}
-            onChangeText={(text) => setConfirmPassword(text)}
+            onChangeText={text => setConfirmPassword(text)}
           />
           {showConfirmationCodeInput && (
             <TextInput
@@ -189,19 +219,25 @@ export default function Register({ navigation }) {
               style={styles.input}
               placeholder={t('Confirmation Code')}
               value={confirmationCode}
-              onChangeText={(text) => setConfirmationCode(text)}
+              onChangeText={text => setConfirmationCode(text)}
             />
           )}
-            <View style={styles.buttonsContent}>
-          <TouchableOpacity style={styles.loginButtons} onPress={handleRegister}>
-            <Text style={styles.textButtons}>
-              {!showConfirmationCodeInput ? t('Continue') : t('Verify Confirmation Code')}
-            </Text>
-          </TouchableOpacity>
-          <View style={{ padding: 10 }}></View>
-          <TouchableOpacity style={styles.loginButtons} onPress={handlerBackLogin}>
-            <Text style={styles.textButtons}>{t('I have an account')}</Text>
-          </TouchableOpacity>
+          <View style={styles.buttonsContent}>
+            <TouchableOpacity
+              style={styles.loginButtons}
+              onPress={handleRegister}>
+              <Text style={styles.textButtons}>
+                {!showConfirmationCodeInput
+                  ? t('Continue')
+                  : t('Verify Confirmation Code')}
+              </Text>
+            </TouchableOpacity>
+            <View style={{padding: 10}}></View>
+            <TouchableOpacity
+              style={styles.loginButtons}
+              onPress={handlerBackLogin}>
+              <Text style={styles.textButtons}>{t('I have an account')}</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, {useState, useContext} from 'react';
 import {
   View,
   Text,
@@ -7,26 +7,26 @@ import {
   TouchableOpacity,
   Alert,
   SafeAreaView,
-  Image
+  Image,
 } from 'react-native';
 import StarRating from 'react-native-star-rating-widget';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { DarkModeContext } from "../../navigation/DarkModeContext";
-import { useAuth } from '../../context/AuthContext';
-import { useRoute } from '@react-navigation/native';
+import {DarkModeContext} from '../../navigation/DarkModeContext';
+import {useAuth} from '../../context/AuthContext';
+import {useRoute} from '@react-navigation/native';
 
 const API_BASE_URL = 'http://10.0.2.2:3000';
 
-const RateUserScreen = ({ navigation }) => {
+const RateUserScreen = ({navigation}) => {
   const route = useRoute();
-  const { mainRouteUser, routeId  } = route.params; 
-  const { user } = useAuth();
+  const {mainRouteUser, routeId} = route.params;
+  const {user} = useAuth();
   const currentUser = user?.user?.username;
   const currentUserImage = user?.user?.userImage;
   console.log('kdsf', routeId);
   console.log('асдасд', mainRouteUser);
-  
-  const { darkMode } = useContext(DarkModeContext);
+
+  const {darkMode} = useContext(DarkModeContext);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
 
@@ -34,26 +34,31 @@ const RateUserScreen = ({ navigation }) => {
     if (rating === 0) {
       return Alert.alert('Грешка', 'Моля, избери брой звезди.');
     }
-  
+
     try {
       const usersResponse = await fetch(`${API_BASE_URL}/users`);
       const users = await usersResponse.json();
-  
+
       const userToRate = users.find(user => user?.username === mainRouteUser);
       const ratingUser = users.find(u => u?.username === currentUser);
-  
+
       if (!userToRate || !ratingUser) {
         return Alert.alert('Грешка', 'Потребителят не е намерен.');
       }
-  
-      const alreadyRated = Array.isArray(ratingUser.routes) && ratingUser.routes.includes(routeId);
+
+      const alreadyRated =
+        Array.isArray(ratingUser.routes) && ratingUser.routes.includes(routeId);
       if (alreadyRated) {
         return Alert.alert('Информация', 'Вече си оценил този маршрут.');
       }
-  
-      const previousRatings = Array.isArray(userToRate.ratings) ? userToRate.ratings : [];
-      const previousComments = Array.isArray(userToRate.comments) ? userToRate.comments : [];
-  
+
+      const previousRatings = Array.isArray(userToRate.ratings)
+        ? userToRate.ratings
+        : [];
+      const previousComments = Array.isArray(userToRate.comments)
+        ? userToRate.comments
+        : [];
+
       const updatedRatings = [...previousRatings, rating];
       const updatedComments = [
         ...previousComments,
@@ -62,34 +67,34 @@ const RateUserScreen = ({ navigation }) => {
           comment: comment || '',
           image: currentUserImage,
           date: new Date().toISOString(), // <-- добавена дата
-        }
+        },
       ];
-  
+
       const averageRating =
         updatedRatings.reduce((sum, r) => sum + r, 0) / updatedRatings.length;
-  
+
       await fetch(`${API_BASE_URL}/users/${userToRate.id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
           ratings: updatedRatings,
           comments: updatedComments,
           averageRating: parseFloat(averageRating.toFixed(2)),
         }),
       });
-  
+
       const updatedRoutes = Array.isArray(ratingUser.routes)
         ? [...ratingUser.routes, routeId]
         : [routeId];
-  
+
       await fetch(`${API_BASE_URL}/users/${ratingUser.id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
           routes: updatedRoutes,
         }),
       });
-  
+
       Alert.alert('Успех', 'Успешно оцени потребителя.');
       navigation.navigate('Home');
     } catch (error) {
@@ -97,7 +102,7 @@ const RateUserScreen = ({ navigation }) => {
       console.log(error);
     }
   };
-  
+
   const getHeaderStyles = () => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -113,7 +118,7 @@ const RateUserScreen = ({ navigation }) => {
         source={require('../../../images/confirm_test.jpeg')}
         style={styles.backgroundImage}
       />
-      <View style={{ flex: 1 }}>
+      <View style={{flex: 1}}>
         <View style={getHeaderStyles()}>
           <Text style={styles.headerText}>Rating</Text>
           <TouchableOpacity onPress={() => navigation.navigate('Home')}>
@@ -121,10 +126,16 @@ const RateUserScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        <View style={[styles.container, { backgroundColor: darkMode ? '#121212' : '#fafafa' }]}>
-          <Text style={[styles.title, { color: darkMode ? '#fff' : '#000' }]}>Оцени потребителя</Text>
+        <View
+          style={[
+            styles.container,
+            {backgroundColor: darkMode ? '#121212' : '#fafafa'},
+          ]}>
+          <Text style={[styles.title, {color: darkMode ? '#fff' : '#000'}]}>
+            Оцени потребителя
+          </Text>
 
-          <Text style={[styles.subText, { color: darkMode ? '#ccc' : '#000' }]}>
+          <Text style={[styles.subText, {color: darkMode ? '#ccc' : '#000'}]}>
             Оценяваш <Text style={styles.bold}>{mainRouteUser}</Text>
           </Text>
 

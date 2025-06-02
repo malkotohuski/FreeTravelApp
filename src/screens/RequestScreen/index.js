@@ -1,284 +1,330 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, TextInput } from 'react-native';
-import { useTranslation } from 'react-i18next';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { useAuth } from '../../context/AuthContext';
+import React, {useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Alert,
+  TextInput,
+} from 'react-native';
+import {useTranslation} from 'react-i18next';
+import {useNavigation, useRoute} from '@react-navigation/native';
+import {useAuth} from '../../context/AuthContext';
 import axios from 'axios';
 
 const API_BASE_URL = 'http://10.0.2.2:3000'; // JSON server
 const api = axios.create({
-    baseURL: API_BASE_URL,
+  baseURL: API_BASE_URL,
 });
 
-function RouteDetails({ route }) {
-    const { t } = useTranslation();
-    const navigation = useNavigation();
-    const { user } = useAuth();
-    const routeInfo = useRoute();
-    const loggedInUser = route.params.loggedInUser;
-    
-    console.log(loggedInUser, '2221');
-    
-    const { username, userFname, userLname, userEmail, departureCity, arrivalCity, routeId } = route.params;
-    const loginUser = user?.user?.username;
+function RouteDetails({route}) {
+  const {t} = useTranslation();
+  const navigation = useNavigation();
+  const {user} = useAuth();
+  const routeInfo = useRoute();
+  const loggedInUser = route.params.loggedInUser;
 
-    const requesterUsername = user?.user?.username;
-    const requestUserFirstName = user?.user?.fName;
-    const requestUserLastName = user?.user?.lName;
-    const requestUserEmail = user?.user?.email;
-    const departureCityEmail = route.params.departureCity;
-    const arrivalCityEmail = route.params.arrivalCity;
+  console.log(loggedInUser, '2221');
 
-    const routeDateTime = route.params.selectedDateTime;
-    const dataTime = routeDateTime.replace('T', ' ').replace('.000Z', '');
+  const {
+    username,
+    userFname,
+    userLname,
+    userEmail,
+    departureCity,
+    arrivalCity,
+    routeId,
+  } = route.params;
+  const loginUser = user?.user?.username;
 
-    const [tripRequestText, setTripRequestText] = useState('');
-    const [notificationCount, setNotificationCount] = useState(0);
-    const [hasRequested, setHasRequested] = useState(false);
-    const isOwnRoute = requesterUsername === username;
-    // Проверка за съществуваща заявка
-    useEffect(() => {
-        const fetchNotifications = async () => {
-            try {
-                if (!loginUser || !routeId) {
-                    console.error('Missing login user or route ID.');
-                    return;
-                }
-    
-                const response = await api.get('/notifications');
-    
-                const alreadyRequested = response.data.some(
-                    notification =>
-                        notification.requester?.username === loginUser &&
-                        notification.routeId === routeId
-                );
-    
-                if (alreadyRequested) {
-                    setHasRequested(true);
-                } else {
-                    setHasRequested(false); // важно, ако юзер смени маршрут
-                }
-    
-                const userNotifications = response.data.filter(
-                    notification => notification.requester?.username === loginUser && !notification.read
-                );
-    
-                setNotificationCount(userNotifications.length > 9 ? '9+' : userNotifications.length);
-            } catch (error) {
-                console.error('Failed to fetch notifications:', error);
-            }
-        };
-    
-        fetchNotifications();
-    }, [loginUser, routeId]);
-    
-    const handlerTripRequest = async () => {
-        try {
-          if (hasRequested) {
-            Alert.alert(t('Error'), t('You have already submitted a request for this route.'));
-            return;
-          }
-      
-          Alert.alert(
-            t('Confirm'),
-            t('Would you like to submit a request for this route?'),
-            [
-              {
-                text: t('Cancel'),
-                style: 'cancel',
-              },
-              {
-                text: 'OK',
-                onPress: async () => {
-                  try {
-                    await api.post('/send-request-to-user', {
-                      requestingUser: {
-                        username: user?.user?.username,
-                        userFname: user?.user?.fName,
-                        userLname: user?.user?.lName,
-                        userEmail: requestUserEmail,
-                        userID: user?.user?.id,
-                        userRouteId: route.params.userId,
-                        departureCity: route.params.departureCity,
-                        arrivalCity: route.params.arrivalCity,
-                        routeId: route.params.routeId,
-                        dataTime: route.params.selectedDateTime
-                      },
-                    });
-                    setHasRequested(true);
-                    
-                    await api.post('/notifications', {
-                      recipient: username,
-                      message: t(`You have a candidate for your route: ${departureCity}-${arrivalCity} with username: ${requesterUsername}!`),
-                      routeId,
-                      routeChecker: true,
-                      status: 'active',
-                      requester: {
-                        username: requesterUsername,
-                        userFname: requestUserFirstName,
-                        userLname: requestUserLastName,
-                        email: requestUserEmail,
-                      },
-                      createdAt: new Date().toISOString(),
-                    });
-      
-                    Alert.alert(t('Success'), t('You have successfully applied for this route!'), [
-                      { text: 'OK', onPress: () => navigation.navigate('Home') }
-                    ]);
-                  } catch (err) {
-                    console.error('API error:', err);
-                    Alert.alert(t('Error'), err.response?.data?.message || 'Failed to send trip request.');
-                  }
-                },
-              },
-            ],
-            { cancelable: false }
-          );
-        } catch (error) {
-          console.error('Error:', error);
-          Alert.alert('Error', 'Failed to send trip request.');
+  const requesterUsername = user?.user?.username;
+  const requestUserFirstName = user?.user?.fName;
+  const requestUserLastName = user?.user?.lName;
+  const requestUserEmail = user?.user?.email;
+  const departureCityEmail = route.params.departureCity;
+  const arrivalCityEmail = route.params.arrivalCity;
+
+  const routeDateTime = route.params.selectedDateTime;
+  const dataTime = routeDateTime.replace('T', ' ').replace('.000Z', '');
+
+  const [tripRequestText, setTripRequestText] = useState('');
+  const [notificationCount, setNotificationCount] = useState(0);
+  const [hasRequested, setHasRequested] = useState(false);
+  const isOwnRoute = requesterUsername === username;
+  // Проверка за съществуваща заявка
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        if (!loginUser || !routeId) {
+          console.error('Missing login user or route ID.');
+          return;
         }
-      };
-      
-    const handlerBackToViewRoute = () => {
-        navigation.navigate('View routes');
+
+        const response = await api.get('/notifications');
+
+        const alreadyRequested = response.data.some(
+          notification =>
+            notification.requester?.username === loginUser &&
+            notification.routeId === routeId,
+        );
+
+        if (alreadyRequested) {
+          setHasRequested(true);
+        } else {
+          setHasRequested(false); // важно, ако юзер смени маршрут
+        }
+
+        const userNotifications = response.data.filter(
+          notification =>
+            notification.requester?.username === loginUser &&
+            !notification.read,
+        );
+
+        setNotificationCount(
+          userNotifications.length > 9 ? '9+' : userNotifications.length,
+        );
+      } catch (error) {
+        console.error('Failed to fetch notifications:', error);
+      }
     };
 
-    return (
-        <View style={styles.container}>
-            <Image
-                source={require('../../../images/confirm2-background.jpg')}
-                style={{
-                    flex: 1,
-                    width: '100%',
-                    height: '100%',
-                    resizeMode: 'cover',
-                    position: 'absolute',
-                }}
-            />
+    fetchNotifications();
+  }, [loginUser, routeId]);
 
-            <Text style={styles.headerText}>{t('Route Details')}:</Text>
-            <Text style={styles.text}> {t('Nick name')} : {username}</Text>
-            <Text style={styles.text}> {t('Names')} :  {userFname} {userLname}</Text>
-            <Text style={styles.text}> {t('Route')} :  {departureCity}-{arrivalCity} </Text>
+  const handlerTripRequest = async () => {
+    try {
+      if (hasRequested) {
+        Alert.alert(
+          t('Error'),
+          t('You have already submitted a request for this route.'),
+        );
+        return;
+      }
 
-            <TextInput
-                style={styles.input}
-                onChangeText={text => setTripRequestText(text)}
-                value={tripRequestText}
-                placeholder={t('Enter your travel request comment here :')}
-                multiline={true}
-                numberOfLines={4}
-            />
+      Alert.alert(
+        t('Confirm'),
+        t('Would you like to submit a request for this route?'),
+        [
+          {
+            text: t('Cancel'),
+            style: 'cancel',
+          },
+          {
+            text: 'OK',
+            onPress: async () => {
+              try {
+                await api.post('/send-request-to-user', {
+                  requestingUser: {
+                    username: user?.user?.username,
+                    userFname: user?.user?.fName,
+                    userLname: user?.user?.lName,
+                    userEmail: requestUserEmail,
+                    userID: user?.user?.id,
+                    userRouteId: route.params.userId,
+                    departureCity: route.params.departureCity,
+                    arrivalCity: route.params.arrivalCity,
+                    routeId: route.params.routeId,
+                    dataTime: route.params.selectedDateTime,
+                  },
+                });
+                setHasRequested(true);
 
-<TouchableOpacity
-  style={[
-    styles.buttonConfirm,
-    (isOwnRoute || hasRequested) && { backgroundColor: '#ccc' }
-  ]}
-  onPress={() => {
-    if (isOwnRoute) {
-      Alert.alert(t('Error'), t('You cannot apply for this route because you created it.'));
-    } else if (hasRequested) {
-      Alert.alert(t('Error'), t('You have already submitted a request for this route.'));
-    } else {
-      handlerTripRequest();
+                await api.post('/notifications', {
+                  recipient: username,
+                  message: t(
+                    `You have a candidate for your route: ${departureCity}-${arrivalCity} with username: ${requesterUsername}!`,
+                  ),
+                  routeId,
+                  routeChecker: true,
+                  status: 'active',
+                  requester: {
+                    username: requesterUsername,
+                    userFname: requestUserFirstName,
+                    userLname: requestUserLastName,
+                    email: requestUserEmail,
+                  },
+                  createdAt: new Date().toISOString(),
+                });
+
+                Alert.alert(
+                  t('Success'),
+                  t('You have successfully applied for this route!'),
+                  [{text: 'OK', onPress: () => navigation.navigate('Home')}],
+                );
+              } catch (err) {
+                console.error('API error:', err);
+                Alert.alert(
+                  t('Error'),
+                  err.response?.data?.message || 'Failed to send trip request.',
+                );
+              }
+            },
+          },
+        ],
+        {cancelable: false},
+      );
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'Failed to send trip request.');
     }
-  }}
-  disabled={isOwnRoute || hasRequested}
->
-  <Text style={styles.buttonText}>{t('Trip request')}</Text>
-</TouchableOpacity>
-{hasRequested && (
-  <Text style={styles.requestedText}>
-    {t('You have already applied for this route.')}
-  </Text>
-)}
+  };
 
-<TouchableOpacity style={styles.buttonBack} onPress={handlerBackToViewRoute}>
-  <Text style={styles.buttonText}>{t('Back')}</Text>
-</TouchableOpacity>
-            {requesterUsername === username && (
-                <Text style={styles.warningText}>
-                    {t('This route was created by you, and you cannot request it!')}
-                </Text>
-            )}
-        </View>
-    );
+  const handlerBackToViewRoute = () => {
+    navigation.navigate('View routes');
+  };
+
+  return (
+    <View style={styles.container}>
+      <Image
+        source={require('../../../images/confirm2-background.jpg')}
+        style={{
+          flex: 1,
+          width: '100%',
+          height: '100%',
+          resizeMode: 'cover',
+          position: 'absolute',
+        }}
+      />
+
+      <Text style={styles.headerText}>{t('Route Details')}:</Text>
+      <Text style={styles.text}>
+        {' '}
+        {t('Nick name')} : {username}
+      </Text>
+      <Text style={styles.text}>
+        {' '}
+        {t('Names')} : {userFname} {userLname}
+      </Text>
+      <Text style={styles.text}>
+        {' '}
+        {t('Route')} : {departureCity}-{arrivalCity}{' '}
+      </Text>
+
+      <TextInput
+        style={styles.input}
+        onChangeText={text => setTripRequestText(text)}
+        value={tripRequestText}
+        placeholder={t('Enter your travel request comment here :')}
+        multiline={true}
+        numberOfLines={4}
+      />
+
+      <TouchableOpacity
+        style={[
+          styles.buttonConfirm,
+          (isOwnRoute || hasRequested) && {backgroundColor: '#ccc'},
+        ]}
+        onPress={() => {
+          if (isOwnRoute) {
+            Alert.alert(
+              t('Error'),
+              t('You cannot apply for this route because you created it.'),
+            );
+          } else if (hasRequested) {
+            Alert.alert(
+              t('Error'),
+              t('You have already submitted a request for this route.'),
+            );
+          } else {
+            handlerTripRequest();
+          }
+        }}
+        disabled={isOwnRoute || hasRequested}>
+        <Text style={styles.buttonText}>{t('Trip request')}</Text>
+      </TouchableOpacity>
+      {hasRequested && (
+        <Text style={styles.requestedText}>
+          {t('You have already applied for this route.')}
+        </Text>
+      )}
+
+      <TouchableOpacity
+        style={styles.buttonBack}
+        onPress={handlerBackToViewRoute}>
+        <Text style={styles.buttonText}>{t('Back')}</Text>
+      </TouchableOpacity>
+      {requesterUsername === username && (
+        <Text style={styles.warningText}>
+          {t('This route was created by you, and you cannot request it!')}
+        </Text>
+      )}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        backgroundColor: 'grey',
-    },
-    headerText: {
-        fontWeight: 'bold',
-        fontSize: 24,
-        paddingBottom: 10,
-        color: '#1b1c1e',
-        borderBottomWidth: 3,
-        borderBottomColor: '#1b1c1e',
-    },
-    text: {
-        fontWeight: 'bold',
-        fontSize: 18,
-        paddingBottom: 10,
-        color: '#1b1c1e',
-        borderBottomWidth: 1,
-        borderBottomColor: '#1b1c1e',
-    },
-    buttonConfirm: {
-        marginTop: 10,
-        padding: 15,
-        backgroundColor: '#27ae60',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: 18,
-        fontWeight: 'bold',
-        width: '90%',
-        borderRadius: 10,
-    },
-    buttonBack: {
-        marginTop: 10,
-        padding: 15,
-        backgroundColor: '#AE2727FF',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: 18,
-        fontWeight: 'bold',
-        width: '90%',
-        borderRadius: 10,
-    },
-    buttonText: {
-        color: '#F1F1F1',
-        fontSize: 16,
-    },
-    input: {
-        marginTop: 10,
-        padding: 10,
-        width: '90%',
-        borderColor: '#ccc',
-        borderWidth: 1,
-        borderRadius: 5,
-    },
-    warningText: {
-        marginTop: 10,
-        fontSize: 16,
-        color: 'red',
-        textAlign: 'center',
-        fontWeight: 'bold',
-    },
-    requestedText: {
-        marginTop: 10,
-        marginBottom: 5,
-        fontSize: 16,
-        color: 'red',
-        textAlign: 'center',
-        fontWeight: 'bold',
-      },
+  container: {
+    flex: 1,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    backgroundColor: 'grey',
+  },
+  headerText: {
+    fontWeight: 'bold',
+    fontSize: 24,
+    paddingBottom: 10,
+    color: '#1b1c1e',
+    borderBottomWidth: 3,
+    borderBottomColor: '#1b1c1e',
+  },
+  text: {
+    fontWeight: 'bold',
+    fontSize: 18,
+    paddingBottom: 10,
+    color: '#1b1c1e',
+    borderBottomWidth: 1,
+    borderBottomColor: '#1b1c1e',
+  },
+  buttonConfirm: {
+    marginTop: 10,
+    padding: 15,
+    backgroundColor: '#27ae60',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 18,
+    fontWeight: 'bold',
+    width: '90%',
+    borderRadius: 10,
+  },
+  buttonBack: {
+    marginTop: 10,
+    padding: 15,
+    backgroundColor: '#AE2727FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 18,
+    fontWeight: 'bold',
+    width: '90%',
+    borderRadius: 10,
+  },
+  buttonText: {
+    color: '#F1F1F1',
+    fontSize: 16,
+  },
+  input: {
+    marginTop: 10,
+    padding: 10,
+    width: '90%',
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 5,
+  },
+  warningText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: 'red',
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  requestedText: {
+    marginTop: 10,
+    marginBottom: 5,
+    fontSize: 16,
+    color: 'red',
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
 });
 
-export { RouteDetails };
+export {RouteDetails};

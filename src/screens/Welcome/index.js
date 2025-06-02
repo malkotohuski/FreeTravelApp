@@ -1,100 +1,105 @@
-import React, { useRef, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, Animated, TouchableOpacity, Dimensions } from 'react-native';
-import { useTranslation } from 'react-i18next';
-import { useRoute } from '@react-navigation/native';
-import { useAuth } from '../../context/AuthContext';
+import React, {useRef, useEffect} from 'react';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  Animated,
+  TouchableOpacity,
+  Dimensions,
+} from 'react-native';
+import {useTranslation} from 'react-i18next';
+import {useRoute} from '@react-navigation/native';
+import {useAuth} from '../../context/AuthContext';
 
+const {width} = Dimensions.get('window');
 
-const { width } = Dimensions.get('window');
+const WelcomeScreen = ({navigation}) => {
+  const route = useRoute(); // Define route here
+  const captionAnim = useRef(new Animated.Value(-width)).current;
+  const {user} = useAuth();
+  const userNickName = user?.user?.username;
+  console.log('user', user);
 
-const WelcomeScreen = ({ navigation }) => {
-    const route = useRoute(); // Define route here
-    const captionAnim = useRef(new Animated.Value(-width)).current;
-    const { user } = useAuth();
-    const userNickName = user?.user?.username
-    console.log('user', user)
+  const animateCaption = () => {
+    Animated.timing(captionAnim, {
+      toValue: width / 2 - 120, // Adjust the final position as needed
+      duration: 300, // Adjust the duration as needed
+      useNativeDriver: false,
+    }).start();
+  };
 
-    const animateCaption = () => {
-        Animated.timing(captionAnim, {
-            toValue: width / 2 - 120, // Adjust the final position as needed
-            duration: 300, // Adjust the duration as needed
-            useNativeDriver: false,
-        }).start();
-    };
+  useEffect(() => {
+    animateCaption();
+  }, []);
 
-    useEffect(() => {
-        animateCaption();
-    }, []);
+  const handlerButtonCont = () => {
+    navigation.navigate('AccountManager');
+    console.log('go next clicked');
+  };
 
-    const handlerButtonCont = () => {
-        navigation.navigate('AccountManager');
-        console.log('go next clicked');
-    }
+  const {t} = useTranslation();
 
-    const { t } = useTranslation();
+  return (
+    <View style={styles.container}>
+      {/* Background Image */}
+      <Image
+        source={require('../../../images/welocme-background.jpg')}
+        style={styles.backgroundImage}
+      />
 
-    return (
-        <View style={styles.container}>
-            {/* Background Image */}
-            <Image
-                source={require('../../../images/welocme-background.jpg')}
-                style={styles.backgroundImage}
-            />
-
-            {/* Caption */}
-            <Animated.View
-                style={[styles.captionContainer, { left: captionAnim }]}
-                onLayout={animateCaption}
-            >
-                <Text style={styles.captionText}>{t('Welcome')} , {userNickName}</Text>
-            </Animated.View>
-            <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                    style={styles.button}
-                    onPress={handlerButtonCont}
-                >
-                    <Text style={styles.text}>{t('Go next step')}</Text>
-                </TouchableOpacity>
-            </View>
-        </View>
-    );
+      {/* Caption */}
+      <Animated.View
+        style={[styles.captionContainer, {left: captionAnim}]}
+        onLayout={animateCaption}>
+        <Text style={styles.captionText}>
+          {t('Welcome')} , {userNickName}
+        </Text>
+      </Animated.View>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={handlerButtonCont}>
+          <Text style={styles.text}>{t('Go next step')}</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    backgroundImage: {
-        flex: 1,
-        width: '100%',
-        height: '100%',
-        resizeMode: 'cover',
-        position: 'absolute',
-    },
-    captionContainer: {
-        position: 'absolute',
-        backgroundColor: '#f1f1f1', // Adjust the background color and opacity
-        padding: 20,
-        borderRadius: 10,
-        top: 100
-    },
-    captionText: {
-        color: 'black',
-        fontSize: 24,
-    },
-    buttonContainer: {
-        top: 150
-    },
-    button: {
-        backgroundColor: '#f4511e',
-        padding: 20,
-    },
-    text: {
-        fontSize: 20,
-        fontWeight: 'bold',
-    },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backgroundImage: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+    position: 'absolute',
+  },
+  captionContainer: {
+    position: 'absolute',
+    backgroundColor: '#f1f1f1', // Adjust the background color and opacity
+    padding: 20,
+    borderRadius: 10,
+    top: 100,
+  },
+  captionText: {
+    color: 'black',
+    fontSize: 24,
+  },
+  buttonContainer: {
+    top: 150,
+  },
+  button: {
+    backgroundColor: '#f4511e',
+    padding: 20,
+  },
+  text: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
 });
 
 export default WelcomeScreen;
