@@ -1,10 +1,19 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView, StyleSheet, Image, FlatList, Modal } from 'react-native';
-import { useTranslation } from 'react-i18next';
+import React, {useEffect, useState, useContext} from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  SafeAreaView,
+  StyleSheet,
+  Image,
+  FlatList,
+  Modal,
+} from 'react-native';
+import {useTranslation} from 'react-i18next';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import axios from 'axios';
-import { useAuth } from '../../context/AuthContext';
-import { DarkModeContext } from '../../navigation/DarkModeContext';
+import {useAuth} from '../../context/AuthContext';
+import {DarkModeContext} from '../../navigation/DarkModeContext';
 
 const API_BASE_URL = 'http://10.0.2.2:3000';
 
@@ -12,12 +21,12 @@ const api = axios.create({
   baseURL: API_BASE_URL,
 });
 
-const Notifications = ({ navigation, route}) => {
-  const { user } = useAuth();
-  const { darkMode } = useContext(DarkModeContext);
-  const { t } = useTranslation();
-  const { mainRouteUser } = route.params || {};
-  console.log('mainRouteUser:', mainRouteUser); 
+const Notifications = ({navigation, route}) => {
+  const {user} = useAuth();
+  const {darkMode} = useContext(DarkModeContext);
+  const {t} = useTranslation();
+  const {mainRouteUser} = route.params || {};
+  console.log('mainRouteUser:', mainRouteUser);
 
   const [notifications, setNotifications] = useState([]);
   const [visibleModalId, setVisibleModalId] = useState(null);
@@ -25,9 +34,15 @@ const Notifications = ({ navigation, route}) => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await api.get(`/notifications?recipient=${user?.user?.username}`);
-        const activeNotifications = response.data.filter((n) => n.status === 'active');
-        const sorted = activeNotifications.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        const response = await api.get(
+          `/notifications?recipient=${user?.user?.username}`,
+        );
+        const activeNotifications = response.data.filter(
+          n => n.status === 'active',
+        );
+        const sorted = activeNotifications.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+        );
         setNotifications(sorted);
       } catch (error) {
         console.error('Failed to fetch notifications:', error);
@@ -37,22 +52,22 @@ const Notifications = ({ navigation, route}) => {
     fetchNotifications();
   }, [user]);
 
-  const handleNotificationPress = (notification) => {
-  if (
-  notification.message.includes('оцени пътуването') ||
-  notification.message.includes('rate the trip')
-) {
-  navigation.navigate('RateUser', {
-    mainRouteUser: notification.mainRouteUser,
-    routeId: notification.routeId 
-  });
-}
+  const handleNotificationPress = notification => {
+    if (
+      notification.message.includes('оцени пътуването') ||
+      notification.message.includes('rate the trip')
+    ) {
+      navigation.navigate('RateUser', {
+        mainRouteUser: notification.mainRouteUser,
+        routeId: notification.routeId,
+      });
+    }
   };
 
-  const deleteNotification = async (id) => {
+  const deleteNotification = async id => {
     try {
-      await api.patch(`/notifications/${id}`, { status: 'deleted' });
-      setNotifications((prev) => prev.filter((n) => n.id !== id));
+      await api.patch(`/notifications/${id}`, {status: 'deleted'});
+      setNotifications(prev => prev.filter(n => n.id !== id));
       setVisibleModalId(null);
     } catch (error) {
       console.error(`Failed to delete notification ${id}:`, error);
@@ -68,16 +83,20 @@ const Notifications = ({ navigation, route}) => {
     backgroundColor: darkMode ? '#333232FF' : '#f4511e',
   });
 
-  const formatDate = (dateString) => {
+  const formatDate = dateString => {
     const now = new Date();
     const date = new Date(dateString);
     const diffMin = Math.floor((now - date) / (1000 * 60));
     const diffHr = Math.floor(diffMin / 60);
     const diffDay = Math.floor(diffHr / 24);
-    return diffDay >= 1 ? `${diffDay}d` : diffHr >= 1 ? `${diffHr}h` : `${diffMin}min`;
+    return diffDay >= 1
+      ? `${diffDay}d`
+      : diffHr >= 1
+      ? `${diffHr}h`
+      : `${diffMin}min`;
   };
 
-  const isNewNotification = (createdAt) => {
+  const isNewNotification = createdAt => {
     const now = new Date();
     const date = new Date(createdAt);
     const diffHr = (now - date) / (1000 * 60 * 60);
@@ -86,8 +105,12 @@ const Notifications = ({ navigation, route}) => {
 
   return (
     <SafeAreaView style={styles.mainContainer}>
-      <Image source={require('../../../images/user-background.jpg')} style={styles.backgroundImage} />
-      <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center' }}>
+      <Image
+        source={require('../../../images/user-background.jpg')}
+        style={styles.backgroundImage}
+      />
+      <View
+        style={{flex: 1, justifyContent: 'flex-start', alignItems: 'center'}}>
         <View style={getHeaderStyles()}>
           <Text style={styles.headerTitle}>{t('Notifications')}</Text>
           <TouchableOpacity onPress={() => navigation.navigate('Home')}>
@@ -98,19 +121,20 @@ const Notifications = ({ navigation, route}) => {
         {notifications.length > 0 ? (
           <FlatList
             data={notifications}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={item => item.id.toString()}
             contentContainerStyle={styles.notificationList}
-            renderItem={({ item }) => (
+            renderItem={({item}) => (
               <View
                 style={[
                   styles.notification,
                   isNewNotification(item.createdAt) && styles.newNotification,
-                ]}
-              >
+                ]}>
                 <Text style={styles.newLabel}>
                   {isNewNotification(item.createdAt) ? t('New') : t('Earlier')}
                 </Text>
-                <TouchableOpacity style={styles.dotsButton} onPress={() => setVisibleModalId(item.id)}>
+                <TouchableOpacity
+                  style={styles.dotsButton}
+                  onPress={() => setVisibleModalId(item.id)}>
                   <Icons name="dots-vertical" size={25} color="#000" />
                 </TouchableOpacity>
 
@@ -124,28 +148,31 @@ const Notifications = ({ navigation, route}) => {
                   transparent
                   visible={visibleModalId === item.id}
                   animationType="fade"
-                  onRequestClose={() => setVisibleModalId(null)}
-                >
+                  onRequestClose={() => setVisibleModalId(null)}>
                   <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
-                      <Text style={styles.modalTitle}>{t('Notification Options')}</Text>
+                      <Text style={styles.modalTitle}>
+                        {t('Notification Options')}
+                      </Text>
                       <Text style={styles.modalMessage}>
-                         {t('Do you want to delete this notification:')}
-                         {"\n"}
-                         {"\n"}
-                         {item.message}
+                        {t('Do you want to delete this notification:')}
+                        {'\n'}
+                        {'\n'}
+                        {item.message}
                       </Text>
                       <TouchableOpacity
                         style={styles.modalButton}
-                        onPress={() => deleteNotification(item.id)}
-                      >
-                        <Text style={styles.modalButtonText}>{t('Delete')}</Text>
+                        onPress={() => deleteNotification(item.id)}>
+                        <Text style={styles.modalButtonText}>
+                          {t('Delete')}
+                        </Text>
                       </TouchableOpacity>
                       <TouchableOpacity
                         style={[styles.modalButton, styles.cancelButton]}
-                        onPress={() => setVisibleModalId(null)}
-                      >
-                        <Text style={styles.modalButtonText}>{t('Cancel')}</Text>
+                        onPress={() => setVisibleModalId(null)}>
+                        <Text style={styles.modalButtonText}>
+                          {t('Cancel')}
+                        </Text>
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -165,7 +192,7 @@ const Notifications = ({ navigation, route}) => {
 };
 
 const styles = StyleSheet.create({
-  mainContainer: { flex: 1, backgroundColor: '#f9f9f9' },
+  mainContainer: {flex: 1, backgroundColor: '#f9f9f9'},
   backgroundImage: {
     flex: 1,
     width: '100%',
@@ -173,8 +200,8 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
     position: 'absolute',
   },
-  headerTitle: { color: 'white', fontSize: 20, fontWeight: 'bold' },
-  notificationList: { padding: 16 },
+  headerTitle: {color: 'white', fontSize: 20, fontWeight: 'bold'},
+  notificationList: {padding: 16},
   notification: {
     padding: 15,
     backgroundColor: '#fff',
@@ -184,14 +211,24 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ddd',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
-  message: { fontSize: 16, color: '#010101', marginBottom: 8 },
-  date: { fontSize: 12, color: '#202020FF' },
-  emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
-  emptyMessage: { marginTop: 10, fontSize: 18, color: '#010101', textAlign: 'center' },
+  message: {fontSize: 16, color: '#010101', marginBottom: 8},
+  date: {fontSize: 12, color: '#202020FF'},
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  emptyMessage: {
+    marginTop: 10,
+    fontSize: 18,
+    color: '#010101',
+    textAlign: 'center',
+  },
   newLabel: {
     position: 'absolute',
     top: -10,
@@ -203,7 +240,7 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     fontSize: 12,
   },
-  newNotification: { backgroundColor: '#cce7ff' },
+  newNotification: {backgroundColor: '#cce7ff'},
   dotsButton: {
     position: 'absolute',
     top: 10,
@@ -225,8 +262,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: 5,
   },
-  modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 10, color: '#333' },
-  modalMessage: { fontSize: 16, color: '#666', marginBottom: 20, textAlign: 'center' },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: '#333',
+  },
+  modalMessage: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
   modalButton: {
     width: '100%',
     padding: 15,
@@ -235,8 +282,8 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     alignItems: 'center',
   },
-  cancelButton: { backgroundColor: '#ccc' },
-  modalButtonText: { color: 'white', fontSize: 16, fontWeight: 'bold' },
+  cancelButton: {backgroundColor: '#ccc'},
+  modalButtonText: {color: 'white', fontSize: 16, fontWeight: 'bold'},
 });
 
 export default Notifications;
