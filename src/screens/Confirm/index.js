@@ -11,6 +11,7 @@ import {
   ScrollView,
 } from 'react-native';
 import {useTranslation} from 'react-i18next';
+import LottieView from 'lottie-react-native';
 import {useRoute, useNavigation} from '@react-navigation/native';
 import {useRouteContext} from '../../context/RouteContext';
 import {useAuth} from '../../context/AuthContext';
@@ -19,6 +20,7 @@ function Confirm() {
   const {t} = useTranslation();
   const navigation = useNavigation();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const routeContext = useRouteContext();
   const {userRoutes, addRoute} = routeContext;
   const {user} = useAuth();
@@ -77,58 +79,62 @@ function Confirm() {
   };
 
   const handleConfirm = async () => {
-    if (isSubmitting) {
+    if (isSubmitting || isGenerating) {
       console.warn('Duplicate submission attempt prevented.');
-      return; // Предотвратява повторно натискане на бутона
+      return;
     }
 
-    setIsSubmitting(true); // Деактивира бутон веднага след натискане
+    setIsGenerating(true); // Показваме анимацията за генериране
 
-    const newRoute = {
-      selectedVehicle,
-      registrationNumber,
-      selectedDateTime,
-      departureCity,
-      departureStreet,
-      departureNumber,
-      arrivalCity,
-      arrivalStreet,
-      arrivalNumber,
-      userId,
-      username,
-      userFname,
-      userLname,
-      userEmail,
-      routeId,
-      user_id,
-    };
+    // Симулиране на генериране на маршрут (3-4 секунди)
+    setTimeout(async () => {
+      setIsGenerating(false);
+      setIsSubmitting(true);
 
-    try {
-      const response = await fetch('http://10.0.2.2:3000/create-route', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({route: newRoute}),
-      });
+      const newRoute = {
+        selectedVehicle,
+        registrationNumber,
+        selectedDateTime,
+        departureCity,
+        departureStreet,
+        departureNumber,
+        arrivalCity,
+        arrivalStreet,
+        arrivalNumber,
+        userId,
+        username,
+        userFname,
+        userLname,
+        userEmail,
+        routeId,
+        user_id,
+      };
 
-      if (response.ok) {
-        console.log('Route created successfully');
-        const responseData = await response.json();
-        addRoute(responseData.route); // Записва маршрута в контекста
-        setSuccessMessage(t('The route has been created!'));
+      try {
+        const response = await fetch('http://10.0.2.2:3000/create-route', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({route: newRoute}),
+        });
 
-        // Навигиране към "View routes" след успешното създаване
-        navigation.navigate('View routes');
-      } else {
-        const errorData = await response.json();
-        console.error('Failed to create route:', errorData.error);
+        if (response.ok) {
+          console.log('Route created successfully');
+          const responseData = await response.json();
+          addRoute(responseData.route);
+          setSuccessMessage(t('The route has been created!'));
+          navigation.navigate('View routes');
+        } else {
+          const errorData = await response.json();
+          console.error('Failed to create route:', errorData.error);
+        }
+      } catch (error) {
+        console.error('Error creating route:', error);
+      } finally {
+        setIsSubmitting(false);
       }
-    } catch (error) {
-      console.error('Error creating route:', error);
-    } finally {
-      setIsSubmitting(false); // Разрешава натискане на бутона отново след завършване
-    }
+    }, 6000); // 3.5 секунди симулация
   };
 
   const handlerBackRoutes = () => {
@@ -208,6 +214,22 @@ function Confirm() {
               onPress={handleConfirm}>
               <Text style={styles.buttonText}>{t('Confirm')}</Text>
             </TouchableOpacity>
+          )}
+          {isGenerating && (
+            <View style={styles.loadingOverlay}>
+              <View style={styles.loadingModal}>
+                <LottieView
+                  source={require('../../../assets/animations/road.json')}
+                  autoPlay
+                  loop
+                  resizeMode="cover"
+                  style={styles.generatingImage}
+                />
+                <Text style={styles.generatingText}>
+                  {t('Generating your route...')}
+                </Text>
+              </View>
+            </View>
           )}
           {showBackButton && (
             <TouchableOpacity
@@ -326,6 +348,47 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     color: '#F1F1F1',
     textAlign: 'center', // Center text
+  },
+  generatingContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  generatingImage: {
+    width: 420,
+    height: 420,
+    marginBottom: 10,
+  },
+  generatingText: {
+    fontSize: 26,
+    color: '#010101',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    pointerEvents: 'auto',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)', // тъмен фон с прозрачност
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10, // да е над другите компоненти
+  },
+  loadingModal: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 280,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 8,
   },
 });
 

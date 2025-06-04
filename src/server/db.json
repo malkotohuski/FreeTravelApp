@@ -9,10 +9,29 @@
       "lName": "Spasova",
       "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/934839b7-5c2f-472d-9a08-e59d74d9a512.jpg",
       "confirmationCode": null,
-      "routes": [1748268348478, 1748606791383],
+      "routes": [
+        1748268348478,
+        1748606791383
+      ],
       "freinds": [],
       "ratings": [
-        3.5, 3.5, 2, 2, 0.5, 3, 5, 3.5, 2.5, 2.5, 1.5, 1.5, 5, 5, 4.5, 5, 3.5
+        3.5,
+        3.5,
+        2,
+        2,
+        0.5,
+        3,
+        5,
+        3.5,
+        2.5,
+        2.5,
+        1.5,
+        1.5,
+        5,
+        5,
+        4.5,
+        5,
+        3.5
       ],
       "comments": [
         "Stawa",
@@ -72,11 +91,26 @@
       "confirmationCode": null,
       "isActive": true,
       "routes": [
-        1736957069792, 1736956628621, 1747679033547, 1748262223336,
-        1748269154351, 1748270995203, 1748356737136, 1748606298684
+        1736957069792,
+        1736956628621,
+        1747679033547,
+        1748262223336,
+        1748269154351,
+        1748270995203,
+        1748356737136,
+        1748606298684
       ],
       "friends": [],
-      "ratings": [3.5, 3.5, 3.5, 5, 4, 4, 4, 3.5],
+      "ratings": [
+        3.5,
+        3.5,
+        3.5,
+        5,
+        4,
+        4,
+        4,
+        3.5
+      ],
       "comments": [
         "ops",
         "ops",
@@ -123,7 +157,9 @@
   "routes": [
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "С2211АА",
       "selectedDateTime": "2024-01-25T14:20:00.000Z",
       "departureCity": "Plovdiv",
@@ -136,7 +172,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "С2211АА",
       "selectedDateTime": "2024-01-25T12:26:00.000Z",
       "departureCity": "Plovdiv",
@@ -149,7 +187,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "С2211АА",
       "selectedDateTime": "2024-01-25T12:23:00.000Z",
       "departureCity": "Plovdiv",
@@ -162,7 +202,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С2121АА",
       "selectedDateTime": "2024-01-25T12:32:00.000Z",
       "departureCity": "Sofia",
@@ -175,7 +217,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С2121АА",
       "selectedDateTime": "2024-01-25T12:30:00.000Z",
       "departureCity": "Sofia",
@@ -188,7 +232,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С2122АА",
       "selectedDateTime": "2024-01-25T14:08:00.000Z",
       "departureCity": "Sofia",
@@ -201,7 +247,10 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [2, 3],
+      "markedSeats": [
+        2,
+        3
+      ],
       "registrationNumber": "С1342АА",
       "selectedDateTime": "2024-01-26T16:36:00.000Z",
       "departureCity": "Sofia",
@@ -214,7 +263,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С2121АА",
       "selectedDateTime": "2024-01-26T11:52:00.000Z",
       "departureCity": "Sofia",
@@ -227,7 +278,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С2121АА",
       "selectedDateTime": "2024-01-30T13:43:00.000Z",
       "departureCity": "Sofia",
@@ -240,7 +293,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С2121АА",
       "selectedDateTime": "2024-01-30T13:43:00.000Z",
       "departureCity": "Sofia",
@@ -253,7 +308,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "С5678АА",
       "selectedDateTime": "2024-01-29T17:49:00.000Z",
       "departureCity": "Targovishte",
@@ -266,7 +323,10 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4, 5],
+      "markedSeats": [
+        4,
+        5
+      ],
       "registrationNumber": "С5331АД",
       "selectedDateTime": "2024-01-29T17:56:00.000Z",
       "departureCity": "Gabrovo",
@@ -281,7 +341,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С5555AА",
       "selectedDateTime": "2024-04-05T08:46:00.000Z",
       "departureCity": "Veliko Tarnovo",
@@ -301,7 +363,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С1111АА",
       "selectedDateTime": "2024-04-04T08:59:00.000Z",
       "departureCity": "Madan",
@@ -320,7 +384,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С1111АА",
       "selectedDateTime": "2024-04-04T08:59:00.000Z",
       "departureCity": "Madan",
@@ -339,7 +405,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С1111СА",
       "selectedDateTime": "2024-04-04T09:31:00.000Z",
       "departureCity": "Lyaskovets",
@@ -358,7 +426,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-04-06T14:38:00.000Z",
       "departureCity": "Bata (Pazardzhik)",
@@ -377,7 +447,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A2211AA",
       "selectedDateTime": "2024-04-07T08:44:00.000Z",
       "departureCity": "Pazardzhik",
@@ -396,7 +468,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-04-05T12:21:00.000Z",
       "departureCity": "Plovdiv",
@@ -415,7 +489,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A5544AA",
       "selectedDateTime": "2024-04-04T12:37:48.882Z",
       "departureCity": "Ruse",
@@ -434,7 +510,9 @@
     },
     {
       "selectedVehicle": "Лек автомобил",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "СВ2677АН",
       "selectedDateTime": "2024-04-07T12:49:00.000Z",
       "departureCity": "София",
@@ -453,7 +531,9 @@
     },
     {
       "selectedVehicle": "Лек автомобил",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "СВ2677АН",
       "selectedDateTime": "2024-04-08T12:49:00.000Z",
       "departureCity": "София",
@@ -472,7 +552,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-04-04T13:59:52.469Z",
       "departureCity": "Burgas",
@@ -491,7 +573,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-04-04T13:59:52.469Z",
       "departureCity": "Burgas",
@@ -510,7 +594,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-04-06T13:59:00.000Z",
       "departureCity": "Burgas",
@@ -529,7 +615,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "С2145СЕ",
       "selectedDateTime": "2024-04-06T14:17:00.000Z",
       "departureCity": "Aytos",
@@ -548,7 +636,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "A2333AA",
       "selectedDateTime": "2024-04-09T14:26:00.000Z",
       "departureCity": "Sofia",
@@ -567,7 +657,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С2333АД",
       "selectedDateTime": "2024-04-07T14:51:00.000Z",
       "departureCity": "Devnya",
@@ -586,7 +678,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С5566АС",
       "selectedDateTime": "2024-04-07T15:36:00.000Z",
       "departureCity": "Omurtag",
@@ -605,7 +699,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-04-05T09:49:50.224Z",
       "departureCity": "Ruen",
@@ -624,7 +720,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-04-07T09:49:00.000Z",
       "departureCity": "Ruen",
@@ -643,7 +741,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-04-07T10:22:00.000Z",
       "departureCity": "Stamboliyski",
@@ -662,7 +762,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С2344АС",
       "selectedDateTime": "2024-04-05T10:32:00.000Z",
       "departureCity": "Sofia",
@@ -681,7 +783,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С2344АС",
       "selectedDateTime": "2024-04-05T10:42:00.000Z",
       "departureCity": "Sofia",
@@ -700,7 +804,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-04-10T11:49:00.000Z",
       "departureCity": "Sofia",
@@ -719,7 +825,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С3444AД",
       "selectedDateTime": "2024-04-09T14:37:00.000Z",
       "departureCity": "Sliven",
@@ -738,7 +846,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A2211AA",
       "selectedDateTime": "2024-04-09T14:47:00.000Z",
       "departureCity": "Burgas",
@@ -757,7 +867,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "С2111АС",
       "selectedDateTime": "2024-04-09T15:05:00.000Z",
       "departureCity": "Veliki Preslav",
@@ -776,7 +888,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-04-10T15:10:00.000Z",
       "departureCity": "Sofia",
@@ -795,7 +909,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С2478АС",
       "selectedDateTime": "2024-04-11T05:40:00.000Z",
       "departureCity": "Pazardzhik",
@@ -814,7 +930,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С2111АА",
       "selectedDateTime": "2024-04-11T05:46:00.000Z",
       "departureCity": "Ruse",
@@ -833,7 +951,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-04-11T06:04:00.000Z",
       "departureCity": "Aytos",
@@ -852,7 +972,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-04-11T06:04:00.000Z",
       "departureCity": "Aytos",
@@ -871,7 +993,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-04-10T06:26:00.000Z",
       "departureCity": "Stara Zagora",
@@ -890,7 +1014,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [2],
+      "markedSeats": [
+        2
+      ],
       "registrationNumber": "СВ2121АА",
       "selectedDateTime": "2024-04-11T09:01:00.000Z",
       "departureCity": "Stara Zagora",
@@ -909,7 +1035,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [2],
+      "markedSeats": [
+        2
+      ],
       "registrationNumber": "СВ2121АА",
       "selectedDateTime": "2024-04-11T09:01:00.000Z",
       "departureCity": "Stara Zagora",
@@ -928,7 +1056,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [2],
+      "markedSeats": [
+        2
+      ],
       "registrationNumber": "СВ2121АА",
       "selectedDateTime": "2024-04-11T09:01:00.000Z",
       "departureCity": "Stara Zagora",
@@ -947,7 +1077,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "СВ2211АА",
       "selectedDateTime": "2024-04-19T20:23:00.000Z",
       "departureCity": "Sofia",
@@ -966,7 +1098,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A1111AA",
       "selectedDateTime": "2024-04-19T16:03:00.000Z",
       "departureCity": "Burgas",
@@ -985,7 +1119,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A1111AA",
       "selectedDateTime": "2024-04-15T04:06:00.000Z",
       "departureCity": "Burgas",
@@ -1004,7 +1140,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A1111AA",
       "selectedDateTime": "2024-04-15T04:07:00.000Z",
       "departureCity": "Burgas",
@@ -1023,7 +1161,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A1111AA",
       "selectedDateTime": "2024-04-15T16:07:00.000Z",
       "departureCity": "Burgas",
@@ -1042,7 +1182,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С1211АА",
       "selectedDateTime": "2024-04-22T14:36:00.000Z",
       "departureCity": "Ruse",
@@ -1061,7 +1203,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "С3312АА",
       "selectedDateTime": "2024-04-26T17:05:00.000Z",
       "departureCity": "Sofia",
@@ -1080,7 +1224,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "С3312АА",
       "selectedDateTime": "2024-04-26T17:05:00.000Z",
       "departureCity": "Ruse",
@@ -1099,7 +1245,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С2144АС",
       "selectedDateTime": "2024-04-28T17:44:00.000Z",
       "departureCity": "Burgas",
@@ -1118,7 +1266,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С2144АС",
       "selectedDateTime": "2024-04-28T17:44:00.000Z",
       "departureCity": "Sofia",
@@ -1137,7 +1287,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С2144АС",
       "selectedDateTime": "2024-04-28T17:44:00.000Z",
       "departureCity": "Sofia",
@@ -1156,7 +1308,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С2144АС",
       "selectedDateTime": "2024-05-05T17:44:00.000Z",
       "departureCity": "Sofia",
@@ -1175,7 +1329,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "РА1124АА",
       "selectedDateTime": "2024-05-04T16:11:00.000Z",
       "departureCity": "Burgas",
@@ -1194,7 +1350,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С1221АА",
       "selectedDateTime": "2024-04-27T18:25:50.366Z",
       "departureCity": "Sofia",
@@ -1213,7 +1371,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С1245АА",
       "selectedDateTime": "2024-05-10T09:22:00.000Z",
       "departureCity": "Pleven",
@@ -1232,7 +1392,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С1245АА",
       "selectedDateTime": "2024-05-10T09:22:00.000Z",
       "departureCity": "Pleven",
@@ -1251,7 +1413,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С1245АА",
       "selectedDateTime": "2024-05-10T09:22:00.000Z",
       "departureCity": "Pleven",
@@ -1270,7 +1434,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С1245АА",
       "selectedDateTime": "2024-05-10T09:22:00.000Z",
       "departureCity": "Pleven",
@@ -1289,7 +1455,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-05-06T10:37:00.000Z",
       "departureCity": "Sofia",
@@ -1308,7 +1476,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-05-06T10:37:00.000Z",
       "departureCity": "Sofia",
@@ -1327,7 +1497,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-05-06T10:37:00.000Z",
       "departureCity": "Sofia",
@@ -1346,7 +1518,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-05-04T11:41:00.000Z",
       "departureCity": "Sofia",
@@ -1365,7 +1539,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-05-04T11:41:00.000Z",
       "departureCity": "Sofia",
@@ -1384,7 +1560,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-05-04T13:32:00.000Z",
       "departureCity": "Plovdiv",
@@ -1403,7 +1581,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-05-04T13:32:00.000Z",
       "departureCity": "Plovdiv",
@@ -1422,7 +1602,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-05-04T13:32:00.000Z",
       "departureCity": "Plovdiv",
@@ -1441,7 +1623,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-05-04T13:32:00.000Z",
       "departureCity": "Plovdiv",
@@ -1460,7 +1644,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-05-04T13:32:00.000Z",
       "departureCity": "Plovdiv",
@@ -1479,7 +1665,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-05-04T13:32:00.000Z",
       "departureCity": "Plovdiv",
@@ -1498,7 +1686,9 @@
     },
     {
       "selectedVehicle": "Motorcycle",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-05-04T13:32:00.000Z",
       "departureCity": "Plovdiv",
@@ -1534,7 +1724,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A4655AA",
       "selectedDateTime": "2024-05-05T14:07:00.000Z",
       "departureCity": "Plovdiv",
@@ -1553,7 +1745,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-05-04T14:26:00.000Z",
       "departureCity": "Plovdiv",
@@ -1572,7 +1766,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [5],
+      "markedSeats": [
+        5
+      ],
       "registrationNumber": "A1211AA",
       "selectedDateTime": "2024-05-05T14:33:00.000Z",
       "departureCity": "Burgas",
@@ -1591,7 +1787,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-05-01T14:40:58.114Z",
       "departureCity": "Burgas",
@@ -1610,7 +1808,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-05-03T14:40:00.000Z",
       "departureCity": "Burgas",
@@ -1629,7 +1829,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "A1211AA",
       "selectedDateTime": "2024-05-07T15:41:00.000Z",
       "departureCity": "Ruse",
@@ -1648,7 +1850,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A1211AA",
       "selectedDateTime": "2024-05-09T12:04:00.000Z",
       "departureCity": "Dobrich",
@@ -1667,7 +1871,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "СВ2111АД",
       "selectedDateTime": "2024-05-09T12:18:00.000Z",
       "departureCity": "Stara Zagora",
@@ -1686,7 +1892,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С6895АР",
       "selectedDateTime": "2024-05-09T16:53:00.000Z",
       "departureCity": "Stara Zagora",
@@ -1705,7 +1913,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С6895АР",
       "selectedDateTime": "2024-05-09T16:53:00.000Z",
       "departureCity": "Stara Zagora",
@@ -1724,7 +1934,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С6895АР",
       "selectedDateTime": "2024-05-09T16:53:00.000Z",
       "departureCity": "Stara Zagora",
@@ -1743,7 +1955,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С1211АА",
       "selectedDateTime": "2024-05-11T14:02:00.000Z",
       "departureCity": "Burgas",
@@ -1762,7 +1976,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С1211АА",
       "selectedDateTime": "2024-05-11T14:02:00.000Z",
       "departureCity": "Burgas",
@@ -1781,7 +1997,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С2456АЯ",
       "selectedDateTime": "2024-05-12T17:53:00.000Z",
       "departureCity": "Ruse",
@@ -1800,7 +2018,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С2456АЯ",
       "selectedDateTime": "2024-05-12T17:53:00.000Z",
       "departureCity": "Ruse",
@@ -1819,7 +2039,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "С5526АА",
       "selectedDateTime": "2024-05-19T14:22:00.000Z",
       "departureCity": "Burgas",
@@ -1838,7 +2060,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "С5526АА",
       "selectedDateTime": "2024-05-19T14:22:00.000Z",
       "departureCity": "Burgas",
@@ -1857,7 +2081,9 @@
     },
     {
       "selectedVehicle": "Motorcycle",
-      "markedSeats": [2],
+      "markedSeats": [
+        2
+      ],
       "registrationNumber": "С2145СА",
       "selectedDateTime": "2024-05-21T16:16:00.000Z",
       "departureCity": "Plovdiv",
@@ -1875,7 +2101,9 @@
     },
     {
       "selectedVehicle": "Motorcycle",
-      "markedSeats": [2],
+      "markedSeats": [
+        2
+      ],
       "registrationNumber": "С2145СА",
       "selectedDateTime": "2024-05-21T16:16:00.000Z",
       "departureCity": "Plovdiv",
@@ -1893,7 +2121,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "С2143АА",
       "selectedDateTime": "2024-05-22T16:19:00.000Z",
       "departureCity": "Sofia",
@@ -1911,7 +2141,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "А4422СС",
       "selectedDateTime": "2024-05-22T16:33:00.000Z",
       "departureCity": "Burgas",
@@ -1929,7 +2161,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "А4422СС",
       "selectedDateTime": "2024-05-22T16:33:00.000Z",
       "departureCity": "Burgas",
@@ -1947,7 +2181,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "А4422СС",
       "selectedDateTime": "2024-05-22T16:33:00.000Z",
       "departureCity": "Burgas",
@@ -1965,7 +2201,9 @@
     },
     {
       "selectedVehicle": "A minibus",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "А4422СС",
       "selectedDateTime": "2024-05-22T16:33:00.000Z",
       "departureCity": "Burgas",
@@ -1983,7 +2221,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "Д4523АА",
       "selectedDateTime": "2024-05-26T16:53:00.000Z",
       "departureCity": "Pleven",
@@ -2001,7 +2241,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "С2454АА",
       "selectedDateTime": "2024-05-27T17:03:00.000Z",
       "departureCity": "Burgas",
@@ -2019,7 +2261,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "С2454АА",
       "selectedDateTime": "2024-05-27T17:03:00.000Z",
       "departureCity": "Burgas",
@@ -2037,7 +2281,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "С2112АС",
       "selectedDateTime": "2024-05-25T14:42:00.000Z",
       "departureCity": "Varna",
@@ -2055,7 +2301,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "С2112АС",
       "selectedDateTime": "2024-05-25T14:42:00.000Z",
       "departureCity": "Varna",
@@ -2073,7 +2321,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-05-24T15:42:00.000Z",
       "departureStreet": "11",
@@ -2089,7 +2339,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-05-23T16:02:00.000Z",
       "departureCity": "Bata",
@@ -2107,7 +2359,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-05-26T16:09:00.000Z",
       "departureCity": "Burgas",
@@ -2125,7 +2379,9 @@
     },
     {
       "selectedVehicle": "Лек автомобил",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "СВ2677АН",
       "selectedDateTime": "2024-05-24T15:28:00.000Z",
       "departureCity": "Бъта",
@@ -2143,7 +2399,10 @@
     },
     {
       "selectedVehicle": "Лек автомобил",
-      "markedSeats": [2, 3],
+      "markedSeats": [
+        2,
+        3
+      ],
       "registrationNumber": "A2111AC",
       "selectedDateTime": "2024-06-09T17:28:00.000Z",
       "departureCity": "Batak (Veliko Tarnovo)",
@@ -2162,7 +2421,10 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3, 2],
+      "markedSeats": [
+        3,
+        2
+      ],
       "registrationNumber": "СВ4473АА",
       "selectedDateTime": "2024-06-17T15:19:00.000Z",
       "departureCity": "Sofia",
@@ -2180,7 +2442,10 @@
     },
     {
       "selectedVehicle": "Motorcycle",
-      "markedSeats": [3, 2],
+      "markedSeats": [
+        3,
+        2
+      ],
       "registrationNumber": "С7666АС",
       "selectedDateTime": "2024-06-21T18:10:00.000Z",
       "departureCity": "Pleven",
@@ -2198,7 +2463,9 @@
     },
     {
       "selectedVehicle": "Лек автомобил",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "С8566ДВ",
       "selectedDateTime": "2024-06-24T17:35:00.000Z",
       "departureCity": "София",
@@ -2216,7 +2483,9 @@
     },
     {
       "selectedVehicle": "Лек автомобил",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С2111АА",
       "selectedDateTime": "2024-06-22T16:12:00.000Z",
       "departureCity": "Баня (обл. Пазарджик)",
@@ -2234,7 +2503,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "А2111АА",
       "selectedDateTime": "2024-06-27T13:42:00.000Z",
       "departureCity": "Plovdiv",
@@ -2252,7 +2523,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "А3332АА",
       "selectedDateTime": "2024-07-02T13:55:00.000Z",
       "departureCity": "Varna",
@@ -2270,7 +2543,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "СА2121ЗД",
       "selectedDateTime": "2024-06-28T17:19:00.000Z",
       "departureCity": "Burgas",
@@ -2288,7 +2563,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "С1111АЯ",
       "selectedDateTime": "2024-07-03T14:35:00.000Z",
       "departureCity": "Burgas",
@@ -2306,7 +2583,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "А2112СЯ",
       "selectedDateTime": "2024-07-09T15:11:00.000Z",
       "departureCity": "Pleven",
@@ -2324,7 +2603,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "А2112СЯ",
       "selectedDateTime": "2024-07-09T15:11:00.000Z",
       "departureCity": "Burgas",
@@ -2342,7 +2623,9 @@
     },
     {
       "selectedVehicle": "Лек автомобил",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "А2112СЯ",
       "selectedDateTime": "2024-07-09T15:11:00.000Z",
       "departureCity": "Burgas",
@@ -2360,7 +2643,9 @@
     },
     {
       "selectedVehicle": "Лек автомобил",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "А2112СЯ",
       "selectedDateTime": "2024-07-09T15:11:00.000Z",
       "departureCity": "Burgas",
@@ -2378,7 +2663,9 @@
     },
     {
       "selectedVehicle": "Мотоциклет",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "А2112СЯ",
       "selectedDateTime": "2024-07-09T15:11:00.000Z",
       "departureCity": "Burgas",
@@ -2396,7 +2683,9 @@
     },
     {
       "selectedVehicle": "Лек автомобил",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "А2112СЯ",
       "selectedDateTime": "2024-07-09T15:11:00.000Z",
       "departureCity": "Burgas",
@@ -2414,7 +2703,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [5],
+      "markedSeats": [
+        5
+      ],
       "registrationNumber": "A2121AA",
       "selectedDateTime": "2024-09-04T15:46:00.000Z",
       "departureCity": "Burgas",
@@ -2432,7 +2723,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-08-29T16:39:00.000Z",
       "departureCity": "Sofia",
@@ -2450,7 +2743,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "A2111AA",
       "selectedDateTime": "2024-08-29T16:39:00.000Z",
       "departureCity": "Sofia",
@@ -2468,7 +2763,9 @@
     },
     {
       "selectedVehicle": "Лек автомобил",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "CA2677AB",
       "selectedDateTime": "2024-09-03T15:43:00.000Z",
       "departureCity": "София",
@@ -2486,7 +2783,9 @@
     },
     {
       "selectedVehicle": "Лек автомобил",
-      "markedSeats": [5],
+      "markedSeats": [
+        5
+      ],
       "registrationNumber": "A2154KA",
       "selectedDateTime": "2024-09-18T17:29:00.000Z",
       "departureCity": "Пловдив",
@@ -2504,7 +2803,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [3],
+      "markedSeats": [
+        3
+      ],
       "registrationNumber": "CA2111AA",
       "selectedDateTime": "2024-09-21T16:54:00.000Z",
       "departureCity": "Plovdiv",
@@ -2522,7 +2823,12 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4, 5, 2, 3],
+      "markedSeats": [
+        4,
+        5,
+        2,
+        3
+      ],
       "registrationNumber": "CA2111AA",
       "selectedDateTime": "2024-09-21T16:54:00.000Z",
       "departureCity": "Plovdiv",
@@ -2558,7 +2864,10 @@
     },
     {
       "selectedVehicle": "Лек автомобил",
-      "markedSeats": [2, 4],
+      "markedSeats": [
+        2,
+        4
+      ],
       "registrationNumber": "A2122AA",
       "selectedDateTime": "2024-10-13T17:47:00.000Z",
       "departureCity": "Kopriva",
@@ -2571,7 +2880,9 @@
     },
     {
       "selectedVehicle": "Car",
-      "markedSeats": [4],
+      "markedSeats": [
+        4
+      ],
       "registrationNumber": "С2121АА",
       "selectedDateTime": "2024-11-08T10:45:00.000Z",
       "departureCity": "Sofia",
@@ -4281,6 +4592,168 @@
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
       "id": 1748611145709
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A2121AA",
+      "selectedDateTime": "2025-06-06T11:55:00.000Z",
+      "departureCity": "Sofia",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Burgas",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1749038152301,
+      "userRouteId": "deleted"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A2222AA",
+      "selectedDateTime": "2025-06-08T12:21:00.000Z",
+      "departureCity": "Burgas",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Burgas",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1749039680361,
+      "userRouteId": "deleted"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "K3333KT",
+      "selectedDateTime": "2025-06-07T12:23:00.000Z",
+      "departureCity": "Pleven",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Varna",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1749039852233,
+      "userRouteId": "deleted"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A2111AT",
+      "selectedDateTime": "2025-06-06T12:31:00.000Z",
+      "departureCity": "Sofia",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Pleven",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1749040300145,
+      "userRouteId": "deleted"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A3333AA",
+      "selectedDateTime": "2025-06-07T12:32:00.000Z",
+      "departureCity": "Stara Zagora",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Burgas",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1749040389112,
+      "userRouteId": "deleted"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A2222AA",
+      "selectedDateTime": "2025-06-07T12:57:00.000Z",
+      "departureCity": "Sofia",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Pleven",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1749041843774,
+      "userRouteId": "deleted"
+    },
+    {
+      "selectedVehicle": "Motorcycle",
+      "registrationNumber": "A2222AA",
+      "selectedDateTime": "2025-06-07T13:01:00.000Z",
+      "departureCity": "Sofia",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Stara Zagora",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1749042085004,
+      "userRouteId": "deleted"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A2222AA",
+      "selectedDateTime": "2025-06-06T13:05:00.000Z",
+      "departureCity": "Burgas",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Ruse",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1749042331008,
+      "userRouteId": "deleted"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A2222AA",
+      "selectedDateTime": "2025-06-05T13:05:00.000Z",
+      "departureCity": "Plovdiv",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Pleven",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1749042369057,
+      "userRouteId": "deleted"
     }
   ],
   "requests": [
