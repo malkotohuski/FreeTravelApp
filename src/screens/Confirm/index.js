@@ -1,5 +1,6 @@
 import React, {useState, useEffect, useLayoutEffect} from 'react';
 import Icons from 'react-native-vector-icons/MaterialIcons';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {
   View,
   Text,
@@ -153,7 +154,7 @@ function Confirm() {
             })
           }>
           <Text style={{color: 'white', marginRight: 8, fontSize: 18}}>
-            {t('Step 3 of 4')}
+            {t('Step 4 of 4')}
           </Text>
           <Icons name="keyboard-backspace" size={24} color="white" />
         </TouchableOpacity>
@@ -176,32 +177,47 @@ function Confirm() {
           <Text style={styles.text}>
             {t('Names')}: {userFname} {userLname}
           </Text>
-          <Text style={styles.text}>
+          {/*  <Text style={styles.text}>
             {t('Time and date of departure')}:{' '}
             {String(selectedDateTime.toLocaleString())}
-          </Text>
+          </Text> */}
 
           {/* Departure Section */}
           <View style={styles.sectionContainer}>
-            <Text style={styles.sectionHeaderText}>{t('Departure')}:</Text>
-            <Text style={styles.text}>
-              {t('Town/Village')}: {departureCity}
-            </Text>
-            <Text style={styles.text}>
-              {t('Street')}: {departureStreet} {departureNumber}
-            </Text>
+            <View style={styles.routeRow}>
+              <Icon
+                name="car-arrow-right"
+                size={28}
+                color="#121213"
+                style={{transform: [{rotate: '0deg'}]}}
+              />
+              <Text style={styles.routeText}>
+                {departureCity} {departureStreet}
+                {departureNumber ? ` - ${departureNumber}` : ''}
+              </Text>
+            </View>
           </View>
 
           {/* Arrival Section */}
           <View style={styles.sectionContainer}>
-            <Text style={styles.sectionHeaderText}>{t('Arrival')}:</Text>
-            <Text style={styles.text}>
-              {t('Town/Village')}: {arrivalCity}
-            </Text>
-            <Text style={styles.text}>
-              {t('Street')}: {arrivalStreet} {arrivalNumber}
-            </Text>
+            <View style={styles.routeRow}>
+              <Icon
+                name="car-select"
+                size={28}
+                color="#121213"
+                style={{transform: [{rotate: '0deg'}]}}
+              />
+              <Text style={styles.routeText}>
+                {arrivalCity} {arrivalStreet}
+                {arrivalNumber ? ` - ${arrivalNumber}` : ''}
+              </Text>
+            </View>
           </View>
+
+          <Text style={styles.dateText}>
+            {t('Time and date of departure')}:{' '}
+            {String(selectedDateTime.toLocaleString())}
+          </Text>
 
           {showChangesButton && (
             <TouchableOpacity style={styles.button} onPress={handleGoBack}>
@@ -389,6 +405,30 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 8,
+  },
+  routeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    marginBottom: 10,
+  },
+
+  routeText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#010101',
+    marginLeft: 10,
+  },
+
+  dateText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#010101',
+    textAlign: 'center',
+    marginTop: 10,
+    marginBottom: 20,
+    borderBottomWidth: 2,
+    borderBottomColor: '#121213',
   },
 });
 
