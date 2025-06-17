@@ -125,7 +125,12 @@ function Confirm() {
           const responseData = await response.json();
           addRoute(responseData.route);
           setSuccessMessage(t('The route has been created!'));
-          navigation.navigate('View routes');
+
+          // Скрий съобщението след 2 секунди
+          setTimeout(() => {
+            setSuccessMessage('');
+            navigation.navigate('View routes');
+          }, 2000);
         } else {
           const errorData = await response.json();
           console.error('Failed to create route:', errorData.error);
@@ -135,7 +140,7 @@ function Confirm() {
       } finally {
         setIsSubmitting(false);
       }
-    }, 6000); // 3.5 секунди симулация
+    }, 6000); // 6 секунди симулация
   };
 
   const handlerBackRoutes = () => {
