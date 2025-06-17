@@ -216,40 +216,46 @@ function ViewRoutes({navigation}) {
       </Modal>
       <ScrollView style={styles.scrollView}>
         <View style={styles.container}>
-          {filteredRoutesState.map((route, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.routeContainer}
-              onPress={() =>
-                handlerSeeView({
-                  selectedVehicle: route.selectedVehicle,
-                  markedSeats: route.markedSeats,
-                  registrationNumber: route.registrationNumber,
-                  selectedDateTime: route.selectedDateTime,
-                  departureCity: route.departureCity,
-                  departureStreet: route.departureStreet,
-                  departureNumber: route.departureNumber,
-                  arrivalCity: route.arrivalCity,
-                  arrivalStreet: route.arrivalStreet,
-                  arrivalNumber: route.arrivalNumber,
-                  userId: route.userId,
-                  username: route.username,
-                  userFname: route.userFname,
-                  userLname: route.userLname,
-                  userEmail: route.userEmail,
-                  routeId: route.id,
-                  user_id: route.userId,
-                })
-              }>
-              <Text style={styles.routeText}>
-                {new Date(route.selectedDateTime).toLocaleString()}{' '}
-                {/* Displaying date without time */}
-              </Text>
-              <Text style={styles.routeText}>
-                {route.departureCity}-{route.arrivalCity}
-              </Text>
-            </TouchableOpacity>
-          ))}
+          {filteredRoutesState.map((route, index) => {
+            const isOwnRoute = route.username === usernameRequest;
+
+            return (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.routeContainer,
+                  isOwnRoute && styles.ownRouteContainer, // Добави различен стил, ако е негов маршрут
+                ]}
+                onPress={() =>
+                  handlerSeeView({
+                    selectedVehicle: route.selectedVehicle,
+                    markedSeats: route.markedSeats,
+                    registrationNumber: route.registrationNumber,
+                    selectedDateTime: route.selectedDateTime,
+                    departureCity: route.departureCity,
+                    departureStreet: route.departureStreet,
+                    departureNumber: route.departureNumber,
+                    arrivalCity: route.arrivalCity,
+                    arrivalStreet: route.arrivalStreet,
+                    arrivalNumber: route.arrivalNumber,
+                    userId: route.userId,
+                    username: route.username,
+                    userFname: route.userFname,
+                    userLname: route.userLname,
+                    userEmail: route.userEmail,
+                    routeId: route.id,
+                    user_id: route.userId,
+                  })
+                }>
+                <Text style={styles.routeText}>
+                  {new Date(route.selectedDateTime).toLocaleString()}
+                </Text>
+                <Text style={styles.routeText}>
+                  {route.departureCity}-{route.arrivalCity}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -269,6 +275,11 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: '#f4511e',
     borderRadius: 10,
+  },
+  ownRouteContainer: {
+    backgroundColor: '#f33233', // Светло синьо, може да смениш цвета
+    borderWidth: 2,
+    borderColor: '#1b1c1e',
   },
   searchContainer: {
     flexDirection: 'row',
