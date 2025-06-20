@@ -9,6 +9,8 @@ import {
   ScrollView,
   SafeAreaView,
 } from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
+import {useCallback} from 'react';
 import axios from 'axios';
 import styles from './styles';
 import {useTranslation} from 'react-i18next';
@@ -35,6 +37,37 @@ export default function Register({navigation}) {
     useState(false);
   const [profilePicture, setProfilePicture] = useState('');
 
+  const resendConfirmationCode = async () => {
+    try {
+      const response = await api.post('/resend-confirmation-code', {email});
+      if (response.status === 200) {
+        Alert.alert(
+          t('Code resent'),
+          t('A new confirmation code has been sent to your email.'),
+        );
+      }
+    } catch (err) {
+      Alert.alert(
+        t('Error'),
+        t('Could not resend confirmation code. Check your email.'),
+      );
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      setName('');
+      setFirstName('');
+      setLastName('');
+      setEmail('');
+      setPassword('');
+      setConfirmPassword('');
+      setConfirmationCode('');
+      setProfilePicture('');
+      setShowConfirmationCodeInput(false);
+    }, []),
+  );
+
   const handleImagePicker = async () => {
     try {
       const image = await ImagePicker.openPicker({
@@ -57,11 +90,9 @@ export default function Register({navigation}) {
 
   const handleRegister = async () => {
     if (!showConfirmationCodeInput) {
-      // Continue with the registration process up to sending the confirmation code
       if (password === confirmPassword) {
         if (email.includes('@') && email.includes('.') && email.length >= 5) {
           try {
-            // Make a POST request to the registration endpoint
             const response = await api.post('/register', {
               username: name,
               useremail: email,
@@ -73,44 +104,49 @@ export default function Register({navigation}) {
 
             console.log('Registration Response:', response);
 
-            if (response.status === 201) {
-              // Registration successful, update the global state with user data
-              login(response.data);
-              // Show the confirmation code input field
+            if (response.status === 201 && response.data?.confirmationCode) {
+              login(response.data.user); // само ако има успешна регистрация
               setShowConfirmationCodeInput(true);
             } else {
-              // Handle registration failure
               Alert.alert(
                 t('Registration Error'),
                 t('Failed to register. Please try again.'),
               );
             }
           } catch (error) {
-            // Handle any error that occurred during the API call
             console.error('Registration Error:', error);
-            Alert.alert(
-              t('Registration Error'),
-              t('Email or username is already taken'),
-            );
+
+            if (
+              error.response &&
+              error.response.data &&
+              error.response.data.error
+            ) {
+              Alert.alert(t('Registration Error'), error.response.data.error);
+            } else {
+              Alert.alert(
+                t('Registration Error'),
+                t('An unexpected error occurred. Please try again.'),
+              );
+            }
+
+            // ❗ ВАЖНО: НЕ показвай полето за код, ако има грешка
+            setShowConfirmationCodeInput(false);
           }
         } else {
-          // Invalid email address
           Alert.alert(
             t('Invalid email address'),
             t('Please enter a valid email address.'),
           );
         }
       } else {
-        // Passwords do not match
         Alert.alert(
           t('Password mismatch'),
           t('Password and confirm password do not match.'),
         );
       }
     } else {
-      // Continue with the confirmation code verification step
+      // Потвърждаване на кода
       try {
-        // Make a request to the server to verify the confirmation code
         const verificationResponse = await api.post(
           '/verify-confirmation-code',
           {
@@ -120,19 +156,14 @@ export default function Register({navigation}) {
         );
 
         if (verificationResponse.status === 200) {
-          // Confirmation code verified, navigate to the welcome screen
-          navigation.navigate('WelcomeScreen', {
-            name,
-          });
+          navigation.navigate('WelcomeScreen', {name});
         } else {
-          // Handle verification failure
           Alert.alert(
             t('Verification Error'),
             t('Invalid confirmation code. Please try again.'),
           );
         }
       } catch (error) {
-        // Handle any error that occurred during the API call
         console.error('Verification Error:', error);
         Alert.alert(
           t('Verification Error'),
@@ -232,12 +263,24 @@ export default function Register({navigation}) {
                   : t('Verify Confirmation Code')}
               </Text>
             </TouchableOpacity>
-            <View style={{padding: 10}}></View>
+
+            <View style={{padding: 10}} />
+
             <TouchableOpacity
               style={styles.loginButtons}
               onPress={handlerBackLogin}>
               <Text style={styles.textButtons}>{t('I have an account')}</Text>
             </TouchableOpacity>
+
+            {showConfirmationCodeInput && (
+              <TouchableOpacity
+                style={styles.loginButtons}
+                onPress={resendConfirmationCode}>
+                <Text style={styles.textButtons}>
+                  {t('Resend confirmation code')}
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
       </ScrollView>

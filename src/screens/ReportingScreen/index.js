@@ -49,18 +49,19 @@ const ReportingScreen = ({navigation}) => {
     setVehicleNumber(text);
   };
 
-  const chooseImage = async () => {
+  const chooseMedia = async () => {
     try {
-      const image = await ImagePicker.openPicker({
-        cropping: true,
+      const media = await ImagePicker.openPicker({
+        mediaType: 'any', // ✅ Позволява снимки и видеа
+        includeBase64: true,
       });
-      if (image.path) {
-        setProfilePicture(image.path);
-      } else if (image.uri) {
-        setProfilePicture(image.uri);
+
+      if (media.data) {
+        const base64Data = `data:${media.mime};base64,${media.data}`;
+        setProfilePicture(base64Data);
       }
     } catch (error) {
-      console.warn('Image picker error:', error);
+      console.warn('Media picker error:', error);
     }
   };
 
@@ -89,6 +90,7 @@ const ReportingScreen = ({navigation}) => {
         body: JSON.stringify({
           email: 'malkotohuski@gmail.com',
           text: emailBody,
+          image: profilePicture, // 🟢 ВАЖНО: изпращаш изображението като Base64
         }),
       });
 
@@ -152,17 +154,23 @@ const ReportingScreen = ({navigation}) => {
               multiline
               textAlignVertical="center"
             />
-            <TouchableOpacity onPress={chooseImage} style={styles.imagePicker}>
+            <TouchableOpacity onPress={chooseMedia} style={styles.imagePicker}>
               <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold'}}>
                 {t('Choose Photo or Video')}
               </Text>
             </TouchableOpacity>
             {profilePicture && (
               <View style={styles.show_image}>
-                <Image
-                  source={{uri: profilePicture}}
-                  style={styles.attachmentPreview}
-                />
+                {profilePicture.startsWith('data:video') ? (
+                  <Text style={{color: 'white', textAlign: 'center'}}>
+                    📹 {t('Video selected (preview not available)')}
+                  </Text>
+                ) : (
+                  <Image
+                    source={{uri: profilePicture}}
+                    style={styles.attachmentPreview}
+                  />
+                )}
               </View>
             )}
           </View>

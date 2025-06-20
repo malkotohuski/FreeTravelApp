@@ -24,6 +24,7 @@ function generateConfirmationCode() {
 
 // Handle user registration
 server.post('/register', (req, res) => {
+  deleteInactiveAccountsOlderThanOneDay();
   const {username, useremail, userpassword, fName, lName, userImage, routes} =
     req.body;
 
@@ -45,20 +46,34 @@ server.post('/register', (req, res) => {
   }
 
   // Check if a user with the same email or name already exists
-  const existingUserByEmail = router.db
+  // Проверка: има ли вече АКТИВЕН потребител с такъв email или username
+  const existingActiveUser = router.db
     .get('users')
-    .find({email: useremail})
+    .find(
+      user =>
+        (user.email === useremail || user.username === username) &&
+        user.isActive === true,
+    )
     .value();
-  const existingUserByName = router.db.get('users').find({username}).value();
 
-  console.log('Existing User by Email:', existingUserByEmail);
-  console.log('Existing User by Name:', existingUserByName);
+  if (existingActiveUser) {
+    return res.status(400).json({
+      error: 'Email or username is already taken by an active account.',
+    });
+  }
 
-  if (existingUserByEmail || existingUserByName) {
-    console.error('User with the same email or name already exists');
-    return res
-      .status(400)
-      .json({error: 'User with the same email or name already exists.'});
+  // Ако има неактивен акаунт със същия email или username, изтрий го
+  const existingInactiveUser = router.db
+    .get('users')
+    .find(
+      user =>
+        (user.email === useremail || user.username === username) &&
+        user.isActive === false,
+    )
+    .value();
+
+  if (existingInactiveUser) {
+    router.db.get('users').remove({id: existingInactiveUser.id}).write();
   }
 
   // Simulate user creation (you may want to hash the password in a real scenario)
@@ -73,6 +88,7 @@ server.post('/register', (req, res) => {
     userImage,
     confirmationCode,
     isActive: false, // ново поле за статус
+    createdAt: Date.now(),
     routes: [],
     friends: [],
     ratings: [],
@@ -107,6 +123,80 @@ server.post('/register', (req, res) => {
     } else {
       console.log('Email confirmation sent:', info.response);
       return res.status(201).json({user, confirmationCode});
+    }
+  });
+});
+
+function deleteInactiveAccountsOlderThanOneDay() {
+  const now = Date.now();
+  const users = router.db.get('users').value();
+
+  const activeUsers = users.filter(user => {
+    if (!user.isActive && user.createdAt) {
+      const age = now - user.createdAt;
+      // 1 ден = 24 * 60 * 60 * 1000 = 86 400 000 милисекунди
+      return age < 60000; // ще го запазим само ако е под 1 ден
+    }
+    return true; // всички активни остават
+  });
+
+  router.db.set('users', activeUsers).write();
+  console.log('Inactive accounts older than 1 day have been deleted.');
+}
+
+server.post('/resend-confirmation-code', (req, res) => {
+  const {email} = req.body;
+
+  if (!email) {
+    return res.status(400).json({error: 'Email is required.'});
+  }
+
+  const user = router.db.get('users').find({email}).value();
+
+  if (!user || user.isActive) {
+    return res
+      .status(400)
+      .json({error: 'No inactive user found with this email.'});
+  }
+
+  // Генерирай нов код
+  const newCode = generateConfirmationCode();
+
+  // Обнови кода и датата
+  router.db
+    .get('users')
+    .find({email})
+    .assign({
+      confirmationCode: newCode,
+      createdAt: Date.now(),
+    })
+    .write();
+
+  // Изпрати имейла
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'malkotohuski@gmail.com',
+      pass: 'ymnayjeocfmplvwb',
+    },
+  });
+
+  const mailOptions = {
+    from: 'malkotohuski@gmail.com',
+    to: email,
+    subject: 'Resent Confirmation Code',
+    text: `Your new confirmation code is: ${newCode}`,
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error('Resend error:', error);
+      return res
+        .status(500)
+        .json({error: 'Failed to resend confirmation code.'});
+    } else {
+      console.log('Resend sent:', info.response);
+      return res.status(200).json({message: 'New confirmation code sent.'});
     }
   });
 });
@@ -206,13 +296,13 @@ server.post('/verify-confirmation-code', (req, res) => {
 });
 
 // New endpoint to send a request to the "imala" server
-server.post('/send-request-to-email', async (req, res) => {
-  const {email, text} = req.body;
 
-  console.log('Send Request to Email:', {email, text});
+server.post('/send-request-to-email', async (req, res) => {
+  const {email, text, image} = req.body;
+
+  console.log('Send Request to Email:', {email, text, image});
 
   try {
-    // Retrieve the user by email
     const user = router.db.get('users').find({email}).value();
 
     if (!user) {
@@ -220,38 +310,53 @@ server.post('/send-request-to-email', async (req, res) => {
       return res.status(404).json({error: 'User not found.'});
     }
 
-    // Create a transporter for sending emails
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: 'malkotohuski@gmail.com', // replace with your Gmail address
-        pass: 'ymnayjeocfmplvwb', // replace with your Gmail password
+        user: 'malkotohuski@gmail.com',
+        pass: 'ymnayjeocfmplvwb',
       },
     });
 
-    // Send the email to the user's email address
-    const emailOptions = {
-      from: 'malkotohuski@gmail.com', // replace with your Gmail address
-      to: user.email,
-      subject: 'Your Subject',
+    const mailOptions = {
+      from: 'malkotohuski@gmail.com',
+      to: email,
+      subject: '🚨 New Report Received',
       text: `Hello ${user.username},\n\n${text}`,
+      html: `
+        <p>📛 <strong>New Report Received</strong></p>
+        <p>${text.replace(/\n/g, '<br/>')}</p>
+        <p><strong>Attached image:</strong></p>
+        ${
+          image
+            ? '<p>See attached file below.</p>'
+            : '<p>No image provided.</p>'
+        }
+      `,
+      attachments: image
+        ? [
+            {
+              filename: image.startsWith('data:video')
+                ? 'report-video.mp4'
+                : 'report-image.jpg',
+              content: image.split(',')[1],
+              encoding: 'base64',
+            },
+          ]
+        : [],
     };
 
-    transporter.sendMail(emailOptions, (error, info) => {
+    transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        console.error('Email sending error:', error);
+        console.error('Email send error:', error);
         return res.status(500).json({error: 'Failed to send email.'});
-      } else {
-        console.log('Email sent successfully:', info.response);
-        return res.status(200).json({message: 'Email sent successfully.'});
       }
+      console.log('Email sent:', info.response);
+      return res.status(200).json({message: 'Email sent successfully.'});
     });
   } catch (error) {
-    // Handle errors appropriately
-    console.error('Email Server Error:', error);
-    return res
-      .status(500)
-      .json({error: 'Failed to send request to Email server.'});
+    console.error('Email error:', error);
+    return res.status(500).json({error: 'Internal Server Error'});
   }
 });
 
@@ -271,21 +376,17 @@ server.post('/send-request-to-user', (req, res) => {
   // Проверка за наличен routeId
   if (!requestingUser.routeId) {
     console.error('Route ID is undefined in requestingUser');
-    return res
-      .status(400)
-      .json({
-        error: 'Invalid request. Route ID is undefined in requestingUser.',
-      });
+    return res.status(400).json({
+      error: 'Invalid request. Route ID is undefined in requestingUser.',
+    });
   }
 
   // Проверка за наличен userID (идентификатор на кандидата)
   if (!requestingUser.userID) {
     console.error('User ID is undefined in requestingUser');
-    return res
-      .status(400)
-      .json({
-        error: 'Invalid request. User ID is undefined in requestingUser.',
-      });
+    return res.status(400).json({
+      error: 'Invalid request. User ID is undefined in requestingUser.',
+    });
   }
 
   // Проверка дали маршрута съществува
@@ -372,12 +473,10 @@ server.post('/rateUser', (req, res) => {
   // Записване обратно в базата
   router.db.get('users').find({id: userId}).assign(user).write();
 
-  res
-    .status(200)
-    .json({
-      message: 'Rating submitted successfully.',
-      averageRating: user.averageRating,
-    });
+  res.status(200).json({
+    message: 'Rating submitted successfully.',
+    averageRating: user.averageRating,
+  });
 });
 
 // Handle user login
@@ -395,11 +494,9 @@ server.post('/login', (req, res) => {
     // Проверка дали потребителят е потвърден
     if (user.confirmationCode) {
       // Ако confirmationCode не е null, отказва достъп
-      return res
-        .status(403)
-        .json({
-          error: 'Account not confirmed. Please verify your account first.',
-        });
+      return res.status(403).json({
+        error: 'Account not confirmed. Please verify your account first.',
+      });
     }
 
     // Успешен логин

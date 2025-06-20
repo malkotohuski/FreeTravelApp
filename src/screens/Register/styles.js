@@ -25,9 +25,9 @@ export default StyleSheet.create({
     position: 'absolute',
     top: 15,
     right: 0,
-    marginBottom: 15, // Adjust this value as needed for spacing
-    marginRight: 20, // Adjust this value as needed for spacing
-    zIndex: 1, // To ensure it appears on top of other elements
+    marginBottom: 15,
+    marginRight: 20,
+    zIndex: 1,
   },
   profilePicture: {
     width: 100,
@@ -45,6 +45,7 @@ export default StyleSheet.create({
     marginBottom: 30,
     fontWeight: 'bold',
     color: '#f1f1f1',
+    textAlign: 'center',
   },
   input: {
     width: 200,
@@ -58,23 +59,25 @@ export default StyleSheet.create({
     color: 'white',
   },
   buttonsContent: {
-    margin: 50,
-    width: 250,
+    marginTop: 30,
+    width: '100%',
+    alignItems: 'center',
   },
   loginButtons: {
-    alignItems: 'center',
+    width: 250, // Еднаква ширина
+    height: 50, // Еднаква височина
     backgroundColor: '#f4511e',
-    padding: 10,
-    marginBottom: 1,
-    fontSize: 16,
-    fontWeight: 'bold',
+    borderRadius: 8,
     borderWidth: 2,
     borderColor: '#f1f1f1',
-    borderRadius: 8,
+    justifyContent: 'center', // Центриране по вертикала
+    alignItems: 'center', // Центриране по хоризонтала
+    marginVertical: 8, // Разстояние между бутоните
   },
   textButtons: {
-    fontSize: 20,
-    color: '#010101',
-    fontWeight: '800',
+    fontSize: 18,
+    color: '#fff',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
