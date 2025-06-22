@@ -22,6 +22,7 @@ const Vehicle = () => {
     {label: t('Motorcycle'), value: t('Motorcycle')},
     {label: t('A minibus'), value: t('A minibus')},
     {label: t('A bus'), value: t('A bus')},
+    {label: t('Other'), value: t('Other')},
   ];
 
   const handleVehicleSelect = value => {

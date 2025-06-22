@@ -158,6 +158,11 @@ function HomePage({navigation}) {
     console.log('RouteRequest clicked !!!');
   };
 
+  const handlerLooking = () => {
+    navigation.navigate('Looking');
+    console.log('Looking clicked !!!');
+  };
+
   const handlerRouteViewer = () => {
     navigation.navigate('View routes');
     console.log('Routes history !!!');
@@ -256,22 +261,24 @@ function HomePage({navigation}) {
               <TouchableOpacity
                 style={getButtonStyle()}
                 onPress={handlerVehicle}>
-                <Text style={getTextButtonStyles()}>{t('Create a route')}</Text>
+                <Text style={getTextButtonStyles()}>{t('I suggest')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={getButtonStyle()}
+                onPress={handlerLooking}>
+                <Text style={getTextButtonStyles()}>
+                  {t('I am looking for')}
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={getButtonStyle()}
                 onPress={handlerRouteRequest}>
-                <Text style={getTextButtonStyles()}>{t('Route request')}</Text>
+                <Text style={getTextButtonStyles()}>{t('Inquiries')}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={getButtonStyle()}
                 onPress={handlerRouteViewer}>
                 <Text style={getTextButtonStyles()}>{t('View routes')}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={getButtonStyle()}
-                onPress={handlerReporting}>
-                <Text style={getTextButtonStyles()}>{t('Reporting')}</Text>
               </TouchableOpacity>
             </View>
             {/*  <View style={styles.searchBox}>
