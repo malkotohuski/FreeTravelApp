@@ -197,7 +197,7 @@ For date: ${formattedDate}`);
           style={styles.backgroundImage}
         />
         <View style={styles.container}>
-          <Text style={styles.headerText}>{t('Route Requests')}:</Text>
+          <Text style={styles.headerText}>{t('Inquiries')}:</Text>
           <Button title="🔄 Refresh" onPress={fetchAndSetRequests} />
           {renderRoutes()}
         </View>
