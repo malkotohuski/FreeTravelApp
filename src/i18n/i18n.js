@@ -10,6 +10,8 @@ i18next.use(initReactI18next).init({
         // English translations here...
         'Register your vehicle': 'Register your vehicle',
         'Route request': 'Route request',
+        'Select date:': 'Select date:',
+        'Selected Date:': 'Selected Date:',
         'View routes': 'View routes',
         Reporting: 'Reporting',
         'Your rating': 'Your rating',
@@ -5082,6 +5084,8 @@ i18next.use(initReactI18next).init({
         'In the car with me': 'B колата c мен',
         'We travel freely': 'Пътуваме свободно',
         'Search here': 'Търсете тук',
+        'Select date:': 'Изберете дата',
+        'Selected Date:': 'Избрана дата:',
         'Departure City': 'Град на заминаване',
         'Arrival City': 'Град на пристигане',
         Search: 'Търсене ',

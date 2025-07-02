@@ -466,6 +466,7 @@ function SelectRouteScreen({route, navigation}) {
               theme="dark"
               is24Hour={true}
               mode="datetime"
+              minimumDate={new Date()}
               // 👉 ЕТО ТОВА ДОБАВЯШ
               onConfirm={selectedDate => {
                 setOpen(false);

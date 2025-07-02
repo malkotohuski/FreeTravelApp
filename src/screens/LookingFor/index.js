@@ -168,7 +168,7 @@ function Looking({navigation}) {
 
           <View style={{marginTop: 330}}>
             <Button
-              title={t('Select date and time')}
+              title={t('Select date:')}
               onPress={() => setOpen(true)}
               color="#f4511e"
             />
@@ -177,8 +177,8 @@ function Looking({navigation}) {
               open={open}
               date={date}
               theme="dark"
-              is24Hour={true}
-              mode="datetime"
+              mode="date" // 👈 Само дата
+              minimumDate={new Date()}
               onConfirm={selected => {
                 setOpen(false);
                 setSelectedDateTime(selected);
@@ -188,14 +188,25 @@ function Looking({navigation}) {
           </View>
 
           {selectedDateTime && (
-            <Text style={styles.dateText}>
-              {t('Selected Date and Time')}:{' '}
-              {selectedDateTime.toLocaleString('bg-BG')}
+            <Text
+              style={{
+                fontSize: 20,
+                color: '#030303',
+                fontWeight: 'bold',
+                textAlign: 'center',
+              }}>
+              {t('Selected Date:')}{' '}
+              {selectedDateTime.toLocaleDateString('bg-BG', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+              })}
             </Text>
           )}
 
           <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
-            <Text style={styles.searchButtonText}>{t('Search Route')}</Text>
+            <Text style={styles.searchButtonText}>{t('Continue')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -248,10 +259,18 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   searchButton: {
-    marginTop: 40,
+    marginTop: 20,
+    padding: 10,
     backgroundColor: '#f4511e',
-    padding: 15,
-    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 20,
+    fontWeight: 'bold',
+    width: 150, // Adjust the width as needed
+    height: 60,
+    borderWidth: 2,
+    borderColor: '#f1f1f1',
+    borderRadius: 8,
   },
   searchButtonText: {
     fontSize: 18,
