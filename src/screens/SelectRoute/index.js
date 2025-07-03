@@ -42,6 +42,7 @@ function SelectRouteScreen({route, navigation}) {
   const [arrivalCity, setarrivalCity] = useState(null);
   const [arrivalStreet, setArrivalStreet] = useState('');
   const [arrivalNumber, setArrivalNumber] = useState('');
+  const [routeTitle, setRouteTitle] = useState('');
 
   const [modalVisibleDeparture, setModalVisibleDeparture] = useState(false);
   const [modalVisibleArrival, setModalVisibleArrival] = useState(false);
@@ -156,6 +157,7 @@ function SelectRouteScreen({route, navigation}) {
       arrivalCity,
       arrivalStreet,
       arrivalNumber,
+      routeTitle,
     );
 
     // Navigate to the "Confirm" screen and pass the necessary parameters
@@ -171,6 +173,7 @@ function SelectRouteScreen({route, navigation}) {
         arrivalCity,
         arrivalStreet,
         arrivalNumber,
+        routeTitle,
       });
     } else {
       console.error('selectedDateTime is null or undefined');
@@ -444,6 +447,35 @@ function SelectRouteScreen({route, navigation}) {
               }}
             />
           </View>
+
+          <Text
+            style={{
+              fontWeight: 'bold',
+              fontSize: 20,
+              marginTop: 20,
+              color: 'black',
+            }}>
+            {t('Route Title:')}
+          </Text>
+          <TextInput
+            style={{
+              height: 60,
+              width: '90%',
+              borderColor: 'black',
+              borderWidth: 1.5,
+              borderRadius: 8,
+              paddingHorizontal: 10,
+              fontSize: 18,
+              fontWeight: 'bold',
+              color: 'black',
+              backgroundColor: '#fff',
+              marginBottom: 20,
+            }}
+            placeholder={t('Enter route title')}
+            placeholderTextColor="#888"
+            value={routeTitle}
+            onChangeText={setRouteTitle}
+          />
           <View
             style={{
               flex: 1,

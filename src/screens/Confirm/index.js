@@ -47,6 +47,7 @@ function Confirm() {
   const arrivalCity = route.params.arrivalCity;
   const arrivalStreet = route.params.arrivalStreet;
   const arrivalNumber = route.params.arrivalNumber;
+  const routeTitle = route.params.routeTitle;
   const routeId = route.params.id;
   const user_id = route.params.userId;
 
@@ -102,6 +103,7 @@ function Confirm() {
         arrivalCity,
         arrivalStreet,
         arrivalNumber,
+        routeTitle,
         userId,
         username,
         userFname,
@@ -182,6 +184,7 @@ function Confirm() {
           <Text style={styles.text}>
             {t('Names')}: {userFname} {userLname}
           </Text>
+          <Text style={styles.text}>{routeTitle}</Text>
           {/*  <Text style={styles.text}>
             {t('Time and date of departure')}:{' '}
             {String(selectedDateTime.toLocaleString())}
