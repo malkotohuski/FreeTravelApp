@@ -10,7 +10,6 @@ import {
   Modal,
   ScrollView,
   SafeAreaView,
-  Button,
   Image,
 } from 'react-native';
 import DatePicker from 'react-native-date-picker';
@@ -29,6 +28,7 @@ function Looking({navigation}) {
   const [arrivalSearch, setArrivalSearch] = useState('');
   const [modalDeparture, setModalDeparture] = useState(false);
   const [modalArrival, setModalArrival] = useState(false);
+  const [routeTitle, setRouteTitle] = useState('');
 
   const [filteredDepartureCities, setFilteredDepartureCities] = useState(
     cities.slice(0, 7),
@@ -43,7 +43,6 @@ function Looking({navigation}) {
 
   useFocusEffect(
     useCallback(() => {
-      // Ресет на стойностите при завръщане на екрана
       setDepartureCity(null);
       setArrivalCity(null);
       setDepartureSearch('');
@@ -66,11 +65,11 @@ function Looking({navigation}) {
       return;
     }
 
-    // Можеш да изпратиш заявка към сървъра тук или да навигираш към списък с резултати
     navigation.navigate('SearchResults', {
       departureCity,
       arrivalCity,
       date: selectedDateTime.toISOString(),
+      routeTitle, // 👈 добавено
     });
   };
 
@@ -166,48 +165,59 @@ function Looking({navigation}) {
             </View>
           </Modal>
 
-          <View style={{marginTop: 330}}>
-            <Button
-              title={t('Select date:')}
-              onPress={() => setOpen(true)}
-              color="#f4511e"
-            />
-            <DatePicker
-              modal
-              open={open}
-              date={date}
-              theme="dark"
-              mode="date" // 👈 Само дата
-              minimumDate={new Date()}
-              onConfirm={selected => {
-                setOpen(false);
-                setSelectedDateTime(selected);
-              }}
-              onCancel={() => setOpen(false)}
-            />
+          <Text style={styles.label}>{t('Route Information')}</Text>
+          <TextInput
+            style={styles.routeTitleInput}
+            placeholder={t('Enter route title')}
+            value={routeTitle}
+            onChangeText={setRouteTitle}
+            placeholderTextColor="#888"
+          />
+
+          {/* Секция с дата и бутони */}
+          <View style={{marginTop: 60, alignItems: 'center', gap: 12}}>
+            {selectedDateTime && (
+              <View style={styles.selectedDateContainer}>
+                <Text style={styles.selectedDateLabel}>
+                  {t('Selected Date:')}
+                </Text>
+                <Text style={styles.selectedDateText}>
+                  {selectedDateTime.toLocaleDateString('bg-BG', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </Text>
+              </View>
+            )}
+
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => setOpen(true)}>
+              <Text style={styles.buttonText}>{t('Select date:')}</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.searchButton}
+              onPress={handleSearch}>
+              <Text style={styles.searchButtonText}>{t('Continue')}</Text>
+            </TouchableOpacity>
           </View>
 
-          {selectedDateTime && (
-            <Text
-              style={{
-                fontSize: 20,
-                color: '#030303',
-                fontWeight: 'bold',
-                textAlign: 'center',
-              }}>
-              {t('Selected Date:')}{' '}
-              {selectedDateTime.toLocaleDateString('bg-BG', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-              })}
-            </Text>
-          )}
-
-          <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
-            <Text style={styles.searchButtonText}>{t('Continue')}</Text>
-          </TouchableOpacity>
+          <DatePicker
+            modal
+            open={open}
+            date={date}
+            theme="dark"
+            mode="date"
+            minimumDate={new Date()}
+            onConfirm={selected => {
+              setOpen(false);
+              setSelectedDateTime(selected);
+            }}
+            onCancel={() => setOpen(false)}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -259,14 +269,12 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   searchButton: {
-    marginTop: 20,
-    padding: 10,
+    marginTop: 10,
+    padding: 12,
     backgroundColor: '#f4511e',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: 20,
-    fontWeight: 'bold',
-    width: 150, // Adjust the width as needed
+    width: 180,
     height: 60,
     borderWidth: 2,
     borderColor: '#f1f1f1',
@@ -277,11 +285,57 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
   },
-  dateText: {
-    marginTop: 20,
-    fontSize: 16,
+  button: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 32,
+    borderRadius: 10,
+    elevation: 3,
+    backgroundColor: '#f4511e',
+    borderWidth: 2,
+    borderColor: '#f1f1f1',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 18,
     fontWeight: 'bold',
-    color: 'black',
+  },
+  routeTitleInput: {
+    width: 350,
+    height: 70,
+    backgroundColor: '#ffffffcc', // лек прозрачен бял
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#000',
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#ccc',
+    marginBottom: 20,
+  },
+
+  selectedDateContainer: {
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+    padding: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+  },
+  selectedDateLabel: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 4,
+  },
+  selectedDateText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#f4511e',
+    textAlign: 'center',
   },
 });
 

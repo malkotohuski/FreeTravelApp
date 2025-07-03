@@ -238,6 +238,7 @@ function ViewRoutes({navigation}) {
                     arrivalCity: route.arrivalCity,
                     arrivalStreet: route.arrivalStreet,
                     arrivalNumber: route.arrivalNumber,
+                    routeTitle: route.routeTitle,
                     userId: route.userId,
                     username: route.username,
                     userFname: route.userFname,
@@ -247,6 +248,7 @@ function ViewRoutes({navigation}) {
                     user_id: route.userId,
                   })
                 }>
+                <Text style={styles.routeText}>{route.routeTitle}</Text>
                 <Text style={styles.routeText}>
                   {new Date(route.selectedDateTime).toLocaleString()}
                 </Text>
