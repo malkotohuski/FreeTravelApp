@@ -37,6 +37,7 @@ import Notifications from '../screens/Notifications';
 import Looking from '../screens/LookingFor';
 import RateUserScreen from '../screens/UserRating';
 import {DarkModeContext} from './DarkModeContext';
+import Seekers from '../screens/Seekers';
 
 const Drawer = createDrawerNavigator();
 
@@ -397,6 +398,24 @@ export const Navigator = ({isLoggedIn}) => {
         component={RouteRequestScreen}
         options={{
           title: t('Inquiries'),
+          ...screenStyles,
+          drawerIcon: ({color, size}) => (
+            <Icons name="routes" size={size} color={color} />
+          ),
+        }}
+        listeners={({navigation}) => ({
+          focus: () => {
+            navigation.setOptions({
+              headerRight: () => BackButtonRouteRequests({navigation}),
+            });
+          },
+        })}
+      />
+      <Drawer.Screen
+        name="Seekers"
+        component={Seekers}
+        options={{
+          title: t('Seekers'),
           ...screenStyles,
           drawerIcon: ({color, size}) => (
             <Icons name="routes" size={size} color={color} />
