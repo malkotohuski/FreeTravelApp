@@ -240,6 +240,18 @@ server.post('/create-route', (req, res) => {
     .json({message: 'Route created successfully.', route: newRoute});
 });
 
+server.post('/seekers-route', (req, res) => {
+  const {seeker} = req.body;
+
+  // Add the new route to the "routes" array
+  const newRoute = {...seeker, id: Date.now()};
+  router.db.get('seekers').push(newRoute).write();
+
+  return res
+    .status(201)
+    .json({message: 'Route created successfully.', seeker: newRoute});
+});
+
 server.post('/approve-friend-request', (req, res) => {
   const {userId, friendId} = req.body;
 

@@ -16,6 +16,7 @@ import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import axios from 'axios';
 import {useAuth} from '../../context/AuthContext';
 import {DarkModeContext} from '../../navigation/DarkModeContext';
+import Seekers from '../Seekers';
 //import { DarkModeProvider } from '../../navigation/DarkModeContext';
 
 const API_BASE_URL = 'http://10.0.2.2:3000'; // JSON server
@@ -163,6 +164,11 @@ function HomePage({navigation}) {
     console.log('Looking clicked !!!');
   };
 
+  const handlerSeekers = () => {
+    navigation.navigate('Seekers');
+    console.log('Seekers clicked !!!');
+  };
+
   const handlerRouteViewer = () => {
     navigation.navigate('View routes');
     console.log('Routes history !!!');
@@ -272,8 +278,8 @@ function HomePage({navigation}) {
               </TouchableOpacity>
               <TouchableOpacity
                 style={getButtonStyle()}
-                onPress={handlerRouteRequest}>
-                <Text style={getTextButtonStyles()}>{t('Inquiries')}</Text>
+                onPress={handlerSeekers}>
+                <Text style={getTextButtonStyles()}>{t('Seekers')}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={getButtonStyle()}

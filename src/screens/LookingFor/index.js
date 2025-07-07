@@ -1,4 +1,4 @@
-import React, {useState, useLayoutEffect} from 'react';
+import React, {useState, useCallback} from 'react';
 import {
   View,
   Text,
@@ -16,11 +16,16 @@ import DatePicker from 'react-native-date-picker';
 import {useTranslation} from 'react-i18next';
 import CitySelector from '../../server/Cities/cities';
 import {useFocusEffect} from '@react-navigation/native';
-import {useCallback} from 'react';
+import {useAuth} from '../../context/AuthContext';
 
 function Looking({navigation}) {
   const {t} = useTranslation();
   const cities = CitySelector();
+  const {user} = useAuth();
+
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   const [departureCity, setDepartureCity] = useState(null);
   const [arrivalCity, setArrivalCity] = useState(null);
@@ -29,6 +34,12 @@ function Looking({navigation}) {
   const [modalDeparture, setModalDeparture] = useState(false);
   const [modalArrival, setModalArrival] = useState(false);
   const [routeTitle, setRouteTitle] = useState('');
+
+  const userId = user?.user?.id;
+  const username = user?.user?.username;
+  const userFname = user?.user?.fName;
+  const userLname = user?.user?.lName;
+  const userEmail = user?.user?.email;
 
   const [filteredDepartureCities, setFilteredDepartureCities] = useState(
     cities.slice(0, 7),
@@ -48,10 +59,16 @@ function Looking({navigation}) {
       setDepartureSearch('');
       setArrivalSearch('');
       setSelectedDateTime(null);
+      setRouteTitle('');
     }, []),
   );
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
+    if (isSubmitting || isGenerating) {
+      console.warn('Duplicate submission attempt prevented.');
+      return;
+    }
+
     if (!departureCity || !arrivalCity) {
       Alert.alert(
         t('Error'),
@@ -65,28 +82,71 @@ function Looking({navigation}) {
       return;
     }
 
-    navigation.navigate('SearchResults', {
+    const newRoute = {
       departureCity,
       arrivalCity,
-      date: selectedDateTime.toISOString(),
-      routeTitle, // 👈 добавено
-    });
+      selectedDateTime,
+      routeTitle,
+      userId,
+      username,
+      userFname,
+      userLname,
+      userEmail,
+    };
+
+    setIsGenerating(true);
+
+    try {
+      const response = await fetch('http://10.0.2.2:3000/seekers-route', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({seeker: newRoute}),
+      });
+
+      setIsGenerating(false);
+      setIsSubmitting(true);
+
+      if (response.ok) {
+        const responseData = await response.json();
+        setSuccessMessage(t('The route has been created!'));
+
+        setTimeout(() => {
+          setSuccessMessage('');
+          navigation.navigate('Seekers', {
+            seeker: responseData.seeker,
+          });
+        }, 2000);
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to create route:', errorData.error);
+        Alert.alert(t('Error'), errorData.error || 'Failed to create route.');
+      }
+    } catch (error) {
+      console.error('Error creating route:', error);
+      Alert.alert(t('Error'), 'An error occurred while creating the route.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const filterCities = (text, setFiltered, listSetter) => {
-    listSetter(text);
+  const filterCities = (text, setFiltered, setSearch) => {
+    setSearch(text);
     const filtered = cities.filter(city =>
       city.label.toLowerCase().includes(text.toLowerCase()),
     );
     setFiltered(filtered.slice(0, 7));
   };
 
-  const renderCityItem = (item, setCity, closeModal) => (
+  // Добавено setSearch, за да нулира търсенето при избор на град
+  const renderCityItem = (item, setCity, closeModal, setSearch) => (
     <TouchableOpacity
       style={styles.cityItem}
       onPress={() => {
         setCity(item.label);
         closeModal(false);
+        setSearch(''); // Нулиране на търсенето при избор
       }}>
       <Text style={styles.cityItemText}>{item.label}</Text>
     </TouchableOpacity>
@@ -131,7 +191,12 @@ function Looking({navigation}) {
                 data={filteredDepartureCities}
                 keyExtractor={item => item.value}
                 renderItem={({item}) =>
-                  renderCityItem(item, setDepartureCity, setModalDeparture)
+                  renderCityItem(
+                    item,
+                    setDepartureCity,
+                    setModalDeparture,
+                    setDepartureSearch,
+                  )
                 }
               />
             </View>
@@ -159,7 +224,12 @@ function Looking({navigation}) {
                 data={filteredArrivalCities}
                 keyExtractor={item => item.value}
                 renderItem={({item}) =>
-                  renderCityItem(item, setArrivalCity, setModalArrival)
+                  renderCityItem(
+                    item,
+                    setArrivalCity,
+                    setModalArrival,
+                    setArrivalSearch,
+                  )
                 }
               />
             </View>
@@ -174,7 +244,6 @@ function Looking({navigation}) {
             placeholderTextColor="#888"
           />
 
-          {/* Секция с дата и бутони */}
           <View style={{marginTop: 60, alignItems: 'center', gap: 12}}>
             {selectedDateTime && (
               <View style={styles.selectedDateContainer}>
@@ -203,6 +272,12 @@ function Looking({navigation}) {
               onPress={handleSearch}>
               <Text style={styles.searchButtonText}>{t('Continue')}</Text>
             </TouchableOpacity>
+            {isGenerating && (
+              <Text
+                style={{marginTop: 10, color: 'orange', fontWeight: 'bold'}}>
+                {t('Generating route...')}
+              </Text>
+            )}
           </View>
 
           <DatePicker
@@ -304,7 +379,7 @@ const styles = StyleSheet.create({
   routeTitleInput: {
     width: 350,
     height: 70,
-    backgroundColor: '#ffffffcc', // лек прозрачен бял
+    backgroundColor: '#ffffffcc',
     paddingHorizontal: 15,
     paddingVertical: 10,
     fontSize: 18,
