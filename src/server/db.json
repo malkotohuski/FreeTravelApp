@@ -7,7 +7,7 @@
       "password": "123",
       "fName": "Velichka",
       "lName": "Spasova",
-      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/934839b7-5c2f-472d-9a08-e59d74d9a512.jpg",
+      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
       "confirmationCode": null,
       "routes": [
         1748268348478,
@@ -5225,6 +5225,56 @@
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
       "id": 1751819143725
+    },
+    {
+      "departureCity": "София",
+      "arrivalCity": "Плевен",
+      "selectedDateTime": "2025-07-08T16:22:55.329Z",
+      "routeTitle": "2 nasty gilr",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1751992402395
+    },
+    {
+      "departureCity": "Бургас",
+      "arrivalCity": "София",
+      "selectedDateTime": "2025-07-10T16:22:00.000Z",
+      "routeTitle": "1 nasty girl",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1751992478708
+    },
+    {
+      "departureCity": "Sofia",
+      "arrivalCity": "Ruse",
+      "selectedDateTime": "2025-07-09T16:39:00.000Z",
+      "routeTitle": "1 guy",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
+      "id": 1751992829388
+    },
+    {
+      "departureCity": "Pleven",
+      "arrivalCity": "Plovdiv",
+      "selectedDateTime": "2025-07-10T16:45:00.000Z",
+      "routeTitle": "2 cats and 1 dog",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
+      "id": 1751993161798
     }
   ],
   "requests": [
@@ -8206,6 +8256,47 @@
       },
       "createdAt": "2025-05-30T13:43:27.275Z",
       "id": 110,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "Имате нова покана от Иван Иванов",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "currentUser",
+        "userFname": "Иван",
+        "userLname": "Иванов",
+        "email": "ivan@example.com"
+      },
+      "createdAt": "2025-07-08T17:00:14.782Z",
+      "id": 111,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "Имате нова покана от undefined undefined",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "huskyPower",
+        "email": "malkotohuski@gmail.com"
+      },
+      "createdAt": "2025-07-08T17:17:15.498Z",
+      "id": 112,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "Имате нова покана от undefined dimitorv",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "huskyPower",
+        "email": "malkotohuski@gmail.com"
+      },
+      "createdAt": "2025-07-08T17:28:49.397Z",
+      "id": 113,
       "read": true
     }
   ]

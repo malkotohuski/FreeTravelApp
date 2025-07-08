@@ -1,14 +1,15 @@
-import React, {useEffect, useState, useContext} from 'react';
+import React, {useEffect, useState, useContext, useCallback} from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   SafeAreaView,
-  StyleSheet,
   Image,
+  StyleSheet,
   FlatList,
   Modal,
 } from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import axios from 'axios';
@@ -26,41 +27,47 @@ const Notifications = ({navigation, route}) => {
   const {darkMode} = useContext(DarkModeContext);
   const {t} = useTranslation();
   const {mainRouteUser} = route.params || {};
-  console.log('mainRouteUser:', mainRouteUser);
 
   const [notifications, setNotifications] = useState([]);
   const [visibleModalId, setVisibleModalId] = useState(null);
 
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const response = await api.get(
-          `/notifications?recipient=${user?.user?.username}`,
-        );
-        const activeNotifications = response.data.filter(
-          n => n.status === 'active',
-        );
-        const sorted = activeNotifications.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
-        );
-        setNotifications(sorted);
-      } catch (error) {
-        console.error('Failed to fetch notifications:', error);
-      }
-    };
+  const fetchNotifications = async () => {
+    try {
+      const response = await api.get(
+        `/notifications?recipient=${user?.user?.username}`,
+      );
+      const activeNotifications = response.data.filter(
+        n => n.status === 'active',
+      );
+      const sorted = activeNotifications.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+      );
+      setNotifications(sorted);
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error);
+    }
+  };
 
-    fetchNotifications();
-  }, [user]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchNotifications();
+    }, [user]),
+  );
 
   const handleNotificationPress = notification => {
-    if (
-      notification.message.includes('оцени пътуването') ||
-      notification.message.includes('rate the trip')
-    ) {
-      navigation.navigate('RateUser', {
-        mainRouteUser: notification.mainRouteUser,
-        routeId: notification.routeId,
-      });
+    try {
+      const message = notification.message.toLowerCase();
+      if (
+        message.includes('оцени пътуването') ||
+        message.includes('rate the trip')
+      ) {
+        navigation.navigate('RateUser', {
+          mainRouteUser: notification.mainRouteUser,
+          routeId: notification.routeId,
+        });
+      }
+    } catch (e) {
+      console.error('Navigation error:', e);
     }
   };
 
@@ -118,74 +125,71 @@ const Notifications = ({navigation, route}) => {
           </TouchableOpacity>
         </View>
 
-        {notifications.length > 0 ? (
-          <FlatList
-            data={notifications}
-            keyExtractor={item => item.id.toString()}
-            contentContainerStyle={styles.notificationList}
-            renderItem={({item}) => (
-              <View
-                style={[
-                  styles.notification,
-                  isNewNotification(item.createdAt) && styles.newNotification,
-                ]}>
-                <Text style={styles.newLabel}>
-                  {isNewNotification(item.createdAt) ? t('New') : t('Earlier')}
-                </Text>
-                <TouchableOpacity
-                  style={styles.dotsButton}
-                  onPress={() => setVisibleModalId(item.id)}>
-                  <Icons name="dots-vertical" size={25} color="#000" />
-                </TouchableOpacity>
+        <FlatList
+          data={notifications}
+          keyExtractor={item => item.id.toString()}
+          contentContainerStyle={styles.notificationList}
+          ListEmptyComponent={
+            <View style={styles.emptyState}>
+              <Icons name="bell-off-outline" size={80} color="#010101" />
+              <Text style={styles.emptyMessage}>
+                {t('No new notifications')}
+              </Text>
+            </View>
+          }
+          renderItem={({item}) => (
+            <View
+              style={[
+                styles.notification,
+                isNewNotification(item.createdAt) && styles.newNotification,
+              ]}>
+              <Text style={styles.newLabel}>
+                {isNewNotification(item.createdAt) ? t('New') : t('Earlier')}
+              </Text>
+              <TouchableOpacity
+                style={styles.dotsButton}
+                onPress={() => setVisibleModalId(item.id)}>
+                <Icons name="dots-vertical" size={25} color="#000" />
+              </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => handleNotificationPress(item)}>
-                  <Text style={styles.message}>{item.message}</Text>
-                </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleNotificationPress(item)}>
+                <Text style={styles.message}>{item.message}</Text>
+              </TouchableOpacity>
 
-                <Text style={styles.date}>{formatDate(item.createdAt)}</Text>
+              <Text style={styles.date}>{formatDate(item.createdAt)}</Text>
 
-                <Modal
-                  transparent
-                  visible={visibleModalId === item.id}
-                  animationType="fade"
-                  onRequestClose={() => setVisibleModalId(null)}>
-                  <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                      <Text style={styles.modalTitle}>
-                        {t('Notification Options')}
-                      </Text>
-                      <Text style={styles.modalMessage}>
-                        {t('Do you want to delete this notification:')}
-                        {'\n'}
-                        {'\n'}
-                        {item.message}
-                      </Text>
-                      <TouchableOpacity
-                        style={styles.modalButton}
-                        onPress={() => deleteNotification(item.id)}>
-                        <Text style={styles.modalButtonText}>
-                          {t('Delete')}
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={[styles.modalButton, styles.cancelButton]}
-                        onPress={() => setVisibleModalId(null)}>
-                        <Text style={styles.modalButtonText}>
-                          {t('Cancel')}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
+              <Modal
+                transparent
+                visible={visibleModalId === item.id}
+                animationType="fade"
+                onRequestClose={() => setVisibleModalId(null)}>
+                <View style={styles.modalOverlay}>
+                  <View style={styles.modalContent}>
+                    <Text style={styles.modalTitle}>
+                      {t('Notification Options')}
+                    </Text>
+                    <Text style={styles.modalMessage}>
+                      {t('Do you want to delete this notification:')}
+                      {'\n'}
+                      {'\n'}
+                      {item.message}
+                    </Text>
+                    <TouchableOpacity
+                      style={styles.modalButton}
+                      onPress={() => deleteNotification(item.id)}>
+                      <Text style={styles.modalButtonText}>{t('Delete')}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.modalButton, styles.cancelButton]}
+                      onPress={() => setVisibleModalId(null)}>
+                      <Text style={styles.modalButtonText}>{t('Cancel')}</Text>
+                    </TouchableOpacity>
                   </View>
-                </Modal>
-              </View>
-            )}
-          />
-        ) : (
-          <View style={styles.emptyState}>
-            <Icons name="bell-off-outline" size={80} color="#010101" />
-            <Text style={styles.emptyMessage}>{t('No new notifications')}</Text>
-          </View>
-        )}
+                </View>
+              </Modal>
+            </View>
+          )}
+        />
       </View>
     </SafeAreaView>
   );
