@@ -40,6 +40,7 @@ function Looking({navigation}) {
   const userFname = user?.user?.fName;
   const userLname = user?.user?.lName;
   const userEmail = user?.user?.email;
+  const userImage = user?.user?.userImage;
 
   const [filteredDepartureCities, setFilteredDepartureCities] = useState(
     cities.slice(0, 7),
@@ -92,6 +93,7 @@ function Looking({navigation}) {
       userFname,
       userLname,
       userEmail,
+      userImage,
     };
 
     setIsGenerating(true);

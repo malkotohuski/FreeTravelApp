@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {
   View,
   Text,
@@ -8,8 +8,12 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
+  Modal,
+  Alert,
 } from 'react-native';
 import {useTranslation} from 'react-i18next';
+import {useFocusEffect} from '@react-navigation/native';
+import {useAuth} from '../../context/AuthContext';
 import axios from 'axios';
 
 const API_BASE_URL = 'http://10.0.2.2:3000';
@@ -19,26 +23,69 @@ function Seekers({navigation}) {
   const [routes, setRoutes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedRoute, setSelectedRoute] = useState(null);
+  const {user} = useAuth();
 
-  useEffect(() => {
-    const fetchSeekers = async () => {
-      try {
-        const response = await axios.get(`${API_BASE_URL}/seekers`);
-        if (response.status === 200) {
-          setRoutes(response.data);
-        } else {
-          setError(t('Failed to fetch routes.'));
-        }
-      } catch (err) {
-        console.error('Error fetching seekers:', err);
-        setError(t('Error fetching route data.'));
-      } finally {
-        setLoading(false);
+  const loggedUser = user?.user?.username;
+  const loggedUserName = user?.user?.fName;
+  const loggedUserFname = user?.user?.lName;
+
+  const fetchSeekers = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API_BASE_URL}/seekers`);
+      if (response.status === 200) {
+        setRoutes(response.data);
+      } else {
+        setError(t('Failed to fetch routes.'));
       }
-    };
+    } catch (err) {
+      console.error('Error fetching seekers:', err);
+      setError(t('Error fetching route data.'));
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchSeekers();
-  }, []);
+  const sendInvite = async () => {
+    const recipient = selectedRoute.username;
+
+    // Проверка дали потребителят се опитва да прати покана на себе си
+    if (recipient === user?.user?.username) {
+      Alert.alert('Грешка', 'Не можете да изпращате покана на себе си.');
+      return;
+    }
+
+    const notificationMessage = `Имате нова покана от ${loggedUserName} ${loggedUserFname}`;
+
+    try {
+      await axios.post(`${API_BASE_URL}/notifications`, {
+        recipient: recipient,
+        message: notificationMessage,
+        routeChecker: true,
+        status: 'active',
+        requester: {
+          username: user?.user?.username,
+          userFname: user?.user?.userFname,
+          userLname: user?.user?.userLname,
+          email: user?.user?.email,
+        },
+        createdAt: new Date().toISOString(),
+      });
+
+      Alert.alert('Успех', 'Поканата е изпратена успешно.');
+      setSelectedRoute(null);
+    } catch (err) {
+      console.error('Грешка при изпращане:', err);
+      Alert.alert('Грешка', 'Възникна проблем при изпращането на поканата.');
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchSeekers();
+    }, []),
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -61,18 +108,8 @@ function Seekers({navigation}) {
             <Text style={styles.errorText}>{t('No routes available.')}</Text>
           ) : (
             routes.map((route, index) => {
-              const {
-                routeTitle,
-                selectedDateTime,
-                departureCity,
-                arrivalCity,
-                userFname,
-                userLname,
-                username,
-              } = route;
-
               const formattedDate = new Date(
-                selectedDateTime,
+                route.selectedDateTime,
               ).toLocaleDateString('bg-BG', {
                 weekday: 'long',
                 year: 'numeric',
@@ -81,21 +118,100 @@ function Seekers({navigation}) {
               });
 
               return (
-                <View key={index} style={styles.routeCard}>
-                  <Text style={styles.routeText}>{routeTitle}</Text>
+                <TouchableOpacity
+                  key={index}
+                  style={styles.routeCard}
+                  onPress={() => setSelectedRoute(route)}>
+                  <Text style={styles.routeText}>{route.routeTitle}</Text>
                   <Text style={styles.dateText}>{formattedDate}</Text>
                   <Text style={styles.routeText}>
-                    {departureCity} ➝ {arrivalCity}
+                    {route.departureCity} ➝ {route.arrivalCity}
                   </Text>
-                  <Text style={styles.creatorText}>
-                    {t('Created by')}: {userFname} {userLname} (@{username})
-                  </Text>
-                </View>
+                  <View style={styles.creatorContainer}>
+                    {route.userImage ? (
+                      <Image
+                        source={{uri: route.userImage}}
+                        style={styles.userImage}
+                      />
+                    ) : (
+                      <View style={styles.placeholderImage} />
+                    )}
+                    <Text style={styles.creatorText}>
+                      {t('Created by')}: {route.userFname} {route.userLname} (@
+                      {route.username})
+                    </Text>
+                  </View>
+                </TouchableOpacity>
               );
             })
           )}
         </ScrollView>
       )}
+
+      {/* МОДАЛНО ПРОЗОРЧЕ */}
+      <Modal visible={!!selectedRoute} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            {selectedRoute && (
+              <>
+                <Text style={styles.routeText}>{selectedRoute.routeTitle}</Text>
+                <Text style={styles.dateText}>
+                  {new Date(selectedRoute.selectedDateTime).toLocaleDateString(
+                    'bg-BG',
+                    {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    },
+                  )}
+                </Text>
+                <Text style={styles.routeText}>
+                  {selectedRoute.departureCity} ➝ {selectedRoute.arrivalCity}
+                </Text>
+                <View style={styles.creatorContainer}>
+                  {selectedRoute.userImage ? (
+                    <Image
+                      source={{uri: selectedRoute.userImage}}
+                      style={styles.userImage}
+                    />
+                  ) : (
+                    <View style={styles.placeholderImage} />
+                  )}
+                  <Text style={styles.creatorText}>
+                    {t('Created by')}: {selectedRoute.userFname}{' '}
+                    {selectedRoute.userLname} (@{selectedRoute.username})
+                  </Text>
+                </View>
+
+                <View style={styles.modalButtons}>
+                  {selectedRoute.username !== user?.user?.username ? (
+                    <>
+                      <TouchableOpacity
+                        style={styles.inviteButton}
+                        onPress={sendInvite}>
+                        <Text style={styles.buttonText}>Покана</Text>
+                      </TouchableOpacity>
+                    </>
+                  ) : (
+                    <>
+                      <Text style={styles.infoText}>
+                        Не можете да изпращате покана към собствен маршрут.
+                      </Text>
+                    </>
+                  )}
+
+                  <TouchableOpacity
+                    style={styles.cancelButton}
+                    onPress={() => setSelectedRoute(null)}>
+                    <Text style={styles.buttonText}>Назад</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
 
       <TouchableOpacity
         style={styles.backButton}
@@ -107,13 +223,8 @@ function Seekers({navigation}) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollContainer: {
-    padding: 16,
-    paddingBottom: 100,
-  },
+  container: {flex: 1},
+  scrollContainer: {padding: 16, paddingBottom: 100},
   routeCard: {
     backgroundColor: '#ffffffcc',
     borderRadius: 12,
@@ -133,17 +244,16 @@ const styles = StyleSheet.create({
     color: '#f4511e',
     marginBottom: 6,
   },
-  creatorText: {
-    fontSize: 16,
-    marginTop: 8,
-    color: '#555',
+  creatorContainer: {flexDirection: 'row', alignItems: 'center', marginTop: 10},
+  creatorText: {fontSize: 16, marginLeft: 10, color: '#555', flexShrink: 1},
+  userImage: {width: 40, height: 40, borderRadius: 20, backgroundColor: '#ccc'},
+  placeholderImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#999',
   },
-  errorText: {
-    fontSize: 18,
-    color: 'red',
-    textAlign: 'center',
-    marginTop: 20,
-  },
+  errorText: {fontSize: 18, color: 'red', textAlign: 'center', marginTop: 20},
   backgroundImage: {
     position: 'absolute',
     width: '100%',
@@ -157,10 +267,48 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
   },
-  backButtonText: {
-    fontSize: 18,
-    color: '#fff',
-    fontWeight: 'bold',
+  backButtonText: {fontSize: 18, color: '#fff', fontWeight: 'bold'},
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: '#000000aa',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 20,
+    elevation: 10,
+  },
+  modalButtons: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginTop: 20,
+    gap: 12,
+  },
+  inviteButton: {
+    backgroundColor: '#28a745',
+    padding: 12,
+    borderRadius: 8,
+    width: 150,
+    alignItems: 'center',
+  },
+
+  cancelButton: {
+    backgroundColor: '#f4511e',
+    padding: 12,
+    borderRadius: 8,
+    width: 150,
+    alignItems: 'center',
+  },
+  buttonText: {color: '#fff', fontWeight: 'bold'},
+  infoText: {
+    color: '#888',
+    fontSize: 16,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    maxWidth: 260,
   },
 });
 
