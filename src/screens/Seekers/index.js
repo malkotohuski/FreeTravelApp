@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   Modal,
   Alert,
+  TextInput,
 } from 'react-native';
 import {useTranslation} from 'react-i18next';
 import {useFocusEffect} from '@react-navigation/native';
@@ -24,6 +25,9 @@ function Seekers({navigation}) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedRoute, setSelectedRoute] = useState(null);
+  const [searchDeparture, setSearchDeparture] = useState('');
+  const [searchArrival, setSearchArrival] = useState('');
+
   const {user} = useAuth();
 
   const loggedUser = user?.user?.username;
@@ -50,15 +54,31 @@ function Seekers({navigation}) {
   const sendInvite = async () => {
     const recipient = selectedRoute.username;
 
-    // Проверка дали потребителят се опитва да прати покана на себе си
     if (recipient === user?.user?.username) {
       Alert.alert('Грешка', 'Не можете да изпращате покана на себе си.');
       return;
     }
 
-    const notificationMessage = `Имате нова покана от ${loggedUserName} ${loggedUserFname}`;
-
     try {
+      // Провери дали вече има такава покана в notifications
+      const res = await axios.get(`${API_BASE_URL}/notifications`);
+      const alreadyInvited = res.data.some(
+        n =>
+          n.recipient === recipient &&
+          n.requester?.username === user?.user?.username &&
+          n.routeTitle === selectedRoute.routeTitle, // или избери нещо по-сигурно като ID, ако имаш
+      );
+
+      if (alreadyInvited) {
+        Alert.alert(
+          'Вече сте кандидатствали',
+          'Не може да изпратите покана отново.',
+        );
+        return;
+      }
+
+      const notificationMessage = `Имате нова покана от ${loggedUserName} ${loggedUserFname}`;
+
       await axios.post(`${API_BASE_URL}/notifications`, {
         recipient: recipient,
         message: notificationMessage,
@@ -70,6 +90,7 @@ function Seekers({navigation}) {
           userLname: user?.user?.userLname,
           email: user?.user?.email,
         },
+        routeTitle: selectedRoute.routeTitle, // добави ако нямаш
         createdAt: new Date().toISOString(),
       });
 
@@ -87,12 +108,39 @@ function Seekers({navigation}) {
     }, []),
   );
 
+  const filteredRoutes = routes.filter(route => {
+    const depMatch = route.departureCity
+      ?.toLowerCase()
+      .includes(searchDeparture.toLowerCase());
+    const arrMatch = route.arrivalCity
+      ?.toLowerCase()
+      .includes(searchArrival.toLowerCase());
+    return depMatch && arrMatch;
+  });
+
   return (
     <SafeAreaView style={styles.container}>
       <Image
         source={require('../../../images/d7.png')}
         style={styles.backgroundImage}
       />
+
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Търси по начална точка"
+          value={searchDeparture}
+          onChangeText={setSearchDeparture}
+          placeholderTextColor="#999"
+        />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Търси по крайна точка"
+          value={searchArrival}
+          onChangeText={setSearchArrival}
+          placeholderTextColor="#999"
+        />
+      </View>
 
       {loading ? (
         <ActivityIndicator
@@ -104,10 +152,10 @@ function Seekers({navigation}) {
         <Text style={styles.errorText}>{error}</Text>
       ) : (
         <ScrollView contentContainerStyle={styles.scrollContainer}>
-          {routes.length === 0 ? (
+          {filteredRoutes.length === 0 ? (
             <Text style={styles.errorText}>{t('No routes available.')}</Text>
           ) : (
-            routes.map((route, index) => {
+            filteredRoutes.map((route, index) => {
               const formattedDate = new Date(
                 route.selectedDateTime,
               ).toLocaleDateString('bg-BG', {
@@ -148,7 +196,6 @@ function Seekers({navigation}) {
         </ScrollView>
       )}
 
-      {/* МОДАЛНО ПРОЗОРЧЕ */}
       <Modal visible={!!selectedRoute} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -186,19 +233,15 @@ function Seekers({navigation}) {
 
                 <View style={styles.modalButtons}>
                   {selectedRoute.username !== user?.user?.username ? (
-                    <>
-                      <TouchableOpacity
-                        style={styles.inviteButton}
-                        onPress={sendInvite}>
-                        <Text style={styles.buttonText}>Покана</Text>
-                      </TouchableOpacity>
-                    </>
+                    <TouchableOpacity
+                      style={styles.inviteButton}
+                      onPress={sendInvite}>
+                      <Text style={styles.buttonText}>Покана</Text>
+                    </TouchableOpacity>
                   ) : (
-                    <>
-                      <Text style={styles.infoText}>
-                        Не можете да изпращате покана към собствен маршрут.
-                      </Text>
-                    </>
+                    <Text style={styles.infoText}>
+                      Не можете да изпращате покана към собствен маршрут.
+                    </Text>
                   )}
 
                   <TouchableOpacity
@@ -294,7 +337,6 @@ const styles = StyleSheet.create({
     width: 150,
     alignItems: 'center',
   },
-
   cancelButton: {
     backgroundColor: '#f4511e',
     padding: 12,
@@ -309,6 +351,19 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     textAlign: 'center',
     maxWidth: 260,
+  },
+  searchContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    gap: 10,
+  },
+  searchInput: {
+    backgroundColor: '#ffffffcc',
+    borderRadius: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    fontSize: 16,
+    color: '#000',
   },
 });
 

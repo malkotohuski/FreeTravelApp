@@ -8298,6 +8298,19 @@
       "createdAt": "2025-07-08T17:28:49.397Z",
       "id": 113,
       "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "Имате нова покана от daniel dimitorv",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "huskyPower",
+        "email": "malkotohuski@gmail.com"
+      },
+      "routeTitle": "2 cats and 1 dog",
+      "createdAt": "2025-07-09T16:17:59.305Z",
+      "id": 114
     }
   ]
 }
