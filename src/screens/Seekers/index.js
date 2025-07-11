@@ -38,8 +38,30 @@ function Seekers({navigation}) {
     try {
       setLoading(true);
       const response = await axios.get(`${API_BASE_URL}/seekers`);
+
       if (response.status === 200) {
-        setRoutes(response.data);
+        const updatedRoutes = await Promise.all(
+          response.data.map(async route => {
+            const routeDate = new Date(route.selectedDateTime);
+            const now = new Date();
+
+            // Ако датата е в миналото и маршрутът не е вече маркиран като deleted
+            if (routeDate < now && route.status !== 'deleted') {
+              try {
+                await axios.patch(`${API_BASE_URL}/seekers/${route.id}`, {
+                  status: 'deleted',
+                });
+                return {...route, status: 'deleted'};
+              } catch (patchErr) {
+                console.error('Неуспешно маркиране като deleted:', patchErr);
+              }
+            }
+
+            return route;
+          }),
+        );
+
+        setRoutes(updatedRoutes);
       } else {
         setError(t('Failed to fetch routes.'));
       }
@@ -109,13 +131,14 @@ function Seekers({navigation}) {
   );
 
   const filteredRoutes = routes.filter(route => {
+    const isActive = !route.status || route.status === 'active';
     const depMatch = route.departureCity
       ?.toLowerCase()
       .includes(searchDeparture.toLowerCase());
     const arrMatch = route.arrivalCity
       ?.toLowerCase()
       .includes(searchArrival.toLowerCase());
-    return depMatch && arrMatch;
+    return isActive && depMatch && arrMatch;
   });
 
   return (

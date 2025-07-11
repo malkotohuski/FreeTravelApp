@@ -5177,7 +5177,8 @@
       "userFname": "Velichka",
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
-      "id": 1751817497347
+      "id": 1751817497347,
+      "status": "deleted"
     },
     {
       "departureCity": "Plovdiv",
@@ -5189,7 +5190,8 @@
       "userFname": "Velichka",
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
-      "id": 1751817621598
+      "id": 1751817621598,
+      "status": "deleted"
     },
     {
       "departureCity": "Varna",
@@ -5201,7 +5203,8 @@
       "userFname": "Velichka",
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
-      "id": 1751817736620
+      "id": 1751817736620,
+      "status": "deleted"
     },
     {
       "departureCity": "Sozopol",
@@ -5224,7 +5227,8 @@
       "userFname": "Velichka",
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
-      "id": 1751819143725
+      "id": 1751819143725,
+      "status": "deleted"
     },
     {
       "departureCity": "София",
@@ -5236,7 +5240,8 @@
       "userFname": "Velichka",
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
-      "id": 1751992402395
+      "id": 1751992402395,
+      "status": "deleted"
     },
     {
       "departureCity": "Бургас",
@@ -5248,7 +5253,8 @@
       "userFname": "Velichka",
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
-      "id": 1751992478708
+      "id": 1751992478708,
+      "status": "deleted"
     },
     {
       "departureCity": "Sofia",
@@ -5261,7 +5267,8 @@
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
       "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
-      "id": 1751992829388
+      "id": 1751992829388,
+      "status": "deleted"
     },
     {
       "departureCity": "Pleven",
@@ -5274,7 +5281,21 @@
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
       "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
-      "id": 1751993161798
+      "id": 1751993161798,
+      "status": "deleted"
+    },
+    {
+      "departureCity": "Sofia",
+      "arrivalCity": "Bata (Pazardzhik)",
+      "selectedDateTime": "2025-07-12T18:01:00.000Z",
+      "routeTitle": "1 person",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
+      "id": 1752256996708
     }
   ],
   "requests": [
@@ -8310,7 +8331,8 @@
       },
       "routeTitle": "2 cats and 1 dog",
       "createdAt": "2025-07-09T16:17:59.305Z",
-      "id": 114
+      "id": 114,
+      "read": true
     }
   ]
 }
