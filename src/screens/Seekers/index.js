@@ -240,18 +240,35 @@ function Seekers({navigation}) {
                   {selectedRoute.departureCity} ➝ {selectedRoute.arrivalCity}
                 </Text>
                 <View style={styles.creatorContainer}>
-                  {selectedRoute.userImage ? (
-                    <Image
-                      source={{uri: selectedRoute.userImage}}
-                      style={styles.userImage}
-                    />
-                  ) : (
-                    <View style={styles.placeholderImage} />
-                  )}
-                  <Text style={styles.creatorText}>
-                    {t('Created by')}: {selectedRoute.userFname}{' '}
-                    {selectedRoute.userLname} (@{selectedRoute.username})
-                  </Text>
+                  <TouchableOpacity
+                    style={styles.creatorTouchable}
+                    onPress={() => {
+                      setSelectedRoute(null); // Затваряме модала
+                      navigation.navigate('UserInfo', {
+                        username: selectedRoute.username,
+                        fName: selectedRoute.userFname,
+                        lName: selectedRoute.userLname,
+                        userImage: selectedRoute.userImage,
+                        userRatings: selectedRoute.ratings,
+                        userComments: selectedRoute.comments,
+                      });
+                    }}>
+                    <View style={styles.creatorContainer}>
+                      {selectedRoute.userImage ? (
+                        <Image
+                          source={{uri: selectedRoute.userImage}}
+                          style={styles.userImage}
+                        />
+                      ) : (
+                        <View style={styles.placeholderImage} />
+                      )}
+                      <Text style={styles.creatorText}>
+                        {t('Created by')}: {selectedRoute.userFname}{' '}
+                        {selectedRoute.userLname} (@
+                        {selectedRoute.username})
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
                 </View>
 
                 <View style={styles.modalButtons}>
@@ -334,6 +351,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   backButtonText: {fontSize: 18, color: '#fff', fontWeight: 'bold'},
+
+  creatorTouchable: {
+    marginTop: 10,
+  },
 
   modalOverlay: {
     flex: 1,

@@ -5295,7 +5295,105 @@
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
       "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
-      "id": 1752256996708
+      "id": 1752256996708,
+      "status": "deleted"
+    },
+    {
+      "departureCity": "Sofia",
+      "arrivalCity": "Varna",
+      "selectedDateTime": "2025-07-16T17:10:00.000Z",
+      "routeTitle": "3 person with bags 13:00-14:00",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
+      "id": 1752513355741,
+      "status": "deleted"
+    },
+    {
+      "departureCity": "Varna",
+      "arrivalCity": "Sofia",
+      "selectedDateTime": "2025-07-20T17:43:00.000Z",
+      "routeTitle": "3  persons",
+      "userId": 1733840997419,
+      "username": "huskyPower",
+      "userFname": "daniel",
+      "userLname": "dimitorv",
+      "userEmail": "malkotohuski@gmail.com",
+      "userImage": "",
+      "id": 1752515035100,
+      "status": "deleted"
+    },
+    {
+      "departureCity": "Sofia",
+      "arrivalCity": "Ruse",
+      "selectedDateTime": "2025-07-16T17:43:00.000Z",
+      "routeTitle": "1",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
+      "id": 1752515429843,
+      "status": "deleted"
+    },
+    {
+      "departureCity": "Pleven",
+      "arrivalCity": "Sofia",
+      "selectedDateTime": "2025-07-18T17:59:00.000Z",
+      "routeTitle": "1",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
+      "id": 1752516023438,
+      "status": "deleted"
+    },
+    {
+      "departureCity": "Sofia",
+      "arrivalCity": "Pleven",
+      "selectedDateTime": "2025-07-16T18:01:00.000Z",
+      "routeTitle": "2 persons",
+      "userId": 1733840997419,
+      "username": "huskyPower",
+      "userFname": "daniel",
+      "userLname": "dimitorv",
+      "userEmail": "malkotohuski@gmail.com",
+      "userImage": "",
+      "id": 1752516104098,
+      "status": "deleted"
+    },
+    {
+      "departureCity": "Plovdiv",
+      "arrivalCity": "Sofia",
+      "selectedDateTime": "2025-07-16T18:01:00.000Z",
+      "routeTitle": "1 person",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
+      "id": 1752516492377,
+      "status": "deleted"
+    },
+    {
+      "departureCity": "Sofia",
+      "arrivalCity": "Bata (Pazardzhik)",
+      "selectedDateTime": "2025-07-30T08:11:00.000Z",
+      "routeTitle": "2 hot chick",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
+      "id": 1753603982221
     }
   ],
   "requests": [
@@ -8332,6 +8430,90 @@
       "routeTitle": "2 cats and 1 dog",
       "createdAt": "2025-07-09T16:17:59.305Z",
       "id": 114,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "Имате нова покана от daniel dimitorv",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "huskyPower",
+        "email": "malkotohuski@gmail.com"
+      },
+      "routeTitle": "",
+      "createdAt": "2025-07-14T17:10:13.991Z",
+      "id": 115,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "Имате нова покана от daniel dimitorv",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "huskyPower",
+        "email": "malkotohuski@gmail.com"
+      },
+      "routeTitle": "3 person with bags 13:00-14:00",
+      "createdAt": "2025-07-14T17:42:41.669Z",
+      "id": 116,
+      "read": true
+    },
+    {
+      "recipient": "huskyPower",
+      "message": "Имате нова покана от Velichka Spasova",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "email": "shushkata7@gmail.com"
+      },
+      "routeTitle": "3  persons",
+      "createdAt": "2025-07-14T17:44:12.027Z",
+      "id": 117,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "Имате нова покана от daniel dimitorv",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "huskyPower",
+        "email": "malkotohuski@gmail.com"
+      },
+      "routeTitle": "1",
+      "createdAt": "2025-07-14T17:50:42.600Z",
+      "id": 118,
+      "read": true
+    },
+    {
+      "recipient": "huskyPower",
+      "message": "Имате нова покана от Velichka Spasova",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "email": "shushkata7@gmail.com"
+      },
+      "routeTitle": "2 persons",
+      "createdAt": "2025-07-14T18:02:15.818Z",
+      "id": 119,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "Имате нова покана от daniel dimitorv",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "huskyPower",
+        "email": "malkotohuski@gmail.com"
+      },
+      "routeTitle": "1 person",
+      "createdAt": "2025-07-14T18:08:28.947Z",
+      "id": 120,
       "read": true
     }
   ]

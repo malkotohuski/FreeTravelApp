@@ -38,6 +38,7 @@ import Looking from '../screens/LookingFor';
 import RateUserScreen from '../screens/UserRating';
 import {DarkModeContext} from './DarkModeContext';
 import Seekers from '../screens/Seekers';
+import UserInfo from '../screens/UserInfo';
 
 const Drawer = createDrawerNavigator();
 
@@ -135,6 +136,16 @@ export const Navigator = ({isLoggedIn}) => {
       style={{marginRight: 16}}
       onPress={() => {
         navigation.navigate('Home');
+      }}>
+      <Icons name="keyboard-backspace" size={24} color="white" />
+    </TouchableOpacity>
+  );
+
+  const BackButtonToSeekers = ({navigation}) => (
+    <TouchableOpacity
+      style={{marginRight: 16}}
+      onPress={() => {
+        navigation.navigate('Seekers');
       }}>
       <Icons name="keyboard-backspace" size={24} color="white" />
     </TouchableOpacity>
@@ -425,6 +436,24 @@ export const Navigator = ({isLoggedIn}) => {
           focus: () => {
             navigation.setOptions({
               headerRight: () => BackButtonRouteRequests({navigation}),
+            });
+          },
+        })}
+      />
+      <Drawer.Screen
+        name="UserInfo"
+        component={UserInfo}
+        options={{
+          title: t('UserInfo'),
+          ...screenStyles,
+          drawerIcon: ({color, size}) => (
+            <Icons name="routes" size={size} color={color} />
+          ),
+        }}
+        listeners={({navigation}) => ({
+          focus: () => {
+            navigation.setOptions({
+              headerRight: () => BackButtonToSeekers({navigation}),
             });
           },
         })}
