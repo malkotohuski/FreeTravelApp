@@ -8,6 +8,7 @@ import {
   StyleSheet,
   FlatList,
   Modal,
+  TextInput,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
@@ -30,6 +31,54 @@ const Notifications = ({navigation, route}) => {
 
   const [notifications, setNotifications] = useState([]);
   const [visibleModalId, setVisibleModalId] = useState(null);
+  const [respondModalVisible, setRespondModalVisible] = useState(false);
+  const [respondingTo, setRespondingTo] = useState(null);
+  const [responseComment, setResponseComment] = useState('');
+
+  const handlePersonalMessagePress = notification => {
+    setRespondingTo(notification);
+    setTimeout(() => {
+      setRespondModalVisible(true);
+    }, 100);
+  };
+
+  const handleRespond = async responseType => {
+    if (!respondingTo) return;
+
+    const recipientUser = respondingTo.requester?.username;
+    const senderUsername = user?.user?.username;
+
+    const message =
+      responseType === 'accepted'
+        ? `${senderUsername} прие поканата ви.`
+        : `${senderUsername} отказа поканата ви.`;
+
+    try {
+      await api.post('/notifications', {
+        recipient: recipientUser,
+        message: message,
+        routeId: respondingTo.routeId,
+        requester: {
+          username: senderUsername,
+          userFname: user?.user?.firstName,
+          userLname: user?.user?.lastName,
+          email: user?.user?.email,
+        },
+        personalMessage: responseComment,
+        createdAt: new Date().toISOString(),
+        read: false,
+        status: 'active',
+      });
+
+      console.log('✅ Успешно изпратена нотификация');
+    } catch (error) {
+      console.error('❌ Грешка при изпращане на нотификация:', error);
+    }
+
+    setRespondModalVisible(false);
+    setRespondingTo(null);
+    setResponseComment('');
+  };
 
   const fetchNotifications = async () => {
     try {
@@ -156,6 +205,26 @@ const Notifications = ({navigation, route}) => {
                 <Text style={styles.message}>{item.message}</Text>
               </TouchableOpacity>
 
+              {item.personalMessage ? (
+                <TouchableOpacity
+                  onPress={() => handlePersonalMessagePress(item)}
+                  style={{
+                    marginTop: 8,
+                    padding: 10,
+                    backgroundColor: '#f2f2f2',
+                    borderRadius: 8,
+                  }}>
+                  <Text
+                    style={{
+                      color: '#333',
+                      fontSize: 14,
+                      fontStyle: 'italic',
+                    }}>
+                    "{item.personalMessage}"
+                  </Text>
+                </TouchableOpacity>
+              ) : null}
+
               <Text style={styles.date}>{formatDate(item.createdAt)}</Text>
 
               <Modal
@@ -183,6 +252,42 @@ const Notifications = ({navigation, route}) => {
                       style={[styles.modalButton, styles.cancelButton]}
                       onPress={() => setVisibleModalId(null)}>
                       <Text style={styles.modalButtonText}>{t('Cancel')}</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </Modal>
+              <Modal
+                visible={respondModalVisible}
+                animationType="none"
+                onRequestClose={() => setRespondModalVisible(false)}>
+                <View style={styles.simpleModalContainer}>
+                  <View style={styles.modalContent}>
+                    <Text style={styles.modalTitle}>
+                      {t('Respond to Invitation')}
+                    </Text>
+                    <Text style={styles.modalMessage}>
+                      {respondingTo?.personalMessage}
+                    </Text>
+                    <TextInput
+                      style={styles.responseInput}
+                      placeholder={t('Optional comment')}
+                      value={responseComment}
+                      onChangeText={setResponseComment}
+                    />
+                    <TouchableOpacity
+                      style={styles.modalButton}
+                      onPress={() => handleRespond('accepted')}>
+                      <Text style={styles.modalButtonText}>{t('Accept')}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.modalButton, styles.cancelButton]}
+                      onPress={() => handleRespond('rejected')}>
+                      <Text style={styles.modalButtonText}>{t('Decline')}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.modalButton, styles.cancelButton]}
+                      onPress={() => setRespondModalVisible(false)}>
+                      <Text style={styles.modalButtonText}>{t('Close')}</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -257,6 +362,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 9999,
   },
   modalContent: {
     width: '80%',
@@ -288,6 +394,22 @@ const styles = StyleSheet.create({
   },
   cancelButton: {backgroundColor: '#ccc'},
   modalButtonText: {color: 'white', fontSize: 16, fontWeight: 'bold'},
+
+  simpleModalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#010101', // Без прозрачност, за да няма конфликт с фон
+    padding: 20,
+  },
+  responseInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    width: '100%',
+    marginVertical: 10,
+    padding: 10,
+  },
 });
 
 export default Notifications;
