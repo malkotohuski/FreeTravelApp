@@ -27,6 +27,7 @@ function Seekers({navigation}) {
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [searchDeparture, setSearchDeparture] = useState('');
   const [searchArrival, setSearchArrival] = useState('');
+  const [messageInput, setMessageInput] = useState('');
 
   const {user} = useAuth();
 
@@ -112,9 +113,13 @@ function Seekers({navigation}) {
           userLname: user?.user?.userLname,
           email: user?.user?.email,
         },
-        routeTitle: selectedRoute.routeTitle, // добави ако нямаш
+        routeTitle: selectedRoute.routeTitle,
         createdAt: new Date().toISOString(),
+        personalMessage: messageInput, // 👈 добавяме личното съобщение
       });
+
+      setSelectedRoute(null);
+      setMessageInput('');
 
       Alert.alert('Успех', 'Поканата е изпратена успешно.');
       setSelectedRoute(null);
@@ -224,6 +229,23 @@ function Seekers({navigation}) {
           <View style={styles.modalContent}>
             {selectedRoute && (
               <>
+                <TextInput
+                  style={{
+                    backgroundColor: '#f2f2f2',
+                    borderRadius: 8,
+                    padding: 10,
+                    marginTop: 16,
+                    color: '#000',
+                    height: 100,
+                    textAlignVertical: 'top',
+                  }}
+                  placeholder="Напиши лично съобщение към създателя на маршрута (по избор)"
+                  multiline
+                  numberOfLines={4}
+                  value={messageInput}
+                  onChangeText={setMessageInput}
+                  placeholderTextColor="#777"
+                />
                 <Text style={styles.routeText}>{selectedRoute.routeTitle}</Text>
                 <Text style={styles.dateText}>
                   {new Date(selectedRoute.selectedDateTime).toLocaleDateString(

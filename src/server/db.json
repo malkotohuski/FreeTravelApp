@@ -5394,6 +5394,19 @@
       "userEmail": "shushkata7@gmail.com",
       "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
       "id": 1753603982221
+    },
+    {
+      "departureCity": "Sofia",
+      "arrivalCity": "Sozopol",
+      "selectedDateTime": "2025-07-29T08:11:00.000Z",
+      "routeTitle": "1 person with 1 small bag",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
+      "id": 1753632389728
     }
   ],
   "requests": [
@@ -8515,6 +8528,76 @@
       "createdAt": "2025-07-14T18:08:28.947Z",
       "id": 120,
       "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "Имате нова покана от daniel dimitorv",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "huskyPower",
+        "email": "malkotohuski@gmail.com"
+      },
+      "routeTitle": "2 hot chick",
+      "createdAt": "2025-07-27T15:32:14.847Z",
+      "id": 121,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "Имате нова покана от asdasd sdsd",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "sdds",
+        "email": "devmasterstech@gmail.com"
+      },
+      "routeTitle": "2 hot chick",
+      "createdAt": "2025-07-27T15:49:40.493Z",
+      "personalMessage": "Към 18:30 ще мина през Дървеница на Фантастико паркинга\n",
+      "id": 122,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "Имате нова покана от daniel dimitorv",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "huskyPower",
+        "email": "malkotohuski@gmail.com"
+      },
+      "routeTitle": "1 person with 1 small bag",
+      "createdAt": "2025-07-27T16:08:28.569Z",
+      "personalMessage": "Пътувам в 8:00 сутринта тръгвам от сточна гара\n\n",
+      "id": 123,
+      "read": true
+    },
+    {
+      "recipient": "malkotohuski@gmail.com",
+      "message": "Shushkata7@gmail.com прие поканата ви.",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "email": "shushkata7@gmail.com"
+      },
+      "personalMessage": "Ok tam she sum ",
+      "createdAt": "2025-07-27T17:07:49.333Z",
+      "read": false,
+      "status": "active",
+      "id": 124
+    },
+    {
+      "recipient": "huskyPower",
+      "message": "Shushkata7@gmail.com прие поканата ви.",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "email": "shushkata7@gmail.com"
+      },
+      "personalMessage": "Dobre  tam she sym",
+      "createdAt": "2025-07-27T17:30:17.400Z",
+      "read": true,
+      "status": "active",
+      "id": 125
     }
   ]
 }
