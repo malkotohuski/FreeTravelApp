@@ -150,7 +150,11 @@ For date: ${formattedDate}`);
         {
           text: t('No'),
           onPress: () => sendRouteResponse(request, false),
-          style: 'cancel',
+          style: 'destructive',
+        },
+        {
+          text: t('Back'),
+          style: 'cancel', // 👈 само това стига, за да затвори alert-а
         },
       ],
       {cancelable: false},

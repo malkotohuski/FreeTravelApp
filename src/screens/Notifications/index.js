@@ -120,6 +120,20 @@ const Notifications = ({navigation, route}) => {
     }
   };
 
+  const handleNotificationRequestPress = notification => {
+    try {
+      const message = notification.message.toLowerCase();
+      if (
+        // message.includes('Имате кандидат за вашия маршрут:') ||//
+        message.includes('You have a candidate for your route:')
+      ) {
+        navigation.navigate('Route request');
+      }
+    } catch (e) {
+      console.error('Navigation error:', e);
+    }
+  };
+
   const deleteNotification = async id => {
     try {
       await api.patch(`/notifications/${id}`, {status: 'deleted'});
@@ -204,6 +218,24 @@ const Notifications = ({navigation, route}) => {
               <TouchableOpacity onPress={() => handleNotificationPress(item)}>
                 <Text style={styles.message}>{item.message}</Text>
               </TouchableOpacity>
+
+              {item.message &&
+                item.message
+                  .toLowerCase()
+                  .includes('you have a candidate for your route') && (
+                  <TouchableOpacity
+                    onPress={() => handleNotificationRequestPress(item)}
+                    style={{
+                      marginTop: 10,
+                      padding: 10,
+                      backgroundColor: '#e6f7ff',
+                      borderRadius: 8,
+                    }}>
+                    <Text style={{color: '#005fcb'}}>
+                      {t('View candidate request')}
+                    </Text>
+                  </TouchableOpacity>
+                )}
 
               {item.personalMessage ? (
                 <TouchableOpacity

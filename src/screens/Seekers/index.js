@@ -78,7 +78,7 @@ function Seekers({navigation}) {
     const recipient = selectedRoute.username;
 
     if (recipient === user?.user?.username) {
-      Alert.alert('Грешка', 'Не можете да изпращате покана на себе си.');
+      Alert.alert(t('Грешка'), t('Не может+е да изпращате покана на себе си.'));
       return;
     }
 
@@ -94,8 +94,8 @@ function Seekers({navigation}) {
 
       if (alreadyInvited) {
         Alert.alert(
-          'Вече сте кандидатствали',
-          'Не може да изпратите покана отново.',
+          t('Вече сте кандидатствали'),
+          t('Не може да изпратите покана отново.'),
         );
         return;
       }
@@ -121,7 +121,7 @@ function Seekers({navigation}) {
       setSelectedRoute(null);
       setMessageInput('');
 
-      Alert.alert('Успех', 'Поканата е изпратена успешно.');
+      Alert.alert('Успех', t('Поканата е изпратена успешно.'));
       setSelectedRoute(null);
     } catch (err) {
       console.error('Грешка при изпращане:', err);
@@ -239,7 +239,9 @@ function Seekers({navigation}) {
                     height: 100,
                     textAlignVertical: 'top',
                   }}
-                  placeholder="Напиши лично съобщение към създателя на маршрута (по избор)"
+                  placeholder={t(
+                    'Write a personal message to the route creator (optional)',
+                  )}
                   multiline
                   numberOfLines={4}
                   value={messageInput}
