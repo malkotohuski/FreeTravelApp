@@ -11,7 +11,13 @@ i18next.use(initReactI18next).init({
         'Register your vehicle': 'Register your vehicle',
         'Route request': 'Route request',
         'Select date:': 'Select date:',
+        'There is a request from:': 'There is a request from:',
+        'Write a personal message to the route creator (optional)':
+          'Write a personal message to the route creator (optional)',
         'Selected Date:': 'Selected Date:',
+        'Do you want to approve the request?':
+          'Do you want to approve the request?',
+        Seekers: 'Seekers',
         'View routes': 'View routes',
         Reporting: 'Reporting',
         'Your rating': 'Your rating',
@@ -5085,6 +5091,9 @@ i18next.use(initReactI18next).init({
         'In the car with me': 'B колата c мен',
         'We travel freely': 'Пътуваме свободно',
         'Search here': 'Търсете тук',
+        'Do you want to approve the request?':
+          'Искате ли да одобрите заявката?',
+        'There is a request from:': 'Има заявка от:',
         'Select date:': 'Изберете дата',
         'Selected Date:': 'Избрана дата:',
         'Departure City': 'Град на заминаване',
@@ -5099,6 +5108,9 @@ i18next.use(initReactI18next).init({
         'Type a message...': 'Въведете съобщение...',
         'Search...': 'Търсене...',
         Account: 'Акаунт',
+        Seekers: 'Търсачи',
+        'Write a personal message to the route creator (optional)':
+          'Напиши лично съобщение към създателя на маршрута (по избор)',
         Comments: 'Коментари',
         Video: 'Видео',
         New: 'Нов',
