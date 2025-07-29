@@ -1,4 +1,4 @@
-import React, {useState, useContext} from 'react';
+import React, {useState, useContext, useCallback} from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   SafeAreaView,
   Image,
 } from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
 import StarRating from 'react-native-star-rating-widget';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {DarkModeContext} from '../../navigation/DarkModeContext';
@@ -29,6 +30,13 @@ const RateUserScreen = ({navigation}) => {
   const {darkMode} = useContext(DarkModeContext);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
+
+  useFocusEffect(
+    useCallback(() => {
+      setComment('');
+      setRating(0);
+    }, []),
+  );
 
   const submitRating = async () => {
     if (rating === 0) {
