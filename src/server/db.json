@@ -11,7 +11,9 @@
       "confirmationCode": null,
       "routes": [
         1748268348478,
-        1748606791383
+        1748606791383,
+        1736957069792,
+        1736956628621
       ],
       "freinds": [],
       "ratings": [
@@ -116,7 +118,9 @@
         4,
         4,
         4,
-        3.5
+        3.5,
+        4.5,
+        4.5
       ],
       "comments": [
         "ops",
@@ -143,9 +147,21 @@
           "comment": "Nice trip :) ",
           "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/934839b7-5c2f-472d-9a08-e59d74d9a512.jpg",
           "date": "2025-05-30T12:14:18.372Z"
+        },
+        {
+          "user": "Shushkata7@gmail.com",
+          "comment": "TOP",
+          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
+          "date": "2025-07-29T16:40:45.919Z"
+        },
+        {
+          "user": "Shushkata7@gmail.com",
+          "comment": "TOP",
+          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
+          "date": "2025-07-29T16:40:57.253Z"
         }
       ],
-      "averageRating": 3.88
+      "averageRating": 4
     },
     {
       "id": 1733840997419,
@@ -5469,7 +5485,8 @@
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
       "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
-      "id": 1753632389728
+      "id": 1753632389728,
+      "status": "deleted"
     },
     {
       "departureCity": "Пловдив",
@@ -5483,6 +5500,19 @@
       "userEmail": "shushkata7@gmail.com",
       "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
       "id": 1753724184926
+    },
+    {
+      "departureCity": "Plovdiv",
+      "arrivalCity": "Stara Zagora",
+      "selectedDateTime": "2025-08-29T16:21:00.000Z",
+      "routeTitle": "asdasdasd",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
+      "id": 1753808157902
     }
   ],
   "requests": [

@@ -122,10 +122,11 @@ const Notifications = ({navigation, route}) => {
 
   const handleNotificationRequestPress = notification => {
     try {
+      console.log('➡️ Навигация към Route request:', notification);
       const message = notification.message.toLowerCase();
       if (
-        // message.includes('Имате кандидат за вашия маршрут:') ||//
-        message.includes('You have a candidate for your route:')
+        message.includes('your route') &&
+        (message.includes('candidate') || message.includes('new request'))
       ) {
         navigation.navigate('Route request');
       }
