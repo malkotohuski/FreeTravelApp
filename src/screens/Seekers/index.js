@@ -74,6 +74,11 @@ function Seekers({navigation}) {
     }
   };
 
+  const handlerBackHome = () => {
+    navigation.navigate('Home');
+    console.log('back to Home');
+  };
+
   const sendInvite = async () => {
     const recipient = selectedRoute.username;
 
@@ -320,9 +325,7 @@ function Seekers({navigation}) {
         </View>
       </Modal>
 
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => navigation.goBack()}>
+      <TouchableOpacity style={styles.backButton} onPress={handlerBackHome}>
         <Text style={styles.backButtonText}>{t('Back')}</Text>
       </TouchableOpacity>
     </SafeAreaView>

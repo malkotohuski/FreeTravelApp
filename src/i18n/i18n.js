@@ -11,6 +11,8 @@ i18next.use(initReactI18next).init({
         'Register your vehicle': 'Register your vehicle',
         'Route request': 'Route request',
         'Select date:': 'Select date:',
+        'Enter route title': 'Enter route title',
+        'Route Information': 'Route Information',
         'There is a request from:': 'There is a request from:',
         'Write a personal message to the route creator (optional)':
           'Write a personal message to the route creator (optional)',
@@ -5091,6 +5093,8 @@ i18next.use(initReactI18next).init({
         'In the car with me': 'B колата c мен',
         'We travel freely': 'Пътуваме свободно',
         'Search here': 'Търсете тук',
+        'Route Information': 'Информация за маршрута',
+        'Enter route title': 'Въведете заглавие на маршрута',
         'Do you want to approve the request?':
           'Искате ли да одобрите заявката?',
         'There is a request from:': 'Има заявка от:',
