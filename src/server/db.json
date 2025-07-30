@@ -5472,7 +5472,8 @@
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
       "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
-      "id": 1753603982221
+      "id": 1753603982221,
+      "status": "deleted"
     },
     {
       "departureCity": "Sofia",
@@ -5499,7 +5500,8 @@
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
       "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
-      "id": 1753724184926
+      "id": 1753724184926,
+      "status": "deleted"
     },
     {
       "departureCity": "Plovdiv",
@@ -8693,7 +8695,7 @@
       "recipient": "Shushkata7@gmail.com",
       "message": "Имате нова покана от asdasd sdsd",
       "routeChecker": true,
-      "status": "active",
+      "status": "deleted",
       "requester": {
         "username": "sdds",
         "email": "devmasterstech@gmail.com"
@@ -8708,7 +8710,7 @@
       "recipient": "Shushkata7@gmail.com",
       "message": "Имате нова покана от daniel dimitorv",
       "routeChecker": true,
-      "status": "active",
+      "status": "deleted",
       "requester": {
         "username": "huskyPower",
         "email": "malkotohuski@gmail.com"
@@ -8750,7 +8752,7 @@
       "message": "You have a candidate for your route: София-Бъта with username: huskyPower!",
       "routeId": 1753724480541,
       "routeChecker": true,
-      "status": "active",
+      "status": "deleted",
       "requester": {
         "username": "huskyPower",
         "userFname": "daniel",
