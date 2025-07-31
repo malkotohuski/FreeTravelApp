@@ -98,30 +98,50 @@ function ViewRoutes({navigation}) {
   };
 
   useEffect(() => {
-    const fetchRoutes = async () => {
+    const fetchAndCleanRoutes = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/routes`);
         if (response.status === 200) {
           const currentDate = new Date();
-          const filteredRoutes = response.data.filter(route => {
-            const routeDate = new Date(route.selectedDateTime);
-            return (
-              !route.isDeleted &&
-              route.userRouteId !== 'deleted' &&
-              route.userRouteId !== 'completed' &&
-              routeDate >= currentDate
-            );
-          });
-          setFilteredRoutesState(filteredRoutes);
+
+          const filteredRoutes = await Promise.all(
+            response.data.map(async route => {
+              const routeDate = new Date(route.selectedDateTime);
+              const isOutdated = routeDate < currentDate;
+
+              if (isOutdated) {
+                try {
+                  await axios.delete(`${API_BASE_URL}/routes/${route.id}`);
+                  return null; // изтрит, не го връщаме
+                } catch (deleteError) {
+                  console.error('Грешка при изтриване:', deleteError);
+                  return route; // ако не може да го изтрие, все пак го връщаме
+                }
+              }
+
+              return route; // запази активните
+            }),
+          );
+
+          // филтрирай null стойностите (изтритите маршрути)
+          const cleanedRoutes = filteredRoutes.filter(
+            r =>
+              r !== null &&
+              !r.isDeleted &&
+              r.userRouteId !== 'deleted' &&
+              r.userRouteId !== 'completed',
+          );
+
+          setFilteredRoutesState(cleanedRoutes);
         } else {
           throw new Error('Failed to fetch routes');
         }
       } catch (error) {
-        console.error('Error fetching routes:', error);
+        console.error('Error fetching/cleaning routes:', error);
       }
     };
 
-    fetchRoutes();
+    fetchAndCleanRoutes();
   }, [routes]);
 
   useEffect(() => {
