@@ -41,28 +41,30 @@ function Seekers({navigation}) {
       const response = await axios.get(`${API_BASE_URL}/seekers`);
 
       if (response.status === 200) {
+        const now = new Date();
+
         const updatedRoutes = await Promise.all(
           response.data.map(async route => {
             const routeDate = new Date(route.selectedDateTime);
-            const now = new Date();
 
-            // Ако датата е в миналото и маршрутът не е вече маркиран като deleted
-            if (routeDate < now && route.status !== 'deleted') {
+            if (routeDate < now) {
               try {
-                await axios.patch(`${API_BASE_URL}/seekers/${route.id}`, {
-                  status: 'deleted',
-                });
-                return {...route, status: 'deleted'};
-              } catch (patchErr) {
-                console.error('Неуспешно маркиране като deleted:', patchErr);
+                await axios.delete(`${API_BASE_URL}/seekers/${route.id}`);
+                return null; // премахни го от списъка
+              } catch (deleteErr) {
+                console.error(
+                  'Неуспешно изтриване на стар маршрут:',
+                  deleteErr,
+                );
+                return route; // запази го, ако не можем да го изтрием
               }
             }
 
-            return route;
+            return route; // запазваме маршрути с валидна дата
           }),
         );
 
-        setRoutes(updatedRoutes);
+        setRoutes(updatedRoutes.filter(route => route !== null)); // премахваме null стойности
       } else {
         setError(t('Failed to fetch routes.'));
       }
@@ -142,13 +144,15 @@ function Seekers({navigation}) {
 
   const filteredRoutes = routes.filter(route => {
     const isActive = !route.status || route.status === 'active';
+    const routeDate = new Date(route.selectedDateTime);
+    const isFuture = routeDate >= new Date();
     const depMatch = route.departureCity
       ?.toLowerCase()
       .includes(searchDeparture.toLowerCase());
     const arrMatch = route.arrivalCity
       ?.toLowerCase()
       .includes(searchArrival.toLowerCase());
-    return isActive && depMatch && arrMatch;
+    return isActive && isFuture && depMatch && arrMatch;
   });
 
   return (
