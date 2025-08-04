@@ -107,23 +107,43 @@ function ViewRoutes({navigation}) {
           const filteredRoutes = await Promise.all(
             response.data.map(async route => {
               const routeDate = new Date(route.selectedDateTime);
-              const isOutdated = routeDate < currentDate;
+              const expirationThreshold = new Date(routeDate);
+              expirationThreshold.setDate(expirationThreshold.getDate() + 5);
 
-              if (isOutdated) {
+              // 🟡 1. Изтекла дата, но в рамките на 5 дни → mark as deleted
+              if (
+                routeDate < currentDate &&
+                expirationThreshold >= currentDate &&
+                route.userRouteId !== 'deleted'
+              ) {
+                try {
+                  await axios.patch(`${API_BASE_URL}/routes/${route.id}`, {
+                    userRouteId: 'deleted',
+                  });
+                } catch (patchErr) {
+                  console.error(
+                    '❌ Неуспешно маркиране като deleted:',
+                    patchErr,
+                  );
+                }
+                return null; // няма да го показваме
+              }
+
+              // 🔴 2. Минали са повече от 5 дни → изтрий
+              if (expirationThreshold < currentDate) {
                 try {
                   await axios.delete(`${API_BASE_URL}/routes/${route.id}`);
-                  return null; // изтрит, не го връщаме
-                } catch (deleteError) {
-                  console.error('Грешка при изтриване:', deleteError);
-                  return route; // ако не може да го изтрие, все пак го връщаме
+                  return null;
+                } catch (deleteErr) {
+                  console.error('❌ Грешка при изтриване:', deleteErr);
+                  return null;
                 }
               }
 
-              return route; // запази активните
+              return route; // ✅ Активен маршрут
             }),
           );
 
-          // филтрирай null стойностите (изтритите маршрути)
           const cleanedRoutes = filteredRoutes.filter(
             r =>
               r !== null &&
@@ -133,11 +153,9 @@ function ViewRoutes({navigation}) {
           );
 
           setFilteredRoutesState(cleanedRoutes);
-        } else {
-          throw new Error('Failed to fetch routes');
         }
       } catch (error) {
-        console.error('Error fetching/cleaning routes:', error);
+        console.error('❌ Грешка при fetch и clean:', error);
       }
     };
 
