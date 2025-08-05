@@ -308,13 +308,16 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    alignItems: 'flex-start',
+    alignItems: 'start',
   },
   routeContainer: {
-    margin: 10,
-    padding: 10,
-    backgroundColor: '#f4511e',
-    borderRadius: 10,
+    width: '90%',
+    maxWidth: 600,
+    marginVertical: 8,
+    padding: 15,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    borderRadius: 15,
+    elevation: 3,
   },
   ownRouteContainer: {
     backgroundColor: '#f33233', // Светло синьо, може да смениш цвета
