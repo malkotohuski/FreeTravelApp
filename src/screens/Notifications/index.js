@@ -232,9 +232,30 @@ const Notifications = ({navigation, route}) => {
                       backgroundColor: '#e6f7ff',
                       borderRadius: 8,
                     }}>
-                    <Text style={{color: '#005fcb'}}>
-                      {t('View candidate request')}
-                    </Text>
+                    <View>
+                      <Text style={{color: '#005fcb', fontWeight: 'bold'}}>
+                        {t('View candidate request')}
+                      </Text>
+                      {item.requester?.comment ? (
+                        <TouchableOpacity
+                          onPress={() => handlePersonalMessagePress(item)}
+                          style={{
+                            marginTop: 8,
+                            padding: 10,
+                            backgroundColor: '#f2f2f2',
+                            borderRadius: 8,
+                          }}>
+                          <Text
+                            style={{
+                              color: '#333',
+                              fontSize: 14,
+                              fontStyle: 'italic',
+                            }}>
+                            "{item.requester.comment}"
+                          </Text>
+                        </TouchableOpacity>
+                      ) : null}
+                    </View>
                   </TouchableOpacity>
                 )}
 

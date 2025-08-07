@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   Alert,
   TextInput,
 } from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {useAuth} from '../../context/AuthContext';
@@ -52,6 +53,13 @@ function RouteDetails({route}) {
   const [notificationCount, setNotificationCount] = useState(0);
   const [hasRequested, setHasRequested] = useState(false);
   const isOwnRoute = requesterUsername === username;
+
+  useFocusEffect(
+    useCallback(() => {
+      setTripRequestText(''); // нулира стойността всеки път при фокус
+    }, []),
+  );
+
   // Проверка за съществуваща заявка
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -102,6 +110,11 @@ function RouteDetails({route}) {
         return;
       }
 
+      if (!tripRequestText.trim()) {
+        Alert.alert(t('Error'), t('Please enter a comment before submitting.'));
+        return;
+      }
+
       Alert.alert(
         t('Confirm'),
         t('Would you like to submit a request for this route?'),
@@ -126,6 +139,7 @@ function RouteDetails({route}) {
                     arrivalCity: route.params.arrivalCity,
                     routeId: route.params.routeId,
                     dataTime: route.params.selectedDateTime,
+                    requestComment: tripRequestText,
                   },
                 });
                 setHasRequested(true);
@@ -143,6 +157,7 @@ function RouteDetails({route}) {
                     userFname: requestUserFirstName,
                     userLname: requestUserLastName,
                     email: requestUserEmail,
+                    comment: tripRequestText,
                   },
                   createdAt: new Date().toISOString(),
                 });
