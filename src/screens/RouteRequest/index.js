@@ -35,6 +35,9 @@ function RouteRequestScreen({route, navigation}) {
   const requestUserEmail = user?.user?.email;
   const requestUserID = user?.user?.userID;
 
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+
   const getRequestsForCurrentUser = () => {
     return requests.filter(request => {
       const currentDate = new Date();
@@ -136,29 +139,8 @@ For date: ${formattedDate}`);
   };
 
   const handlePress = request => {
-    setIsMigrating(true);
-    Alert.alert(
-      `${t('There is a request from:')} ${request.userFname} ${
-        request.userLname
-      }`,
-      t('Do you want to approve the request?'),
-      [
-        {
-          text: t('Yes'),
-          onPress: () => sendRouteResponse(request, true),
-        },
-        {
-          text: t('No'),
-          onPress: () => sendRouteResponse(request, false),
-          style: 'destructive',
-        },
-        {
-          text: t('Back'),
-          style: 'cancel', // 👈 само това стига, за да затвори alert-а
-        },
-      ],
-      {cancelable: false},
-    );
+    setSelectedRequest(request);
+    setModalVisible(true);
   };
 
   const renderRoutes = () => {
@@ -195,6 +177,57 @@ For date: ${formattedDate}`);
 
   return (
     <SafeAreaView style={styles.mainContainer}>
+      {modalVisible && selectedRequest && (
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>
+              {t('Request from')}: {selectedRequest.userFname}{' '}
+              {selectedRequest.userLname}
+            </Text>
+            <Text style={styles.modalText}>
+              {t('Direction')}: {selectedRequest.departureCity} →{' '}
+              {selectedRequest.arrivalCity}
+            </Text>
+            <Text style={styles.modalText}>
+              {t('Date/Time')}:{' '}
+              {new Date(selectedRequest.dataTime).toLocaleString('bg-BG')}
+            </Text>
+            <Text style={[styles.modalText, {marginTop: 10}]}>
+              {t('Comment')}:
+            </Text>
+            <Text style={styles.modalComment}>
+              "{selectedRequest.requestComment || t('No comment provided.')}"
+            </Text>
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, {backgroundColor: '#4CAF50'}]}
+                onPress={() => {
+                  setModalVisible(false);
+                  sendRouteResponse(selectedRequest, true);
+                }}>
+                <Text style={styles.modalButtonText}>✅ {t('Approve')}</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.modalButton, {backgroundColor: '#5a120dff'}]}
+                onPress={() => {
+                  setModalVisible(false);
+                  sendRouteResponse(selectedRequest, false);
+                }}>
+                <Text style={styles.modalButtonText}>❌ {t('Reject')}</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.modalButton, {backgroundColor: '#888'}]}
+                onPress={() => setModalVisible(false)}>
+                <Text style={styles.modalButtonText}>🔙 {t('Back')}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
+
       <ScrollView contentContainerStyle={styles.scrollViewContainer}>
         <Image
           source={require('../../../images/routes2-background.jpg')}
@@ -251,6 +284,55 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   userName: {fontWeight: 'bold'},
+  modalOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
+  },
+  modalContainer: {
+    width: '85%',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 20,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalText: {
+    fontSize: 16,
+    marginVertical: 2,
+  },
+  modalComment: {
+    fontSize: 15,
+    fontStyle: 'italic',
+    color: '#333',
+    marginTop: 5,
+    marginBottom: 10,
+  },
+  modalButtons: {
+    flexDirection: 'column',
+    gap: 10,
+  },
+  modalButton: {
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 8,
+    alignItems: 'center',
+  },
+  modalButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });
 
 export default RouteRequestScreen;
