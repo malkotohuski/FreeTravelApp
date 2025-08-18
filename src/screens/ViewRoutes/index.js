@@ -349,10 +349,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  routeText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
   backgroundImage: {
     flex: 1,
     width: '100%',
@@ -366,13 +362,13 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 12,
   },
-  routeContainer: {
+  /*   routeContainer: {
     margin: 10,
     padding: 15,
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
     borderRadius: 15,
     elevation: 3,
-  },
+  }, */
   routeText: {
     fontSize: 20,
     fontWeight: 'bold',
