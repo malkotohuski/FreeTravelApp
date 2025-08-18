@@ -147,6 +147,8 @@ function ViewRoutes({navigation}) {
           const cleanedRoutes = filteredRoutes.filter(
             r =>
               r !== null &&
+              r.selectedDateTime &&
+              !isNaN(new Date(r.selectedDateTime)) && // само валидни дати
               !r.isDeleted &&
               r.userRouteId !== 'deleted' &&
               r.userRouteId !== 'completed',
@@ -288,7 +290,9 @@ function ViewRoutes({navigation}) {
                 }>
                 <Text style={styles.routeText}>{route.routeTitle}</Text>
                 <Text style={styles.routeText}>
-                  {new Date(route.selectedDateTime).toLocaleString()}
+                  {route.selectedDateTime
+                    ? new Date(route.selectedDateTime).toLocaleString()
+                    : ''}
                 </Text>
                 <Text style={styles.routeText}>
                   {route.departureCity}-{route.arrivalCity}
