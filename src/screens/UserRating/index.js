@@ -10,6 +10,7 @@ import {
   Image,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
+import {useTranslation} from 'react-i18next';
 import StarRating from 'react-native-star-rating-widget';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {DarkModeContext} from '../../navigation/DarkModeContext';
@@ -19,6 +20,7 @@ import {useRoute} from '@react-navigation/native';
 const API_BASE_URL = 'http://10.0.2.2:3000';
 
 const RateUserScreen = ({navigation}) => {
+  const {t} = useTranslation();
   const route = useRoute();
   const {mainRouteUser, routeId} = route.params;
   const {user} = useAuth();
@@ -40,7 +42,8 @@ const RateUserScreen = ({navigation}) => {
 
   const submitRating = async () => {
     if (rating === 0) {
-      return Alert.alert('Грешка', 'Моля, избери брой звезди.');
+      Alert.alert(t('Error'), t('Please select a number of stars.'));
+      return;
     }
 
     try {
@@ -51,13 +54,16 @@ const RateUserScreen = ({navigation}) => {
       const ratingUser = users.find(u => u?.username === currentUser);
 
       if (!userToRate || !ratingUser) {
-        return Alert.alert('Грешка', 'Потребителят не е намерен.');
+        return Alert.alert(t('Error'), t('User not found.'));
       }
 
       const alreadyRated =
         Array.isArray(ratingUser.routes) && ratingUser.routes.includes(routeId);
       if (alreadyRated) {
-        return Alert.alert('Информация', 'Вече си оценил този маршрут.');
+        return Alert.alert(
+          t('Information'),
+          t('You have already rated this route.'),
+        );
       }
 
       const previousRatings = Array.isArray(userToRate.ratings)
@@ -103,10 +109,10 @@ const RateUserScreen = ({navigation}) => {
         }),
       });
 
-      Alert.alert('Успех', 'Успешно оцени потребителя.');
+      Alert.alert(t('Success'), t('Successfully rated the user.'));
       navigation.navigate('Home');
     } catch (error) {
-      Alert.alert('Грешка', 'Проблем със заявката към сървъра.');
+      Alert.alert(t('Error'), t('Problem with the server request.'));
       console.log(error);
     }
   };
@@ -128,7 +134,7 @@ const RateUserScreen = ({navigation}) => {
       />
       <View style={{flex: 1}}>
         <View style={getHeaderStyles()}>
-          <Text style={styles.headerText}>Rating</Text>
+          <Text style={styles.headerText}>{t('Rate')}</Text>
           <TouchableOpacity onPress={() => navigation.navigate('Home')}>
             <Icons name="keyboard-backspace" size={24} color="white" />
           </TouchableOpacity>
@@ -140,11 +146,12 @@ const RateUserScreen = ({navigation}) => {
             {backgroundColor: darkMode ? '#121212' : '#fafafa'},
           ]}>
           <Text style={[styles.title, {color: darkMode ? '#fff' : '#000'}]}>
-            Оцени потребителя
+            {t('Rate the user')}
           </Text>
 
           <Text style={[styles.subText, {color: darkMode ? '#ccc' : '#000'}]}>
-            Оценяваш <Text style={styles.bold}>{mainRouteUser}</Text>
+            {t('You appreciate')}{' '}
+            <Text style={styles.bold}>{mainRouteUser}</Text>
           </Text>
 
           <StarRating
@@ -163,14 +170,14 @@ const RateUserScreen = ({navigation}) => {
               },
             ]}
             multiline
-            placeholder="Добави коментар (по избор)..."
+            placeholder={t('Add a comment (optional)...')}
             placeholderTextColor={darkMode ? '#aaa' : '#999'}
             value={comment}
             onChangeText={setComment}
           />
 
           <TouchableOpacity style={styles.button} onPress={submitRating}>
-            <Text style={styles.buttonText}>Изпрати оценка</Text>
+            <Text style={styles.buttonText}>{t('Send rating')}</Text>
           </TouchableOpacity>
         </View>
       </View>

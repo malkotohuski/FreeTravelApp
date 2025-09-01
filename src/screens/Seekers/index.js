@@ -20,7 +20,7 @@ import axios from 'axios';
 const API_BASE_URL = 'http://10.0.2.2:3000';
 
 function Seekers({navigation}) {
-  const {t} = useTranslation();
+  const {t, i18n} = useTranslation();
   const [routes, setRoutes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -195,7 +195,7 @@ function Seekers({navigation}) {
             filteredRoutes.map((route, index) => {
               const formattedDate = new Date(
                 route.selectedDateTime,
-              ).toLocaleDateString('bg-BG', {
+              ).toLocaleDateString(i18n.language, {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',
