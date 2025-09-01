@@ -19,7 +19,7 @@ import {useFocusEffect} from '@react-navigation/native';
 import {useAuth} from '../../context/AuthContext';
 
 function Looking({navigation}) {
-  const {t} = useTranslation();
+  const {t, i18n} = useTranslation();
   const cities = CitySelector();
   const {user} = useAuth();
 
@@ -253,7 +253,7 @@ function Looking({navigation}) {
                   {t('Selected Date:')}
                 </Text>
                 <Text style={styles.selectedDateText}>
-                  {selectedDateTime.toLocaleDateString('bg-BG', {
+                  {selectedDateTime.toLocaleDateString(i18n.language, {
                     weekday: 'long',
                     year: 'numeric',
                     month: 'long',

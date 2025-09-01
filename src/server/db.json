@@ -404,25 +404,6 @@
     },
     {
       "selectedVehicle": "Car",
-      "registrationNumber": "A1211AA",
-      "selectedDateTime": "2025-08-22T19:46:00.000Z",
-      "departureCity": "Sofia",
-      "departureStreet": "",
-      "departureNumber": "",
-      "arrivalCity": "Ruse",
-      "arrivalStreet": "",
-      "arrivalNumber": "",
-      "routeTitle": "2 free spots",
-      "userId": 1733840997419,
-      "username": "huskyPower",
-      "userFname": "daniel",
-      "userLname": "dimitorv",
-      "userEmail": "malkotohuski@gmail.com",
-      "id": 1755542836754,
-      "userRouteId": "deleted"
-    },
-    {
-      "selectedVehicle": "Car",
       "registrationNumber": "CB2677AH",
       "selectedDateTime": "2025-09-07T19:01:00.000Z",
       "departureCity": "Sofia",
@@ -454,35 +435,33 @@
       "id": 1751818596917
     },
     {
-      "departureCity": "Plovdiv",
-      "arrivalCity": "Stara Zagora",
-      "selectedDateTime": "2025-08-29T16:21:00.000Z",
-      "routeTitle": "asdasdasd",
+      "departureCity": "Sofia",
+      "arrivalCity": "Burgas",
+      "selectedDateTime": "2025-09-03T11:00:00.000Z",
+      "routeTitle": "2 girls with small bags",
       "userId": 1711358014466,
       "username": "Shushkata7@gmail.com",
       "userFname": "Velichka",
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
       "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
-      "id": 1753808157902
-    }
-  ],
-  "requests": [
+      "id": 1756724455248
+    },
     {
+      "departureCity": "Plovdiv",
+      "arrivalCity": "Sofia",
+      "selectedDateTime": "2025-09-05T12:16:00.000Z",
+      "routeTitle": "1 man with small bag",
+      "userId": 1711358014466,
       "username": "Shushkata7@gmail.com",
       "userFname": "Velichka",
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
-      "userID": 1711358014466,
-      "userRouteId": 1733840997419,
-      "departureCity": "Sofia",
-      "arrivalCity": "Ruse",
-      "routeId": 1755542836754,
-      "dataTime": "2025-08-22T19:46:00.000Z",
-      "requestComment": "Hi have space for 2 small bags",
-      "id": 1755542896981,
-      "status": "approved"
-    },
+      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
+      "id": 1756729052296
+    }
+  ],
+  "requests": [
     {
       "username": "Shushkata7@gmail.com",
       "userFname": "Velichka",
@@ -1318,37 +1297,6 @@
       "read": true
     },
     {
-      "recipient": "huskyPower",
-      "message": "You have a candidate for your route: Sofia-Ruse with username: Shushkata7@gmail.com!",
-      "routeId": 1755542836754,
-      "routeChecker": true,
-      "status": "active",
-      "requester": {
-        "username": "Shushkata7@gmail.com",
-        "userFname": "Velichka",
-        "userLname": "Spasova",
-        "email": "shushkata7@gmail.com",
-        "comment": "Hi have space for 2 small bags"
-      },
-      "createdAt": "2025-08-18T18:48:04.888Z",
-      "id": 132,
-      "read": true
-    },
-    {
-      "recipient": "Shushkata7@gmail.com",
-      "message": "huskyPower прие поканата ви.",
-      "routeId": 1755542836754,
-      "requester": {
-        "username": "huskyPower",
-        "email": "malkotohuski@gmail.com"
-      },
-      "personalMessage": "Yes I have ",
-      "createdAt": "2025-08-18T18:48:38.769Z",
-      "read": true,
-      "status": "active",
-      "id": 133
-    },
-    {
       "recipient": "Shushkata7@gmail.com",
       "message": "Your request has been approved from huskyPower.\nAbout the route: Sofia-Ruse.\nFor date: 22.08.2025 г., 22:46",
       "routeChecker": true,
@@ -1362,34 +1310,6 @@
       "createdAt": "2025-08-18T18:48:57.320Z",
       "id": 134,
       "read": true
-    },
-    {
-      "recipient": "huskyPower",
-      "message": "Shushkata7@gmail.com прие поканата ви.",
-      "routeId": 1755542836754,
-      "requester": {
-        "username": "Shushkata7@gmail.com",
-        "email": "shushkata7@gmail.com"
-      },
-      "personalMessage": "Great I come 17:00 to the address",
-      "createdAt": "2025-08-18T18:49:53.087Z",
-      "read": true,
-      "status": "active",
-      "id": 135
-    },
-    {
-      "recipient": "Shushkata7@gmail.com",
-      "message": "huskyPower прие поканата ви.",
-      "routeId": 1755542836754,
-      "requester": {
-        "username": "huskyPower",
-        "email": "malkotohuski@gmail.com"
-      },
-      "personalMessage": "ok",
-      "createdAt": "2025-08-18T18:50:42.453Z",
-      "read": true,
-      "status": "active",
-      "id": 136
     },
     {
       "recipient": "sdds",

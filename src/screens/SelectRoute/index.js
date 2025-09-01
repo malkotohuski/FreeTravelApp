@@ -20,7 +20,7 @@ import {useTranslation} from 'react-i18next';
 import CitySelector from '../../server/Cities/cities';
 
 function SelectRouteScreen({route, navigation}) {
-  const {t} = useTranslation();
+  const {t, i18n} = useTranslation();
   const {selectedVehicle, registrationNumber} = route.params;
 
   const cities = CitySelector();
@@ -481,7 +481,7 @@ function SelectRouteScreen({route, navigation}) {
               flex: 1,
               justifyContent: 'center',
               alignItems: 'center',
-              marginTop: 130,
+              marginTop: 100,
               paddingBottom: 1,
             }}>
             <Button
@@ -491,6 +491,7 @@ function SelectRouteScreen({route, navigation}) {
               color="#f4511e"
               titleStyle={{marginHorizontal: 30, color: 'black'}}
             />
+
             <DatePicker
               modal
               open={open}
@@ -499,7 +500,6 @@ function SelectRouteScreen({route, navigation}) {
               is24Hour={true}
               mode="datetime"
               minimumDate={new Date()}
-              // 👉 ЕТО ТОВА ДОБАВЯШ
               onConfirm={selectedDate => {
                 setOpen(false);
                 setDate(selectedDate);
@@ -509,27 +509,26 @@ function SelectRouteScreen({route, navigation}) {
                 setOpen(false);
               }}
             />
+
             {selectedDateTime && (
               <View style={{marginTop: 10, alignItems: 'center'}}>
-                <Text
-                  style={{
-                    fontSize: 20,
-                    color: '#030303',
-                    fontWeight: 'bold',
-                    textAlign: 'center',
-                  }}>
-                  {t('Selected Date and Time:')}{' '}
-                  {selectedDateTime.toLocaleString('bg-BG', {
-                    weekday: 'short',
+                <Text style={styles.dateText}>
+                  {selectedDateTime.toLocaleDateString(i18n.language, {
+                    weekday: 'long',
                     year: 'numeric',
-                    month: 'short',
+                    month: 'long',
                     day: 'numeric',
+                  })}
+                </Text>
+                <Text style={styles.dateText}>
+                  {selectedDateTime.toLocaleTimeString(i18n.language, {
                     hour: '2-digit',
                     minute: '2-digit',
                   })}
                 </Text>
               </View>
             )}
+
             <TouchableOpacity
               onPress={handleContinue}
               style={[continueButtonStyle, {marginTop: 50}]} // Move the button further down
@@ -631,5 +630,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: 'black',
+  },
+  dateText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#030303',
+    textAlign: 'center',
+    marginVertical: 5,
   },
 });
