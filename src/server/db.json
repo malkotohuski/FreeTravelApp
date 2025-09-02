@@ -7,7 +7,7 @@
       "password": "123",
       "fName": "Velichka",
       "lName": "Spasova",
-      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
+      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/9e8618e0-dcc3-403c-82ce-e52d13439334.jpg",
       "confirmationCode": null,
       "routes": [
         1748268348478,
@@ -420,6 +420,42 @@
       "userEmail": "devmasterstech@gmail.com",
       "id": 1756231381108,
       "userRouteId": "completed"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A2121AA",
+      "selectedDateTime": "2025-09-05T13:45:00.000Z",
+      "departureCity": "Burgas",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Sofia",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "routeTitle": "2 free spots",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1756820776063
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A2111AA",
+      "selectedDateTime": "2025-09-04T14:18:00.000Z",
+      "departureCity": "Varna",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Stara Zagora",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "routeTitle": "1 spot",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1756822794068
     }
   ],
   "seekers": [
@@ -475,6 +511,21 @@
       "dataTime": "2025-09-07T19:01:00.000Z",
       "requestComment": "Great 2 hot girls with small bags ?",
       "id": 1756231445690,
+      "status": "approved"
+    },
+    {
+      "username": "sdds",
+      "userFname": "asdasd",
+      "userLname": "sdsd",
+      "userEmail": "devmasterstech@gmail.com",
+      "userID": 1730713699917,
+      "userRouteId": 1711358014466,
+      "departureCity": "Varna",
+      "arrivalCity": "Stara Zagora",
+      "routeId": 1756822794068,
+      "dataTime": "2025-09-04T14:18:00.000Z",
+      "requestComment": "girl with small bags",
+      "id": 1756835235325,
       "status": "approved"
     }
   ],
@@ -1369,6 +1420,108 @@
       "mainRouteUser": "sdds",
       "id": 140,
       "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "You have a candidate for your route: Varna-Stara Zagora with username: sdds!",
+      "routeId": 1756822794068,
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "sdds",
+        "userFname": "asdasd",
+        "userLname": "sdsd",
+        "email": "devmasterstech@gmail.com",
+        "comment": "girl with small bags"
+      },
+      "createdAt": "2025-09-02T17:47:03.765Z",
+      "id": 141,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "message": "Shushkata7@gmail.com прие поканата ви.",
+      "routeId": 1756822794068,
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "email": "shushkata7@gmail.com"
+      },
+      "personalMessage": "Ok",
+      "createdAt": "2025-09-02T18:05:24.536Z",
+      "read": true,
+      "status": "active",
+      "id": 142
+    },
+    {
+      "recipient": "sdds",
+      "message": "Your request has been approved from Shushkata7@gmail.com.\nAbout the route: Varna-Stara Zagora.\nFor date: 4.09.2025 г., 17:18",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-09-02T18:05:36.910Z",
+      "id": 143,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "message": "Shushkata7@gmail.com прие поканата ви.",
+      "routeId": 1756822794068,
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "email": "shushkata7@gmail.com"
+      },
+      "personalMessage": "",
+      "createdAt": "2025-09-02T18:05:50.681Z",
+      "read": true,
+      "status": "active",
+      "id": 144
+    },
+    {
+      "recipient": "sdds",
+      "message": "Shushkata7@gmail.com прие поканата ви.",
+      "routeId": 1756822794068,
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "email": "shushkata7@gmail.com"
+      },
+      "personalMessage": "wait lets go 18:00",
+      "createdAt": "2025-09-02T18:06:11.970Z",
+      "read": true,
+      "status": "active",
+      "id": 145
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "sdds прие поканата ви.",
+      "routeId": 1756822794068,
+      "requester": {
+        "username": "sdds",
+        "email": "devmasterstech@gmail.com"
+      },
+      "personalMessage": "ok",
+      "createdAt": "2025-09-02T18:06:57.686Z",
+      "read": true,
+      "status": "active",
+      "id": 146
+    },
+    {
+      "recipient": "sdds",
+      "message": "Shushkata7@gmail.com прие поканата ви.",
+      "routeId": 1756822794068,
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "email": "shushkata7@gmail.com"
+      },
+      "personalMessage": "",
+      "createdAt": "2025-09-02T18:34:10.752Z",
+      "read": false,
+      "status": "active",
+      "id": 147
     }
   ]
 }

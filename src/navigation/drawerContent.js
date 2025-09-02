@@ -317,6 +317,7 @@ export const Navigator = ({isLoggedIn}) => {
             fontSize: 18,
           },
           drawerItemStyle: {display: 'none'},
+          unmountOnBlur: true,
         }}
       />
 
