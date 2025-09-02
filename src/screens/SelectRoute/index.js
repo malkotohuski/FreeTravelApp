@@ -1,4 +1,4 @@
-import React, {useState, useLayoutEffect} from 'react';
+import React, {useState, useLayoutEffect, useCallback} from 'react';
 import Icons from 'react-native-vector-icons/MaterialIcons';
 import {useFocusEffect} from '@react-navigation/native';
 import {
@@ -82,9 +82,10 @@ function SelectRouteScreen({route, navigation}) {
       setArrivalNumber('');
       setSelectedDateTime(null);
       setDate(new Date());
-      // Връщане на функция за "почистване", ако е нужно
+      setRouteTitle(''); // 👉 преместено тук
+
       return () => {
-        // Тук може да се добавят действия за почистване (ако има такива)
+        // cleanup ако искаш нещо друго
       };
     }, []),
   );
@@ -497,9 +498,10 @@ function SelectRouteScreen({route, navigation}) {
               open={open}
               date={date}
               theme="dark"
-              is24Hour={true}
               mode="datetime"
               minimumDate={new Date()}
+              locale="bg" // важен параметър, за да покаже 24-часов формат
+              is24hourSource="locale" // гарантирано ползва 24h според езика
               onConfirm={selectedDate => {
                 setOpen(false);
                 setDate(selectedDate);
@@ -524,6 +526,7 @@ function SelectRouteScreen({route, navigation}) {
                   {selectedDateTime.toLocaleTimeString(i18n.language, {
                     hour: '2-digit',
                     minute: '2-digit',
+                    hour12: false, // 👉 това гарантира 24h
                   })}
                 </Text>
               </View>

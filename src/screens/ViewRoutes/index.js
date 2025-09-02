@@ -19,7 +19,7 @@ import axios from 'axios';
 const API_BASE_URL = 'http://10.0.2.2:3000';
 
 function ViewRoutes({navigation}) {
-  const {t} = useTranslation();
+  const {t, i18n} = useTranslation();
   const [enteredDepartureCity, setEnteredDepartureCity] = useState('');
   const [enteredArrivalCity, setEnteredArrivalCity] = useState('');
   const {routes, deleteRoute, refreshRoutesData} = useRouteContext();
@@ -291,7 +291,17 @@ function ViewRoutes({navigation}) {
                 <Text style={styles.routeText}>{route.routeTitle}</Text>
                 <Text style={styles.routeText}>
                   {route.selectedDateTime
-                    ? new Date(route.selectedDateTime).toLocaleString()
+                    ? new Date(route.selectedDateTime).toLocaleString(
+                        i18n.language,
+                        {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          hour12: i18n.language !== 'bg', // ако е bg → 24h, иначе AM/PM
+                        },
+                      )
                     : ''}
                 </Text>
                 <Text style={styles.routeText}>

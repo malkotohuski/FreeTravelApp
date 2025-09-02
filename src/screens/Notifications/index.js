@@ -71,13 +71,20 @@ const Notifications = ({navigation, route}) => {
       });
 
       console.log('✅ Успешно изпратена нотификация');
+
+      setRespondModalVisible(false);
+      setRespondingTo(null);
+      setResponseComment('');
+
+      // Ако е Accept, навигирай след кратко забавяне
+      if (responseType === 'accepted') {
+        setTimeout(() => {
+          navigation.navigate('Route request');
+        }, 150); // 150ms за плавно затваряне на модала
+      }
     } catch (error) {
       console.error('❌ Грешка при изпращане на нотификация:', error);
     }
-
-    setRespondModalVisible(false);
-    setRespondingTo(null);
-    setResponseComment('');
   };
 
   const fetchNotifications = async () => {
@@ -317,14 +324,14 @@ const Notifications = ({navigation, route}) => {
                 <View style={styles.simpleModalContainer}>
                   <View style={styles.modalContent}>
                     <Text style={styles.modalTitle}>
-                      {t('Respond to Invitation')}
+                      {t('Response to inquiry')}
                     </Text>
                     <Text style={styles.modalMessage}>
                       {respondingTo?.personalMessage}
                     </Text>
                     <TextInput
                       style={styles.responseInput}
-                      placeholder={t('Optional comment')}
+                      placeholder={t('Type here...')}
                       value={responseComment}
                       onChangeText={setResponseComment}
                     />
