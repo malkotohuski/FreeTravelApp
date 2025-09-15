@@ -101,8 +101,8 @@ function Seekers({navigation}) {
 
       if (alreadyInvited) {
         Alert.alert(
-          t('Вече сте кандидатствали'),
-          t('Не може да изпратите покана отново.'),
+          t('You have already applied.'),
+          t('You cannot resend an invitation.'),
         );
         return;
       }
@@ -128,7 +128,7 @@ function Seekers({navigation}) {
       setSelectedRoute(null);
       setMessageInput('');
 
-      Alert.alert('Успех', t('Поканата е изпратена успешно.'));
+      Alert.alert('Success', t('The invitation was sent successfully.'));
       setSelectedRoute(null);
     } catch (err) {
       console.error('Грешка при изпращане:', err);
@@ -165,14 +165,14 @@ function Seekers({navigation}) {
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
-          placeholder="Търси по начална точка"
+          placeholder={t('Search by starting point')}
           value={searchDeparture}
           onChangeText={setSearchDeparture}
           placeholderTextColor="#999"
         />
         <TextInput
           style={styles.searchInput}
-          placeholder="Търси по крайна точка"
+          placeholder={t('Search by endpoint')}
           value={searchArrival}
           onChangeText={setSearchArrival}
           placeholderTextColor="#999"
@@ -309,11 +309,11 @@ function Seekers({navigation}) {
                     <TouchableOpacity
                       style={styles.inviteButton}
                       onPress={sendInvite}>
-                      <Text style={styles.buttonText}>Покана</Text>
+                      <Text style={styles.buttonText}>{t('Invitation')}</Text>
                     </TouchableOpacity>
                   ) : (
                     <Text style={styles.infoText}>
-                      Не можете да изпращате покана към собствен маршрут.
+                      {t('You cannot send an invitation to your own route.')}
                     </Text>
                   )}
 
