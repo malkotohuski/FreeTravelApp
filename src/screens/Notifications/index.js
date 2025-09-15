@@ -25,6 +25,7 @@ const api = axios.create({
 
 const Notifications = ({navigation, route}) => {
   const {user} = useAuth();
+  const [requests, setRequests] = useState([]);
   const {darkMode} = useContext(DarkModeContext);
   const {t} = useTranslation();
   const {mainRouteUser} = route.params || {};
@@ -42,16 +43,43 @@ const Notifications = ({navigation, route}) => {
     }, 100);
   };
 
+  useFocusEffect(
+    useCallback(() => {
+      const fetchRequests = async () => {
+        try {
+          const resp = await api.get('/requests');
+          setRequests(resp.data);
+        } catch (error) {
+          console.error('Failed to fetch requests:', error);
+        }
+      };
+
+      fetchRequests();
+    }, []),
+  );
+
   const handleRespond = async responseType => {
-    if (!respondingTo) return;
+    if (responseType === 'accepted') {
+      const request = requests.find(
+        r =>
+          r.routeId === respondingTo.routeId &&
+          r.username === respondingTo.requester?.username,
+      );
+
+      if (request?.status === 'approved') {
+        navigation.navigate('Home'); // вече одобрена → Home
+      } else {
+        navigation.navigate('Route request'); // още не е одобрена
+      }
+    }
 
     const recipientUser = respondingTo.requester?.username;
     const senderUsername = user?.user?.username;
 
     const message =
       responseType === 'accepted'
-        ? `${senderUsername} прие поканата ви.`
-        : `${senderUsername} отказа поканата ви.`;
+        ? `${senderUsername} accepted your invitation.`
+        : `${senderUsername} declined your invitation.`;
 
     try {
       await api.post('/notifications', {
@@ -76,11 +104,18 @@ const Notifications = ({navigation, route}) => {
       setRespondingTo(null);
       setResponseComment('');
 
-      // Ако е Accept, навигирай след кратко забавяне
       if (responseType === 'accepted') {
-        setTimeout(() => {
-          navigation.navigate('Route request');
-        }, 150); // 150ms за плавно затваряне на модала
+        // Проверяваме в requests масива
+        const requestResp = await api.get(
+          `/requests?routeId=${respondingTo.routeId}&username=${recipientUser}`,
+        );
+
+        const request = requestResp.data[0]; // първата заявка
+        if (request?.status === 'approved') {
+          navigation.navigate('Home'); // вече е одобрена → Home
+        } else {
+          navigation.navigate('Route request'); // още не е одобрена
+        }
       }
     } catch (error) {
       console.error('❌ Грешка при изпращане на нотификация:', error);

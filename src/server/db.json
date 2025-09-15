@@ -403,59 +403,40 @@
       "userRouteId": "deleted"
     },
     {
-      "selectedVehicle": "Car",
-      "registrationNumber": "CB2677AH",
-      "selectedDateTime": "2025-09-07T19:01:00.000Z",
-      "departureCity": "Sofia",
+      "selectedVehicle": "Лек автомобил",
+      "registrationNumber": "СВ2677АН",
+      "selectedDateTime": "2025-09-17T15:30:00.000Z",
+      "departureCity": "София",
       "departureStreet": "",
       "departureNumber": "",
-      "arrivalCity": "Bata (Pazardzhik)",
+      "arrivalCity": "Бъта",
       "arrivalStreet": "",
       "arrivalNumber": "",
-      "routeTitle": "Have free 3 spots",
-      "userId": 1730713699917,
-      "username": "sdds",
-      "userFname": "asdasd",
-      "userLname": "sdsd",
-      "userEmail": "devmasterstech@gmail.com",
-      "id": 1756231381108,
-      "userRouteId": "completed"
+      "routeTitle": "  Има две свободни места",
+      "userId": 1733840997419,
+      "username": "huskyPower",
+      "userFname": "daniel",
+      "userLname": "dimitorv",
+      "userEmail": "malkotohuski@gmail.com",
+      "id": 1757940959947
     },
     {
       "selectedVehicle": "Car",
-      "registrationNumber": "A2121AA",
-      "selectedDateTime": "2025-09-05T13:45:00.000Z",
+      "registrationNumber": "A2111AA",
+      "selectedDateTime": "2025-09-15T17:30:00.000Z",
       "departureCity": "Burgas",
       "departureStreet": "",
       "departureNumber": "",
       "arrivalCity": "Sofia",
       "arrivalStreet": "",
       "arrivalNumber": "",
-      "routeTitle": "2 free spots",
+      "routeTitle": "1 free spot",
       "userId": 1711358014466,
       "username": "Shushkata7@gmail.com",
       "userFname": "Velichka",
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
-      "id": 1756820776063
-    },
-    {
-      "selectedVehicle": "Car",
-      "registrationNumber": "A2111AA",
-      "selectedDateTime": "2025-09-04T14:18:00.000Z",
-      "departureCity": "Varna",
-      "departureStreet": "",
-      "departureNumber": "",
-      "arrivalCity": "Stara Zagora",
-      "arrivalStreet": "",
-      "arrivalNumber": "",
-      "routeTitle": "1 spot",
-      "userId": 1711358014466,
-      "username": "Shushkata7@gmail.com",
-      "userFname": "Velichka",
-      "userLname": "Spasova",
-      "userEmail": "shushkata7@gmail.com",
-      "id": 1756822794068
+      "id": 1757942676018
     }
   ],
   "seekers": [
@@ -469,63 +450,37 @@
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
       "id": 1751818596917
-    },
-    {
-      "departureCity": "Sofia",
-      "arrivalCity": "Burgas",
-      "selectedDateTime": "2025-09-03T11:00:00.000Z",
-      "routeTitle": "2 girls with small bags",
-      "userId": 1711358014466,
-      "username": "Shushkata7@gmail.com",
-      "userFname": "Velichka",
-      "userLname": "Spasova",
-      "userEmail": "shushkata7@gmail.com",
-      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
-      "id": 1756724455248
-    },
-    {
-      "departureCity": "Plovdiv",
-      "arrivalCity": "Sofia",
-      "selectedDateTime": "2025-09-05T12:16:00.000Z",
-      "routeTitle": "1 man with small bag",
-      "userId": 1711358014466,
-      "username": "Shushkata7@gmail.com",
-      "userFname": "Velichka",
-      "userLname": "Spasova",
-      "userEmail": "shushkata7@gmail.com",
-      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
-      "id": 1756729052296
     }
   ],
   "requests": [
-    {
-      "username": "Shushkata7@gmail.com",
-      "userFname": "Velichka",
-      "userLname": "Spasova",
-      "userEmail": "shushkata7@gmail.com",
-      "userID": 1711358014466,
-      "userRouteId": 1730713699917,
-      "departureCity": "Sofia",
-      "arrivalCity": "Bata (Pazardzhik)",
-      "routeId": 1756231381108,
-      "dataTime": "2025-09-07T19:01:00.000Z",
-      "requestComment": "Great 2 hot girls with small bags ?",
-      "id": 1756231445690,
-      "status": "approved"
-    },
     {
       "username": "sdds",
       "userFname": "asdasd",
       "userLname": "sdsd",
       "userEmail": "devmasterstech@gmail.com",
       "userID": 1730713699917,
+      "userRouteId": 1733840997419,
+      "departureCity": "София",
+      "arrivalCity": "Бъта",
+      "routeId": 1757940959947,
+      "dataTime": "2025-09-17T15:30:00.000Z",
+      "requestComment": "Още ли има място?",
+      "id": 1757941104454,
+      "status": "approved"
+    },
+    {
+      "username": "huskyPower",
+      "userFname": "daniel",
+      "userLname": "dimitorv",
+      "userEmail": "malkotohuski@gmail.com",
+      "userID": 1733840997419,
       "userRouteId": 1711358014466,
-      "departureCity": "Varna",
-      "arrivalCity": "Stara Zagora",
-      "routeId": 1756822794068,
-      "dataTime": "2025-09-04T14:18:00.000Z",
-      "requestComment": "girl with small bags",
-      "id": 1756835235325,
+      "departureCity": "Burgas",
+      "arrivalCity": "Sofia",
+      "routeId": 1757942676018,
+      "dataTime": "2025-09-15T17:30:00.000Z",
+      "requestComment": "Ima li oshte mqsto ?",
+      "id": 1757942735681,
       "status": "approved"
     }
   ],
@@ -1363,37 +1318,6 @@
       "read": true
     },
     {
-      "recipient": "sdds",
-      "message": "You have a candidate for your route: Sofia-Bata (Pazardzhik) with username: Shushkata7@gmail.com!",
-      "routeId": 1756231381108,
-      "routeChecker": true,
-      "status": "active",
-      "requester": {
-        "username": "Shushkata7@gmail.com",
-        "userFname": "Velichka",
-        "userLname": "Spasova",
-        "email": "shushkata7@gmail.com",
-        "comment": "Great 2 hot girls with small bags ?"
-      },
-      "createdAt": "2025-08-26T18:03:54.924Z",
-      "id": 137,
-      "read": true
-    },
-    {
-      "recipient": "Shushkata7@gmail.com",
-      "message": "sdds прие поканата ви.",
-      "routeId": 1756231381108,
-      "requester": {
-        "username": "sdds",
-        "email": "devmasterstech@gmail.com"
-      },
-      "personalMessage": "OK 10PM from block 63",
-      "createdAt": "2025-08-26T18:04:53.250Z",
-      "read": true,
-      "status": "active",
-      "id": 138
-    },
-    {
       "recipient": "Shushkata7@gmail.com",
       "message": "Your request has been approved from sdds.\nAbout the route: Sofia-Bata (Pazardzhik).\nFor date: 7.09.2025 г., 22:01",
       "routeChecker": true,
@@ -1407,50 +1331,6 @@
       "createdAt": "2025-08-26T18:06:05.416Z",
       "id": 139,
       "read": true
-    },
-    {
-      "recipient": "Shushkata7@gmail.com",
-      "fromUserId": 1730713699917,
-      "type": "rate_user",
-      "routeId": 1756231381108,
-      "message": "Please rate the trip with sdds.\nAbout the route Sofia-Bata (Pazardzhik)",
-      "status": "active",
-      "isRead": false,
-      "createdAt": "2025-08-26T18:07:31.266Z",
-      "mainRouteUser": "sdds",
-      "id": 140,
-      "read": true
-    },
-    {
-      "recipient": "Shushkata7@gmail.com",
-      "message": "You have a candidate for your route: Varna-Stara Zagora with username: sdds!",
-      "routeId": 1756822794068,
-      "routeChecker": true,
-      "status": "active",
-      "requester": {
-        "username": "sdds",
-        "userFname": "asdasd",
-        "userLname": "sdsd",
-        "email": "devmasterstech@gmail.com",
-        "comment": "girl with small bags"
-      },
-      "createdAt": "2025-09-02T17:47:03.765Z",
-      "id": 141,
-      "read": true
-    },
-    {
-      "recipient": "sdds",
-      "message": "Shushkata7@gmail.com прие поканата ви.",
-      "routeId": 1756822794068,
-      "requester": {
-        "username": "Shushkata7@gmail.com",
-        "email": "shushkata7@gmail.com"
-      },
-      "personalMessage": "Ok",
-      "createdAt": "2025-09-02T18:05:24.536Z",
-      "read": true,
-      "status": "active",
-      "id": 142
     },
     {
       "recipient": "sdds",
@@ -1468,60 +1348,207 @@
       "read": true
     },
     {
-      "recipient": "sdds",
-      "message": "Shushkata7@gmail.com прие поканата ви.",
-      "routeId": 1756822794068,
-      "requester": {
-        "username": "Shushkata7@gmail.com",
-        "email": "shushkata7@gmail.com"
-      },
-      "personalMessage": "",
-      "createdAt": "2025-09-02T18:05:50.681Z",
-      "read": true,
+      "recipient": "huskyPower",
+      "message": "You have a candidate for your route: София-Бъта with username: sdds!",
+      "routeId": 1757940959947,
+      "routeChecker": true,
       "status": "active",
-      "id": 144
+      "requester": {
+        "username": "sdds",
+        "userFname": "asdasd",
+        "userLname": "sdsd",
+        "email": "devmasterstech@gmail.com",
+        "comment": "Още ли има място?"
+      },
+      "createdAt": "2025-09-15T12:58:20.996Z",
+      "id": 144,
+      "read": true
     },
     {
       "recipient": "sdds",
-      "message": "Shushkata7@gmail.com прие поканата ви.",
-      "routeId": 1756822794068,
+      "message": "huskyPower accepted your invitation.",
+      "routeId": 1757940959947,
       "requester": {
-        "username": "Shushkata7@gmail.com",
-        "email": "shushkata7@gmail.com"
+        "username": "huskyPower",
+        "email": "malkotohuski@gmail.com"
       },
-      "personalMessage": "wait lets go 18:00",
-      "createdAt": "2025-09-02T18:06:11.970Z",
+      "personalMessage": "Дааа",
+      "createdAt": "2025-09-15T12:59:50.473Z",
       "read": true,
       "status": "active",
       "id": 145
     },
     {
-      "recipient": "Shushkata7@gmail.com",
-      "message": "sdds прие поканата ви.",
-      "routeId": 1756822794068,
+      "recipient": "sdds",
+      "message": "Your request has been approved from huskyPower.\nAbout the route: София-Бъта.\nFor date: 17.09.2025 г., 18:30",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "huskyPower",
+        "userFname": "daniel",
+        "userLname": "dimitorv",
+        "email": "malkotohuski@gmail.com"
+      },
+      "createdAt": "2025-09-15T13:00:00.431Z",
+      "id": 146,
+      "read": true
+    },
+    {
+      "recipient": "huskyPower",
+      "message": "sdds accepted your invitation.",
+      "routeId": 1757940959947,
       "requester": {
         "username": "sdds",
         "email": "devmasterstech@gmail.com"
       },
-      "personalMessage": "ok",
-      "createdAt": "2025-09-02T18:06:57.686Z",
+      "personalMessage": "Супер къде да дойда?",
+      "createdAt": "2025-09-15T13:01:07.495Z",
       "read": true,
       "status": "active",
-      "id": 146
+      "id": 147
     },
     {
       "recipient": "sdds",
-      "message": "Shushkata7@gmail.com прие поканата ви.",
-      "routeId": 1756822794068,
+      "message": "huskyPower accepted your invitation.",
+      "routeId": 1757940959947,
+      "requester": {
+        "username": "huskyPower",
+        "email": "malkotohuski@gmail.com"
+      },
+      "personalMessage": "Гара Юг към 18:30",
+      "createdAt": "2025-09-15T13:02:42.224Z",
+      "read": true,
+      "status": "active",
+      "id": 148
+    },
+    {
+      "recipient": "huskyPower",
+      "message": "sdds accepted your invitation.",
+      "routeId": 1757940959947,
+      "requester": {
+        "username": "sdds",
+        "email": "devmasterstech@gmail.com"
+      },
+      "personalMessage": "Ok tam sum",
+      "createdAt": "2025-09-15T13:14:58.956Z",
+      "read": true,
+      "status": "active",
+      "id": 149
+    },
+    {
+      "recipient": "sdds",
+      "message": "huskyPower accepted your invitation.",
+      "routeId": 1757940959947,
+      "requester": {
+        "username": "huskyPower",
+        "email": "malkotohuski@gmail.com"
+      },
+      "personalMessage": "Super do skoro",
+      "createdAt": "2025-09-15T13:15:38.356Z",
+      "read": true,
+      "status": "active",
+      "id": 150
+    },
+    {
+      "recipient": "sdds",
+      "message": "huskyPower accepted your invitation.",
+      "routeId": 1757940959947,
+      "requester": {
+        "username": "huskyPower",
+        "email": "malkotohuski@gmail.com"
+      },
+      "personalMessage": "she idva6 li skoro che trugwam ",
+      "createdAt": "2025-09-15T13:17:36.022Z",
+      "read": true,
+      "status": "active",
+      "id": 151
+    },
+    {
+      "recipient": "sdds",
+      "message": "huskyPower accepted your invitation.",
+      "routeId": 1757940959947,
+      "requester": {
+        "username": "huskyPower",
+        "email": "malkotohuski@gmail.com"
+      },
+      "personalMessage": "Trugwam ne moga da te chakam poveche",
+      "createdAt": "2025-09-15T13:20:29.506Z",
+      "read": true,
+      "status": "active",
+      "id": 152
+    },
+    {
+      "recipient": "huskyPower",
+      "message": "sdds accepted your invitation.",
+      "routeId": 1757940959947,
+      "requester": {
+        "username": "sdds",
+        "email": "devmasterstech@gmail.com"
+      },
+      "personalMessage": "Izvinqvaj no me zabaviha na rabota ",
+      "createdAt": "2025-09-15T13:21:10.538Z",
+      "read": true,
+      "status": "active",
+      "id": 153
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "You have a candidate for your route: Burgas-Sofia with username: huskyPower!",
+      "routeId": 1757942676018,
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "huskyPower",
+        "userFname": "daniel",
+        "userLname": "dimitorv",
+        "email": "malkotohuski@gmail.com",
+        "comment": "Ima li oshte mqsto ?"
+      },
+      "createdAt": "2025-09-15T13:25:32.224Z",
+      "id": 154,
+      "read": true
+    },
+    {
+      "recipient": "huskyPower",
+      "message": "Shushkata7@gmail.com accepted your invitation.",
+      "routeId": 1757942676018,
       "requester": {
         "username": "Shushkata7@gmail.com",
         "email": "shushkata7@gmail.com"
       },
-      "personalMessage": "",
-      "createdAt": "2025-09-02T18:34:10.752Z",
+      "personalMessage": "Da",
+      "createdAt": "2025-09-15T13:25:53.450Z",
       "read": false,
       "status": "active",
-      "id": 147
+      "id": 155
+    },
+    {
+      "recipient": "huskyPower",
+      "message": "Your request has been approved from Shushkata7@gmail.com.\nAbout the route: Burgas-Sofia.\nFor date: 15.09.2025 г., 20:30",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-09-15T13:25:58.641Z",
+      "id": 156
+    },
+    {
+      "recipient": "huskyPower",
+      "message": "Shushkata7@gmail.com accepted your invitation.",
+      "routeId": 1757942676018,
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "email": "shushkata7@gmail.com"
+      },
+      "personalMessage": "she vi chakam na centralna gara ?",
+      "createdAt": "2025-09-15T13:26:35.406Z",
+      "read": false,
+      "status": "active",
+      "id": 157
     }
   ]
 }

@@ -14,16 +14,26 @@ i18next.use(initReactI18next).init({
         Rate: 'Rate',
         Rating: 'Rating',
         'You appreciate': 'You appreciate',
+        'No routes available.': 'No routes available.',
+        'Route Title:': 'Route Title:',
+        'Created by': 'Created by',
         'Add a comment (optional)...': 'Add a comment (optional)...',
+        'You have already applied.': 'You have already applied.',
+        'Search by endpoint': 'Search by endpoint',
         'Enter route title': 'Enter route title',
         'Problem with the server request.': 'Problem with the server request.',
         'Route Information': 'Route Information',
         Information: 'Information',
         'You have already rated this route.':
           'You have already rated this route.',
+        'You cannot resend an invitation.': 'You cannot resend an invitation.',
+        'Search by starting point': 'Search by starting point',
         'There is a request from:': 'There is a request from:',
         'Write a personal message to the route creator (optional)':
           'Write a personal message to the route creator (optional)',
+        Invitation: 'Invitation',
+        'You cannot send an invitation to your own route.':
+          'You cannot send an invitation to your own route.',
         'Selected Date:': 'Selected Date:',
         'Send rating': 'Send rating',
         'Do you want to approve the request?':
@@ -69,6 +79,8 @@ i18next.use(initReactI18next).init({
         'The route has been created!': 'The route has been created!',
         Video: 'Video',
         'Change photo': 'Change photo',
+        'The invitation was sent successfully.':
+          'The invitation was sent successfully.',
         'I suggest': 'I suggest',
         'I am looking for': 'I am looking for',
         'Are you sure you want to mark this route as completed?':
@@ -5103,6 +5115,8 @@ i18next.use(initReactI18next).init({
         'Route request': 'Запитване за маршрут',
         'View routes': 'Преглед на маршрутите',
         Reporting: 'Подаване на сигнал',
+        'You cannot send an invitation to your own route.':
+          'Не можете да изпращате покана към собствен маршрут.',
         'In the car with me': 'B колата c мен',
         'We travel freely': 'Пътуваме свободно',
         'Search here': 'Търсете тук',
@@ -5110,10 +5124,12 @@ i18next.use(initReactI18next).init({
         'Enter route title': 'Въведете заглавие на маршрута',
         'Do you want to approve the request?':
           'Искате ли да одобрите заявката?',
+        'Search by starting point': 'Търси по начална точка',
         'There is a request from:': 'Има заявка от:',
         'Select date:': 'Изберете дата',
         'Problem with the server request.': 'Проблем със заявката към сървъра.',
         'Selected Date:': 'Избрана дата:',
+        Invitation: 'Покана',
         'Departure City': 'Град на заминаване',
         'Successfully rated the user.': 'Успешно оцени потребителя.',
         'Arrival City': 'Град на пристигане',
@@ -5170,10 +5186,12 @@ i18next.use(initReactI18next).init({
         Login: 'Влизане',
         Inquiries: 'Запитвания',
         'In process of development!': 'В процес на разработка!',
+        'Route Title:': 'Заглавие на маршрута:',
         'User not found.': 'Потребителят не е намерен.',
         'Please select a number of stars.': 'Моля, избери брой звезди.',
         'You have already applied for this route.':
           'Вече сте кандидатствали за този маршрут.',
+        'You have already applied.': 'Вече сте кандидатствали',
         'Rate the user': 'Оцени потребителя',
         'Please rate the trip with': 'Моля, оценете пътуването с',
         Register: 'Регистрирам',
@@ -5535,17 +5553,22 @@ i18next.use(initReactI18next).init({
         Welcome: 'Добре дошли',
         'Go next step': 'Отидете на следващата стъпка',
         'Account settings': 'Настройки на акаунта',
+        'Created by': 'Създадено от',
+        'No routes available.': 'Няма налични маршрути.',
         'Information about your account': 'Информация за вашият акаунт',
         'Please fill in the fields with': 'Моля попълнете полета с *',
         'Registration Error': 'Грешка при регистрация',
         'Email or username is already taken':
           'Имейлът или потребителското име вече са заети',
+        'Search by endpoint': 'Търси по крайна точка',
         'Please enter a valid email address.':
           'Моля, въведете валиден имейл адрес.',
         'Login failed.Invalid email or password.':
           'Неуспешно влизане. Невалиден имейл или парола.',
         'Change user settings': 'Промяна на потребителските настройки',
         'Lets travel': 'Хайде да пътуваме',
+        'The invitation was sent successfully.':
+          'Поканата е изпратена успешно.',
         'Nick name': 'Псевдоним',
         'Change photo': 'Смяна на снимка',
         Names: 'Имена',
@@ -5560,6 +5583,8 @@ i18next.use(initReactI18next).init({
         'Confirmation Code': 'Код за потвърждение',
         'Back to Home': 'Обратно в къщи',
         'Back to Vehicle': 'Обратно към превозното средство',
+        'You cannot resend an invitation.':
+          'Не може да изпратите покана отново.',
         Back: 'Обратно',
         'Enter Departure City': 'Въведете град на заминаване',
         'Enter Arrival City': 'Въведете град на пристигане',
