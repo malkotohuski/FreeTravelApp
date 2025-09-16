@@ -1518,7 +1518,7 @@
       },
       "personalMessage": "Da",
       "createdAt": "2025-09-15T13:25:53.450Z",
-      "read": false,
+      "read": true,
       "status": "active",
       "id": 155
     },
@@ -1534,7 +1534,8 @@
         "email": "shushkata7@gmail.com"
       },
       "createdAt": "2025-09-15T13:25:58.641Z",
-      "id": 156
+      "id": 156,
+      "read": true
     },
     {
       "recipient": "huskyPower",
@@ -1546,7 +1547,7 @@
       },
       "personalMessage": "she vi chakam na centralna gara ?",
       "createdAt": "2025-09-15T13:26:35.406Z",
-      "read": false,
+      "read": true,
       "status": "active",
       "id": 157
     }

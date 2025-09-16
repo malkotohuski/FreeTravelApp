@@ -358,9 +358,7 @@ const Notifications = ({navigation, route}) => {
                 onRequestClose={() => setRespondModalVisible(false)}>
                 <View style={styles.simpleModalContainer}>
                   <View style={styles.modalContent}>
-                    <Text style={styles.modalTitle}>
-                      {t('Response to inquiry')}
-                    </Text>
+                    <Text style={styles.modalTitle}>{t('Answer')}</Text>
                     <Text style={styles.modalMessage}>
                       {respondingTo?.personalMessage}
                     </Text>
@@ -373,7 +371,7 @@ const Notifications = ({navigation, route}) => {
                     <TouchableOpacity
                       style={styles.modalButton}
                       onPress={() => handleRespond('accepted')}>
-                      <Text style={styles.modalButtonText}>{t('Accept')}</Text>
+                      <Text style={styles.modalButtonText}>{t('Send')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={[styles.modalButton, styles.cancelButton]}
