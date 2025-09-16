@@ -12,6 +12,7 @@ i18next.use(initReactI18next).init({
         'Route request': 'Route request',
         'Select date:': 'Select date:',
         Rate: 'Rate',
+        Send: 'Send',
         Rating: 'Rating',
         'You appreciate': 'You appreciate',
         'No routes available.': 'No routes available.',
@@ -54,6 +55,8 @@ i18next.use(initReactI18next).init({
         Success: 'Success',
         Inquiries: 'Inquiries',
         'Notification Options': 'Notification Options',
+        Answer: 'Answer',
+        'Type here...': 'Type here...',
         'Do you want to delete this notification:':
           'Do you want to delete this notification:',
         'You have already applied for this route.':
@@ -5139,6 +5142,7 @@ i18next.use(initReactI18next).init({
         Car: 'Лек автомобил',
         Garage: 'Гараж',
         Home: 'Дом',
+        Send: 'Изпрати',
         Messages: 'Съобщения',
         'Type a message...': 'Въведете съобщение...',
         'Search...': 'Търсене...',
@@ -5151,6 +5155,7 @@ i18next.use(initReactI18next).init({
         New: 'Нов',
         'The route has been created!': 'Маршрута е създаден!',
         Rate: 'Дай оценка',
+        'Type here...': 'Въведете тук...',
         'Do you want to delete this notification:':
           'Искате ли да изтриете тази нотификация :',
         Motorcycle: 'Мотоциклет',
@@ -5176,6 +5181,7 @@ i18next.use(initReactI18next).init({
         'Invalid Registration Number': 'Невалиден регистрационен номер',
         'Please enter a valid registration number.':
           'Моля, въведете валиден регистрационен номер.',
+        Answer: 'Отговор',
         'Enter your travel request comment here :':
           'Въведете вашият коментар на заявка за пътуване тук : ',
         Home: 'Дом',
