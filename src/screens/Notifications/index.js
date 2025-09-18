@@ -36,6 +36,8 @@ const Notifications = ({navigation, route}) => {
   const [respondingTo, setRespondingTo] = useState(null);
   const [responseComment, setResponseComment] = useState('');
 
+  const recipientUser = respondingTo?.requester?.username;
+
   const handlePersonalMessagePress = notification => {
     setRespondingTo(notification);
     setTimeout(() => {
@@ -59,7 +61,7 @@ const Notifications = ({navigation, route}) => {
   );
 
   const handleRespond = async responseType => {
-    if (responseType === 'accepted') {
+    if (responseType === 'accepted' || responseType === 'rejected') {
       const request = requests.find(
         r =>
           r.routeId === respondingTo.routeId &&
@@ -358,13 +360,16 @@ const Notifications = ({navigation, route}) => {
                 onRequestClose={() => setRespondModalVisible(false)}>
                 <View style={styles.simpleModalContainer}>
                   <View style={styles.modalContent}>
-                    <Text style={styles.modalTitle}>{t('Answer')}</Text>
+                    <Text style={styles.modalTitle}>
+                      {t('Answers to:')}
+                      {recipientUser}
+                    </Text>
                     <Text style={styles.modalMessage}>
                       {respondingTo?.personalMessage}
                     </Text>
                     <TextInput
                       style={styles.responseInput}
-                      placeholder={t('Type here...')}
+                      placeholder={t('Type masseges here...')}
                       value={responseComment}
                       onChangeText={setResponseComment}
                     />

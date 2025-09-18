@@ -97,7 +97,7 @@
       "password": "123",
       "fName": "asdasd",
       "lName": "sdsd",
-      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/a5ffaabe-ac93-4d00-bc9f-53a1165056ae.jpg",
+      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/65cc46e7-7b17-4430-9698-91c2ce50ae19.jpg",
       "confirmationCode": null,
       "isActive": true,
       "routes": [
@@ -418,7 +418,8 @@
       "userFname": "daniel",
       "userLname": "dimitorv",
       "userEmail": "malkotohuski@gmail.com",
-      "id": 1757940959947
+      "id": 1757940959947,
+      "userRouteId": "deleted"
     },
     {
       "selectedVehicle": "Car",
@@ -436,7 +437,45 @@
       "userFname": "Velichka",
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
-      "id": 1757942676018
+      "id": 1757942676018,
+      "userRouteId": "deleted"
+    },
+    {
+      "selectedVehicle": "Лек автомобил",
+      "registrationNumber": "A2111CC",
+      "selectedDateTime": "2025-09-18T13:00:00.000Z",
+      "departureCity": "Бургас",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "София",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "routeTitle": "1 spot free",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1758179501497,
+      "userRouteId": "deleted"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A2121AA",
+      "selectedDateTime": "2025-09-20T18:16:00.000Z",
+      "departureCity": "Sofia",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Ruse",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "routeTitle": "2 free spots",
+      "userId": 1730713699917,
+      "username": "sdds",
+      "userFname": "asdasd",
+      "userLname": "sdsd",
+      "userEmail": "devmasterstech@gmail.com",
+      "id": 1758219489855
     }
   ],
   "seekers": [
@@ -450,6 +489,19 @@
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
       "id": 1751818596917
+    },
+    {
+      "departureCity": "София",
+      "arrivalCity": "Бъта",
+      "selectedDateTime": "2025-09-20T07:46:00.000Z",
+      "routeTitle": "Търся 2 свободни места",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/9e8618e0-dcc3-403c-82ce-e52d13439334.jpg",
+      "id": 1758218715973
     }
   ],
   "requests": [
@@ -482,6 +534,21 @@
       "requestComment": "Ima li oshte mqsto ?",
       "id": 1757942735681,
       "status": "approved"
+    },
+    {
+      "username": "sdds",
+      "userFname": "asdasd",
+      "userLname": "sdsd",
+      "userEmail": "devmasterstech@gmail.com",
+      "userID": 1730713699917,
+      "userRouteId": 1711358014466,
+      "departureCity": "Бургас",
+      "arrivalCity": "София",
+      "routeId": 1758179501497,
+      "dataTime": "2025-09-18T13:00:00.000Z",
+      "requestComment": "opa",
+      "id": 1758179537003,
+      "status": "rejected"
     }
   ],
   "userChanges": [],
@@ -1550,6 +1617,150 @@
       "read": true,
       "status": "active",
       "id": 157
+    },
+    {
+      "recipient": "huskyPower",
+      "message": "Shushkata7@gmail.com accepted your invitation.",
+      "routeId": 1757942676018,
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "email": "shushkata7@gmail.com"
+      },
+      "personalMessage": "",
+      "createdAt": "2025-09-17T07:57:02.149Z",
+      "read": false,
+      "status": "active",
+      "id": 158
+    },
+    {
+      "recipient": "huskyPower",
+      "message": "Shushkata7@gmail.com accepted your invitation.",
+      "routeId": 1757942676018,
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "email": "shushkata7@gmail.com"
+      },
+      "personalMessage": "",
+      "createdAt": "2025-09-17T07:57:21.999Z",
+      "read": false,
+      "status": "active",
+      "id": 159
+    },
+    {
+      "recipient": "huskyPower",
+      "message": "Shushkata7@gmail.com declined your invitation.",
+      "routeId": 1757942676018,
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "email": "shushkata7@gmail.com"
+      },
+      "personalMessage": "",
+      "createdAt": "2025-09-18T07:06:58.979Z",
+      "read": false,
+      "status": "active",
+      "id": 160
+    },
+    {
+      "recipient": "huskyPower",
+      "message": "Shushkata7@gmail.com accepted your invitation.",
+      "routeId": 1757942676018,
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "email": "shushkata7@gmail.com"
+      },
+      "personalMessage": "",
+      "createdAt": "2025-09-18T07:07:12.526Z",
+      "read": false,
+      "status": "active",
+      "id": 161
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "You have a candidate for your route: Бургас-София with username: sdds!",
+      "routeId": 1758179501497,
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "sdds",
+        "userFname": "asdasd",
+        "userLname": "sdsd",
+        "email": "devmasterstech@gmail.com",
+        "comment": "opa"
+      },
+      "createdAt": "2025-09-18T07:12:04.384Z",
+      "id": 162,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "message": "Shushkata7@gmail.com declined your invitation.",
+      "routeId": 1758179501497,
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "email": "shushkata7@gmail.com"
+      },
+      "personalMessage": "ne",
+      "createdAt": "2025-09-18T07:12:35.479Z",
+      "read": true,
+      "status": "active",
+      "id": 163
+    },
+    {
+      "recipient": "sdds",
+      "message": "Shushkata7@gmail.com accepted your invitation.",
+      "routeId": 1758179501497,
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "email": "shushkata7@gmail.com"
+      },
+      "personalMessage": "ne",
+      "createdAt": "2025-09-18T07:12:47.247Z",
+      "read": true,
+      "status": "active",
+      "id": 164
+    },
+    {
+      "recipient": "sdds",
+      "message": "Shushkata7@gmail.com declined your invitation.",
+      "routeId": 1758179501497,
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "email": "shushkata7@gmail.com"
+      },
+      "personalMessage": "ne",
+      "createdAt": "2025-09-18T07:13:48.584Z",
+      "read": true,
+      "status": "active",
+      "id": 165
+    },
+    {
+      "recipient": "sdds",
+      "message": "Your request has NOT been approved from Shushkata7@gmail.com.\nAbout the route: Бургас-София.\nFor date: 18.09.2025 г., 16:00",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-09-18T07:13:55.434Z",
+      "id": 166,
+      "read": true
+    },
+    {
+      "recipient": "sdds",
+      "message": "Shushkata7@gmail.com accepted your invitation.",
+      "routeId": 1758179501497,
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "email": "shushkata7@gmail.com"
+      },
+      "personalMessage": "опа",
+      "createdAt": "2025-09-18T18:13:00.544Z",
+      "read": true,
+      "status": "active",
+      "id": 167
     }
   ]
 }
