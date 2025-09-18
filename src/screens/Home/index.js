@@ -264,29 +264,75 @@ function HomePage({navigation}) {
             </View>
 
             <View style={styles.menuImages}>
+              {/* Create a route (Driver) */}
               <TouchableOpacity
                 style={getButtonStyle()}
                 onPress={handlerVehicle}>
-                <Text style={getTextButtonStyles()}>{t('I suggest')}</Text>
+                <View
+                  style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
+                  <Icons
+                    name="car"
+                    size={26}
+                    color={darkMode ? '#f1f1f1' : '#010101'}
+                  />
+                  <Text style={getTextButtonStyles()}>
+                    {t('Create a route (Driver)')}
+                  </Text>
+                </View>
               </TouchableOpacity>
+
+              {/* Create request (Passenger) */}
               <TouchableOpacity
                 style={getButtonStyle()}
                 onPress={handlerLooking}>
-                <Text style={getTextButtonStyles()}>
-                  {t('I am looking for')}
-                </Text>
+                <View
+                  style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
+                  <Icons
+                    name="account-search"
+                    size={26}
+                    color={darkMode ? '#f1f1f1' : '#010101'}
+                  />
+                  <Text style={getTextButtonStyles()}>
+                    {t('Create request (Passenger)')}
+                  </Text>
+                </View>
               </TouchableOpacity>
+
+              {/* Seekers (Passengers) */}
               <TouchableOpacity
                 style={getButtonStyle()}
                 onPress={handlerSeekers}>
-                <Text style={getTextButtonStyles()}>{t('Seekers')}</Text>
+                <View
+                  style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
+                  <Icons
+                    name="account-multiple"
+                    size={26}
+                    color={darkMode ? '#f1f1f1' : '#010101'}
+                  />
+                  <Text style={getTextButtonStyles()}>
+                    {t('Seekers (Passengers)')}
+                  </Text>
+                </View>
               </TouchableOpacity>
+
+              {/* Offering (Drivers) */}
               <TouchableOpacity
                 style={getButtonStyle()}
                 onPress={handlerRouteViewer}>
-                <Text style={getTextButtonStyles()}>{t('View routes')}</Text>
+                <View
+                  style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
+                  <Icons
+                    name="steering"
+                    size={26}
+                    color={darkMode ? '#f1f1f1' : '#010101'}
+                  />
+                  <Text style={getTextButtonStyles()}>
+                    {t('Offering (Drivers)')}
+                  </Text>
+                </View>
               </TouchableOpacity>
             </View>
+
             {/*  <View style={styles.searchBox}>
                     <View style={styles.searchContainer}>
                         <TextInput
