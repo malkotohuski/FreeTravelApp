@@ -310,7 +310,7 @@ function HomePage({navigation}) {
                     color={darkMode ? '#f1f1f1' : '#010101'}
                   />
                   <Text style={getTextButtonStyles()}>
-                    {t('Seekers (Passengers)')}
+                    {t('List of Seekers (Passengers)')}
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -327,7 +327,7 @@ function HomePage({navigation}) {
                     color={darkMode ? '#f1f1f1' : '#010101'}
                   />
                   <Text style={getTextButtonStyles()}>
-                    {t('Offering (Drivers)')}
+                    {t('List of Offering (Drivers)')}
                   </Text>
                 </View>
               </TouchableOpacity>
