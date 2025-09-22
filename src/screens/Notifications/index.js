@@ -152,11 +152,13 @@ const Notifications = ({navigation, route}) => {
       const message = notification.message.toLowerCase();
       if (
         message.includes('оцени пътуването') ||
-        message.includes('rate the trip')
+        message.includes('rate the trip') ||
+        message.includes('rate your passenger')
       ) {
         navigation.navigate('RateUser', {
           mainRouteUser: notification.mainRouteUser,
           routeId: notification.routeId,
+          type: notification.type,
         });
       }
     } catch (e) {

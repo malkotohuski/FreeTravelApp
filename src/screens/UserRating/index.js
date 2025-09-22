@@ -9,27 +9,24 @@ import {
   SafeAreaView,
   Image,
 } from 'react-native';
-import {useFocusEffect} from '@react-navigation/native';
+import {useFocusEffect, useRoute} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
 import StarRating from 'react-native-star-rating-widget';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {DarkModeContext} from '../../navigation/DarkModeContext';
 import {useAuth} from '../../context/AuthContext';
-import {useRoute} from '@react-navigation/native';
 
 const API_BASE_URL = 'http://10.0.2.2:3000';
 
 const RateUserScreen = ({navigation}) => {
   const {t} = useTranslation();
   const route = useRoute();
-  const {mainRouteUser, routeId} = route.params;
+  const {mainRouteUser, routeId, type} = route.params;
   const {user} = useAuth();
   const currentUser = user?.user?.username;
   const currentUserImage = user?.user?.userImage;
-  console.log('kdsf', routeId);
-  console.log('асдасд', mainRouteUser);
-
   const {darkMode} = useContext(DarkModeContext);
+
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
 
@@ -45,12 +42,11 @@ const RateUserScreen = ({navigation}) => {
       Alert.alert(t('Error'), t('Please select a number of stars.'));
       return;
     }
-
     try {
       const usersResponse = await fetch(`${API_BASE_URL}/users`);
       const users = await usersResponse.json();
 
-      const userToRate = users.find(user => user?.username === mainRouteUser);
+      const userToRate = users.find(u => u?.username === mainRouteUser);
       const ratingUser = users.find(u => u?.username === currentUser);
 
       if (!userToRate || !ratingUser) {
@@ -66,27 +62,20 @@ const RateUserScreen = ({navigation}) => {
         );
       }
 
-      const previousRatings = Array.isArray(userToRate.ratings)
-        ? userToRate.ratings
-        : [];
-      const previousComments = Array.isArray(userToRate.comments)
-        ? userToRate.comments
-        : [];
-
-      const updatedRatings = [...previousRatings, rating];
+      const updatedRatings = [...(userToRate.ratings || []), rating];
       const updatedComments = [
-        ...previousComments,
+        ...(userToRate.comments || []),
         {
           user: currentUser,
           comment: comment || '',
           image: currentUserImage,
-          date: new Date().toISOString(), // <-- добавена дата
+          date: new Date().toISOString(),
         },
       ];
-
       const averageRating =
         updatedRatings.reduce((sum, r) => sum + r, 0) / updatedRatings.length;
 
+      // Актуализиране на потребителя, който се оценява
       await fetch(`${API_BASE_URL}/users/${userToRate.id}`, {
         method: 'PATCH',
         headers: {'Content-Type': 'application/json'},
@@ -97,23 +86,19 @@ const RateUserScreen = ({navigation}) => {
         }),
       });
 
-      const updatedRoutes = Array.isArray(ratingUser.routes)
-        ? [...ratingUser.routes, routeId]
-        : [routeId];
-
+      // Актуализиране на routes на потребителя, който прави оценката
+      const updatedRoutes = [...(ratingUser.routes || []), routeId];
       await fetch(`${API_BASE_URL}/users/${ratingUser.id}`, {
         method: 'PATCH',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          routes: updatedRoutes,
-        }),
+        body: JSON.stringify({routes: updatedRoutes}),
       });
 
       Alert.alert(t('Success'), t('Successfully rated the user.'));
       navigation.navigate('Home');
     } catch (error) {
-      Alert.alert(t('Error'), t('Problem with the server request.'));
       console.log(error);
+      Alert.alert(t('Error'), t('Problem with the server request.'));
     }
   };
 
@@ -146,21 +131,20 @@ const RateUserScreen = ({navigation}) => {
             {backgroundColor: darkMode ? '#121212' : '#fafafa'},
           ]}>
           <Text style={[styles.title, {color: darkMode ? '#fff' : '#000'}]}>
-            {t('Rate the user')}
+            {type === 'rate_user'
+              ? t('Rate the creator')
+              : t('Rate the passenger')}
           </Text>
-
           <Text style={[styles.subText, {color: darkMode ? '#ccc' : '#000'}]}>
             {t('You appreciate')}{' '}
             <Text style={styles.bold}>{mainRouteUser}</Text>
           </Text>
-
           <StarRating
             rating={rating}
             onChange={setRating}
             starSize={35}
             enableHalfStar={true}
           />
-
           <TextInput
             style={[
               styles.commentBox,
@@ -175,7 +159,6 @@ const RateUserScreen = ({navigation}) => {
             value={comment}
             onChangeText={setComment}
           />
-
           <TouchableOpacity style={styles.button} onPress={submitRating}>
             <Text style={styles.buttonText}>{t('Send rating')}</Text>
           </TouchableOpacity>
@@ -187,7 +170,6 @@ const RateUserScreen = ({navigation}) => {
 
 export default RateUserScreen;
 
-// --- StyleSheet остава непроменен ---
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,

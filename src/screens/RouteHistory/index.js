@@ -124,9 +124,12 @@ const RouteHistory = ({navigation}) => {
   };
 
   const handleMarkAsCompleted = routeId => {
-    const matchingRequest = requests.find(
-      request => request.routeId === routeId,
+    const matchingRequest = requests.filter(
+      request =>
+        String(request.routeId) === String(routeId) &&
+        request.status === 'approved',
     );
+
     const completedRoute = originalRoutesState.find(
       route => route.id === routeId,
     );
@@ -134,12 +137,16 @@ const RouteHistory = ({navigation}) => {
 
     setCompletedRoutes(prevRoutes => [...prevRoutes, completedRoute]);
 
-    if (matchingRequest) {
+    if (matchingRequest.length > 0) {
+      const passengerList = matchingRequest
+        .map(req => `${req.username} (${req.userEmail})`)
+        .join(', ');
+
       Alert.alert(
         t('Complete the route'),
-        `${t('Are you sure you want to mark this route as completed?')} ${t(
+        `${t('Are you sure you want to mark this route as completed?')} \n${t(
           'Users',
-        )}: ${matchingRequest.username} ${matchingRequest.userEmail}`,
+        )}: ${passengerList}`,
         [
           {
             text: t('Cancel'),
@@ -151,12 +158,10 @@ const RouteHistory = ({navigation}) => {
             onPress: async () => {
               try {
                 const response = await fetch(
-                  `http://10.0.2.2:3000/routes/${routeId}`,
+                  `${API_BASE_URL}/routes/${routeId}`,
                   {
                     method: 'PATCH',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
+                    headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({userRouteId: 'completed'}),
                   },
                 );
@@ -171,26 +176,46 @@ const RouteHistory = ({navigation}) => {
                 setOriginalRoutesState(updatedRoutes);
                 setFilteredRoutesState(updatedRoutes);
 
-                const message = `${t(
-                  'Please rate the trip with',
-                )} ${mainRouteUser}.\n${t('About the route')} ${
-                  matchingRequest.departureCity
-                }-${matchingRequest.arrivalCity}`;
+                const mainRouteUser = user?.user?.username;
 
-                // Изпрати известие към пътника да оцени създателя на маршрута
-                await axios.post(`${API_BASE_URL}/notifications`, {
-                  recipient: matchingRequest.username, // <-- вместо toUserId
-                  fromUserId: user?.user?.id,
-                  type: 'rate_user',
-                  routeId: routeId,
-                  message: message,
-                  status: 'active',
-                  isRead: false,
-                  createdAt: new Date().toISOString(),
-                  mainRouteUser: mainRouteUser,
-                });
+                // Изпращане на известия за всички пътници
+                for (const req of matchingRequest) {
+                  // Известиe към пътника да оцени създателя
+                  await axios.post(`${API_BASE_URL}/notifications`, {
+                    recipient: req.username,
+                    fromUserId: user?.user?.id,
+                    type: 'rate_user',
+                    routeId,
+                    message: `${t(
+                      'Please rate the trip with',
+                    )} ${mainRouteUser}.\n${t('About the route')} ${
+                      req.departureCity
+                    }-${req.arrivalCity}`,
+                    status: 'active',
+                    isRead: false,
+                    createdAt: new Date().toISOString(),
+                    mainRouteUser,
+                  });
 
-                // Навигирай към екрана с известия
+                  // Известиe към създателя да оцени конкретния пътник
+                  await axios.post(`${API_BASE_URL}/notifications`, {
+                    recipient: user?.user?.username,
+                    fromUserId: req.userId,
+                    type: 'rate_passenger',
+                    routeId,
+                    message: `${t('Please rate your passenger')} ${
+                      req.username
+                    }.\n${t('About the route')} ${req.departureCity}-${
+                      req.arrivalCity
+                    }`,
+                    status: 'active',
+                    isRead: false,
+                    createdAt: new Date().toISOString(),
+                    mainRouteUser: req.username,
+                  });
+                }
+
+                // Навигирай към известия
                 navigation.navigate('Notifications', {
                   matchingRequest,
                   mainRouteUser,
