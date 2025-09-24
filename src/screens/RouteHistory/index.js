@@ -200,7 +200,7 @@ const RouteHistory = ({navigation}) => {
                   // Известиe към създателя да оцени конкретния пътник
                   await axios.post(`${API_BASE_URL}/notifications`, {
                     recipient: user?.user?.username,
-                    fromUserId: req.userId,
+                    fromUserId: req.userID,
                     type: 'rate_passenger',
                     routeId,
                     message: `${t('Please rate your passenger')} ${

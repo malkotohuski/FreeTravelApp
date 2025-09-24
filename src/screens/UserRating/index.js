@@ -21,9 +21,12 @@ const API_BASE_URL = 'http://10.0.2.2:3000';
 const RateUserScreen = ({navigation}) => {
   const {t} = useTranslation();
   const route = useRoute();
-  const {mainRouteUser, routeId, type} = route.params;
+  const {mainRouteUser, routeId, type, fromUserId} = route.params;
+  console.log('USER_ID', fromUserId);
+
   const {user} = useAuth();
   const currentUser = user?.user?.username;
+  const currentUserId = user?.user?.id;
   const currentUserImage = user?.user?.userImage;
   const {darkMode} = useContext(DarkModeContext);
 
@@ -42,26 +45,93 @@ const RateUserScreen = ({navigation}) => {
       Alert.alert(t('Error'), t('Please select a number of stars.'));
       return;
     }
+
     try {
+      console.log('=== SUBMIT RATING START ===');
+      console.log('route.params:', route.params);
+      console.log('currentUserId:', currentUserId, 'username:', currentUser);
+
+      // 1. Взимаме всички потребители
       const usersResponse = await fetch(`${API_BASE_URL}/users`);
       const users = await usersResponse.json();
 
-      const userToRate = users.find(u => u?.username === mainRouteUser);
-      const ratingUser = users.find(u => u?.username === currentUser);
-
-      if (!userToRate || !ratingUser) {
-        return Alert.alert(t('Error'), t('User not found.'));
+      const ratingUser = users.find(u => u.id === currentUserId);
+      if (!ratingUser) {
+        Alert.alert(t('Error'), t('Current user not found.'));
+        return;
       }
 
-      const alreadyRated =
-        Array.isArray(ratingUser.routes) && ratingUser.routes.includes(routeId);
-      if (alreadyRated) {
-        return Alert.alert(
-          t('Information'),
-          t('You have already rated this route.'),
+      // Този, който ще бъде оценен (mainRouteUser идва от навигацията)
+      let userToRate = users.find(u => u.username === mainRouteUser);
+
+      // 2. Взимаме всички заявки за маршрута
+      const requestsResponse = await fetch(`${API_BASE_URL}/requests`);
+      const requests = await requestsResponse.json();
+
+      const routeRequests = requests.filter(
+        r => r.routeId === routeId && r.status === 'approved',
+      );
+
+      if (routeRequests.length === 0) {
+        Alert.alert(t('Error'), t('No approved requests for this route.'));
+        return;
+      }
+
+      let requestToUpdate = null;
+      let updateField = null;
+
+      // 🟢 Ако логнатият е създателя на маршрута
+      if (ratingUser.id === routeRequests[0].userRouteId) {
+        console.log('Current user IS the creator');
+
+        // Търсим участника, който трябва да бъде оценен
+        requestToUpdate = routeRequests.find(
+          r =>
+            r.userID === fromUserId &&
+            r.rateUser === false &&
+            r.username === mainRouteUser,
         );
+
+        if (!requestToUpdate) {
+          Alert.alert(
+            t('Information'),
+            t('This participant is already rated or not found.'),
+          );
+          return;
+        }
+
+        userToRate = users.find(u => u.id === fromUserId);
+        updateField = {rateUser: true};
+      } else {
+        // 🟢 Ако логнатият е участник → оценява създателя
+        console.log('Current user IS a participant');
+
+        const creatorId = routeRequests[0].userRouteId;
+        requestToUpdate = routeRequests.find(
+          r =>
+            r.userID === ratingUser.id &&
+            r.rateCreator === false &&
+            r.userRouteId === creatorId,
+        );
+
+        if (!requestToUpdate) {
+          Alert.alert(
+            t('Information'),
+            t('You have already rated the creator or request not found.'),
+          );
+          return;
+        }
+
+        userToRate = users.find(u => u.id === creatorId);
+        updateField = {rateCreator: true};
       }
 
+      if (!userToRate) {
+        Alert.alert(t('Error'), t('User to rate not found.'));
+        return;
+      }
+
+      // 3. Подготвяме новите данни за user
       const updatedRatings = [...(userToRate.ratings || []), rating];
       const updatedComments = [
         ...(userToRate.comments || []),
@@ -75,7 +145,7 @@ const RateUserScreen = ({navigation}) => {
       const averageRating =
         updatedRatings.reduce((sum, r) => sum + r, 0) / updatedRatings.length;
 
-      // Актуализиране на потребителя, който се оценява
+      // PATCH user
       await fetch(`${API_BASE_URL}/users/${userToRate.id}`, {
         method: 'PATCH',
         headers: {'Content-Type': 'application/json'},
@@ -86,18 +156,19 @@ const RateUserScreen = ({navigation}) => {
         }),
       });
 
-      // Актуализиране на routes на потребителя, който прави оценката
-      const updatedRoutes = [...(ratingUser.routes || []), routeId];
-      await fetch(`${API_BASE_URL}/users/${ratingUser.id}`, {
-        method: 'PATCH',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({routes: updatedRoutes}),
-      });
+      // PATCH request → rateUser или rateCreator
+      if (requestToUpdate && updateField) {
+        await fetch(`${API_BASE_URL}/requests/${requestToUpdate.id}`, {
+          method: 'PATCH',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(updateField),
+        });
+      }
 
       Alert.alert(t('Success'), t('Successfully rated the user.'));
       navigation.navigate('Home');
     } catch (error) {
-      console.log(error);
+      console.error('❌ Error in submitRating:', error);
       Alert.alert(t('Error'), t('Problem with the server request.'));
     }
   };

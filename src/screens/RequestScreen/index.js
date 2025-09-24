@@ -140,6 +140,8 @@ function RouteDetails({route}) {
                     routeId: route.params.routeId,
                     dataTime: route.params.selectedDateTime,
                     requestComment: tripRequestText,
+                    rateCreator: false,
+                    rateUser: false,
                   },
                 });
                 setHasRequested(true);
