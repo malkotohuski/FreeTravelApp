@@ -199,6 +199,19 @@ For date: ${formattedDate}`);
               "{selectedRequest.requestComment || t('No comment provided.')}"
             </Text>
 
+            <TouchableOpacity
+              style={[styles.modalButton, {backgroundColor: '#007AFF'}]}
+              onPress={() => {
+                setModalVisible(false);
+                navigation.navigate('UserDetails', {
+                  userId: selectedRequest.userID,
+                });
+              }}>
+              <Text style={styles.modalButtonText}>
+                ℹ️ {t('More info about')} {selectedRequest.username}
+              </Text>
+            </TouchableOpacity>
+
             <View style={styles.modalButtons}>
               <TouchableOpacity
                 style={[styles.modalButton, {backgroundColor: '#4CAF50'}]}

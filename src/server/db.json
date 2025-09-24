@@ -949,7 +949,44 @@
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
       "id": 1758699687379,
-      "userRouteId": "completed"
+      "userRouteId": "deleted"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A2111AA",
+      "selectedDateTime": "2025-09-24T14:58:00.000Z",
+      "departureCity": "Varna",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Stara Zagora",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "routeTitle": "1 spot ",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1758722328318,
+      "userRouteId": "deleted"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A1212AA",
+      "selectedDateTime": "2025-09-25T16:44:00.000Z",
+      "departureCity": "Burgas",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Pleven",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "routeTitle": "1 spot",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1758732314577
     }
   ],
   "seekers": [
@@ -1401,6 +1438,38 @@
       "rateUser": true,
       "id": 1758699728837,
       "status": "approved"
+    },
+    {
+      "username": "sdds",
+      "userFname": "asdasd",
+      "userLname": "sdsd",
+      "userEmail": "devmasterstech@gmail.com",
+      "userID": 1730713699917,
+      "userRouteId": 1711358014466,
+      "departureCity": "Varna",
+      "arrivalCity": "Stara Zagora",
+      "routeId": 1758722328318,
+      "dataTime": "2025-09-24T14:58:00.000Z",
+      "requestComment": "1",
+      "rateCreator": false,
+      "rateUser": false,
+      "id": 1758722361917
+    },
+    {
+      "username": "sdds",
+      "userFname": "asdasd",
+      "userLname": "sdsd",
+      "userEmail": "devmasterstech@gmail.com",
+      "userID": 1730713699917,
+      "userRouteId": 1711358014466,
+      "departureCity": "Burgas",
+      "arrivalCity": "Pleven",
+      "routeId": 1758732314577,
+      "dataTime": "2025-09-25T16:44:00.000Z",
+      "requestComment": "1",
+      "rateCreator": false,
+      "rateUser": false,
+      "id": 1758732336343
     }
   ],
   "userChanges": [],
@@ -4165,6 +4234,38 @@
       "mainRouteUser": "sdds",
       "id": 297,
       "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "You have a candidate for your route: Varna-Stara Zagora with username: sdds!",
+      "routeId": 1758722328318,
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "sdds",
+        "userFname": "asdasd",
+        "userLname": "sdsd",
+        "email": "devmasterstech@gmail.com",
+        "comment": "1"
+      },
+      "createdAt": "2025-09-24T13:59:21.904Z",
+      "id": 298
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "You have a candidate for your route: Burgas-Pleven with username: sdds!",
+      "routeId": 1758732314577,
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "sdds",
+        "userFname": "asdasd",
+        "userLname": "sdsd",
+        "email": "devmasterstech@gmail.com",
+        "comment": "1"
+      },
+      "createdAt": "2025-09-24T16:45:36.334Z",
+      "id": 299
     }
   ]
 }
