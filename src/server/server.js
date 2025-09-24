@@ -426,7 +426,12 @@ server.post('/send-request-to-user', (req, res) => {
   }
 
   // Създаване на нова заявка
-  const newRequest = {...requestingUser, id: Date.now()};
+  const newRequest = {
+    ...requestingUser,
+    id: Date.now(),
+    rateCreator: false,
+    rateUser: false,
+  }; //ново 23/09
 
   // Запис в базата (requests)
   router.db.get('requests').push(newRequest).write();

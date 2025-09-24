@@ -159,6 +159,7 @@ const Notifications = ({navigation, route}) => {
           mainRouteUser: notification.mainRouteUser,
           routeId: notification.routeId,
           type: notification.type,
+          fromUserId: notification.fromUserId,
         });
       }
     } catch (e) {
