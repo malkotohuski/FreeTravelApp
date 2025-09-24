@@ -39,6 +39,7 @@ import RateUserScreen from '../screens/UserRating';
 import {DarkModeContext} from './DarkModeContext';
 import Seekers from '../screens/Seekers';
 import UserInfo from '../screens/UserInfo';
+import UserDetailsScreen from '../screens/UserDetails';
 
 const Drawer = createDrawerNavigator();
 
@@ -202,6 +203,33 @@ export const Navigator = ({isLoggedIn}) => {
           headerShown: false,
           drawerItemStyle: {display: 'none'},
         }}
+      />
+      <Drawer.Screen
+        name="UserDetails"
+        component={UserDetailsScreen}
+        options={{
+          title: t('UserDetailsScreen'),
+          ...screenStyles,
+          drawerItemStyle: {display: 'none'},
+        }}
+        listeners={({navigation}) => ({
+          focus: () => {
+            navigation.setOptions({
+              headerRight: () => (
+                <TouchableOpacity
+                  style={{
+                    marginRight: 16,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                  }}
+                  onPress={() => navigation.navigate('Route request')} // или друга логика за връщане
+                >
+                  <Icons name="keyboard-backspace" size={24} color="white" />
+                </TouchableOpacity>
+              ),
+            });
+          },
+        })}
       />
       <Drawer.Screen
         name="Home"
