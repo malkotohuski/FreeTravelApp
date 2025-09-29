@@ -8,16 +8,36 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {useTranslation} from 'react-i18next';
 import {useRoute} from '@react-navigation/native';
 
 const API_BASE_URL = 'http://10.0.2.2:3000';
 
 function UserDetailsScreen() {
+  const {t} = useTranslation();
   const route = useRoute();
   const {userId} = route.params;
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const formatDate = isoString => {
+    if (!isoString) return '';
+    const date = new Date(isoString);
+
+    return (
+      date.toLocaleDateString('bg-BG', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      }) +
+      ' в ' +
+      date.toLocaleTimeString('bg-BG', {
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    );
+  };
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -81,7 +101,7 @@ function UserDetailsScreen() {
   if (!user) {
     return (
       <View style={styles.center}>
-        <Text>User not found</Text>
+        <Text>{t('User not found')}</Text>
       </View>
     );
   }
@@ -98,7 +118,7 @@ function UserDetailsScreen() {
       </Text>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Average Rating:</Text>
+        <Text style={styles.sectionTitle}>{t('Rating')}</Text>
         <View style={styles.starsContainer}>
           {renderStars(user.averageRating)}
         </View>
@@ -108,31 +128,42 @@ function UserDetailsScreen() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Comments:</Text>
+        <Text style={styles.sectionTitle}>{t('Comments')}</Text>
         {user.comments && user.comments.length > 0 ? (
           user.comments.map((c, idx) => (
             <View key={idx} style={styles.commentBox}>
               <View style={styles.commentHeader}>
-                {c.image ? (
-                  <Image source={{uri: c.image}} style={styles.commentAvatar} />
-                ) : (
-                  <View
-                    style={[
-                      styles.commentAvatar,
-                      styles.commentAvatarFallback,
-                    ]}>
-                    <Text style={styles.commentAvatarText}>
-                      {(c.user ? c.user.slice(0, 2) : 'NA').toUpperCase()}
-                    </Text>
-                  </View>
-                )}
-                <Text style={styles.commentUser}>{c.user}</Text>
+                <View style={styles.commentLeft}>
+                  {c.image ? (
+                    <Image
+                      source={{uri: c.image}}
+                      style={styles.commentAvatar}
+                    />
+                  ) : (
+                    <View
+                      style={[
+                        styles.commentAvatar,
+                        styles.commentAvatarFallback,
+                      ]}>
+                      <Text style={styles.commentAvatarText}>
+                        {(c.user ? c.user.slice(0, 2) : 'NA').toUpperCase()}
+                      </Text>
+                    </View>
+                  )}
+                  <Text
+                    style={styles.commentUser}
+                    numberOfLines={1}
+                    ellipsizeMode="tail">
+                    {c.user}
+                  </Text>
+                </View>
+                <Text style={styles.commentDate}>{formatDate(c.date)}</Text>
               </View>
               <Text style={styles.commentText}>{c.comment}</Text>
             </View>
           ))
         ) : (
-          <Text style={styles.noData}>No comments yet.</Text>
+          <Text style={styles.noData}>{t('No comments yet.')}</Text>
         )}
       </View>
     </ScrollView>
@@ -215,8 +246,9 @@ const styles = StyleSheet.create({
   commentUser: {
     fontWeight: 'bold',
     fontSize: 14,
-    marginBottom: 2,
+    marginBottom: 0,
     color: '#ffcc00',
+    maxWidth: 100, // 👉 ограничаваме ширината
   },
   commentText: {
     fontSize: 14,
@@ -224,8 +256,9 @@ const styles = StyleSheet.create({
   },
   commentHeader: {
     flexDirection: 'row',
+    justifyContent: 'space-between', // 👉 раздалечава име и дата
     alignItems: 'center',
-    marginBottom: 2,
+    marginBottom: 4,
   },
   commentAvatar: {
     width: 24,
@@ -242,6 +275,15 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 12,
+  },
+  commentLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  commentDate: {
+    fontSize: 12,
+    color: '#aaa',
+    marginLeft: 10,
   },
 });
 
