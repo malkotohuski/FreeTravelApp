@@ -108,10 +108,7 @@ function UserDetailsScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Image
-        source={{uri: user.userImage || 'https://via.placeholder.com/100'}}
-        style={styles.avatar}
-      />
+      <Image source={{uri: user.userImage}} style={styles.avatar} />
       <Text style={styles.username}>@{user.username}</Text>
       <Text style={styles.fullName}>
         {user.fName} {user.lName}
