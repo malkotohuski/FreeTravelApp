@@ -108,6 +108,10 @@ function UserDetailsScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <Image
+        source={require('../../../images/messa.jpg')}
+        style={styles.backgroundImage}
+      />
       <Image source={{uri: user.userImage}} style={styles.avatar} />
       <Text style={styles.username}>@{user.username}</Text>
       <Text style={styles.fullName}>
@@ -171,7 +175,12 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#757171ff', // тъмен фон
+    backgroundColor: 'transparent', // ❌ махаме тъмния фон, за да се вижда d4.png
+  },
+  backgroundImage: {
+    ...StyleSheet.absoluteFillObject,
+    resizeMode: 'cover',
+    zIndex: -1,
   },
   avatar: {
     width: 100,
@@ -185,31 +194,31 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 5,
-    color: '#fff',
+    color: '#030303ff',
   },
   fullName: {
     fontSize: 16,
-    color: '#fff',
+    color: '#080808ff',
     marginBottom: 20,
   },
   section: {
     width: '100%',
     marginVertical: 10,
-    backgroundColor: '#1e1e1e',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)', // ✅ по-лек прозрачен фон
     borderRadius: 10,
     padding: 15,
     shadowColor: '#000',
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.2,
     shadowOffset: {width: 0, height: 2},
     shadowRadius: 4,
     elevation: 3,
-    alignItems: 'center', // 👉 центрира съдържанието
+    alignItems: 'center',
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 5,
-    color: '#ffcc00',
+    color: '#000000ff',
     textAlign: 'center', // 👉 центрира текста
   },
   starsContainer: {
@@ -220,7 +229,7 @@ const styles = StyleSheet.create({
   ratingText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#fff',
+    color: '#070707ff',
     textAlign: 'center', // 👉 центрира резултата
   },
   noData: {
@@ -236,7 +245,7 @@ const styles = StyleSheet.create({
   commentBox: {
     marginBottom: 10,
     padding: 10,
-    backgroundColor: '#2c2c2c',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)', // ✅ прозрачен като „frosted glass“
     borderRadius: 8,
     width: '100%',
   },
@@ -244,12 +253,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 14,
     marginBottom: 0,
-    color: '#ffcc00',
+    color: '#0a0a0aff',
     maxWidth: 100, // 👉 ограничаваме ширината
   },
   commentText: {
     fontSize: 14,
-    color: '#ddd',
+    color: '#050505ff',
   },
   commentHeader: {
     flexDirection: 'row',
@@ -279,7 +288,7 @@ const styles = StyleSheet.create({
   },
   commentDate: {
     fontSize: 12,
-    color: '#aaa',
+    color: '#070606ff',
     marginLeft: 10,
   },
 });
