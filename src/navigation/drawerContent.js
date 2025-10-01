@@ -208,7 +208,7 @@ export const Navigator = ({isLoggedIn}) => {
         name="UserDetails"
         component={UserDetailsScreen}
         options={{
-          title: t('UserDetailsScreen'),
+          title: t('Information About'),
           ...screenStyles,
           drawerItemStyle: {display: 'none'},
         }}
