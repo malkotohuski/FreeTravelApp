@@ -21,6 +21,29 @@ const api = axios.create({
   baseURL: API_BASE_URL,
 });
 
+const colors = [
+  '#f44336',
+  '#e91e63',
+  '#9c27b0',
+  '#3f51b5',
+  '#2196f3',
+  '#009688',
+  '#4caf50',
+  '#ff9800',
+  '#795548',
+  '#607d8b',
+];
+
+function getAvatarColor(username) {
+  if (!username) return '#777';
+  let hash = 0;
+  for (let i = 0; i < username.length; i++) {
+    hash = username.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash % colors.length);
+  return colors[index];
+}
+
 function RouteRequestScreen({route, navigation}) {
   const {t} = useTranslation();
   const {user} = useAuth();
@@ -158,10 +181,15 @@ For date: ${formattedDate}`);
           ]}
           onPress={() => handlePress(request)}>
           <View style={styles.userContainer}>
-            <Image
-              source={{uri: user?.user?.userImage}}
-              style={styles.userImage}
-            />
+            <View
+              style={[
+                styles.initialsContainer,
+                {backgroundColor: getAvatarColor(request.username)},
+              ]}>
+              <Text style={styles.initialsText}>
+                {request.username.slice(0, 2).toUpperCase()}
+              </Text>
+            </View>
             <Text style={styles.userName}>{request.username}</Text>
           </View>
           <Text style={styles.text}>
@@ -274,6 +302,7 @@ const styles = StyleSheet.create({
     textShadowRadius: 3,
   },
   requestContainer: {
+    width: '100%', // добавено, за да са еднакви
     marginVertical: 8,
     padding: 15,
     backgroundColor: 'rgba(255,255,255,0.85)',
@@ -299,13 +328,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 16,
     color: '#222',
-    textAlign: 'center',
   },
   greenBorder: {borderColor: '#4CAF50', borderWidth: 2},
   userContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 8,
+    justifyContent: 'flex-start', // за да не се разтягат елементите
   },
   userImage: {
     width: 36,
@@ -314,6 +343,19 @@ const styles = StyleSheet.create({
     marginRight: 10,
     borderWidth: 1,
     borderColor: '#ddd',
+  },
+  initialsContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  initialsText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 14,
   },
   userName: {
     fontWeight: '600',
