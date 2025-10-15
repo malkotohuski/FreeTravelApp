@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useLayoutEffect} from 'react';
+import React, {useState, useLayoutEffect} from 'react';
 import Icons from 'react-native-vector-icons/MaterialIcons';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {
@@ -6,7 +6,6 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Image,
   ActivityIndicator,
   SafeAreaView,
   ScrollView,
@@ -22,73 +21,44 @@ function Confirm() {
   const navigation = useNavigation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const routeContext = useRouteContext();
-  const {userRoutes, addRoute} = routeContext;
-  const {user} = useAuth();
-
-  // State to manage success message
   const [successMessage, setSuccessMessage] = useState('');
 
-  // Routes data:
+  const routeContext = useRouteContext();
+  const {addRoute} = routeContext;
+  const {user} = useAuth();
   const route = useRoute();
+
   const selectedDateTime = route.params.selectedDateTime
     ? new Date(route.params.selectedDateTime)
-    : null; // Конвертиране обратно в Date
+    : null;
 
-  if (!selectedDateTime) {
-    console.error('selectedDateTime is null or undefined in Confirm screen');
-  }
+  const {
+    selectedVehicle,
+    registrationNumber,
+    departureCity,
+    departureStreet,
+    departureNumber,
+    arrivalCity,
+    arrivalStreet,
+    arrivalNumber,
+    routeTitle,
+    id: routeId,
+    userId: user_id,
+    showConfirmButton = true,
+    showChangesButton = true,
+    showBackButton = false,
+  } = route.params;
 
-  const selectedVehicle = route.params.selectedVehicle;
-  const registrationNumber = route.params.registrationNumber;
-  const departureCity = route.params.departureCity;
-  const departureStreet = route.params.departureStreet;
-  const departureNumber = route.params.departureNumber;
-  const arrivalCity = route.params.arrivalCity;
-  const arrivalStreet = route.params.arrivalStreet;
-  const arrivalNumber = route.params.arrivalNumber;
-  const routeTitle = route.params.routeTitle;
-  const routeId = route.params.id;
-  const user_id = route.params.userId;
-
-  // User data:
   const userId = user?.user?.id;
   const username = user?.user?.username;
   const userFname = user?.user?.fName;
   const userLname = user?.user?.lName;
   const userEmail = user?.user?.email;
 
-  // Buttons logic:
-  const showConfirmButton =
-    route.params.showConfirmButton !== undefined
-      ? route.params.showConfirmButton
-      : true;
-  const showChangesButton =
-    route.params.showChangesButton !== undefined
-      ? route.params.showChangesButton
-      : true;
-  const showBackButton =
-    route.params.showBackButton !== undefined
-      ? route.params.showBackButton
-      : false;
-  const routeRequestButton =
-    route.params.showBackButton !== undefined
-      ? route.params.showBackButton
-      : false;
-
-  const handleGoBack = () => {
-    navigation.navigate('Vehicle'); // Go back to the previous screen
-  };
-
   const handleConfirm = async () => {
-    if (isSubmitting || isGenerating) {
-      console.warn('Duplicate submission attempt prevented.');
-      return;
-    }
+    if (isSubmitting || isGenerating) return;
 
-    setIsGenerating(true); // Показваме анимацията за генериране
-
-    // Симулиране на генериране на маршрут (3-4 секунди)
+    setIsGenerating(true);
     setTimeout(async () => {
       setIsGenerating(false);
       setIsSubmitting(true);
@@ -116,19 +86,14 @@ function Confirm() {
       try {
         const response = await fetch('http://10.0.2.2:3000/create-route', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({route: newRoute}),
         });
 
         if (response.ok) {
-          console.log('Route created successfully');
           const responseData = await response.json();
           addRoute(responseData.route);
           setSuccessMessage(t('The route has been created!'));
-
-          // Скрий съобщението след 2 секунди
           setTimeout(() => {
             setSuccessMessage('');
             navigation.navigate('View routes');
@@ -142,11 +107,7 @@ function Confirm() {
       } finally {
         setIsSubmitting(false);
       }
-    }, 6000); // 6 секунди симулация
-  };
-
-  const handlerBackRoutes = () => {
-    navigation.navigate('View routes');
+    }, 2500);
   };
 
   useLayoutEffect(() => {
@@ -172,271 +133,207 @@ function Confirm() {
   return (
     <SafeAreaView style={styles.mainContainer}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.container}>
-          <Image
-            source={require('../../../images/d8.png')}
-            style={styles.backgroundImage}
-          />
-          <Text style={styles.headerText}>{t('Review')}:</Text>
+        <Text style={styles.headerText}>{t('Review your route')}</Text>
+
+        <View style={styles.card}>
+          <View style={styles.cardHeaderRow}>
+            <Icon name="account-circle" size={24} color="#2c3e50" />
+            <Text style={styles.cardHeader}>{t('Driver')}</Text>
+          </View>
           <Text style={styles.text}>
             {t('Username')}: {username}
           </Text>
           <Text style={styles.text}>
             {t('Names')}: {userFname} {userLname}
           </Text>
-          <Text style={styles.text}>{routeTitle}</Text>
-          {/*  <Text style={styles.text}>
-            {t('Time and date of departure')}:{' '}
-            {String(selectedDateTime.toLocaleString())}
-          </Text> */}
-
-          {/* Departure Section */}
-          <View style={styles.sectionContainer}>
-            <View style={styles.routeRow}>
-              <Icon
-                name="car-arrow-right"
-                size={28}
-                color="#121213"
-                style={{transform: [{rotate: '0deg'}]}}
-              />
-              <Text style={styles.routeText}>
-                {departureCity} {departureStreet}
-                {departureNumber ? ` - ${departureNumber}` : ''}
-              </Text>
-            </View>
-          </View>
-
-          {/* Arrival Section */}
-          <View style={styles.sectionContainer}>
-            <View style={styles.routeRow}>
-              <Icon
-                name="car-select"
-                size={28}
-                color="#121213"
-                style={{transform: [{rotate: '0deg'}]}}
-              />
-              <Text style={styles.routeText}>
-                {arrivalCity} {arrivalStreet}
-                {arrivalNumber ? ` - ${arrivalNumber}` : ''}
-              </Text>
-            </View>
-          </View>
-
-          <Text style={styles.dateText}>
-            {t('Time and date of departure')}:{' '}
-            {String(selectedDateTime.toLocaleString())}
-          </Text>
-
-          {showChangesButton && (
-            <TouchableOpacity style={styles.button} onPress={handleGoBack}>
-              <Text style={styles.buttonText}>{t('Make changes')}</Text>
-            </TouchableOpacity>
-          )}
-          {showConfirmButton && !isSubmitting && (
-            <TouchableOpacity
-              style={styles.buttonConfirm}
-              onPress={handleConfirm}>
-              <Text style={styles.buttonText}>{t('Confirm')}</Text>
-            </TouchableOpacity>
-          )}
-          {isGenerating && (
-            <View style={styles.loadingOverlay}>
-              <View style={styles.loadingModal}>
-                <LottieView
-                  source={require('../../../assets/animations/road.json')}
-                  autoPlay
-                  loop
-                  resizeMode="cover"
-                  style={styles.generatingImage}
-                />
-                <Text style={styles.generatingText}>
-                  {t('Generating your route...')}
-                </Text>
-              </View>
-            </View>
-          )}
-          {showBackButton && (
-            <TouchableOpacity
-              style={styles.buttonConfirm}
-              onPress={handlerBackRoutes}>
-              <Text style={styles.buttonText}>{t('Back')}</Text>
-            </TouchableOpacity>
-          )}
-          {/* Success message */}
-          {successMessage && (
-            <Text style={styles.successMessage}>{successMessage}</Text>
-          )}
         </View>
+
+        <View style={styles.card}>
+          <View style={styles.cardHeaderRow}>
+            <Icon name="car-arrow-right" size={24} color="#2c3e50" />
+            <Text style={styles.cardHeader}>{t('Departure')}</Text>
+          </View>
+          <Text style={styles.text}>
+            {departureCity} {departureStreet}
+            {departureNumber ? ` - ${departureNumber}` : ''}
+          </Text>
+        </View>
+
+        <View style={styles.card}>
+          <View style={styles.cardHeaderRow}>
+            <Icon name="car-select" size={24} color="#2c3e50" />
+            <Text style={styles.cardHeader}>{t('Arrival')}</Text>
+          </View>
+          <Text style={styles.text}>
+            {arrivalCity} {arrivalStreet}
+            {arrivalNumber ? ` - ${arrivalNumber}` : ''}
+          </Text>
+        </View>
+
+        <View style={styles.card}>
+          <View style={styles.cardHeaderRow}>
+            <Icon name="calendar" size={24} color="#2c3e50" />
+            <Text style={styles.cardHeader}>
+              {t('Time and date of departure')}
+            </Text>
+          </View>
+          <Text style={styles.text}>{selectedDateTime?.toLocaleString()}</Text>
+        </View>
+
+        {showChangesButton && (
+          <TouchableOpacity
+            style={styles.buttonDanger}
+            onPress={() => navigation.navigate('Vehicle')}>
+            <Text style={styles.buttonText}>{t('Make changes')}</Text>
+          </TouchableOpacity>
+        )}
+        {showConfirmButton && !isSubmitting && (
+          <TouchableOpacity
+            style={styles.buttonSuccess}
+            onPress={handleConfirm}>
+            <Text style={styles.buttonText}>{t('Confirm')}</Text>
+          </TouchableOpacity>
+        )}
+        {showBackButton && (
+          <TouchableOpacity
+            style={styles.buttonBack}
+            onPress={() => navigation.navigate('View routes')}>
+            <Text style={styles.buttonText}>{t('Back')}</Text>
+          </TouchableOpacity>
+        )}
+
+        {isGenerating && (
+          <View style={styles.loadingOverlay}>
+            <View style={styles.loadingModal}>
+              <LottieView
+                source={require('../../../assets/animations/road.json')}
+                autoPlay
+                loop
+                style={styles.generatingImage}
+              />
+              <Text style={styles.generatingText}>
+                {t('Generating your route...')}
+              </Text>
+            </View>
+          </View>
+        )}
+
+        {successMessage && (
+          <Text style={styles.successMessage}>{successMessage}</Text>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  mainContainer: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-  },
-  container: {
-    flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'center', // Center horizontally
-    backgroundColor: 'grey',
-    padding: 0, // Ensure no padding
-    margin: 0, // Ensure no margin
-  },
-  backgroundImage: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-    position: 'absolute',
-    top: 0, // Align image to the top
-    left: 0, // Align image to the left
-  },
+  mainContainer: {flex: 1, backgroundColor: '#145e8fff'},
+  scrollContent: {padding: 16, paddingBottom: 40},
   headerText: {
+    fontSize: 26,
     fontWeight: 'bold',
-    fontSize: 24,
-    paddingBottom: 10,
-    color: '#121213',
-    borderBottomWidth: 3, // Border bottom for header text
-    borderBottomColor: '#121213', // Border color
-    textAlign: 'center', // Center text
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 16,
   },
-  text: {
+  card: {
+    width: '90%',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 15,
+    marginVertical: 8,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  cardHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  cardHeader: {
+    fontSize: 20,
     fontWeight: 'bold',
-    fontSize: 18,
-    paddingBottom: 10,
+    color: '#2c3e50',
+    marginLeft: 8,
+  },
+  cardText: {
+    fontSize: 16,
+    color: '#2c3e50',
+    marginVertical: 2,
+  },
+
+  text: {
+    fontSize: 16,
     color: '#010101',
-    borderBottomWidth: 2, // Border bottom for regular text
-    borderBottomColor: '#121213', // Border color
-    textAlign: 'center', // Center text
+    marginBottom: 4,
+  },
+  routeRow: {flexDirection: 'row', alignItems: 'center', marginTop: 4},
+  routeText: {fontSize: 16, marginLeft: 8, color: '#2c3e50'},
+  buttonSuccess: {
+    backgroundColor: '#27ae60',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 10,
   },
   button: {
-    marginTop: 20,
+    marginTop: 15,
     padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '90%',
+  },
+
+  buttonDanger: {
     backgroundColor: '#e74c3c',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: 18,
-    fontWeight: 'bold',
-    width: '90%',
-    borderRadius: 10,
-  },
-  buttonConfirm: {
-    marginTop: 10,
     padding: 15,
-    backgroundColor: '#27ae60',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: 18,
-    fontWeight: 'bold',
-    width: '90%',
     borderRadius: 10,
-  },
-  buttonDisabled: {
-    backgroundColor: '#95a5a6', // Сив цвят за деактивирания бутон
-  },
-  buttonText: {
-    color: '#F1F1F1',
-    fontSize: 16,
-    textAlign: 'center', // Center text
-  },
-  sectionContainer: {
+    alignItems: 'center',
     marginTop: 10,
-    marginBottom: 20,
-    padding: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    borderRadius: 10,
-    width: '90%',
-    alignItems: 'center', // Center section content horizontally
   },
-  sectionHeaderText: {
-    fontWeight: 'bold',
-    fontSize: 20,
-    color: '#121213',
-    marginBottom: 5,
-    textAlign: 'center', // Center text
-  },
-  successMessage: {
-    marginTop: 20,
+  buttonBack: {
+    backgroundColor: '#3498db',
     padding: 15,
-    backgroundColor: '#27ae60',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: 18,
-    fontWeight: 'bold',
-    width: '90%',
     borderRadius: 10,
-    color: '#F1F1F1',
-    textAlign: 'center', // Center text
-  },
-  generatingContainer: {
-    marginTop: 20,
     alignItems: 'center',
-    justifyContent: 'center',
+    marginTop: 10,
   },
-  generatingImage: {
-    width: 420,
-    height: 420,
-    marginBottom: 10,
-  },
-  generatingText: {
-    fontSize: 26,
-    color: '#010101',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
+  buttonText: {color: '#fff', fontSize: 16, fontWeight: 'bold'},
   loadingOverlay: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    pointerEvents: 'auto',
-    backgroundColor: 'rgba(0, 0, 0, 0.6)', // тъмен фон с прозрачност
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 10, // да е над другите компоненти
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   loadingModal: {
-    backgroundColor: 'white',
+    backgroundColor: '#fff',
     padding: 20,
     borderRadius: 15,
     alignItems: 'center',
-    justifyContent: 'center',
-    width: 280,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 8,
   },
-  routeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    marginBottom: 10,
-  },
-
-  routeText: {
-    fontSize: 18,
+  generatingImage: {width: 300, height: 300},
+  generatingText: {
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#010101',
-    marginLeft: 10,
+    color: '#2c3e50',
+    marginTop: 8,
   },
-
-  dateText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#010101',
+  successMessage: {
+    backgroundColor: '#27ae60',
+    color: '#fff',
+    padding: 15,
+    borderRadius: 10,
+    marginTop: 20,
     textAlign: 'center',
-    marginTop: 10,
-    marginBottom: 20,
-    borderBottomWidth: 2,
-    borderBottomColor: '#121213',
+    fontSize: 16,
   },
 });
 

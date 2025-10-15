@@ -21,6 +21,7 @@ i18next.use(initReactI18next).init({
         Approve: 'Approve',
         Reject: 'Reject',
         'Offering (Drivers)': 'Offering (Drivers)',
+        Driver: 'Driver',
         Direction: 'Direction',
         'Request from': 'Request from',
         'Create a route (Driver)': 'Create a route (Driver)',
@@ -119,6 +120,7 @@ i18next.use(initReactI18next).init({
         Continue: 'Continue',
         'Enter your vehicle registration number or username!':
           'Enter your vehicle registration number or username!',
+        Username: 'Username',
         'Choose how many free places you have:':
           'Choose how many free places you have:',
         'Invalid registration number format':
@@ -874,6 +876,7 @@ i18next.use(initReactI18next).init({
         Busintsi: 'Busintsi',
         Busmantsi: 'Busmantsi',
         Butan: 'Butan',
+        'Oborishte (Pazardzhik district)': 'Oborishte (Pazardzhik district)',
         Butovo: 'Butovo',
         Butreva: 'Butreva',
         Butrointsi: 'Butrointsi',
@@ -5673,7 +5676,9 @@ i18next.use(initReactI18next).init({
         loading: 'зареждане',
         'Filter Options': 'Опции за филтриране',
         'Apply Filters': 'Прилагане на филтри',
+        Driver: 'Шофьор',
         'Sort by Oldest': 'Сортиране по Най-стари',
+        Username: 'Потребителско име',
         'Sort by Newest': 'Сортиране по Най-нови',
         'Clear Filters': 'Изчистване на филтри',
         Close: 'Затвори',
@@ -8584,7 +8589,7 @@ i18next.use(initReactI18next).init({
         Obichnik: 'Обичник',
         Obnova: 'Обнова',
         Oborishte_Varna: 'Оборище (обл. Варна)',
-        Oborishte_Pazardzhik: 'Оборище (обл. Пазарджик)',
+        'Oborishte (Pazardzhik district)': 'Оборище (обл. Пазарджик)',
         Obretenik: 'Обретеник',
         Obrochishte: 'Оброчище',
         Obruchishte: 'Обручище',

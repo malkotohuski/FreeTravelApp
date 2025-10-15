@@ -356,7 +356,7 @@ function HomePage({navigation}) {
       <View style={getFooterStyle()}>
         <TouchableOpacity
           style={getNotificationIconBackground()}
-          onPress={handlerNotificationScreen}>
+          onPress={handlerRouteRequest}>
           <Icons name="routes" {...getNotificationIconColor()} />
         </TouchableOpacity>
         <TouchableOpacity

@@ -749,6 +749,10 @@ const CitySelector = (limit = null) => {
     {label: t('Busintsi'), value: t('Busintsi')},
     {label: t('Busmantsi'), value: t('Busmantsi')},
     {label: t('Butan'), value: t('Butan')},
+    {
+      label: t('Oborishte (Pazardzhik district)'),
+      value: t('Oborishte (Pazardzhik district)'),
+    },
     {label: t('Butovo'), value: t('Butovo')},
     {label: t('Butreva'), value: t('Butreva')},
     {label: t('Butrointsi'), value: t('Butrointsi')},
