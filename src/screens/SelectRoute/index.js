@@ -14,7 +14,9 @@ import {
   Modal,
   ScrollView,
   SafeAreaView,
+  TouchableWithoutFeedback,
 } from 'react-native';
+import {useDebouncedCallback} from 'use-debounce';
 import DatePicker from 'react-native-date-picker';
 import {useTranslation} from 'react-i18next';
 import CitySelector from '../../server/Cities/cities';
@@ -212,25 +214,29 @@ function SelectRouteScreen({route, navigation}) {
 
   const filterDepartureCities = text => {
     setDepartureSearchText(text);
-    if (text === '') {
+
+    if (text.trim() === '') {
+      // ако полето е празно, показваме първите 7 града от CitySelector
       setFilteredCities(cities.slice(0, 7));
     } else {
-      const filteredCities = cities.filter(city =>
+      const filtered = cities.filter(city =>
         city.label.toLowerCase().includes(text.toLowerCase()),
       );
-      setFilteredCities(filteredCities.slice(0, 7));
+      setFilteredCities(filtered.slice(0, 7));
     }
   };
 
   const filterArrivalCities = text => {
     setArrivalSearchText(text);
-    if (text === '') {
+
+    if (text.trim() === '') {
+      // ако полето е празно, показваме първите 7 града от CitySelector
       setArrivalFilteredCities(cities.slice(0, 7));
     } else {
-      const filteredCities = cities.filter(city =>
+      const filtered = cities.filter(city =>
         city.label.toLowerCase().includes(text.toLowerCase()),
       );
-      setArrivalFilteredCities(filteredCities.slice(0, 7));
+      setArrivalFilteredCities(filtered.slice(0, 7));
     }
   };
 
@@ -273,42 +279,49 @@ function SelectRouteScreen({route, navigation}) {
                 </Text>
               </TouchableOpacity>
               <Modal
-                animationType="slide"
+                animationType="fade"
                 transparent={true}
                 visible={modalVisibleDeparture}
-                onRequestClose={() => {
-                  setModalVisibleDeparture(false);
-                }}>
-                <View style={styles.modalContainer}>
-                  <TextInput
-                    placeholder="Search City"
-                    placeholderTextColor={'#010101'}
-                    value={departureSearchText}
-                    onChangeText={text => filterDepartureCities(text)}
-                    style={{
-                      height: 40,
-                      borderColor: 'black',
-                      backgroundColor: 'grey',
-                      borderWidth: 1.5,
-                      borderRadius: 8,
-                      paddingHorizontal: 8,
-                      fontSize: 16,
-                      fontWeight: 'bold',
-                      marginBottom: 10,
-                    }}
-                  />
-                  <FlatList
-                    style={{zIndex: 1, position: 'relative'}}
-                    data={filteredCities}
-                    renderItem={({item}) =>
-                      renderCityItem({
-                        item,
-                        setModalVisible: setModalVisibleDeparture,
-                      })
-                    }
-                    keyExtractor={item => item.value}
-                  />
-                </View>
+                onRequestClose={() => setModalVisibleDeparture(false)}>
+                <TouchableOpacity
+                  activeOpacity={1}
+                  style={styles.modalOverlay}
+                  onPressOut={() => setModalVisibleDeparture(false)}>
+                  <View style={styles.modalContainer}>
+                    <TouchableWithoutFeedback>
+                      <View>
+                        <TextInput
+                          placeholder="Search City"
+                          placeholderTextColor={'#010101'}
+                          value={departureSearchText}
+                          onChangeText={text => filterDepartureCities(text)}
+                          style={{
+                            height: 40,
+                            borderColor: 'black',
+                            backgroundColor: 'grey',
+                            borderWidth: 1.5,
+                            borderRadius: 8,
+                            paddingHorizontal: 8,
+                            fontSize: 16,
+                            fontWeight: 'bold',
+                            marginBottom: 10,
+                          }}
+                        />
+                        <FlatList
+                          style={{zIndex: 1, position: 'relative'}}
+                          data={filteredCities}
+                          renderItem={({item}) =>
+                            renderCityItem({
+                              item,
+                              setModalVisible: setModalVisibleDeparture,
+                            })
+                          }
+                          keyExtractor={item => item.value}
+                        />
+                      </View>
+                    </TouchableWithoutFeedback>
+                  </View>
+                </TouchableOpacity>
               </Modal>
             </View>
             <View style={{flex: 1, marginLeft: 10}}>
@@ -373,42 +386,49 @@ function SelectRouteScreen({route, navigation}) {
                 </Text>
               </TouchableOpacity>
               <Modal
-                animationType="slide"
+                animationType="fade"
                 transparent={true}
                 visible={modalVisibleArrival}
-                onRequestClose={() => {
-                  setModalVisibleArrival(false);
-                }}>
-                <View style={styles.modalContainer}>
-                  <TextInput
-                    placeholder="Search City"
-                    placeholderTextColor={'#010101'}
-                    value={arrivalSearchText}
-                    onChangeText={text => filterArrivalCities(text)}
-                    style={{
-                      height: 40,
-                      borderColor: 'black',
-                      backgroundColor: 'grey',
-                      borderWidth: 1.5,
-                      borderRadius: 8,
-                      paddingHorizontal: 8,
-                      fontSize: 16,
-                      fontWeight: 'bold',
-                      marginBottom: 10,
-                    }}
-                  />
-                  <FlatList
-                    style={{zIndex: 1, position: 'relative'}}
-                    data={arrivalFilteredCities}
-                    renderItem={({item}) =>
-                      renderArrivalCityItem({
-                        item,
-                        setModalVisible: setModalVisibleArrival,
-                      })
-                    }
-                    keyExtractor={item => item.value}
-                  />
-                </View>
+                onRequestClose={() => setModalVisibleArrival(false)}>
+                <TouchableOpacity
+                  activeOpacity={1}
+                  style={styles.modalOverlay}
+                  onPressOut={() => setModalVisibleArrival(false)}>
+                  <View style={styles.modalContainer}>
+                    <TouchableWithoutFeedback>
+                      <View>
+                        <TextInput
+                          placeholder="Search City"
+                          placeholderTextColor={'#010101'}
+                          value={arrivalSearchText}
+                          onChangeText={text => filterArrivalCities(text)}
+                          style={{
+                            height: 40,
+                            borderColor: 'black',
+                            backgroundColor: 'grey',
+                            borderWidth: 1.5,
+                            borderRadius: 8,
+                            paddingHorizontal: 8,
+                            fontSize: 16,
+                            fontWeight: 'bold',
+                            marginBottom: 10,
+                          }}
+                        />
+                        <FlatList
+                          style={{zIndex: 1, position: 'relative'}}
+                          data={arrivalFilteredCities}
+                          renderItem={({item}) =>
+                            renderArrivalCityItem({
+                              item,
+                              setModalVisible: setModalVisibleArrival,
+                            })
+                          }
+                          keyExtractor={item => item.value}
+                        />
+                      </View>
+                    </TouchableWithoutFeedback>
+                  </View>
+                </TouchableOpacity>
               </Modal>
             </View>
             <View style={{flex: 1, marginLeft: 10}}>
@@ -605,10 +625,18 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#f1f1f1',
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)', // лек фон за клик зона
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   modalContainer: {
     backgroundColor: '#f0f0f0',
-    padding: 16,
-    marginTop: 100,
+    borderRadius: 10,
+    padding: 15,
+    width: '90%',
+    maxHeight: '70%',
   },
   citySelectButton: {
     height: 70,

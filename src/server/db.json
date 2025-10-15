@@ -648,32 +648,13 @@
       "userRouteId": "deleted"
     },
     {
-      "selectedVehicle": "Лек автомобил",
-      "registrationNumber": "A2121AA",
-      "selectedDateTime": "2025-10-02T11:48:00.000Z",
-      "departureCity": "Бургас",
-      "departureStreet": "",
-      "departureNumber": "",
-      "arrivalCity": "София",
-      "arrivalStreet": "",
-      "arrivalNumber": "",
-      "routeTitle": "Има 2 свободни места",
-      "userId": 1711358014466,
-      "username": "Shushkata7@gmail.com",
-      "userFname": "Velichka",
-      "userLname": "Spasova",
-      "userEmail": "shushkata7@gmail.com",
-      "id": 1759146545961,
-      "userRouteId": "deleted"
-    },
-    {
       "selectedVehicle": "Car",
       "registrationNumber": "A2111AA",
-      "selectedDateTime": "2025-10-04T12:13:00.000Z",
+      "selectedDateTime": "2025-11-02T15:22:00.000Z",
       "departureCity": "Varna",
       "departureStreet": "",
       "departureNumber": "",
-      "arrivalCity": "Burgas",
+      "arrivalCity": "Stara Zagora",
       "arrivalStreet": "",
       "arrivalNumber": "",
       "routeTitle": "2 free spots",
@@ -682,25 +663,7 @@
       "userFname": "Velichka",
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
-      "id": 1759407224235
-    },
-    {
-      "selectedVehicle": "Car",
-      "registrationNumber": "A2111AA",
-      "selectedDateTime": "2025-10-07T16:04:00.000Z",
-      "departureCity": "Stara Zagora",
-      "departureStreet": "",
-      "departureNumber": "",
-      "arrivalCity": "Kapitan Dimitrievо",
-      "arrivalStreet": "",
-      "arrivalNumber": "",
-      "routeTitle": "2 spots free",
-      "userId": 1711358014466,
-      "username": "Shushkata7@gmail.com",
-      "userFname": "Velichka",
-      "userLname": "Spasova",
-      "userEmail": "shushkata7@gmail.com",
-      "id": 1759421116165
+      "id": 1760539004011
     }
   ],
   "seekers": [
@@ -718,22 +681,6 @@
   ],
   "requests": [
     {
-      "username": "huskyPower",
-      "userFname": "daniel",
-      "userLname": "dimitorv",
-      "userEmail": "malkotohuski@gmail.com",
-      "userID": 1733840997419,
-      "userRouteId": 1711358014466,
-      "departureCity": "Бургас",
-      "arrivalCity": "София",
-      "routeId": 1759146545961,
-      "dataTime": "2025-10-02T11:48:00.000Z",
-      "requestComment": "Tursq 1 mqsto",
-      "rateCreator": false,
-      "rateUser": false,
-      "id": 1759146590197
-    },
-    {
       "username": "sdds",
       "userFname": "asdasd",
       "userLname": "sdsd",
@@ -741,45 +688,13 @@
       "userID": 1730713699917,
       "userRouteId": 1711358014466,
       "departureCity": "Varna",
-      "arrivalCity": "Burgas",
-      "routeId": 1759407224235,
-      "dataTime": "2025-10-04T12:13:00.000Z",
+      "arrivalCity": "Stara Zagora",
+      "routeId": 1760539004011,
+      "dataTime": "2025-11-02T15:22:00.000Z",
       "requestComment": "1 spot ?",
       "rateCreator": false,
       "rateUser": false,
-      "id": 1759407247194
-    },
-    {
-      "username": "huskyPower",
-      "userFname": "daniel",
-      "userLname": "dimitorv",
-      "userEmail": "malkotohuski@gmail.com",
-      "userID": 1733840997419,
-      "userRouteId": 1711358014466,
-      "departureCity": "Varna",
-      "arrivalCity": "Burgas",
-      "routeId": 1759407224235,
-      "dataTime": "2025-10-04T12:13:00.000Z",
-      "requestComment": "1",
-      "rateCreator": false,
-      "rateUser": false,
-      "id": 1759421032240
-    },
-    {
-      "username": "sdds",
-      "userFname": "asdasd",
-      "userLname": "sdsd",
-      "userEmail": "devmasterstech@gmail.com",
-      "userID": 1730713699917,
-      "userRouteId": 1711358014466,
-      "departureCity": "Stara Zagora",
-      "arrivalCity": "Kapitan Dimitrievо",
-      "routeId": 1759421116165,
-      "dataTime": "2025-10-07T16:04:00.000Z",
-      "requestComment": "1",
-      "rateCreator": false,
-      "rateUser": false,
-      "id": 1759421202470
+      "id": 1760539091171
     }
   ],
   "userChanges": [],
@@ -2127,25 +2042,8 @@
     },
     {
       "recipient": "Shushkata7@gmail.com",
-      "message": "You have a candidate for your route: Бургас-София with username: huskyPower!",
-      "routeId": 1759146545961,
-      "routeChecker": true,
-      "status": "active",
-      "requester": {
-        "username": "huskyPower",
-        "userFname": "daniel",
-        "userLname": "dimitorv",
-        "email": "malkotohuski@gmail.com",
-        "comment": "Tursq 1 mqsto"
-      },
-      "createdAt": "2025-09-29T11:49:48.517Z",
-      "id": 300,
-      "read": true
-    },
-    {
-      "recipient": "Shushkata7@gmail.com",
-      "message": "You have a candidate for your route: Varna-Burgas with username: sdds!",
-      "routeId": 1759407224235,
+      "message": "You have a candidate for your route: Varna-Stara Zagora with username: sdds!",
+      "routeId": 1760539004011,
       "routeChecker": true,
       "status": "active",
       "requester": {
@@ -2155,41 +2053,23 @@
         "email": "devmasterstech@gmail.com",
         "comment": "1 spot ?"
       },
-      "createdAt": "2025-10-02T12:14:06.682Z",
-      "id": 301,
+      "createdAt": "2025-10-15T14:38:10.971Z",
+      "id": 294,
       "read": true
     },
     {
-      "recipient": "Shushkata7@gmail.com",
-      "message": "You have a candidate for your route: Varna-Burgas with username: huskyPower!",
-      "routeId": 1759407224235,
-      "routeChecker": true,
-      "status": "active",
+      "recipient": "sdds",
+      "message": "Shushkata7@gmail.com accepted your invitation.",
+      "routeId": 1760539004011,
       "requester": {
-        "username": "huskyPower",
-        "userFname": "daniel",
-        "userLname": "dimitorv",
-        "email": "malkotohuski@gmail.com",
-        "comment": "1"
+        "username": "Shushkata7@gmail.com",
+        "email": "shushkata7@gmail.com"
       },
-      "createdAt": "2025-10-02T16:03:51.261Z",
-      "id": 302
-    },
-    {
-      "recipient": "Shushkata7@gmail.com",
-      "message": "You have a candidate for your route: Stara Zagora-Kapitan Dimitrievо with username: sdds!",
-      "routeId": 1759421116165,
-      "routeChecker": true,
+      "personalMessage": "Yes  still have",
+      "createdAt": "2025-10-15T14:38:42.115Z",
+      "read": false,
       "status": "active",
-      "requester": {
-        "username": "sdds",
-        "userFname": "asdasd",
-        "userLname": "sdsd",
-        "email": "devmasterstech@gmail.com",
-        "comment": "1"
-      },
-      "createdAt": "2025-10-02T16:06:41.491Z",
-      "id": 303
+      "id": 295
     }
   ]
 }

@@ -110,100 +110,75 @@ const ReportingScreen = ({navigation}) => {
   };
 
   return (
-    <SafeAreaView style={styles.mainContainer}>
-      <ScrollView contentContainerStyle={{flexGrow: 1}}>
-        <Image
-          source={require('../../../images/road-wallpapers-reporting.jpg')}
-          style={styles.backgroundImage}
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={{flexGrow: 1, padding: 16}}>
+        {/* Success message */}
+        {showSuccessMessage && (
+          <Animatable.Text
+            animation="pulse"
+            iterationCount="infinite"
+            style={styles.successMessage}>
+            {t('The signal has been sent!')}
+          </Animatable.Text>
+        )}
+
+        {/* Problem Description */}
+        <TextInput
+          style={styles.input}
+          placeholder={t('Describe the problem')}
+          placeholderTextColor={'#999'}
+          multiline
+          value={problemDescription}
+          onChangeText={setProblemDescription}
         />
-        <View style={{flex: 1, justifyContent: 'flex-start'}}>
-          <View style={getHeaderStyles()}>
-            <Text style={styles.headerText}>{t('Reporting')}</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-              <Icons name="keyboard-backspace" size={24} color="white" />
-            </TouchableOpacity>
-          </View>
-          <View style={{flex: 1}}>
-            {showSuccessMessage && (
-              <Animatable.Text
-                animation="pulse"
-                iterationCount="infinite"
-                style={styles.successMessage}>
-                {t('The signal has been sent!')}
-              </Animatable.Text>
-            )}
-            <TextInput
-              style={styles.input}
-              placeholder={t('Describe the problem')}
-              placeholderTextColor={'#F1F1F1'}
-              multiline
-              value={problemDescription}
-              onChangeText={text => setProblemDescription(text)}
-            />
-            <TextInput
-              style={[
-                styles.inputVehicle,
-                !isValidVehicleNumber && styles.invalidInput,
-              ]}
-              placeholder={t(
-                'Enter your vehicle registration number or username!',
-              )}
-              placeholderTextColor={'#F1F1F1'}
-              value={vehicleNumber}
-              onChangeText={validateVehicleNumber}
-              multiline
-              textAlignVertical="center"
-            />
-            <TouchableOpacity onPress={chooseMedia} style={styles.imagePicker}>
-              <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold'}}>
-                {t('Choose Photo or Video')}
+
+        {/* Vehicle Number */}
+        <TextInput
+          style={[styles.input, !isValidVehicleNumber && styles.invalidInput]}
+          placeholder={t('Enter your vehicle registration number or username')}
+          placeholderTextColor={'#999'}
+          value={vehicleNumber}
+          onChangeText={validateVehicleNumber}
+          textAlign="center"
+        />
+
+        {/* Image / Video picker */}
+        <TouchableOpacity onPress={chooseMedia} style={styles.imagePicker}>
+          <Text style={styles.buttonText}>{t('Choose Photo or Video')}</Text>
+        </TouchableOpacity>
+
+        {/* Preview */}
+        {profilePicture ? (
+          <View style={styles.previewContainer}>
+            {profilePicture.startsWith('data:video') ? (
+              <Text style={styles.previewText}>
+                📹 {t('Video selected (preview not available)')}
               </Text>
-            </TouchableOpacity>
-            {profilePicture && (
-              <View style={styles.show_image}>
-                {profilePicture.startsWith('data:video') ? (
-                  <Text style={{color: 'white', textAlign: 'center'}}>
-                    📹 {t('Video selected (preview not available)')}
-                  </Text>
-                ) : (
-                  <Image
-                    source={{uri: profilePicture}}
-                    style={styles.attachmentPreview}
-                  />
-                )}
-              </View>
+            ) : (
+              <Image
+                source={{uri: profilePicture}}
+                style={styles.attachmentPreview}
+              />
             )}
           </View>
-          <View style={styles.footer_container}>
-            <TouchableOpacity
-              onPress={sendReport}
-              style={[
-                styles.send_button,
-                isButtonDisabled && styles.disabledButton,
-              ]} // Стил за деактивиран бутон
-              disabled={isButtonDisabled} // Деактивиране на бутона
-            >
-              <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold'}}>
-                {t('Send the Signal')}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        ) : null}
+
+        {/* Send button */}
+        <TouchableOpacity
+          onPress={sendReport}
+          style={[styles.sendButton, isButtonDisabled && styles.disabledButton]}
+          disabled={isButtonDisabled}>
+          <Text style={styles.buttonText}>{t('Send the Signal')}</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  mainContainer: {
+  container: {
     flex: 1,
-  },
-  backgroundImage: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-    position: 'absolute',
+    backgroundColor: '#1e1e2f', // светъл и чист фон
   },
   header: {
     flexDirection: 'row',
@@ -215,18 +190,26 @@ const styles = StyleSheet.create({
   },
   headerText: {
     color: 'white',
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
   },
   input: {
-    height: 120,
-    borderColor: 'white',
-    borderWidth: 2,
+    backgroundColor: '#fff',
+    padding: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    fontSize: 16,
     marginBottom: 16,
-    padding: 8,
-    fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center', // Центриране на текста
+    textAlignVertical: 'top',
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowOffset: {width: 0, height: 2},
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  invalidInput: {
+    borderColor: 'red',
   },
   inputVehicle: {
     height: 100,
@@ -240,31 +223,37 @@ const styles = StyleSheet.create({
   },
   imagePicker: {
     backgroundColor: '#f4511e',
-    padding: 15,
-    borderRadius: 5,
-    marginTop: 56,
+    padding: 14,
+    borderRadius: 10,
     alignItems: 'center',
-    borderColor: '#f1f1f1',
-    borderWidth: 2,
+    marginBottom: 16,
+  },
+  previewContainer: {
+    marginBottom: 16,
+  },
+  previewText: {
+    color: '#333',
+    textAlign: 'center',
+    fontSize: 14,
+    marginBottom: 8,
   },
   attachmentPreview: {
     width: '100%',
-    height: 300,
-    borderRadius: 2,
-    borderColor: '#f1f1f1',
-    borderWidth: 2,
+    height: 250,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ddd',
   },
   show_image: {},
   invalidInput: {
     borderColor: 'red',
   },
-  send_button: {
+  sendButton: {
     backgroundColor: '#f4511e',
-    padding: 15,
-    borderRadius: 5,
+    padding: 14,
+    borderRadius: 10,
     alignItems: 'center',
-    borderColor: '#f1f1f1',
-    borderWidth: 2,
+    marginBottom: 20,
   },
   disabledButton: {
     backgroundColor: 'gray', // Стил за неактивен бутон
@@ -282,8 +271,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   successMessage: {
-    color: 'red',
-    fontSize: 20,
+    color: '#4BB543', // зелено за успех
+    fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
     marginVertical: 10,
