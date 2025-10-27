@@ -496,6 +496,7 @@ function SelectRouteScreen({route, navigation}) {
             placeholderTextColor="#888"
             value={routeTitle}
             onChangeText={setRouteTitle}
+            maxLength={40}
           />
           <View
             style={{

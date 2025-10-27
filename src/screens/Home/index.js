@@ -31,6 +31,7 @@ function HomePage({navigation}) {
   const {t} = useTranslation();
   const [isBulgaria, setisBulgaria] = useState(false);
   const [notificationCount, setNotificationCount] = useState(0);
+  const [reqestsCount, setReqestsCount] = useState(0);
 
   const loginUser = user?.user?.username;
 
@@ -134,6 +135,31 @@ function HomePage({navigation}) {
   }, [loginUser]);
 
   useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        if (!loginUser) return;
+
+        const response = await api.get('/requests');
+        // заявките, които са насочени към текущия потребител и са чакащи
+        const pendingRequests = response.data.filter(
+          req =>
+            req.userRouteId === user?.user?.id && // към него е заявката
+            req.status === 'pending',
+        );
+
+        // актуализиране на брояча
+        setReqestsCount(
+          pendingRequests.length > 9 ? '9+' : pendingRequests.length,
+        );
+      } catch (error) {
+        console.error('Failed to fetch route requests:', error);
+      }
+    };
+
+    fetchRequests();
+  }, [loginUser]);
+
+  useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       // Проверка за параметри от Notifications, които показват, че броят на нотификациите трябва да бъде занулен
       if (route.params?.resetNotificationCount) {
@@ -143,6 +169,13 @@ function HomePage({navigation}) {
 
     return unsubscribe;
   }, [navigation, route.params]);
+
+  /*   useEffect(() => {
+    const interval = setInterval(() => {
+      fetchRequests();
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [loginUser]); */
 
   const changeLanguage = async lng => {
     await i18next.changeLanguage(lng);
@@ -154,9 +187,34 @@ function HomePage({navigation}) {
     console.log('Vehicle clicked !!!');
   };
 
-  const handlerRouteRequest = () => {
-    navigation.navigate('Route request');
-    console.log('RouteRequest clicked !!!');
+  const handlerRouteRequest = async () => {
+    try {
+      // Вземаме всички заявки
+      const response = await api.get('/requests');
+
+      // Филтрираме чакащите към текущия потребител
+      const pendingRequests = response.data.filter(
+        req =>
+          req.userRouteId === user?.user?.id &&
+          req.status === 'pending' &&
+          !req.read,
+      );
+
+      // Обновяваме статуса на всяка на сървъра
+      for (const request of pendingRequests) {
+        await api.patch(`/requests/${request.id}`, {read: true});
+      }
+
+      // Нулираме брояча на клиента
+      setReqestsCount(0);
+
+      // Навигираме към екрана Route Request
+      navigation.navigate('Route request');
+      console.log('RouteRequest clicked !!!');
+    } catch (error) {
+      console.error('Failed to mark requests as read:', error);
+      Alert.alert('Error', 'Failed to update requests.');
+    }
   };
 
   const handlerLooking = () => {
@@ -354,11 +412,20 @@ function HomePage({navigation}) {
         </View>
       </ScrollView>
       <View style={getFooterStyle()}>
-        <TouchableOpacity
-          style={getNotificationIconBackground()}
-          onPress={handlerRouteRequest}>
-          <Icons name="routes" {...getNotificationIconColor()} />
-        </TouchableOpacity>
+        <View style={styles.notificationWrapper}>
+          <TouchableOpacity
+            style={getNotificationIconBackground()}
+            onPress={handlerRouteRequest}>
+            <Icons name="routes" {...getNotificationIconColor()} />
+
+            {reqestsCount > 0 && (
+              <View style={styles.notificationBadge}>
+                <Text style={styles.notificationText}>{reqestsCount}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
+
         <TouchableOpacity
           style={getNotificationIconBackground()}
           onPress={handlerChatScreen}>

@@ -664,6 +664,60 @@
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
       "id": 1760539004011
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A1211AA",
+      "selectedDateTime": "2025-10-29T13:21:00.000Z",
+      "departureCity": "Sofia",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Plovdiv",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "routeTitle": "1",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1761571350266
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A1211AA",
+      "selectedDateTime": "2025-10-28T13:46:00.000Z",
+      "departureCity": "Plovdiv",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Sofia",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "routeTitle": "Have 2 free spots no smoke no 4alga plss",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1761572818394
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A1211AA",
+      "selectedDateTime": "2025-10-27T21:49:00.000Z",
+      "departureCity": "Sofia",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Burgas",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "routeTitle": "Have 1 spot",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1761572988259
     }
   ],
   "seekers": [
@@ -694,7 +748,79 @@
       "requestComment": "1 spot ?",
       "rateCreator": false,
       "rateUser": false,
-      "id": 1760539091171
+      "id": 1760539091171,
+      "status": "rejected"
+    },
+    {
+      "username": "huskyPower",
+      "userFname": "daniel",
+      "userLname": "dimitorv",
+      "userEmail": "malkotohuski@gmail.com",
+      "userID": 1733840997419,
+      "userRouteId": 1711358014466,
+      "departureCity": "Varna",
+      "arrivalCity": "Stara Zagora",
+      "routeId": 1760539004011,
+      "dataTime": "2025-11-02T15:22:00.000Z",
+      "requestComment": "1",
+      "rateCreator": false,
+      "rateUser": false,
+      "id": 1761570215817,
+      "status": "rejected"
+    },
+    {
+      "username": "huskyPower",
+      "userFname": "daniel",
+      "userLname": "dimitorv",
+      "userEmail": "malkotohuski@gmail.com",
+      "userID": 1733840997419,
+      "userRouteId": 1711358014466,
+      "departureCity": "Sofia",
+      "arrivalCity": "Plovdiv",
+      "routeId": 1761571350266,
+      "dataTime": "2025-10-29T13:21:00.000Z",
+      "requestComment": "12",
+      "rateCreator": false,
+      "rateUser": false,
+      "status": "approved",
+      "read": true,
+      "id": 1761571371596
+    },
+    {
+      "username": "huskyPower",
+      "userFname": "daniel",
+      "userLname": "dimitorv",
+      "userEmail": "malkotohuski@gmail.com",
+      "userID": 1733840997419,
+      "userRouteId": 1711358014466,
+      "departureCity": "Plovdiv",
+      "arrivalCity": "Sofia",
+      "routeId": 1761572818394,
+      "dataTime": "2025-10-28T13:46:00.000Z",
+      "requestComment": "1 spot ?",
+      "rateCreator": false,
+      "rateUser": false,
+      "status": "approved",
+      "read": true,
+      "id": 1761572855518
+    },
+    {
+      "username": "huskyPower",
+      "userFname": "daniel",
+      "userLname": "dimitorv",
+      "userEmail": "malkotohuski@gmail.com",
+      "userID": 1733840997419,
+      "userRouteId": 1711358014466,
+      "departureCity": "Sofia",
+      "arrivalCity": "Burgas",
+      "routeId": 1761572988259,
+      "dataTime": "2025-10-27T21:49:00.000Z",
+      "requestComment": "Still free",
+      "rateCreator": false,
+      "rateUser": false,
+      "status": "pending",
+      "read": false,
+      "id": 1761573015649
     }
   ],
   "userChanges": [],
@@ -2070,6 +2196,128 @@
       "read": false,
       "status": "active",
       "id": 295
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "You have a candidate for your route: Varna-Stara Zagora with username: huskyPower!",
+      "routeId": 1760539004011,
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "huskyPower",
+        "userFname": "daniel",
+        "userLname": "dimitorv",
+        "email": "malkotohuski@gmail.com",
+        "comment": "1"
+      },
+      "createdAt": "2025-10-27T13:03:34.174Z",
+      "id": 296,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "You have a candidate for your route: Sofia-Plovdiv with username: huskyPower!",
+      "routeId": 1761571350266,
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "huskyPower",
+        "userFname": "daniel",
+        "userLname": "dimitorv",
+        "email": "malkotohuski@gmail.com",
+        "comment": "12"
+      },
+      "createdAt": "2025-10-27T13:22:49.913Z",
+      "id": 297,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "You have a candidate for your route: Plovdiv-Sofia with username: huskyPower!",
+      "routeId": 1761572818394,
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "huskyPower",
+        "userFname": "daniel",
+        "userLname": "dimitorv",
+        "email": "malkotohuski@gmail.com",
+        "comment": "1 spot ?"
+      },
+      "createdAt": "2025-10-27T13:47:33.832Z",
+      "id": 298
+    },
+    {
+      "recipient": "huskyPower",
+      "message": "Your request has been approved from Shushkata7@gmail.com.\nAbout the route: Sofia-Plovdiv.\nFor date: 29.10.2025 г., 15:21",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-10-27T13:48:45.437Z",
+      "id": 299
+    },
+    {
+      "recipient": "huskyPower",
+      "message": "Your request has been approved from Shushkata7@gmail.com.\nAbout the route: Plovdiv-Sofia.\nFor date: 28.10.2025 г., 15:46",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-10-27T13:48:51.390Z",
+      "id": 300
+    },
+    {
+      "recipient": "huskyPower",
+      "message": "Your request has NOT been approved from Shushkata7@gmail.com.\nAbout the route: Varna-Stara Zagora.\nFor date: 2.11.2025 г., 17:22",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-10-27T13:48:55.455Z",
+      "id": 301
+    },
+    {
+      "recipient": "sdds",
+      "message": "Your request has NOT been approved from Shushkata7@gmail.com.\nAbout the route: Varna-Stara Zagora.\nFor date: 2.11.2025 г., 17:22",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata7@gmail.com",
+        "userFname": "Velichka",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2025-10-27T13:48:59.232Z",
+      "id": 302
+    },
+    {
+      "recipient": "Shushkata7@gmail.com",
+      "message": "You have a candidate for your route: Sofia-Burgas with username: huskyPower!",
+      "routeId": 1761572988259,
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "huskyPower",
+        "userFname": "daniel",
+        "userLname": "dimitorv",
+        "email": "malkotohuski@gmail.com",
+        "comment": "Still free"
+      },
+      "createdAt": "2025-10-27T13:50:13.966Z",
+      "id": 303
     }
   ]
 }

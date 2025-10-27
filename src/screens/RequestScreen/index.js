@@ -142,6 +142,8 @@ function RouteDetails({route}) {
                     requestComment: tripRequestText,
                     rateCreator: false,
                     rateUser: false,
+                    status: 'pending',
+                    read: false,
                   },
                 });
                 setHasRequested(true);
