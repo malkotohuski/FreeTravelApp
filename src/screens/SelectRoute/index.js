@@ -80,6 +80,10 @@ function SelectRouteScreen({route, navigation}) {
       setSelectedDateTime(null);
       setDate(new Date());
       setRouteTitle('');
+
+      // 🧠 добави това:
+      setFilteredCities(cities.slice(0, 7));
+      setArrivalFilteredCities(cities.slice(0, 7));
     }, []),
   );
 
