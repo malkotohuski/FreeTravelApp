@@ -10,9 +10,9 @@ import {
   Modal,
   ScrollView,
   SafeAreaView,
-  Image,
 } from 'react-native';
 import DatePicker from 'react-native-date-picker';
+import LinearGradient from 'react-native-linear-gradient';
 import {useTranslation} from 'react-i18next';
 import CitySelector from '../../server/Cities/cities';
 import {useFocusEffect} from '@react-navigation/native';
@@ -65,10 +65,7 @@ function Looking({navigation}) {
   );
 
   const handleSearch = async () => {
-    if (isSubmitting || isGenerating) {
-      console.warn('Duplicate submission attempt prevented.');
-      return;
-    }
+    if (isSubmitting || isGenerating) return;
 
     if (!departureCity || !arrivalCity) {
       Alert.alert(
@@ -101,9 +98,7 @@ function Looking({navigation}) {
     try {
       const response = await fetch('http://10.0.2.2:3000/seekers-route', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({seeker: newRoute}),
       });
 
@@ -113,20 +108,15 @@ function Looking({navigation}) {
       if (response.ok) {
         const responseData = await response.json();
         setSuccessMessage(t('The route has been created!'));
-
         setTimeout(() => {
           setSuccessMessage('');
-          navigation.navigate('Seekers', {
-            seeker: responseData.seeker,
-          });
+          navigation.navigate('Seekers', {seeker: responseData.seeker});
         }, 2000);
       } else {
         const errorData = await response.json();
-        console.error('Failed to create route:', errorData.error);
         Alert.alert(t('Error'), errorData.error || 'Failed to create route.');
       }
     } catch (error) {
-      console.error('Error creating route:', error);
       Alert.alert(t('Error'), 'An error occurred while creating the route.');
     } finally {
       setIsSubmitting(false);
@@ -141,44 +131,40 @@ function Looking({navigation}) {
     setFiltered(filtered.slice(0, 7));
   };
 
-  // Добавено setSearch, за да нулира търсенето при избор на град
   const renderCityItem = (item, setCity, closeModal, setSearch) => (
     <TouchableOpacity
       style={styles.cityItem}
       onPress={() => {
         setCity(item.label);
         closeModal(false);
-        setSearch(''); // Нулиране на търсенето при избор
+        setSearch('');
       }}>
       <Text style={styles.cityItemText}>{item.label}</Text>
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView style={{flex: 1}}>
-      <ScrollView contentContainerStyle={{flexGrow: 1}}>
-        <View style={{flex: 1, alignItems: 'center'}}>
-          <Image
-            source={require('../../../images/road-wallpapers-reporting.jpg')}
-            style={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              resizeMode: 'cover',
-            }}
-          />
+    <LinearGradient colors={['#0d0d0d', '#1a1a1a']} style={styles.gradient}>
+      <SafeAreaView style={{flex: 1}}>
+        <ScrollView contentContainerStyle={styles.scroll}>
+          <Text style={styles.title}>{t('Looking for a route')}</Text>
+
+          {/* Departure */}
           <Text style={styles.label}>{t('Departure')}</Text>
           <TouchableOpacity
-            style={styles.citySelectButton}
+            style={styles.selectButton}
             onPress={() => setModalDeparture(true)}>
-            <Text style={styles.citySelectButtonText}>
+            <Text style={styles.selectButtonText}>
               {departureCity || t('Select City')}
             </Text>
           </TouchableOpacity>
+
+          {/* Departure Modal */}
           <Modal visible={modalDeparture} transparent animationType="slide">
             <View style={styles.modalContainer}>
               <TextInput
                 placeholder={t('Search City')}
+                placeholderTextColor="#999"
                 style={styles.input}
                 value={departureSearch}
                 onChangeText={text =>
@@ -204,18 +190,22 @@ function Looking({navigation}) {
             </View>
           </Modal>
 
+          {/* Arrival */}
           <Text style={styles.label}>{t('Arrival')}</Text>
           <TouchableOpacity
-            style={styles.citySelectButton}
+            style={styles.selectButton}
             onPress={() => setModalArrival(true)}>
-            <Text style={styles.citySelectButtonText}>
+            <Text style={styles.selectButtonText}>
               {arrivalCity || t('Select City')}
             </Text>
           </TouchableOpacity>
+
+          {/* Arrival Modal */}
           <Modal visible={modalArrival} transparent animationType="slide">
             <View style={styles.modalContainer}>
               <TextInput
                 placeholder={t('Search City')}
+                placeholderTextColor="#999"
                 style={styles.input}
                 value={arrivalSearch}
                 onChangeText={text =>
@@ -237,50 +227,44 @@ function Looking({navigation}) {
             </View>
           </Modal>
 
+          {/* Route Info */}
           <Text style={styles.label}>{t('Route Information')}</Text>
           <TextInput
-            style={styles.routeTitleInput}
+            style={styles.routeInput}
             placeholder={t('Enter route title')}
+            placeholderTextColor="#888"
             value={routeTitle}
             onChangeText={setRouteTitle}
-            placeholderTextColor="#888"
           />
 
-          <View style={{marginTop: 60, alignItems: 'center', gap: 12}}>
-            {selectedDateTime && (
-              <View style={styles.selectedDateContainer}>
-                <Text style={styles.selectedDateLabel}>
-                  {t('Selected Date:')}
-                </Text>
-                <Text style={styles.selectedDateText}>
-                  {selectedDateTime.toLocaleDateString(i18n.language, {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                </Text>
-              </View>
-            )}
-
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => setOpen(true)}>
-              <Text style={styles.buttonText}>{t('Select date:')}</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.searchButton}
-              onPress={handleSearch}>
-              <Text style={styles.searchButtonText}>{t('Continue')}</Text>
-            </TouchableOpacity>
-            {isGenerating && (
-              <Text
-                style={{marginTop: 10, color: 'orange', fontWeight: 'bold'}}>
-                {t('Generating route...')}
+          {/* Date Picker */}
+          {selectedDateTime && (
+            <View style={styles.selectedDateContainer}>
+              <Text style={styles.selectedDateLabel}>
+                {t('Selected Date:')}
               </Text>
-            )}
-          </View>
+              <Text style={styles.selectedDateText}>
+                {selectedDateTime.toLocaleDateString(i18n.language, {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </Text>
+            </View>
+          )}
+
+          <TouchableOpacity style={styles.button} onPress={() => setOpen(true)}>
+            <Text style={styles.buttonText}>{t('Select date')}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
+            <Text style={styles.searchButtonText}>{t('Continue')}</Text>
+          </TouchableOpacity>
+
+          {isGenerating && (
+            <Text style={styles.loadingText}>{t('Generating route...')}</Text>
+          )}
 
           <DatePicker
             modal
@@ -295,125 +279,96 @@ function Looking({navigation}) {
             }}
             onCancel={() => setOpen(false)}
           />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+        </ScrollView>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  citySelectButton: {
-    height: 60,
-    width: 350,
-    borderColor: 'black',
-    borderWidth: 1.5,
-    borderRadius: 8,
-    paddingHorizontal: 8,
+  gradient: {flex: 1, justifyContent: 'center', alignItems: 'center'},
+  scroll: {alignItems: 'center', paddingVertical: 30, gap: 15},
+  title: {fontSize: 24, fontWeight: '700', color: '#fff', marginBottom: 10},
+  label: {fontSize: 18, color: '#ddd', fontWeight: '600', marginTop: 10},
+
+  selectButton: {
+    height: 55,
+    width: 320,
+    borderRadius: 10,
     justifyContent: 'center',
-    backgroundColor: 'white',
-    marginTop: 10,
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderWidth: 1,
+    borderColor: '#777',
   },
-  citySelectButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: 'black',
-    textAlign: 'center',
+  selectButtonText: {color: '#fff', fontSize: 17, fontWeight: '600'},
+
+  input: {
+    backgroundColor: '#222',
+    color: '#fff',
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#555',
+    marginBottom: 10,
   },
   modalContainer: {
     marginTop: 100,
-    backgroundColor: 'white',
+    backgroundColor: '#111',
     padding: 20,
-  },
-  cityItem: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderColor: '#ccc',
-  },
-  cityItemText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  input: {
-    backgroundColor: '#f0f0f0',
-    padding: 10,
-    marginBottom: 10,
-    borderRadius: 8,
-  },
-  label: {
-    fontSize: 20,
-    marginTop: 20,
-    fontWeight: 'bold',
-    color: 'black',
-  },
-  searchButton: {
-    marginTop: 10,
-    padding: 12,
-    backgroundColor: '#f4511e',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 180,
-    height: 60,
-    borderWidth: 2,
-    borderColor: '#f1f1f1',
-    borderRadius: 8,
-  },
-  searchButtonText: {
-    fontSize: 18,
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  button: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 32,
-    borderRadius: 10,
-    elevation: 3,
-    backgroundColor: '#f4511e',
-    borderWidth: 2,
-    borderColor: '#f1f1f1',
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  routeTitleInput: {
-    width: 350,
-    height: 70,
-    backgroundColor: '#ffffffcc',
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#000',
-    borderRadius: 10,
-    borderWidth: 1.5,
-    borderColor: '#ccc',
-    marginBottom: 20,
-  },
-
-  selectedDateContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
-    padding: 12,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginBottom: 10,
+    marginHorizontal: 20,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#444',
   },
-  selectedDateLabel: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
+  cityItem: {padding: 12, borderBottomWidth: 1, borderColor: '#333'},
+  cityItemText: {color: '#fff', fontSize: 16, fontWeight: '500'},
+
+  routeInput: {
+    width: 320,
+    height: 60,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    color: '#fff',
+    paddingHorizontal: 15,
+    fontSize: 17,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#777',
   },
-  selectedDateText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#f4511e',
-    textAlign: 'center',
+  selectedDateContainer: {
+    marginTop: 15,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    padding: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#777',
   },
+  selectedDateLabel: {color: '#bbb', fontSize: 16},
+  selectedDateText: {color: '#ff6600', fontSize: 18, fontWeight: '700'},
+
+  button: {
+    backgroundColor: '#ff6600',
+    borderRadius: 10,
+    width: 200,
+    height: 55,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  buttonText: {fontSize: 18, fontWeight: '600', color: '#fff'},
+
+  searchButton: {
+    backgroundColor: '#ff6600',
+    borderRadius: 10,
+    width: 200,
+    height: 55,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 15,
+  },
+  searchButtonText: {fontSize: 18, fontWeight: '600', color: '#fff'},
+  loadingText: {color: '#ff6600', marginTop: 10, fontWeight: '600'},
 });
 
 export default Looking;

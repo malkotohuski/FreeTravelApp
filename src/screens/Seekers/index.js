@@ -12,6 +12,7 @@ import {
   Alert,
   TextInput,
 } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import {useTranslation} from 'react-i18next';
 import {useFocusEffect} from '@react-navigation/native';
 import {useAuth} from '../../context/AuthContext';
@@ -39,32 +40,27 @@ function Seekers({navigation}) {
     try {
       setLoading(true);
       const response = await axios.get(`${API_BASE_URL}/seekers`);
-
       if (response.status === 200) {
         const now = new Date();
-
         const updatedRoutes = await Promise.all(
           response.data.map(async route => {
             const routeDate = new Date(route.selectedDateTime);
-
             if (routeDate < now) {
               try {
                 await axios.delete(`${API_BASE_URL}/seekers/${route.id}`);
-                return null; // премахни го от списъка
+                return null;
               } catch (deleteErr) {
                 console.error(
                   'Неуспешно изтриване на стар маршрут:',
                   deleteErr,
                 );
-                return route; // запази го, ако не можем да го изтрием
+                return route;
               }
             }
-
-            return route; // запазваме маршрути с валидна дата
+            return route;
           }),
         );
-
-        setRoutes(updatedRoutes.filter(route => route !== null)); // премахваме null стойности
+        setRoutes(updatedRoutes.filter(route => route !== null));
       } else {
         setError(t('Failed to fetch routes.'));
       }
@@ -78,25 +74,23 @@ function Seekers({navigation}) {
 
   const handlerBackHome = () => {
     navigation.navigate('Home');
-    console.log('back to Home');
   };
 
   const sendInvite = async () => {
     const recipient = selectedRoute.username;
 
     if (recipient === user?.user?.username) {
-      Alert.alert(t('Грешка'), t('Не может+е да изпращате покана на себе си.'));
+      Alert.alert(t('Грешка'), t('Не можете да изпращате покана на себе си.'));
       return;
     }
 
     try {
-      // Провери дали вече има такава покана в notifications
       const res = await axios.get(`${API_BASE_URL}/notifications`);
       const alreadyInvited = res.data.some(
         n =>
           n.recipient === recipient &&
           n.requester?.username === user?.user?.username &&
-          n.routeTitle === selectedRoute.routeTitle, // или избери нещо по-сигурно като ID, ако имаш
+          n.routeTitle === selectedRoute.routeTitle,
       );
 
       if (alreadyInvited) {
@@ -110,7 +104,7 @@ function Seekers({navigation}) {
       const notificationMessage = `Имате нова покана от ${loggedUserName} ${loggedUserFname}`;
 
       await axios.post(`${API_BASE_URL}/notifications`, {
-        recipient: recipient,
+        recipient,
         message: notificationMessage,
         routeChecker: true,
         status: 'active',
@@ -122,14 +116,12 @@ function Seekers({navigation}) {
         },
         routeTitle: selectedRoute.routeTitle,
         createdAt: new Date().toISOString(),
-        personalMessage: messageInput, // 👈 добавяме личното съобщение
+        personalMessage: messageInput,
       });
 
       setSelectedRoute(null);
       setMessageInput('');
-
-      Alert.alert('Success', t('The invitation was sent successfully.'));
-      setSelectedRoute(null);
+      Alert.alert('✅', t('The invitation was sent successfully.'));
     } catch (err) {
       console.error('Грешка при изпращане:', err);
       Alert.alert('Грешка', 'Възникна проблем при изпращането на поканата.');
@@ -156,290 +148,241 @@ function Seekers({navigation}) {
   });
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Image
-        source={require('../../../images/d7.png')}
-        style={styles.backgroundImage}
-      />
+    <LinearGradient
+      colors={['#0d0d0d', '#1a1a1a']}
+      style={styles.gradientBackground}>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder={t('Search by starting point')}
+            value={searchDeparture}
+            onChangeText={setSearchDeparture}
+            placeholderTextColor="#888"
+          />
+          <TextInput
+            style={styles.searchInput}
+            placeholder={t('Search by endpoint')}
+            value={searchArrival}
+            onChangeText={setSearchArrival}
+            placeholderTextColor="#888"
+          />
+        </View>
 
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder={t('Search by starting point')}
-          value={searchDeparture}
-          onChangeText={setSearchDeparture}
-          placeholderTextColor="#999"
-        />
-        <TextInput
-          style={styles.searchInput}
-          placeholder={t('Search by endpoint')}
-          value={searchArrival}
-          onChangeText={setSearchArrival}
-          placeholderTextColor="#999"
-        />
-      </View>
+        {loading ? (
+          <ActivityIndicator
+            size="large"
+            color="#f4511e"
+            style={{marginTop: 40}}
+          />
+        ) : error ? (
+          <Text style={styles.errorText}>{error}</Text>
+        ) : (
+          <ScrollView contentContainerStyle={styles.scrollContainer}>
+            {filteredRoutes.length === 0 ? (
+              <Text style={styles.errorText}>{t('No routes available.')}</Text>
+            ) : (
+              filteredRoutes.map((route, index) => {
+                const formattedDate = new Date(
+                  route.selectedDateTime,
+                ).toLocaleDateString(i18n.language, {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                });
 
-      {loading ? (
-        <ActivityIndicator
-          size="large"
-          color="#f4511e"
-          style={{marginTop: 40}}
-        />
-      ) : error ? (
-        <Text style={styles.errorText}>{error}</Text>
-      ) : (
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-          {filteredRoutes.length === 0 ? (
-            <Text style={styles.errorText}>{t('No routes available.')}</Text>
-          ) : (
-            filteredRoutes.map((route, index) => {
-              const formattedDate = new Date(
-                route.selectedDateTime,
-              ).toLocaleDateString(i18n.language, {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              });
-
-              return (
-                <TouchableOpacity
-                  key={index}
-                  style={styles.routeCard}
-                  onPress={() => setSelectedRoute(route)}>
-                  <Text style={styles.routeText}>{route.routeTitle}</Text>
-                  <Text style={styles.dateText}>{formattedDate}</Text>
-                  <Text style={styles.routeText}>
-                    {route.departureCity} ➝ {route.arrivalCity}
-                  </Text>
-                  <View style={styles.creatorContainer}>
-                    {route.userImage ? (
-                      <Image
-                        source={{uri: route.userImage}}
-                        style={styles.userImage}
-                      />
-                    ) : (
-                      <View style={styles.placeholderImage} />
-                    )}
-                    <Text style={styles.creatorText}>
-                      {t('Created by')}: {route.userFname} {route.userLname} (@
-                      {route.username})
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              );
-            })
-          )}
-        </ScrollView>
-      )}
-
-      <Modal visible={!!selectedRoute} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            {selectedRoute && (
-              <>
-                <TextInput
-                  style={{
-                    backgroundColor: '#f2f2f2',
-                    borderRadius: 8,
-                    padding: 10,
-                    marginTop: 16,
-                    color: '#000',
-                    height: 100,
-                    textAlignVertical: 'top',
-                  }}
-                  placeholder={t(
-                    'Write a personal message to the route creator (optional)',
-                  )}
-                  multiline
-                  numberOfLines={4}
-                  value={messageInput}
-                  onChangeText={setMessageInput}
-                  placeholderTextColor="#777"
-                />
-                <Text style={styles.routeText}>{selectedRoute.routeTitle}</Text>
-                <Text style={styles.dateText}>
-                  {new Date(selectedRoute.selectedDateTime).toLocaleDateString(
-                    'bg-BG',
-                    {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    },
-                  )}
-                </Text>
-                <Text style={styles.routeText}>
-                  {selectedRoute.departureCity} ➝ {selectedRoute.arrivalCity}
-                </Text>
-                <View style={styles.creatorContainer}>
+                return (
                   <TouchableOpacity
-                    style={styles.creatorTouchable}
-                    onPress={() => {
-                      setSelectedRoute(null); // Затваряме модала
-                      navigation.navigate('UserInfo', {
-                        username: selectedRoute.username,
-                        fName: selectedRoute.userFname,
-                        lName: selectedRoute.userLname,
-                        userImage: selectedRoute.userImage,
-                        userRatings: selectedRoute.ratings,
-                        userComments: selectedRoute.comments,
-                      });
-                    }}>
+                    key={index}
+                    style={styles.routeCard}
+                    onPress={() => setSelectedRoute(route)}>
+                    <Text style={styles.routeTitle}>{route.routeTitle}</Text>
+                    <Text style={styles.dateText}>{formattedDate}</Text>
+                    <Text style={styles.routeInfo}>
+                      {route.departureCity} ➝ {route.arrivalCity}
+                    </Text>
                     <View style={styles.creatorContainer}>
-                      {selectedRoute.userImage ? (
+                      {route.userImage ? (
                         <Image
-                          source={{uri: selectedRoute.userImage}}
+                          source={{uri: route.userImage}}
                           style={styles.userImage}
                         />
                       ) : (
                         <View style={styles.placeholderImage} />
                       )}
                       <Text style={styles.creatorText}>
-                        {t('Created by')}: {selectedRoute.userFname}{' '}
-                        {selectedRoute.userLname} (@
-                        {selectedRoute.username})
+                        {t('Created by')}: {route.userFname} {route.userLname}{' '}
+                        (@{route.username})
                       </Text>
                     </View>
                   </TouchableOpacity>
-                </View>
-
-                <View style={styles.modalButtons}>
-                  {selectedRoute.username !== user?.user?.username ? (
-                    <TouchableOpacity
-                      style={styles.inviteButton}
-                      onPress={sendInvite}>
-                      <Text style={styles.buttonText}>{t('Invitation')}</Text>
-                    </TouchableOpacity>
-                  ) : (
-                    <Text style={styles.infoText}>
-                      {t('You cannot send an invitation to your own route.')}
-                    </Text>
-                  )}
-
-                  <TouchableOpacity
-                    style={styles.cancelButton}
-                    onPress={() => setSelectedRoute(null)}>
-                    <Text style={styles.buttonText}>Назад</Text>
-                  </TouchableOpacity>
-                </View>
-              </>
+                );
+              })
             )}
-          </View>
-        </View>
-      </Modal>
+          </ScrollView>
+        )}
 
-      <TouchableOpacity style={styles.backButton} onPress={handlerBackHome}>
-        <Text style={styles.backButtonText}>{t('Back')}</Text>
-      </TouchableOpacity>
-    </SafeAreaView>
+        <Modal visible={!!selectedRoute} transparent animationType="slide">
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              {selectedRoute && (
+                <>
+                  <TextInput
+                    style={styles.messageInput}
+                    placeholder={t('Write a personal message (optional)')}
+                    multiline
+                    numberOfLines={4}
+                    value={messageInput}
+                    onChangeText={setMessageInput}
+                    placeholderTextColor="#aaa"
+                  />
+                  <Text style={styles.modalRouteTitle}>
+                    {selectedRoute.routeTitle}
+                  </Text>
+                  <Text style={styles.modalDate}>
+                    {new Date(
+                      selectedRoute.selectedDateTime,
+                    ).toLocaleDateString('bg-BG', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
+                  </Text>
+                  <Text style={styles.modalRouteText}>
+                    {selectedRoute.departureCity} ➝ {selectedRoute.arrivalCity}
+                  </Text>
+
+                  <View style={styles.modalButtons}>
+                    {selectedRoute.username !== user?.user?.username ? (
+                      <TouchableOpacity
+                        style={styles.mainButton}
+                        onPress={sendInvite}>
+                        <Text style={styles.buttonText}>{t('Invitation')}</Text>
+                      </TouchableOpacity>
+                    ) : (
+                      <Text style={styles.infoText}>
+                        {t('You cannot send an invitation to your own route.')}
+                      </Text>
+                    )}
+
+                    <TouchableOpacity
+                      style={styles.secondaryButton}
+                      onPress={() => setSelectedRoute(null)}>
+                      <Text style={styles.buttonText}>{t('Back')}</Text>
+                    </TouchableOpacity>
+                  </View>
+                </>
+              )}
+            </View>
+          </View>
+        </Modal>
+
+        <TouchableOpacity style={styles.backButton} onPress={handlerBackHome}>
+          <Text style={styles.backButtonText}>{t('Back')}</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 
+export default Seekers;
+
 const styles = StyleSheet.create({
+  gradientBackground: {flex: 1},
   container: {flex: 1},
   scrollContainer: {padding: 16, paddingBottom: 100},
-  routeCard: {
-    backgroundColor: '#ffffffcc',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 16,
-    elevation: 3,
-  },
-  routeText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 6,
-    color: '#1b1c1e',
-  },
-  dateText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#f4511e',
-    marginBottom: 6,
-  },
-  creatorContainer: {flexDirection: 'row', alignItems: 'center', marginTop: 10},
-  creatorText: {fontSize: 16, marginLeft: 10, color: '#555', flexShrink: 1},
-  userImage: {width: 40, height: 40, borderRadius: 20, backgroundColor: '#ccc'},
-  placeholderImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#999',
-  },
-  errorText: {fontSize: 18, color: 'red', textAlign: 'center', marginTop: 20},
-  backgroundImage: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-  },
-  backButton: {
-    margin: 20,
-    backgroundColor: '#f4511e',
-    padding: 14,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  backButtonText: {fontSize: 18, color: '#fff', fontWeight: 'bold'},
-
-  creatorTouchable: {
-    marginTop: 10,
-  },
-
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: '#000000aa',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  modalContent: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 20,
-    elevation: 10,
-  },
-  modalButtons: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    marginTop: 20,
-    gap: 12,
-  },
-  inviteButton: {
-    backgroundColor: '#28a745',
-    padding: 12,
-    borderRadius: 8,
-    width: 150,
-    alignItems: 'center',
-  },
-  cancelButton: {
-    backgroundColor: '#f4511e',
-    padding: 12,
-    borderRadius: 8,
-    width: 150,
-    alignItems: 'center',
-  },
-  buttonText: {color: '#fff', fontWeight: 'bold'},
-  infoText: {
-    color: '#888',
-    fontSize: 16,
-    fontStyle: 'italic',
-    textAlign: 'center',
-    maxWidth: 260,
-  },
-  searchContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    gap: 10,
-  },
+  searchContainer: {paddingHorizontal: 20, paddingTop: 20, gap: 12},
   searchInput: {
-    backgroundColor: '#ffffffcc',
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    color: '#fff',
     borderRadius: 10,
     paddingHorizontal: 16,
     paddingVertical: 10,
     fontSize: 16,
-    color: '#000',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
   },
+  routeCard: {
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  routeTitle: {fontSize: 20, fontWeight: '700', color: '#fff', marginBottom: 8},
+  routeInfo: {fontSize: 18, color: '#ccc', marginBottom: 6},
+  dateText: {fontSize: 16, color: '#f4511e', marginBottom: 6},
+  creatorContainer: {flexDirection: 'row', alignItems: 'center', marginTop: 10},
+  creatorText: {fontSize: 15, color: '#bbb', marginLeft: 10, flexShrink: 1},
+  userImage: {width: 40, height: 40, borderRadius: 20},
+  placeholderImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#444',
+  },
+  errorText: {fontSize: 18, color: '#ccc', textAlign: 'center', marginTop: 20},
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: 'rgba(30,30,30,0.95)',
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.15)',
+  },
+  messageInput: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 10,
+    padding: 10,
+    color: '#fff',
+    height: 100,
+    textAlignVertical: 'top',
+  },
+  modalRouteTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#fff',
+    marginTop: 15,
+  },
+  modalRouteText: {fontSize: 17, color: '#ccc', marginBottom: 8},
+  modalDate: {fontSize: 16, color: '#f4511e', marginBottom: 10},
+  modalButtons: {marginTop: 20, alignItems: 'center', gap: 12},
+  mainButton: {
+    backgroundColor: '#f4511e',
+    borderRadius: 10,
+    paddingVertical: 14,
+    width: 180,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#fff',
+  },
+  secondaryButton: {
+    backgroundColor: '#777',
+    borderRadius: 10,
+    paddingVertical: 14,
+    width: 180,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#fff',
+  },
+  buttonText: {color: '#fff', fontSize: 17, fontWeight: '600'},
+  infoText: {color: '#aaa', textAlign: 'center', marginTop: 10},
+  backButton: {
+    margin: 20,
+    backgroundColor: '#f4511e',
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#fff',
+  },
+  backButtonText: {color: '#fff', fontSize: 18, fontWeight: '600'},
 });
-
-export default Seekers;

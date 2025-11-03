@@ -1,14 +1,15 @@
-import React, {useState} from 'react';
+import React, {useState, useCallback, useMemo} from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   TextInput,
   Alert,
-  Image,
   ScrollView,
   SafeAreaView,
   StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import {
   useNavigation,
@@ -16,173 +17,198 @@ import {
   useFocusEffect,
 } from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
+import LinearGradient from 'react-native-linear-gradient';
 
-function MarkSeatsScreen() {
+const MarkSeatsScreen = () => {
   const {t} = useTranslation();
-  const [registrationNumber, setRegistrationNumber] = useState('');
-  const [showInvalidRegistrationAlert, setShowInvalidRegistrationAlert] =
-    useState(false);
-  const [carNumber, setCarNumber] = useState(null);
-
-  const route = useRoute();
-  const selectedVehicle = route.params.selectedVehicle;
   const navigation = useNavigation();
+  const route = useRoute();
+  const selectedVehicle = route.params?.selectedVehicle;
 
-  const handleCarNumber = value => {
-    setCarNumber(value);
-  };
+  const [registrationNumber, setRegistrationNumber] = useState('');
 
-  const isValidRegistrationNumber = () => {
-    const regex = /^([A-ZA-ZА-ЯА-Я]{1,2})([0-9]{4})([A-ZA-ZА-ЯА-Я]{2})$/;
-    return regex.test(registrationNumber);
-  };
+  const regex = useMemo(
+    () => /^([ABCEHKMOPTXY]{1,2})(\d{4})([ABCEHKMOPTXY]{2})$/i,
+    [],
+  );
 
-  const handleContinue = () => {
+  const isValidRegistrationNumber = useCallback(
+    () => regex.test(registrationNumber.trim()),
+    [registrationNumber, regex],
+  );
+
+  const handleContinue = useCallback(() => {
     if (!isValidRegistrationNumber()) {
       Alert.alert(
         t('Invalid Registration Number'),
-        t('Please enter a valid registration number.'),
+        t('Please enter a valid registration number (e.g. CA1234AB).'),
       );
       return;
     }
-    setShowInvalidRegistrationAlert(false);
     navigation.navigate('SelectRoute', {
       selectedVehicle,
       registrationNumber,
     });
-  };
+  }, [
+    isValidRegistrationNumber,
+    registrationNumber,
+    navigation,
+    selectedVehicle,
+    t,
+  ]);
 
-  const handlerBackToVehicle = () => {
+  const handleBack = useCallback(() => {
     navigation.navigate('Vehicle');
-  };
+  }, [navigation]);
 
-  // Изчистване на полето при връщане към екрана
+  // Нулиране при връщане към екрана
   useFocusEffect(
-    React.useCallback(() => {
-      setRegistrationNumber(''); // Нулиране на регистрационния номер
-      setShowInvalidRegistrationAlert(false); // Скриване на съобщението за грешка
+    useCallback(() => {
+      setRegistrationNumber('');
     }, []),
   );
 
   return (
-    <SafeAreaView style={styles.mainContainer}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Image
-          source={require('../../../images/register-number-background.jpg')}
-          style={styles.backgroundImage}
-        />
-        <Text style={styles.title}>
-          {t('Type')}: {selectedVehicle}
-        </Text>
+    <LinearGradient colors={['#2b2b2b', '#444']} style={{flex: 1}}>
+      <SafeAreaView style={{flex: 1}}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={{flex: 1}}>
+          <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <View style={styles.card}>
+              <Text style={styles.title}>
+                {t('Vehicle Type')}:{' '}
+                <Text style={styles.highlight}>{selectedVehicle}</Text>
+              </Text>
 
-        <TextInput
-          placeholder={t('Enter Registration Number')}
-          placeholderTextColor="#F1F1F1"
-          onValueChange={value => handleCarNumber(value)}
-          onChangeText={setRegistrationNumber}
-          value={registrationNumber} // Свързване на стойността с полето за въвеждане
-          style={styles.input}
-          autoFocus
-        />
+              <TextInput
+                placeholder={t('Enter Registration Number')}
+                placeholderTextColor="rgba(255,255,255,0.6)"
+                value={registrationNumber}
+                onChangeText={setRegistrationNumber}
+                style={[
+                  styles.input,
+                  {
+                    borderColor: isValidRegistrationNumber()
+                      ? '#4CAF50'
+                      : 'rgba(255,255,255,0.3)',
+                  },
+                ]}
+                maxLength={10}
+                autoCapitalize="characters"
+                keyboardType="default"
+                returnKeyType="done"
+              />
 
-        {registrationNumber && (
-          <Text style={styles.label}>{t('Registration Number')}:</Text>
-        )}
-        <Text style={styles.value}>{registrationNumber}</Text>
+              {registrationNumber.length > 0 &&
+                !isValidRegistrationNumber() && (
+                  <Text style={styles.warningText}>
+                    {t('Invalid format, example: CA1234AB')}
+                  </Text>
+                )}
 
-        {showInvalidRegistrationAlert && (
-          <Text style={styles.alertText}>
-            {t('Invalid registration number format')}
-          </Text>
-        )}
+              <View style={styles.buttonsContainer}>
+                <TouchableOpacity
+                  onPress={handleContinue}
+                  style={[
+                    styles.button,
+                    {
+                      backgroundColor: isValidRegistrationNumber()
+                        ? '#f4511e'
+                        : '#777',
+                    },
+                  ]}>
+                  <Text style={styles.buttonText}>{t('Continue')}</Text>
+                </TouchableOpacity>
 
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            onPress={handleContinue}
-            style={[
-              styles.button,
-              {
-                backgroundColor: isValidRegistrationNumber()
-                  ? '#f4511e'
-                  : 'black',
-              },
-            ]}>
-            <Text style={styles.buttonText}>{t('Continue')}</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={handlerBackToVehicle}
-            style={styles.backButton}>
-            <Text style={styles.buttonText}>{t('Back to Vehicle')}</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+                <TouchableOpacity
+                  onPress={handleBack}
+                  style={styles.secondaryButton}>
+                  <Text style={styles.buttonText}>{t('Back to Vehicle')}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </LinearGradient>
   );
-}
-
-const styles = StyleSheet.create({
-  mainContainer: {flex: 1},
-  scrollContent: {flexGrow: 1, alignItems: 'center'},
-  backgroundImage: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-    position: 'absolute',
-  },
-  title: {fontSize: 20, fontWeight: 'bold', color: '#F1F1F1', marginTop: 40},
-  input: {
-    height: 50,
-    borderColor: '#F1F1F1',
-    borderWidth: 2,
-    margin: 10,
-    textAlign: 'center',
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: 'bold',
-    backgroundColor: '#000000',
-    borderRadius: 8,
-    width: '80%',
-    marginTop: 50,
-  },
-  label: {color: '#F1F1F1', fontSize: 20, fontWeight: 'bold'},
-  value: {fontSize: 20, fontWeight: 'bold', color: '#F1F1F1'},
-  alertText: {color: '#FF4500', fontSize: 20, fontWeight: 'bold'},
-  buttonContainer: {
-    marginTop: 250, // Преместете бутоните надолу към желаната позиция
-    alignItems: 'center',
-  },
-  button: {
-    marginTop: 10,
-    backgroundColor: '#f4511e',
-    height: 70,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 10,
-    width: 250,
-    borderWidth: 2,
-    borderColor: '#f1f1f1',
-  },
-  backButton: {
-    marginTop: 10,
-    backgroundColor: '#f4511e',
-    height: 70,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 10,
-    width: 250,
-    borderWidth: 2,
-    borderColor: '#f1f1f1',
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-});
+};
 
 export default MarkSeatsScreen;
+
+const styles = StyleSheet.create({
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  card: {
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    width: '85%',
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 20,
+    color: '#fff',
+    fontWeight: '600',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  highlight: {
+    color: '#f4511e',
+    fontWeight: '700',
+  },
+  input: {
+    height: 55,
+    width: '90%',
+    borderWidth: 2,
+    borderRadius: 10,
+    textAlign: 'center',
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    marginVertical: 15,
+  },
+  warningText: {
+    color: '#FF6347',
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  buttonsContainer: {
+    marginTop: 30,
+    alignItems: 'center',
+    gap: 15,
+  },
+  button: {
+    width: 230,
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#fff',
+  },
+  secondaryButton: {
+    width: 230,
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#fff',
+    backgroundColor: '#555',
+  },
+  buttonText: {
+    fontSize: 18,
+    color: '#fff',
+    fontWeight: '600',
+  },
+});
