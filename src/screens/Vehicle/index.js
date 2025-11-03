@@ -1,128 +1,146 @@
-import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback, useMemo} from 'react';
 import RNPickerSelect from 'react-native-picker-select';
 import {useTranslation} from 'react-i18next';
-import {useFocusEffect} from '@react-navigation/native';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Alert,
-  Image,
-  StyleSheet,
-} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {View, Text, TouchableOpacity, Alert, StyleSheet} from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 
 const Vehicle = () => {
   const {t} = useTranslation();
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
   const navigation = useNavigation();
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
 
-  const vehicleTypes = [
-    {label: t('Car'), value: t('Car')},
-    {label: t('Motorcycle'), value: t('Motorcycle')},
-    {label: t('A minibus'), value: t('A minibus')},
-    {label: t('A bus'), value: t('A bus')},
-    {label: t('Other'), value: t('Other')},
-  ];
+  // ✅ Memoize vehicle options
+  const vehicleTypes = useMemo(
+    () => [
+      {label: t('Car'), value: 'Car'},
+      {label: t('Motorcycle'), value: 'Motorcycle'},
+      {label: t('A minibus'), value: 'A minibus'},
+      {label: t('A bus'), value: 'A bus'},
+      {label: t('Other'), value: 'Other'},
+    ],
+    [t],
+  );
 
-  const handleVehicleSelect = value => {
-    setSelectedVehicle(value);
-  };
-
-  const handleContinue = () => {
-    if (selectedVehicle !== null) {
-      // Navigate to the MarkSeats screen and pass the selected vehicle information
-      navigation.navigate('Mark Seats', {
-        selectedVehicle: selectedVehicle, // Pass the selected value directly
-        vehicleTypes: vehicleTypes,
-      });
-    } else {
-      // Handle the case where no vehicle is selected
-      Alert.alert(t('Error'), t('Please select a vehicle before continuing!'));
-    }
-  };
-
-  const handlerBackHome = () => {
-    navigation.navigate('Home');
-    console.log('back to Home');
-  };
-
+  // ✅ Reset selection when screen regains focus
   useFocusEffect(
     useCallback(() => {
-      // Reset the selectedVehicle when the component gains focus
       setSelectedVehicle(null);
     }, []),
   );
 
+  const handleContinue = useCallback(() => {
+    if (!selectedVehicle) {
+      Alert.alert(t('Error'), t('Please select a vehicle before continuing!'));
+      return;
+    }
+    navigation.navigate('Mark Seats', {
+      selectedVehicle,
+      vehicleTypes,
+    });
+  }, [selectedVehicle, navigation, t, vehicleTypes]);
+
+  const handleBackHome = useCallback(() => {
+    navigation.navigate('Home');
+  }, [navigation]);
+
   return (
-    <View style={{flex: 1, backgroundColor: 'grey'}}>
-      <Image
-        source={require('../../../images/car-background.jpg')}
-        style={styles.backgroundImage}
-      />
+    <LinearGradient
+      colors={['#2b2b2b', '#444']}
+      style={styles.gradientBackground}>
       <View style={styles.container}>
+        <Text style={styles.title}>{t('Select Vehicle')}</Text>
+
         <RNPickerSelect
           items={vehicleTypes}
-          placeholder={{label: t('Select vehicle'), value: null}}
-          placeholderTextColor="white"
-          onValueChange={value => handleVehicleSelect(value)}
+          placeholder={{label: t('Choose vehicle...'), value: null}}
+          onValueChange={setSelectedVehicle}
           value={selectedVehicle}
-          style={{
-            inputIOS: {
-              color: 'white', // Text color for selected item
-              fontSize: 20, // Font size for selected item
-            },
-            inputAndroid: {
-              color: 'white', // Text color for selected item
-              fontSize: 20, // Font size for selected item
-            },
-          }}
-          textInputProps={{underlineColorAndroid: 'transparent'}}
+          style={pickerSelectStyles}
+          useNativeAndroidPickerStyle={false}
         />
+
+        <View style={styles.buttonsContainer}>
+          <TouchableOpacity onPress={handleContinue} style={styles.button}>
+            <Text style={styles.buttonText}>{t('Continue')}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handleBackHome}
+            style={styles.buttonSecondary}>
+            <Text style={styles.buttonText}>{t('Back')}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <TouchableOpacity onPress={handleContinue} style={styles.buttons}>
-          <Text style={{color: 'white', fontSize: 20, fontWeight: 'bold'}}>
-            {t('Continue')}
-          </Text>
-        </TouchableOpacity>
-        <View style={styles.betweenButtons}></View>
-        <TouchableOpacity onPress={handlerBackHome} style={styles.buttons}>
-          <Text style={{color: 'white', fontSize: 20, fontWeight: 'bold'}}>
-            {t('Back')}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    </LinearGradient>
   );
 };
 
 export default Vehicle;
 
 const styles = StyleSheet.create({
-  backgroundImage: {
+  gradientBackground: {
     flex: 1,
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-    position: 'absolute',
-  },
-  typeVehicle: {
-    color: '#F1F1F1',
-  },
-  container: {},
-  buttons: {
-    height: 60,
-    backgroundColor: '#f4511e',
-    borderRadius: 8,
-    alignItems: 'center',
     justifyContent: 'center',
-    padding: 10,
-    width: 200,
-    borderWidth: 2,
-    borderColor: '#f1f1f1',
+    alignItems: 'center',
   },
-  betweenButtons: {
-    padding: 10,
+  container: {
+    width: '85%',
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  buttonsContainer: {
+    marginTop: 30,
+    alignItems: 'center',
+    gap: 15,
+  },
+  button: {
+    backgroundColor: '#f4511e',
+    borderRadius: 10,
+    width: 200,
+    height: 55,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#fff',
+  },
+  buttonSecondary: {
+    backgroundColor: '#777',
+    borderRadius: 10,
+    width: 200,
+    height: 55,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#fff',
+  },
+  buttonText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#fff',
+  },
+});
+
+const pickerSelectStyles = StyleSheet.create({
+  inputIOS: {
+    color: 'white',
+    fontSize: 18,
+    paddingVertical: 10,
+    textAlign: 'center',
+  },
+  inputAndroid: {
+    color: 'white',
+    fontSize: 18,
+    textAlign: 'center',
   },
 });

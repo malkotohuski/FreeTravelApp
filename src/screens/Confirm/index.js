@@ -10,6 +10,7 @@ import {
   SafeAreaView,
   ScrollView,
 } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import {useTranslation} from 'react-i18next';
 import LottieView from 'lottie-react-native';
 import {useRoute, useNavigation} from '@react-navigation/native';
@@ -131,178 +132,180 @@ function Confirm() {
   }, [navigation, selectedVehicle, registrationNumber]);
 
   return (
-    <SafeAreaView style={styles.mainContainer}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.headerText}>{t('Review your route')}</Text>
+    <LinearGradient
+      colors={['#0d0d0d', '#1a1a1a']}
+      style={styles.gradientBackground}>
+      <SafeAreaView style={styles.mainContainer}>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <Text style={styles.headerText}>{t('Review your route')}</Text>
 
-        <View style={styles.card}>
-          <View style={styles.cardHeaderRow}>
-            <Icon name="account-circle" size={24} color="#2c3e50" />
-            <Text style={styles.cardHeader}>{t('Driver')}</Text>
-          </View>
-          <Text style={styles.text}>
-            {t('Username')}: {username}
-          </Text>
-          <Text style={styles.text}>
-            {t('Names')}: {userFname} {userLname}
-          </Text>
-        </View>
-
-        <View style={styles.card}>
-          <View style={styles.cardHeaderRow}>
-            <Icon name="car-arrow-right" size={24} color="#2c3e50" />
-            <Text style={styles.cardHeader}>{t('Departure')}</Text>
-          </View>
-          <Text style={styles.text}>
-            {departureCity} {departureStreet}
-            {departureNumber ? ` - ${departureNumber}` : ''}
-          </Text>
-        </View>
-
-        <View style={styles.card}>
-          <View style={styles.cardHeaderRow}>
-            <Icon name="car-select" size={24} color="#2c3e50" />
-            <Text style={styles.cardHeader}>{t('Arrival')}</Text>
-          </View>
-          <Text style={styles.text}>
-            {arrivalCity} {arrivalStreet}
-            {arrivalNumber ? ` - ${arrivalNumber}` : ''}
-          </Text>
-        </View>
-
-        <View style={styles.card}>
-          <View style={styles.cardHeaderRow}>
-            <Icon name="calendar" size={24} color="#2c3e50" />
-            <Text style={styles.cardHeader}>
-              {t('Time and date of departure')}
+          <View style={styles.card}>
+            <View style={styles.cardHeaderRow}>
+              <Icon name="account-circle" size={24} color="#f4511e" />
+              <Text style={styles.cardHeader}>{t('Driver')}</Text>
+            </View>
+            <Text style={styles.text}>
+              {t('Username')}: {username}
+            </Text>
+            <Text style={styles.text}>
+              {t('Names')}: {userFname} {userLname}
             </Text>
           </View>
-          <Text style={styles.text}>{selectedDateTime?.toLocaleString()}</Text>
-        </View>
 
-        {showChangesButton && (
-          <TouchableOpacity
-            style={styles.buttonDanger}
-            onPress={() => navigation.navigate('Vehicle')}>
-            <Text style={styles.buttonText}>{t('Make changes')}</Text>
-          </TouchableOpacity>
-        )}
-        {showConfirmButton && !isSubmitting && (
-          <TouchableOpacity
-            style={styles.buttonSuccess}
-            onPress={handleConfirm}>
-            <Text style={styles.buttonText}>{t('Confirm')}</Text>
-          </TouchableOpacity>
-        )}
-        {showBackButton && (
-          <TouchableOpacity
-            style={styles.buttonBack}
-            onPress={() => navigation.navigate('View routes')}>
-            <Text style={styles.buttonText}>{t('Back')}</Text>
-          </TouchableOpacity>
-        )}
+          <View style={styles.card}>
+            <View style={styles.cardHeaderRow}>
+              <Icon name="car-arrow-right" size={24} color="#f4511e" />
+              <Text style={styles.cardHeader}>{t('Departure')}</Text>
+            </View>
+            <Text style={styles.text}>
+              {departureCity} {departureStreet}
+              {departureNumber ? ` - ${departureNumber}` : ''}
+            </Text>
+          </View>
 
-        {isGenerating && (
-          <View style={styles.loadingOverlay}>
-            <View style={styles.loadingModal}>
-              <LottieView
-                source={require('../../../assets/animations/road.json')}
-                autoPlay
-                loop
-                style={styles.generatingImage}
-              />
-              <Text style={styles.generatingText}>
-                {t('Generating your route...')}
+          <View style={styles.card}>
+            <View style={styles.cardHeaderRow}>
+              <Icon name="car-select" size={24} color="#f4511e" />
+              <Text style={styles.cardHeader}>{t('Arrival')}</Text>
+            </View>
+            <Text style={styles.text}>
+              {arrivalCity} {arrivalStreet}
+              {arrivalNumber ? ` - ${arrivalNumber}` : ''}
+            </Text>
+          </View>
+
+          <View style={styles.card}>
+            <View style={styles.cardHeaderRow}>
+              <Icon name="calendar" size={24} color="#f4511e" />
+              <Text style={styles.cardHeader}>
+                {t('Time and date of departure')}
               </Text>
             </View>
+            <Text style={styles.text}>
+              {selectedDateTime?.toLocaleString()}
+            </Text>
           </View>
-        )}
 
-        {successMessage && (
-          <Text style={styles.successMessage}>{successMessage}</Text>
-        )}
-      </ScrollView>
-    </SafeAreaView>
+          {showChangesButton && (
+            <TouchableOpacity
+              style={styles.buttonSecondary}
+              onPress={() => navigation.navigate('Vehicle')}>
+              <Text style={styles.buttonText}>{t('Make changes')}</Text>
+            </TouchableOpacity>
+          )}
+          {showConfirmButton && !isSubmitting && (
+            <TouchableOpacity
+              style={styles.buttonPrimary}
+              onPress={handleConfirm}>
+              <Text style={styles.buttonText}>{t('Confirm')}</Text>
+            </TouchableOpacity>
+          )}
+          {showBackButton && (
+            <TouchableOpacity
+              style={styles.buttonSecondary}
+              onPress={() => navigation.navigate('View routes')}>
+              <Text style={styles.buttonText}>{t('Back')}</Text>
+            </TouchableOpacity>
+          )}
+
+          {isGenerating && (
+            <View style={styles.loadingOverlay}>
+              <View style={styles.loadingModal}>
+                <LottieView
+                  source={require('../../../assets/animations/road.json')}
+                  autoPlay
+                  loop
+                  style={styles.generatingImage}
+                />
+                <Text style={styles.generatingText}>
+                  {t('Generating your route...')}
+                </Text>
+              </View>
+            </View>
+          )}
+
+          {successMessage && (
+            <Text style={styles.successMessage}>{successMessage}</Text>
+          )}
+        </ScrollView>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  mainContainer: {flex: 1, backgroundColor: '#145e8fff'},
-  scrollContent: {padding: 16, paddingBottom: 40},
+  gradientBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  mainContainer: {
+    flex: 1,
+    width: '100%',
+  },
+  scrollContent: {
+    padding: 20,
+    alignItems: 'center',
+  },
   headerText: {
-    fontSize: 26,
-    fontWeight: 'bold',
+    fontSize: 24,
+    fontWeight: '700',
     color: '#fff',
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: 20,
   },
   card: {
     width: '90%',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 15,
-    marginVertical: 8,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderRadius: 16,
+    padding: 16,
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.15)',
   },
   cardHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   cardHeader: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#2c3e50',
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#fff',
     marginLeft: 8,
   },
-  cardText: {
-    fontSize: 16,
-    color: '#2c3e50',
-    marginVertical: 2,
-  },
-
   text: {
     fontSize: 16,
-    color: '#010101',
-    marginBottom: 4,
+    color: '#ddd',
+    marginTop: 4,
   },
-  routeRow: {flexDirection: 'row', alignItems: 'center', marginTop: 4},
-  routeText: {fontSize: 16, marginLeft: 8, color: '#2c3e50'},
-  buttonSuccess: {
-    backgroundColor: '#27ae60',
-    padding: 15,
+  buttonPrimary: {
+    backgroundColor: '#f4511e',
     borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  button: {
-    marginTop: 15,
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
+    width: 200,
+    height: 55,
     justifyContent: 'center',
-    width: '90%',
+    alignItems: 'center',
+    marginTop: 15,
+    borderWidth: 1.5,
+    borderColor: '#fff',
   },
-
-  buttonDanger: {
-    backgroundColor: '#e74c3c',
-    padding: 15,
+  buttonSecondary: {
+    backgroundColor: '#777',
     borderRadius: 10,
+    width: 200,
+    height: 55,
+    justifyContent: 'center',
     alignItems: 'center',
     marginTop: 10,
+    borderWidth: 1.5,
+    borderColor: '#fff',
   },
-  buttonBack: {
-    backgroundColor: '#3498db',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 10,
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '600',
   },
-  buttonText: {color: '#fff', fontSize: 16, fontWeight: 'bold'},
   loadingOverlay: {
     position: 'absolute',
     top: 0,
@@ -311,19 +314,19 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
   },
   loadingModal: {
-    backgroundColor: '#fff',
+    backgroundColor: '#222',
     padding: 20,
     borderRadius: 15,
     alignItems: 'center',
   },
   generatingImage: {width: 300, height: 300},
   generatingText: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: '#fff',
     marginTop: 8,
   },
   successMessage: {
