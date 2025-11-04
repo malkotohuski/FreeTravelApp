@@ -137,10 +137,10 @@ function ViewRoutes({navigation}) {
     <LinearGradient
       colors={['#1b1b1b', '#2a2a2a']}
       style={styles.mainContainer}>
-      <Image
+      {/*   <Image
         source={require('../../../images/d7.png')}
         style={styles.backgroundImage}
-      />
+      /> */}
 
       <TouchableOpacity style={styles.filterButton} onPress={toggleFilterModal}>
         <Text style={styles.filterButtonText}>{t('Filter')}</Text>
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
     opacity: 0.2,
   },
   filterButton: {
-    backgroundColor: '#ff7b00',
+    backgroundColor: '#f4511e',
     padding: 12,
     borderRadius: 12,
     margin: 12,
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.1)',
   },
   ownRouteCard: {
-    borderColor: '#ff7b00',
+    borderColor: '#f4511e',
     borderWidth: 2,
   },
   routeTitle: {

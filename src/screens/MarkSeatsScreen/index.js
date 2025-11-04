@@ -198,17 +198,20 @@ const styles = StyleSheet.create({
   },
   secondaryButton: {
     width: 230,
-    height: 60,
+    minHeight: 60,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,
     borderWidth: 1.5,
     borderColor: '#fff',
     backgroundColor: '#555',
+    paddingHorizontal: 10,
   },
   buttonText: {
     fontSize: 18,
     color: '#fff',
     fontWeight: '600',
+    textAlign: 'center', // ✅ центрира текста
+    flexWrap: 'wrap',
   },
 });
