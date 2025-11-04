@@ -137,7 +137,7 @@ function Confirm() {
       style={styles.gradientBackground}>
       <SafeAreaView style={styles.mainContainer}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          <Text style={styles.headerText}>{t('Review your route')}</Text>
+          <Text style={styles.headerText}>{t('Review route')}</Text>
 
           <View style={styles.card}>
             <View style={styles.cardHeaderRow}>

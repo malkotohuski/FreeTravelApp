@@ -718,7 +718,8 @@
       "userFname": "Velichka",
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
-      "id": 1762192759064
+      "id": 1762192759064,
+      "userRouteId": "deleted"
     },
     {
       "selectedVehicle": "Car",
@@ -738,6 +739,24 @@
       "userEmail": "shushkata7@gmail.com",
       "id": 1762192802800,
       "userRouteId": "deleted"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A2111AA",
+      "selectedDateTime": "2025-11-06T15:45:00.000Z",
+      "departureCity": "Varna",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Pleven",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "routeTitle": "2",
+      "userId": 1711358014466,
+      "username": "Shushkata7@gmail.com",
+      "userFname": "Velichka",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1762271152533
     }
   ],
   "seekers": [
