@@ -59,15 +59,16 @@ function HomePage({navigation}) {
 
   const getButtonStyle = (color = '#000') => ({
     alignItems: 'center',
-    padding: 10,
-    marginBottom: 5,
-    fontSize: 24,
-    fontWeight: 'bold',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    paddingVertical: 14,
+    paddingHorizontal: 10,
+    borderRadius: 12,
     borderWidth: 2,
-    borderColor: darkMode ? '#444' : '#000', // Тъмни и светли цветове за бордерите
+    borderColor: darkMode ? '#444' : '#000',
     backgroundColor: darkMode
       ? 'rgba(255, 255, 255, 0.1)'
-      : 'rgba(255, 255, 255, 0.3)', // Променяме фона за бутоните
+      : 'rgba(255, 255, 255, 0.3)',
   });
 
   const getTextButtonStyles = () => ({
@@ -326,8 +327,7 @@ function HomePage({navigation}) {
               <TouchableOpacity
                 style={getButtonStyle()}
                 onPress={handlerVehicle}>
-                <View
-                  style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
+                <View style={styles.buttonContent}>
                   <Icons
                     name="car"
                     size={26}
