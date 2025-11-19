@@ -36,6 +36,11 @@ export default StyleSheet.create({
     textAlign: 'center',
     marginBottom: 10,
   },
+  rowButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
   moto: {
     fontSize: 28,
     fontWeight: 'bold',
@@ -151,5 +156,9 @@ export default StyleSheet.create({
     justifyContent: 'center',
     gap: 10,
     flexWrap: 'wrap', // за всеки случай, ако текстът стане твърде дълъг
+  },
+  fullWidthButton: {
+    width: '100%',
+    justifyContent: 'flex-start',
   },
 });

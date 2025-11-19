@@ -103,6 +103,7 @@ i18next.use(initReactI18next).init({
         'The route has been created!': 'The route has been created!',
         Video: 'Video',
         'Change photo': 'Change photo',
+        'Describe the problem...': 'Describe the problem...',
         'The invitation was sent successfully.':
           'The invitation was sent successfully.',
         'I suggest': 'I suggest',
@@ -5228,6 +5229,7 @@ i18next.use(initReactI18next).init({
         Inquiries: 'Запитвания',
         'In process of development!': 'В процес на разработка!',
         'Route Title': 'Заглавие на маршрута',
+        'Describe the problem...': 'Опиши проблема...',
         'User not found.': 'Потребителят не е намерен.',
         'Please select a number of stars.': 'Моля, избери брой звезди.',
         'Review route': 'Преглед на маршрута',
