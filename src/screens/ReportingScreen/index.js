@@ -16,6 +16,7 @@ import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as Animatable from 'react-native-animatable';
 import {useAuth} from '../../context/AuthContext';
 import {DarkModeContext} from '../../navigation/DarkModeContext';
+import ProblemInput from '../../componets/ProblemInput';
 
 const ReportingScreen = ({navigation}) => {
   const {darkMode} = useContext(DarkModeContext);
@@ -23,7 +24,7 @@ const ReportingScreen = ({navigation}) => {
   const [vehicleNumber, setVehicleNumber] = useState('');
   const [attachment, setAttachment] = useState(null);
   const [profilePicture, setProfilePicture] = useState('');
-  const [isValidVehicleNumber, setValidVehicleNumber] = useState(true);
+  /*   const [isValidVehicleNumber, setValidVehicleNumber] = useState(true); */
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false); // Добавено състояние
   const {t} = useTranslation();
@@ -33,21 +34,21 @@ const ReportingScreen = ({navigation}) => {
   const userName = user?.user?.username;
   const userId = user?.user?.id;
 
-  const getHeaderStyles = () => ({
+  /*   const getHeaderStyles = () => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
     padding: 16,
     backgroundColor: darkMode ? '#333232FF' : '#f4511e',
-  });
+  }); */
 
-  const validateVehicleNumber = text => {
+  /*  const validateVehicleNumber = text => {
     const regex = /^([A-ZА-Я]{1,2})([0-9]{4})([A-ZА-Я]{2})$/;
     const isValid = regex.test(text);
     setValidVehicleNumber(isValid);
     setVehicleNumber(text);
-  };
+  }; */
 
   const chooseMedia = async () => {
     try {
@@ -68,8 +69,16 @@ const ReportingScreen = ({navigation}) => {
   const sendReport = async () => {
     if (isButtonDisabled) return; // Бутонът не е активен
 
-    if (!problemDescription.trim() || !vehicleNumber.trim()) {
+    if (!problemDescription.trim()) {
       Alert.alert(t('Missing Fields'), t('Please fill out all fields!'));
+      return;
+    }
+
+    if (problemDescription.trim().length < 20) {
+      Alert.alert(
+        t('Too short'),
+        t('Please describe the problem in more detail.'),
+      );
       return;
     }
 
@@ -77,8 +86,7 @@ const ReportingScreen = ({navigation}) => {
       setIsButtonDisabled(true); // Деактивиране на бутона
       const serverEndpoint = 'http://10.0.2.2:3000/send-request-to-email';
       const emailBody = `
-                ${t('Problem Description')}: ${problemDescription}
-                ${t('Vehicle Number')}: ${vehicleNumber}
+                ${t('Problem Description')}: ${problemDescription} 
                 ${t('User email:')}: ${userEmail || 'N/A'} ${t(
         'Username:',
       )}: ${userName} with ID: ${userId}
@@ -123,24 +131,21 @@ const ReportingScreen = ({navigation}) => {
         )}
 
         {/* Problem Description */}
-        <TextInput
-          style={styles.input}
-          placeholder={t('Describe the problem')}
-          placeholderTextColor={'#999'}
-          multiline
+        <ProblemInput
           value={problemDescription}
           onChangeText={setProblemDescription}
+          maxLength={400}
         />
 
         {/* Vehicle Number */}
-        <TextInput
-          style={[styles.input, !isValidVehicleNumber && styles.invalidInput]}
+        {/*   <TextInput
+          style={[styles.input]}
           placeholder={t('Enter your vehicle registration number or username')}
           placeholderTextColor={'#999'}
           value={vehicleNumber}
           onChangeText={validateVehicleNumber}
           textAlign="center"
-        />
+        /> */}
 
         {/* Image / Video picker */}
         <TouchableOpacity onPress={chooseMedia} style={styles.imagePicker}>

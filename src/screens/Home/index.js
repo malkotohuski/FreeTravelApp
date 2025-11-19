@@ -325,9 +325,9 @@ function HomePage({navigation}) {
             <View style={styles.menuImages}>
               {/* Create a route (Driver) */}
               <TouchableOpacity
-                style={getButtonStyle()}
+                style={[getButtonStyle(), styles.fullWidthButton]}
                 onPress={handlerVehicle}>
-                <View style={styles.buttonContent}>
+                <View style={styles.rowButtonContent}>
                   <Icons
                     name="car"
                     size={26}
@@ -341,10 +341,9 @@ function HomePage({navigation}) {
 
               {/* Create request (Passenger) */}
               <TouchableOpacity
-                style={getButtonStyle()}
+                style={[getButtonStyle(), styles.fullWidthButton]}
                 onPress={handlerLooking}>
-                <View
-                  style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
+                <View style={styles.rowButtonContent}>
                   <Icons
                     name="account-search"
                     size={26}
@@ -358,10 +357,9 @@ function HomePage({navigation}) {
 
               {/* Seekers (Passengers) */}
               <TouchableOpacity
-                style={getButtonStyle()}
+                style={[getButtonStyle(), styles.fullWidthButton]}
                 onPress={handlerSeekers}>
-                <View
-                  style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
+                <View style={styles.rowButtonContent}>
                   <Icons
                     name="account-multiple"
                     size={26}
@@ -375,10 +373,9 @@ function HomePage({navigation}) {
 
               {/* Offering (Drivers) */}
               <TouchableOpacity
-                style={getButtonStyle()}
+                style={[getButtonStyle(), styles.fullWidthButton]}
                 onPress={handlerRouteViewer}>
-                <View
-                  style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
+                <View style={styles.rowButtonContent}>
                   <Icons
                     name="steering"
                     size={26}
