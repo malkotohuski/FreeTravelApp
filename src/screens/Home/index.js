@@ -28,6 +28,7 @@ function HomePage({navigation}) {
   const {darkMode} = useContext(DarkModeContext);
   const route = useRoute();
   const {user} = useAuth();
+
   const {t} = useTranslation();
   const [isBulgaria, setisBulgaria] = useState(false);
   const [notificationCount, setNotificationCount] = useState(0);
@@ -107,23 +108,16 @@ function HomePage({navigation}) {
 
   useEffect(() => {
     const fetchNotifications = async () => {
-      try {
-        if (!loginUser) {
-          console.error('No logged-in username found.');
-          return;
-        }
+      if (!loginUser) return;
 
-        // Извличане на всички нотификации
+      try {
         const response = await api.get('/notifications');
 
-        // Филтриране на нотификациите за логнатия потребител
         const userNotifications = response.data.filter(
           notification =>
-            notification.recipient === loginUser && // Проверка дали recipient съвпада
-            !notification.read, // Проверка дали нотификацията е непрочетена
+            notification.recipient === loginUser && !notification.read,
         );
 
-        // Актуализация на броя нотификации
         setNotificationCount(
           userNotifications.length > 9 ? '9+' : userNotifications.length,
         );
@@ -137,18 +131,20 @@ function HomePage({navigation}) {
 
   useEffect(() => {
     const fetchRequests = async () => {
-      try {
-        if (!loginUser) return;
+      const userId = user?.user?.id;
 
+      if (!userId) {
+        console.log('Missing login user or route ID.');
+        return;
+      }
+
+      try {
         const response = await api.get('/requests');
-        // заявките, които са насочени към текущия потребител и са чакащи
+
         const pendingRequests = response.data.filter(
-          req =>
-            req.userRouteId === user?.user?.id && // към него е заявката
-            req.status === 'pending',
+          req => req.userRouteId === userId && req.status === 'pending',
         );
 
-        // актуализиране на брояча
         setReqestsCount(
           pendingRequests.length > 9 ? '9+' : pendingRequests.length,
         );
@@ -158,7 +154,7 @@ function HomePage({navigation}) {
     };
 
     fetchRequests();
-  }, [loginUser]);
+  }, [user?.user?.id]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
