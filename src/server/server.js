@@ -4,6 +4,7 @@ const router = jsonServer.router('db.json');
 const middlewares = jsonServer.defaults();
 const cors = require('cors');
 const nodemailer = require('nodemailer');
+const fs = require('fs');
 const axios = require('axios');
 
 // Enable CORS, bodyParser and other middlewares
@@ -94,6 +95,7 @@ server.post('/register', (req, res) => {
     ratings: [],
     averageRating: 0,
     comments: [],
+    accountStatus: 'active',
   };
 
   router.db.get('users').push(user).write();
@@ -143,6 +145,66 @@ function deleteInactiveAccountsOlderThanOneDay() {
   router.db.set('users', activeUsers).write();
   console.log('Inactive accounts older than 1 day have been deleted.');
 }
+
+server.post('/delete-account', async (req, res) => {
+  const {userId} = req.body;
+
+  if (!userId) {
+    return res.status(400).json({error: 'Missing userId'});
+  }
+
+  try {
+    const db = JSON.parse(fs.readFileSync('./db.json', 'utf8'));
+    const id = parseInt(userId, 10);
+    const userIndex = db.users.findIndex(u => u.id === id);
+
+    if (userIndex === -1) {
+      return res.status(404).json({error: 'User not found'});
+    }
+
+    // ❌ Не изтриваме – просто маркираме като изтрит
+    db.users[userIndex].accountStatus = 'deleted';
+    db.users[userIndex].isActive = false;
+    db.users[userIndex].deletedAt = Date.now();
+
+    fs.writeFileSync('./db.json', JSON.stringify(db, null, 2));
+
+    res.json({success: true, message: 'User marked as deleted'});
+  } catch (err) {
+    console.log('Delete error:', err);
+    res.status(500).json({error: 'Server error'});
+  }
+});
+
+server.post('/restore-account', (req, res) => {
+  const {userId} = req.body;
+
+  if (!userId) {
+    return res.status(400).json({error: 'Missing userId.'});
+  }
+
+  const user = router.db.get('users').find({id: userId}).value();
+
+  if (!user) {
+    return res.status(404).json({error: 'User not found.'});
+  }
+
+  if (user.accountStatus !== 'deleted') {
+    return res.status(400).json({error: 'Account is not deleted.'});
+  }
+
+  router.db
+    .get('users')
+    .find({id: userId})
+    .assign({
+      accountStatus: 'active',
+      isActive: true,
+      deletedAt: null,
+    })
+    .write();
+
+  return res.status(200).json({message: 'Account restored successfully.'});
+});
 
 server.post('/resend-confirmation-code', (req, res) => {
   const {email} = req.body;
@@ -202,30 +264,60 @@ server.post('/resend-confirmation-code', (req, res) => {
 });
 
 server.patch('/user-changes', (req, res) => {
-  const {userId, userImage} = req.body;
+  const {userId, fName, lName, currentPassword, newPassword} = req.body;
 
-  console.log('User Changes Request:', {userId, userImage});
+  console.log('User Changes Request:', {
+    userId,
+    fName,
+    lName,
+    currentPassword,
+    newPassword,
+  });
 
-  // Валидация на userId
   if (!userId) {
-    console.error('Invalid userId:', userId);
     return res.status(400).json({error: 'Invalid userId.'});
   }
 
-  // Намери потребителя по userId в базата данни
   const user = router.db.get('users').find({id: userId}).value();
-
   if (!user) {
-    console.error('User not found with userId:', userId);
     return res.status(404).json({error: 'User not found.'});
   }
 
-  // Актуализирай профилната снимка на потребителя
-  router.db.get('users').find({id: userId}).assign({userImage}).write();
+  // 🔐 Смяна на парола
+  if (newPassword) {
+    if (!currentPassword) {
+      return res.status(400).json({
+        error: 'Current password is required to change password.',
+      });
+    }
 
-  return res
-    .status(200)
-    .json({message: 'User profile picture updated successfully.'});
+    if (user.password !== currentPassword) {
+      return res.status(400).json({
+        error: 'Current password is incorrect.',
+      });
+    }
+
+    router.db
+      .get('users')
+      .find({id: userId})
+      .assign({password: newPassword})
+      .write();
+  }
+
+  // 🧾 Имена
+  router.db
+    .get('users')
+    .find({id: userId})
+    .assign({
+      fName: fName ?? user.fName,
+      lName: lName ?? user.lName,
+    })
+    .write();
+
+  return res.status(200).json({
+    message: 'User profile updated successfully.',
+    user: router.db.get('users').find({id: userId}).value(),
+  });
 });
 
 server.post('/create-route', (req, res) => {
@@ -497,30 +589,41 @@ server.post('/rateUser', (req, res) => {
 });
 
 // Handle user login
+
 server.post('/login', (req, res) => {
   const {useremail, userpassword} = req.body;
 
-  // Намираме потребителя по email и password (препоръчително е паролите да бъдат хеширани)
-  const user = router.db
-    .get('users')
-    .find({email: useremail, password: userpassword})
-    .value();
-  console.log('sss', user);
+  try {
+    // Зареждаме базата от файл при всяко логване
+    const db = JSON.parse(fs.readFileSync('./db.json', 'utf8'));
 
-  if (user) {
-    // Проверка дали потребителят е потвърден
-    if (user.confirmationCode) {
-      // Ако confirmationCode не е null, отказва достъп
+    // Намираме потребителя по email
+    const user = db.users.find(u => u.email === useremail);
+
+    if (!user || user.password !== userpassword) {
+      return res.status(401).json({error: 'Invalid email or password'});
+    }
+
+    // Проверка за изтрит акаунт
+    if (user.accountStatus === 'deleted') {
       return res.status(403).json({
-        error: 'Account not confirmed. Please verify your account first.',
+        error:
+          'Account is deleted. Please contact support if this is a mistake.',
+      });
+    }
+
+    // Проверка за непотвърдена регистрация
+    if (user.confirmationCode) {
+      return res.status(403).json({
+        error: 'Account not confirmed. Please verify your email first.',
       });
     }
 
     // Успешен логин
     return res.status(200).json({user});
-  } else {
-    // Грешка при логин
-    return res.status(401).json({error: 'Invalid email or password'});
+  } catch (err) {
+    console.log('Login error:', err);
+    return res.status(500).json({error: 'Server error'});
   }
 });
 

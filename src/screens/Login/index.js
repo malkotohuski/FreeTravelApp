@@ -12,6 +12,7 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import axios from 'axios';
 import {useTranslation} from 'react-i18next';
+import {useFocusEffect} from '@react-navigation/native';
 import styles from './styles';
 import i18next from 'i18next';
 import {useAuth} from '../../context/AuthContext';
@@ -84,6 +85,12 @@ export default function Login({navigation, route}) {
   const skipLogin = () => {
     navigation.navigate('Home'); // да се премахне за тестване само !!!
   };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setPassword(''); // чистим само паролата
+    }, []),
+  );
 
   return (
     <SafeAreaView style={{flex: 1}}>
