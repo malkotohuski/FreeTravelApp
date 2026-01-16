@@ -63,20 +63,27 @@ export default function Login({navigation, route}) {
   const handleLogin = async () => {
     try {
       setIsLoading(true);
+
       const response = await axios.post(`${API_BASE_URL}/login`, {
         useremail: email,
         userpassword: password,
       });
 
       if (response.status === 200) {
-        login(response.data);
+        // ⬇️ backend връща { user }
+        login(response.data.user);
         navigation.navigate('Home');
-      } else {
-        alert(t('Login failed. Please check your credentials.'));
       }
     } catch (error) {
-      console.error('Login Error:', error);
-      alert(t('Login failed.Invalid email or password.'));
+      console.error('Login Error:', error.response?.data);
+
+      if (error.response?.status === 403) {
+        alert(t(error.response.data.error));
+      } else if (error.response?.status === 401) {
+        alert(t('Invalid email or password.'));
+      } else {
+        alert(t('Server error. Please try again later.'));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -174,6 +181,13 @@ export default function Login({navigation, route}) {
                   onPress={() => navigation.navigate('Register')}>
                   <Text style={styles.textButtons}>
                     {t('Create your account')}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('ResetPassword')}
+                  style={styles.forgotPasswordContainer}>
+                  <Text style={styles.forgotPasswordText}>
+                    {t('Forgot password?')}
                   </Text>
                 </TouchableOpacity>
               </View>

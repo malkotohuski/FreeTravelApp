@@ -34,7 +34,7 @@ function HomePage({navigation}) {
   const [notificationCount, setNotificationCount] = useState(0);
   const [reqestsCount, setReqestsCount] = useState(0);
 
-  const loginUser = user?.user?.username;
+  const loginUser = user?.username;
 
   const getContainerStyle = () => ({
     flex: 1,
@@ -131,7 +131,7 @@ function HomePage({navigation}) {
 
   useEffect(() => {
     const fetchRequests = async () => {
-      const userId = user?.user?.id;
+      const userId = user?.id;
 
       if (!userId) {
         console.log('Missing login user or route ID.');
@@ -154,7 +154,7 @@ function HomePage({navigation}) {
     };
 
     fetchRequests();
-  }, [user?.user?.id]);
+  }, [user?.id]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -192,9 +192,7 @@ function HomePage({navigation}) {
       // Филтрираме чакащите към текущия потребител
       const pendingRequests = response.data.filter(
         req =>
-          req.userRouteId === user?.user?.id &&
-          req.status === 'pending' &&
-          !req.read,
+          req.userRouteId === user?.id && req.status === 'pending' && !req.read,
       );
 
       // Обновяваме статуса на всяка на сървъра

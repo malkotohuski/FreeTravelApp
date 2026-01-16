@@ -1,3 +1,5 @@
+const bcrypt = require('bcrypt');
+const SALT_ROUNDS = 12; // Number of salt rounds for bcrypt
 const jsonServer = require('json-server');
 const server = jsonServer.create();
 const router = jsonServer.router('db.json');
@@ -24,30 +26,30 @@ function generateConfirmationCode() {
 }
 
 // Handle user registration
-server.post('/register', (req, res) => {
+server.post('/register', async (req, res) => {
   deleteInactiveAccountsOlderThanOneDay();
+
   const {username, useremail, userpassword, fName, lName, userImage, routes} =
     req.body;
 
   console.log('Registration Request:', {
     username,
     useremail,
-    userpassword,
+    userpasswordLength: userpassword?.length,
     fName,
     lName,
     userImage,
     routes,
   });
 
-  // Validation (you can add more checks as needed)
+  // Валидация
   if (!username || !useremail || !userpassword) {
     return res
       .status(400)
       .json({error: 'Invalid input. Please provide all required fields.'});
   }
 
-  // Check if a user with the same email or name already exists
-  // Проверка: има ли вече АКТИВЕН потребител с такъв email или username
+  // Проверка за вече активен потребител
   const existingActiveUser = router.db
     .get('users')
     .find(
@@ -63,7 +65,7 @@ server.post('/register', (req, res) => {
     });
   }
 
-  // Ако има неактивен акаунт със същия email или username, изтрий го
+  // Изтриване на неактивен потребител със същия email/username
   const existingInactiveUser = router.db
     .get('users')
     .find(
@@ -77,18 +79,23 @@ server.post('/register', (req, res) => {
     router.db.get('users').remove({id: existingInactiveUser.id}).write();
   }
 
-  // Simulate user creation (you may want to hash the password in a real scenario)
+  // ❗ Хеширане на паролата
+  const hashedPassword = await bcrypt.hash(userpassword, SALT_ROUNDS);
+
+  // Генериране на confirmation code
   const confirmationCode = generateConfirmationCode();
+
+  // Създаваме юзъра
   const user = {
     id: Date.now(),
     username,
     email: useremail,
-    password: userpassword,
-    fName,
-    lName,
-    userImage,
+    password: hashedPassword, // хешираната парола
+    fName: fName || '',
+    lName: lName || '',
+    userImage: userImage || '',
     confirmationCode,
-    isActive: false, // ново поле за статус
+    isActive: false,
     createdAt: Date.now(),
     routes: [],
     friends: [],
@@ -98,19 +105,20 @@ server.post('/register', (req, res) => {
     accountStatus: 'active',
   };
 
+  // Записваме юзъра
   router.db.get('users').push(user).write();
 
-  // Send confirmation email
+  // Изпращаме confirmation email
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: 'malkotohuski@gmail.com', // replace with your Gmail address
-      pass: 'ymnayjeocfmplvwb', // replace with your Gmail password
+      user: 'malkotohuski@gmail.com',
+      pass: 'ymnayjeocfmplvwb',
     },
   });
 
   const mailOptions = {
-    from: 'malkotohuski@gmail.com', // replace with your Gmail address
+    from: 'malkotohuski@gmail.com',
     to: useremail,
     subject: 'Account Confirmation',
     text: `Your confirmation code is: ${confirmationCode}`,
@@ -124,7 +132,12 @@ server.post('/register', (req, res) => {
         .json({error: 'Failed to send confirmation email.'});
     } else {
       console.log('Email confirmation sent:', info.response);
-      return res.status(201).json({user, confirmationCode});
+
+      // ❌ Връщаме потребителя без парола
+      const safeUser = {...user};
+      delete safeUser.password;
+
+      return res.status(201).json({user: safeUser, confirmationCode});
     }
   });
 });
@@ -136,10 +149,10 @@ function deleteInactiveAccountsOlderThanOneDay() {
   const activeUsers = users.filter(user => {
     if (!user.isActive && user.createdAt) {
       const age = now - user.createdAt;
-      // 1 ден = 24 * 60 * 60 * 1000 = 86 400 000 милисекунди
-      return age < 60000; // ще го запазим само ако е под 1 ден
+      const ONE_DAY = 24 * 60 * 60 * 1000;
+      return age < ONE_DAY;
     }
-    return true; // всички активни остават
+    return true;
   });
 
   router.db.set('users', activeUsers).write();
@@ -263,60 +276,51 @@ server.post('/resend-confirmation-code', (req, res) => {
   });
 });
 
-server.patch('/user-changes', (req, res) => {
-  const {userId, fName, lName, currentPassword, newPassword} = req.body;
+server.patch('/user-changes', async (req, res) => {
+  const {userId, fName, lName, currentPassword, newPassword, userImage} =
+    req.body;
 
-  console.log('User Changes Request:', {
-    userId,
-    fName,
-    lName,
-    currentPassword,
-    newPassword,
-  });
-
-  if (!userId) {
-    return res.status(400).json({error: 'Invalid userId.'});
-  }
+  if (!userId) return res.status(400).json({error: 'Invalid userId.'});
 
   const user = router.db.get('users').find({id: userId}).value();
-  if (!user) {
-    return res.status(404).json({error: 'User not found.'});
-  }
+  if (!user) return res.status(404).json({error: 'User not found.'});
 
-  // 🔐 Смяна на парола
-  if (newPassword) {
-    if (!currentPassword) {
-      return res.status(400).json({
-        error: 'Current password is required to change password.',
-      });
-    }
+  // Смяна на парола
+  if (newPassword && newPassword.length > 0) {
+    if (!currentPassword)
+      return res.status(400).json({error: 'Current password is required.'});
 
-    if (user.password !== currentPassword) {
-      return res.status(400).json({
-        error: 'Current password is incorrect.',
-      });
-    }
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch)
+      return res.status(400).json({error: 'Current password is incorrect.'});
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
 
     router.db
       .get('users')
       .find({id: userId})
-      .assign({password: newPassword})
+      .assign({password: hashedNewPassword})
       .write();
   }
 
-  // 🧾 Имена
-  router.db
-    .get('users')
-    .find({id: userId})
-    .assign({
-      fName: fName ?? user.fName,
-      lName: lName ?? user.lName,
-    })
-    .write();
+  // Имена + снимка
+  const updatedData = {
+    fName: fName ?? user.fName,
+    lName: lName ?? user.lName,
+  };
+  if (userImage) updatedData.userImage = userImage;
+
+  router.db.get('users').find({id: userId}).assign(updatedData).write();
+
+  // Връщаме актуализирания user
+  const updatedUser = router.db.get('users').find({id: userId}).value();
+
+  const safeUser = {...updatedUser};
+  delete safeUser.password;
 
   return res.status(200).json({
     message: 'User profile updated successfully.',
-    user: router.db.get('users').find({id: userId}).value(),
+    user: safeUser,
   });
 });
 
@@ -590,39 +594,49 @@ server.post('/rateUser', (req, res) => {
 
 // Handle user login
 
-server.post('/login', (req, res) => {
+server.post('/login', async (req, res) => {
   const {useremail, userpassword} = req.body;
 
+  console.log('LOGIN TRY:', {
+    email: useremail,
+    passwordLength: userpassword?.length,
+  });
+
   try {
-    // Зареждаме базата от файл при всяко логване
-    const db = JSON.parse(fs.readFileSync('./db.json', 'utf8'));
+    const user = router.db.get('users').find({email: useremail}).value();
 
-    // Намираме потребителя по email
-    const user = db.users.find(u => u.email === useremail);
-
-    if (!user || user.password !== userpassword) {
+    if (!user) {
       return res.status(401).json({error: 'Invalid email or password'});
     }
 
-    // Проверка за изтрит акаунт
+    if (!user.password) {
+      return res.status(500).json({error: 'User password is missing'});
+    }
+
+    const isMatch = await bcrypt.compare(userpassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({error: 'Invalid email or password'});
+    }
+
     if (user.accountStatus === 'deleted') {
       return res.status(403).json({
-        error:
-          'Account is deleted. Please contact support if this is a mistake.',
+        error: 'Account is deleted. Please contact support.',
       });
     }
 
-    // Проверка за непотвърдена регистрация
     if (user.confirmationCode) {
       return res.status(403).json({
-        error: 'Account not confirmed. Please verify your email first.',
+        error: 'Account not confirmed.',
       });
     }
 
-    // Успешен логин
-    return res.status(200).json({user});
+    // ❗ ВАЖНО: копие, НЕ пипаме обекта в db
+    const safeUser = {...user};
+    delete safeUser.password;
+
+    return res.status(200).json({user: safeUser});
   } catch (err) {
-    console.log('Login error:', err);
+    console.error('Login error:', err);
     return res.status(500).json({error: 'Server error'});
   }
 });
@@ -636,6 +650,96 @@ server.get('/notifications/:username', (req, res) => {
     .filter({recipient: username})
     .value();
   res.json(notifications);
+});
+
+server.post('/forgot-password', (req, res) => {
+  const {email} = req.body;
+
+  const user = router.db.get('users').find({email}).value();
+
+  if (!user) {
+    return res.status(404).json({error: 'User not found'});
+  }
+
+  // 6-цифрен код
+  const resetCode = Math.floor(100000 + Math.random() * 900000);
+
+  // валиден 15 минути
+  const expiresAt = Date.now() + 15 * 60 * 1000;
+
+  router.db
+    .get('users')
+    .find({email})
+    .assign({
+      resetPasswordCode: resetCode,
+      resetPasswordExpires: expiresAt,
+    })
+    .write();
+
+  // email
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'malkotohuski@gmail.com',
+      pass: 'ymnayjeocfmplvwb',
+    },
+  });
+
+  transporter.sendMail(
+    {
+      from: 'malkotohuski@gmail.com',
+      to: email,
+      subject: 'Password reset code',
+      text: `Your password reset code is: ${resetCode}`,
+    },
+    error => {
+      if (error) {
+        console.error(error);
+        return res.status(500).json({error: 'Email failed'});
+      }
+
+      return res.status(200).json({
+        message: 'Reset code sent',
+      });
+    },
+  );
+});
+
+server.post('/reset-password', async (req, res) => {
+  const {email, code, newPassword} = req.body;
+
+  const user = router.db.get('users').find({email}).value();
+
+  if (!user) {
+    return res.status(404).json({error: 'User not found'});
+  }
+
+  if (
+    !user.resetPasswordCode ||
+    user.resetPasswordCode !== parseInt(code, 10)
+  ) {
+    return res.status(400).json({error: 'Invalid reset code'});
+  }
+
+  if (Date.now() > user.resetPasswordExpires) {
+    return res.status(400).json({error: 'Reset code expired'});
+  }
+
+  const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
+
+  router.db
+    .get('users')
+    .find({email})
+    .assign({
+      password: hashedPassword,
+      resetPasswordCode: null,
+      resetPasswordExpires: null,
+    })
+    .write();
+
+  return res.status(200).json({
+    message: 'Password reset successful',
+  });
 });
 
 // Use default router

@@ -70,10 +70,10 @@ const Messages = ({navigation}) => {
             <View key={index} style={styles.messageContainer}>
               <View style={styles.userContainer}>
                 <Image
-                  source={{uri: user?.user?.userImage}}
+                  source={{uri: user?.userImage}}
                   style={styles.userImage}
                 />
-                <Text style={styles.userName}>{user?.user?.username}</Text>
+                <Text style={styles.userName}>{user?.username}</Text>
               </View>
               <View
                 style={[

@@ -16,23 +16,22 @@ const UPDATE_USER = 'UPDATE_USER';
 // Reducer function
 const authReducer = (state, action) => {
   switch (action.type) {
-    case LOGIN:
+    case 'LOGIN':
       return {
         ...state,
         isAuthenticated: true,
-        user: action.payload,
+        user: action.payload, // директно юзер обекта
       };
-    case UPDATE_USER:
+    case 'UPDATE_USER':
       return {
         ...state,
-        isAuthenticated: true,
-        user: action.payload,
+        user: {...state.user, ...action.payload}, // само с новите полета
       };
-    case LOGOUT:
+    case 'LOGOUT':
       return {
         ...state,
         isAuthenticated: false,
-        user: action.payload,
+        user: null,
       };
     default:
       return state;
@@ -51,69 +50,29 @@ const AuthContext = createContext();
 // AuthProvider component
 const AuthProvider = ({children}) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
-  const [profilePicture, setProfilePicture] = useState(null);
-  const [profileFname, setProfileFname] = useState(null);
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  const updateProfilePicture = newPicture => {
-    setUser(prevUser => ({
-      ...prevUser,
-      user: {
-        ...prevUser.user,
-        userImage: newPicture,
-      },
-    }));
-  };
-
-  const updateProfileFname = newFname => {
-    setUser(prevUser => ({
-      ...prevUser,
-      user: {
-        ...prevUser.user,
-        fName: newFname,
-      },
-    }));
-  };
-
-  const updateUserData = updatedFields => {
-    setUser(prev => ({
-      ...prev,
-      user: {
-        ...prev.user,
-        ...updatedFields,
-      },
-    }));
-  };
+  const [loading, setLoading] = useState(false);
 
   const login = user => {
-    console.log('Logging in:', user);
-    dispatch({type: LOGIN, payload: user});
-    setUser(user);
+    dispatch({type: 'LOGIN', payload: user});
     setLoading(false);
   };
 
   const logout = () => {
-    console.log('Logging out');
-    dispatch({type: LOGOUT});
+    dispatch({type: 'LOGOUT'});
   };
 
-  const addRoute = newRoute => {
-    setRoutes(prevRoutes => [...prevRoutes, newRoute]);
+  const updateUserData = updatedFields => {
+    dispatch({type: 'UPDATE_USER', payload: updatedFields});
   };
 
   return (
     <AuthContext.Provider
       value={{
-        state,
-        user,
+        user: state.user, // директно user
+        isAuthenticated: state.isAuthenticated,
         loading,
         login,
         logout,
-        addRoute,
-        profilePicture,
-        profileFname,
-        updateProfileFname,
         updateUserData,
       }}>
       {children}

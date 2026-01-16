@@ -46,7 +46,7 @@ const RouteHistory = ({navigation}) => {
         if (response.status === 200) {
           const routes = response.data.filter(route => {
             return (
-              route.userId === user?.user?.id &&
+              route.userId === user?.id &&
               !route.isDeleted &&
               route.userRouteId !== 'deleted' &&
               route.userRouteId !== 'completed'
@@ -133,7 +133,7 @@ const RouteHistory = ({navigation}) => {
     const completedRoute = originalRoutesState.find(
       route => route.id === routeId,
     );
-    const mainRouteUser = user?.user?.username;
+    const mainRouteUser = user?.username;
 
     setCompletedRoutes(prevRoutes => [...prevRoutes, completedRoute]);
 
@@ -176,14 +176,14 @@ const RouteHistory = ({navigation}) => {
                 setOriginalRoutesState(updatedRoutes);
                 setFilteredRoutesState(updatedRoutes);
 
-                const mainRouteUser = user?.user?.username;
+                const mainRouteUser = user?.username;
 
                 // Изпращане на известия за всички пътници
                 for (const req of matchingRequest) {
                   // Известиe към пътника да оцени създателя
                   await axios.post(`${API_BASE_URL}/notifications`, {
                     recipient: req.username,
-                    fromUserId: user?.user?.id,
+                    fromUserId: user?.id,
                     type: 'rate_user',
                     routeId,
                     message: `${t(
@@ -199,7 +199,7 @@ const RouteHistory = ({navigation}) => {
 
                   // Известиe към създателя да оцени конкретния пътник
                   await axios.post(`${API_BASE_URL}/notifications`, {
-                    recipient: user?.user?.username,
+                    recipient: user?.username,
                     fromUserId: req.userID,
                     type: 'rate_passenger',
                     routeId,

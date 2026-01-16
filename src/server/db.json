@@ -1,584 +1,60 @@
 {
   "users": [
     {
-      "id": 1711358014466,
-      "username": "Shushkata7@gmail.com",
-      "email": "shushkata7@gmail.com",
-      "password": "12345678",
-      "fName": "Arya",
-      "lName": "Dimitrova",
-      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/b9cd1bc0-ec99-4eb5-abe7-0e081755eccd.jpg",
-      "confirmationCode": null,
-      "routes": [
-        1748268348478,
-        1748606791383,
-        1736957069792,
-        1736956628621,
-        1756231381108,
-        1758543730631,
-        {
-          "routeId": 1758543730631,
-          "ratedBy": "Shushkata7@gmail.com"
-        },
-        {
-          "routeId": 1758544963456,
-          "ratedBy": "Shushkata7@gmail.com"
-        },
-        {
-          "routeId": 1758546287470
-        },
-        1758548372410
-      ],
-      "freinds": [],
-      "ratings": [
-        3.5,
-        3.5,
-        2,
-        2,
-        0.5,
-        3,
-        5,
-        3.5,
-        2.5,
-        2.5,
-        1.5,
-        1.5,
-        5,
-        5,
-        4.5,
-        5,
-        3.5,
-        4.5,
-        3.5,
-        4,
-        3.5,
-        3.5,
-        4.5,
-        5,
-        5,
-        5
-      ],
-      "comments": [
-        "Stawa",
-        "Stawa",
-        "Stawa",
-        "Bad driver",
-        "Bad driver",
-        "Bad driver",
-        "Good driver , but driving very fast !",
-        "gg",
-        "",
-        "",
-        {
-          "user": "sdds",
-          "comment": ""
-        },
-        {
-          "user": "sdds",
-          "comment": ""
-        },
-        {
-          "user": "sdds",
-          "comment": "Good driver !!!"
-        },
-        {
-          "user": "sdds",
-          "comment": "Perfect traveling :)"
-        },
-        {
-          "user": "sdds",
-          "comment": "Very Good !!!",
-          "date": "2025-05-26T14:51:56.999Z"
-        },
-        {
-          "user": "sdds",
-          "comment": "An exciting trip, the car was clean, and the driver followed traffic rules!",
-          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/a5ffaabe-ac93-4d00-bc9f-53a1165056ae.jpg",
-          "date": "2025-05-27T14:41:12.492Z"
-        },
-        {
-          "user": "sdds",
-          "comment": "Nice trip :) ",
-          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/a5ffaabe-ac93-4d00-bc9f-53a1165056ae.jpg",
-          "date": "2025-05-30T12:03:26.838Z"
-        },
-        {
-          "user": "huskyPower",
-          "comment": "sdasdasd",
-          "image": "",
-          "date": "2025-07-28T18:10:14.609Z"
-        },
-        {
-          "user": "sdds",
-          "comment": "gg",
-          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/65cc46e7-7b17-4430-9698-91c2ce50ae19.jpg",
-          "date": "2025-09-22T13:06:47.149Z"
-        },
-        {
-          "user": "sdds",
-          "comment": "gg",
-          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/65cc46e7-7b17-4430-9698-91c2ce50ae19.jpg",
-          "date": "2025-09-22T13:53:38.250Z"
-        },
-        {
-          "user": "huskyPower",
-          "comment": "gg",
-          "image": "",
-          "date": "2025-09-22T13:54:12.049Z"
-        },
-        {
-          "user": "sdds",
-          "comment": "ogg",
-          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/65cc46e7-7b17-4430-9698-91c2ce50ae19.jpg",
-          "date": "2025-09-23T15:05:07.395Z"
-        },
-        {
-          "user": "sdds",
-          "comment": "",
-          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/65cc46e7-7b17-4430-9698-91c2ce50ae19.jpg",
-          "date": "2025-09-23T17:46:24.399Z"
-        },
-        {
-          "user": "huskyPower",
-          "comment": "sdad",
-          "image": "",
-          "date": "2025-09-23T17:47:04.130Z"
-        },
-        {
-          "user": "sdds",
-          "comment": "nice",
-          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/65cc46e7-7b17-4430-9698-91c2ce50ae19.jpg",
-          "date": "2025-09-24T07:46:12.430Z"
-        },
-        {
-          "user": "huskyPower",
-          "comment": "Nice driver",
-          "image": "",
-          "date": "2025-09-24T07:47:01.482Z"
-        }
-      ],
-      "averageRating": 3.56,
-      "accountStatus": "active"
-    },
-    {
-      "id": 1730713699917,
-      "username": "sdds",
-      "email": "devmasterstech@gmail.com",
-      "password": "123",
-      "fName": "asdasd",
-      "lName": "sdsd",
-      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/65cc46e7-7b17-4430-9698-91c2ce50ae19.jpg",
-      "confirmationCode": null,
-      "isActive": false,
-      "routes": [
-        1736957069792,
-        1736956628621,
-        1747679033547,
-        1748262223336,
-        1748269154351,
-        1748270995203,
-        1748356737136,
-        1748606298684,
-        1758543730631,
-        {
-          "routeId": 1758543730631,
-          "ratedBy": "sdds"
-        },
-        {
-          "routeId": 1758544963456,
-          "ratedBy": "sdds"
-        },
-        {
-          "routeId": 1758545831349
-        },
-        {
-          "routeId": 1758546287470
-        },
-        1758548372410,
-        1758627495415
-      ],
-      "friends": [],
-      "ratings": [
-        3.5,
-        3.5,
-        3.5,
-        5,
-        4,
-        4,
-        4,
-        3.5,
-        4.5,
-        4.5,
-        5,
-        3.5,
-        4,
-        4,
-        2.5,
-        2.5,
-        4,
-        4,
-        3.5,
-        4,
-        3.5,
-        3.5,
-        5
-      ],
-      "comments": [
-        "ops",
-        "ops",
-        "ooo",
-        {
-          "user": "Shushkata7@gmail.com",
-          "comment": "Good driver !!!"
-        },
-        {
-          "user": "Shushkata7@gmail.com",
-          "comment": "Good driver !!!"
-        },
-        {
-          "user": "Shushkata7@gmail.com",
-          "comment": "Good driver "
-        },
-        {
-          "user": "Shushkata7@gmail.com",
-          "comment": "Good driver "
-        },
-        {
-          "user": "Shushkata7@gmail.com",
-          "comment": "Nice trip :) ",
-          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/934839b7-5c2f-472d-9a08-e59d74d9a512.jpg",
-          "date": "2025-05-30T12:14:18.372Z"
-        },
-        {
-          "user": "Shushkata7@gmail.com",
-          "comment": "TOP",
-          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
-          "date": "2025-07-29T16:40:45.919Z"
-        },
-        {
-          "user": "Shushkata7@gmail.com",
-          "comment": "TOP",
-          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
-          "date": "2025-07-29T16:40:57.253Z"
-        },
-        {
-          "user": "Shushkata7@gmail.com",
-          "comment": "Nice driver skill clean car ",
-          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/25538c9d-a093-4c5e-b246-8263b56cf587.jpg",
-          "date": "2025-08-26T18:08:18.568Z"
-        },
-        {
-          "user": "huskyPower",
-          "comment": "good",
-          "image": "",
-          "date": "2025-09-22T11:52:45.082Z"
-        },
-        {
-          "user": "Shushkata7@gmail.com",
-          "comment": "good",
-          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/9e8618e0-dcc3-403c-82ce-e52d13439334.jpg",
-          "date": "2025-09-22T12:24:54.199Z"
-        },
-        {
-          "user": "huskyPower",
-          "comment": "Good driver",
-          "image": "",
-          "date": "2025-09-22T12:25:31.749Z"
-        },
-        {
-          "user": "Shushkata7@gmail.com",
-          "comment": "sss",
-          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/9e8618e0-dcc3-403c-82ce-e52d13439334.jpg",
-          "date": "2025-09-22T12:38:43.415Z"
-        },
-        {
-          "user": "huskyPower",
-          "comment": "gg",
-          "image": "",
-          "date": "2025-09-22T12:39:15.049Z"
-        },
-        {
-          "user": "Shushkata7@gmail.com",
-          "comment": "gg",
-          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/9e8618e0-dcc3-403c-82ce-e52d13439334.jpg",
-          "date": "2025-09-22T12:47:12.716Z"
-        },
-        {
-          "user": "huskyPower",
-          "comment": "g",
-          "image": "",
-          "date": "2025-09-22T12:47:32.082Z"
-        },
-        {
-          "user": "Shushkata7@gmail.com",
-          "comment": "gg",
-          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/9e8618e0-dcc3-403c-82ce-e52d13439334.jpg",
-          "date": "2025-09-22T13:07:44.249Z"
-        },
-        {
-          "user": "huskyPower",
-          "comment": "",
-          "image": "",
-          "date": "2025-09-22T13:08:03.782Z"
-        },
-        {
-          "user": "Shushkata7@gmail.com",
-          "comment": "gg",
-          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/9e8618e0-dcc3-403c-82ce-e52d13439334.jpg",
-          "date": "2025-09-23T13:39:57.678Z"
-        },
-        {
-          "user": "huskyPower",
-          "comment": "gg",
-          "image": "",
-          "date": "2025-09-23T13:40:28.412Z"
-        },
-        {
-          "user": "Shushkata7@gmail.com",
-          "comment": "s",
-          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/9e8618e0-dcc3-403c-82ce-e52d13439334.jpg",
-          "date": "2025-09-24T07:45:11.447Z"
-        }
-      ],
-      "averageRating": 3.87,
-      "accountStatus": "active",
-      "deletedAt": 1764954932242
-    },
-    {
-      "id": 1733840997419,
-      "username": "huskyPower",
+      "id": 1768488420566,
+      "username": "malkotohuski",
       "email": "malkotohuski@gmail.com",
-      "password": "123",
-      "fName": "daniel",
-      "lName": "dimitorv",
-      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/d28eccba-9ff4-471e-b5a8-a5ad51177872.jpg",
+      "password": "$2b$12$XTxk4BT3ouksN5.ar7h6DukogF0PE6Ea29qXBdQpfDTgYvHvmB.wK",
+      "fName": "Daniel",
+      "lName": "Dimitrov",
+      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/f8c0e3a9-718e-4af4-af37-0acb15b42f0b.jpg",
       "confirmationCode": null,
       "isActive": true,
-      "routes": [
-        1742902293921,
-        1758541617230,
-        1758543730631,
-        {
-          "routeId": 1758543730631,
-          "ratedBy": "huskyPower"
-        },
-        {
-          "routeId": 1758544963456,
-          "ratedBy": "huskyPower"
-        },
-        {
-          "routeId": 1758546287470
-        },
-        1758548372410
-      ],
+      "createdAt": 1768488420566,
+      "routes": [],
       "friends": [],
       "ratings": [
-        2.5,
-        5,
-        4,
-        4,
-        3.5,
-        4,
-        3.5,
-        4.5
+        5
       ],
+      "averageRating": 5,
       "comments": [
         {
-          "user": "sdds",
-          "comment": "stinky",
-          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/65cc46e7-7b17-4430-9698-91c2ce50ae19.jpg",
-          "date": "2025-09-22T12:30:48.732Z"
-        },
-        {
-          "user": "sdds",
-          "comment": " gg",
-          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/65cc46e7-7b17-4430-9698-91c2ce50ae19.jpg",
-          "date": "2025-09-22T12:38:18.016Z"
-        },
-        {
-          "user": "sdds",
-          "comment": "Nice person ",
-          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/65cc46e7-7b17-4430-9698-91c2ce50ae19.jpg",
-          "date": "2025-09-22T12:45:03.682Z"
-        },
-        {
-          "user": "sdds",
-          "comment": "",
-          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/65cc46e7-7b17-4430-9698-91c2ce50ae19.jpg",
-          "date": "2025-09-22T12:59:11.583Z"
-        },
-        {
-          "user": "Shushkata7@gmail.com",
-          "comment": "ssds",
-          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/9e8618e0-dcc3-403c-82ce-e52d13439334.jpg",
-          "date": "2025-09-22T13:53:06.282Z"
-        },
-        {
-          "user": "sdds",
-          "comment": "good",
-          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/65cc46e7-7b17-4430-9698-91c2ce50ae19.jpg",
-          "date": "2025-09-23T11:41:29.530Z"
-        },
-        {
-          "user": "sdds",
-          "comment": "op",
-          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/65cc46e7-7b17-4430-9698-91c2ce50ae19.jpg",
-          "date": "2025-09-23T15:04:56.646Z"
-        },
-        {
-          "user": "Shushkata7@gmail.com",
-          "comment": "Good boy",
-          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/9e8618e0-dcc3-403c-82ce-e52d13439334.jpg",
-          "date": "2025-09-24T07:45:37.663Z"
+          "user": "Shushkata",
+          "comment": "Nice driver!!!",
+          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/7c891c3a-718b-4a12-b986-8d7a59aab03a.jpg",
+          "date": "2026-01-15T16:19:20.080Z"
         }
       ],
-      "averageRating": 3.88,
-      "accountStatus": "active"
+      "accountStatus": "active",
+      "resetPasswordCode": null,
+      "resetPasswordExpires": null
     },
     {
-      "id": 1750430363707,
-      "username": "Zorro",
-      "email": "dnd@abv.bg",
-      "password": "123",
-      "fName": "Dimitar",
-      "lName": "Dimitrov",
-      "userImage": "",
+      "id": 1768493729350,
+      "username": "Shushkata",
+      "email": "shushkata7@gmail.com",
+      "password": "$2b$12$SfOsSaYkgKqyS4XWAw.IReirmpqC4j4FoeMA.8rnt/P6kOOkQdwam",
+      "fName": "Arya",
+      "lName": "Spasova",
+      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/7c891c3a-718b-4a12-b986-8d7a59aab03a.jpg",
       "confirmationCode": null,
       "isActive": true,
+      "createdAt": 1768493729350,
       "routes": [],
       "friends": [],
-      "ratings": [],
-      "averageRating": 0,
-      "comments": []
-    },
-    {
-      "id": 1750430797675,
-      "username": "ddd",
-      "email": "mastah@gmail.com",
-      "password": "123",
-      "fName": "saaa",
-      "lName": "sddsds",
-      "userImage": "",
-      "confirmationCode": 520285,
-      "isActive": false,
-      "routes": [],
-      "friends": [],
-      "ratings": [],
-      "averageRating": 0,
-      "comments": []
-    },
-    {
-      "id": 1750431422955,
-      "username": "Sanji",
-      "email": "antodi@gmail.com",
-      "password": "123",
-      "fName": "Ani",
-      "lName": "Todoroova",
-      "userImage": "",
-      "confirmationCode": 972171,
-      "isActive": false,
-      "routes": [],
-      "friends": [],
-      "ratings": [],
-      "averageRating": 0,
-      "comments": []
-    },
-    {
-      "id": 1750444568054,
-      "username": "Sandji",
-      "email": "antodi1@gmail.com",
-      "password": "123",
-      "fName": "Dimitar",
-      "lName": "Dimitrov",
-      "userImage": "",
-      "confirmationCode": 494594,
-      "isActive": false,
-      "routes": [],
-      "friends": [],
-      "ratings": [],
-      "averageRating": 0,
-      "comments": []
-    },
-    {
-      "id": 1750445295348,
-      "username": "Sandji",
-      "email": "antodi1@gmail.com",
-      "password": "123",
-      "fName": "Anna ",
-      "lName": "Dimitrova",
-      "userImage": "",
-      "confirmationCode": 729512,
-      "isActive": false,
-      "routes": [],
-      "friends": [],
-      "ratings": [],
-      "averageRating": 0,
-      "comments": []
-    },
-    {
-      "id": 1750445605817,
-      "username": "Sandji",
-      "email": "antodi1@gmail.com",
-      "password": "123",
-      "fName": "Ani",
-      "lName": "Diomitrova",
-      "userImage": "",
-      "confirmationCode": 182733,
-      "isActive": false,
-      "routes": [],
-      "friends": [],
-      "ratings": [],
-      "averageRating": 0,
-      "comments": []
-    },
-    {
-      "id": 1750445710615,
-      "username": "Sandji",
-      "email": "antodi1@gmail.com",
-      "password": "123",
-      "fName": "Ani",
-      "lName": "DDD",
-      "userImage": "",
-      "confirmationCode": 498707,
-      "isActive": false,
-      "routes": [],
-      "friends": [],
-      "ratings": [],
-      "averageRating": 0,
-      "comments": []
-    },
-    {
-      "id": 1750445754114,
-      "username": "shushkata",
-      "email": "shushkata@gmail.com",
-      "password": "123",
-      "fName": "ss",
-      "lName": "ss",
-      "userImage": "",
-      "confirmationCode": 346990,
-      "isActive": false,
-      "routes": [],
-      "friends": [],
-      "ratings": [],
-      "averageRating": 0,
-      "comments": []
-    },
-    {
-      "id": 1750447415089,
-      "username": "shushkataa",
-      "email": "shushkata7@gmail.com",
-      "password": "123",
-      "fName": "sdasd",
-      "lName": "sadasd",
-      "userImage": "",
-      "confirmationCode": 223323,
-      "isActive": false,
-      "createdAt": 1750447415089,
-      "routes": [],
-      "friends": [],
-      "ratings": [],
-      "averageRating": 0,
-      "comments": []
+      "ratings": [
+        5
+      ],
+      "averageRating": 5,
+      "comments": [
+        {
+          "user": "malkotohuski",
+          "comment": "Good mate",
+          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/f8c0e3a9-718e-4af4-af37-0acb15b42f0b.jpg",
+          "date": "2026-01-15T16:18:49.997Z"
+        }
+      ],
+      "accountStatus": "active"
     }
   ],
   "routes": [
@@ -654,21 +130,34 @@
     {
       "selectedVehicle": "Car",
       "registrationNumber": "A2111AA",
-      "selectedDateTime": "2025-11-06T15:45:00.000Z",
-      "departureCity": "Varna",
+      "selectedDateTime": "2026-01-16T13:37:00.000Z",
+      "departureCity": "Plovdiv",
       "departureStreet": "",
       "departureNumber": "",
-      "arrivalCity": "Pleven",
+      "arrivalCity": "Sofia",
       "arrivalStreet": "",
       "arrivalNumber": "",
-      "routeTitle": "2",
-      "userId": 1711358014466,
-      "username": "Shushkata7@gmail.com",
-      "userFname": "Velichka",
-      "userLname": "Spasova",
-      "userEmail": "shushkata7@gmail.com",
-      "id": 1762271152533,
-      "userRouteId": "deleted"
+      "routeTitle": "2 free spots",
+      "id": 1768484279188
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A1211AA",
+      "selectedDateTime": "2026-01-17T15:38:00.000Z",
+      "departureCity": "Sofia",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Ruse",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "routeTitle": "2 free spot",
+      "userId": 1768488420566,
+      "username": "malkotohuski",
+      "userFname": "Daniel",
+      "userLname": "Dimitrov",
+      "userEmail": "malkotohuski@gmail.com",
+      "id": 1768492213992,
+      "userRouteId": "completed"
     }
   ],
   "seekers": [
@@ -684,7 +173,26 @@
       "id": 1751818596917
     }
   ],
-  "requests": [],
+  "requests": [
+    {
+      "username": "Shushkata",
+      "userFname": "Vili",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "userID": 1768493729350,
+      "userRouteId": 1768488420566,
+      "departureCity": "Sofia",
+      "arrivalCity": "Ruse",
+      "routeId": 1768492213992,
+      "dataTime": "2026-01-17T15:38:00.000Z",
+      "requestComment": "Need one place",
+      "rateCreator": true,
+      "rateUser": true,
+      "status": "approved",
+      "read": true,
+      "id": 1768493788454
+    }
+  ],
   "userChanges": [],
   "notifications": [
     {
@@ -2083,6 +1591,64 @@
       },
       "createdAt": "2025-10-27T13:48:59.232Z",
       "id": 302,
+      "read": true
+    },
+    {
+      "recipient": "malkotohuski",
+      "message": "You have a candidate for your route: Sofia-Ruse with username: Shushkata!",
+      "routeId": 1768492213992,
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata",
+        "userFname": "Vili",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com",
+        "comment": "Need one place"
+      },
+      "createdAt": "2026-01-15T16:16:25.177Z",
+      "id": 303,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata",
+      "message": "Your request has been approved from malkotohuski.\nAbout the route: Sofia-Ruse.\nFor date: 17.01.2026 г., 17:38",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "malkotohuski",
+        "userFname": "Daniel",
+        "userLname": "Dimitrov",
+        "email": "malkotohuski@gmail.com"
+      },
+      "createdAt": "2026-01-15T16:16:53.787Z",
+      "id": 304,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata",
+      "fromUserId": 1768488420566,
+      "type": "rate_user",
+      "routeId": 1768492213992,
+      "message": "Please rate the trip with malkotohuski.\nAbout the route Sofia-Ruse",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2026-01-15T16:18:32.630Z",
+      "mainRouteUser": "malkotohuski",
+      "id": 305,
+      "read": true
+    },
+    {
+      "recipient": "malkotohuski",
+      "fromUserId": 1768493729350,
+      "type": "rate_passenger",
+      "routeId": 1768492213992,
+      "message": "Please rate your passenger Shushkata.\nAbout the route Sofia-Ruse",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2026-01-15T16:18:32.671Z",
+      "mainRouteUser": "Shushkata",
+      "id": 306,
       "read": true
     }
   ]

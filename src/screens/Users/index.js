@@ -15,7 +15,7 @@ function UsersScreen({navigation}) {
   const {user} = useAuth();
   const {t} = useTranslation();
   const {profilePicture} = useAuth();
-  const defaultProfilePicture = user?.user?.userImage;
+  const defaultProfilePicture = user?.userImage;
 
   return (
     <View style={styles.container}>
@@ -47,13 +47,13 @@ function UsersScreen({navigation}) {
         </View>
         <View>
           <Text style={[styles.userInfoContainer, styles.topLeftUserNames]}>
-            {t('Username')} : {user?.user?.username}
+            {t('Username')} : {user?.username}
           </Text>
           <Text style={[styles.userInfoContainer, styles.topLeftNames]}>
-            {t('Names')} : {user?.user?.fName} {user?.user?.lName}
+            {t('Names')} : {user?.fName} {user?.lName}
           </Text>
           <Text style={[styles.userInfoContainer, styles.topLeftEmail]}>
-            {t('Еmail')} : {user?.user?.email}
+            {t('Еmail')} : {user?.email}
           </Text>
         </View>
         <View style={styles.ratingContainer}>

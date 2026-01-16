@@ -24,7 +24,7 @@ const SettingsScreen = () => {
   const navigation = useNavigation();
   const {t} = useTranslation();
   const {logout, user} = useAuth();
-  const userId = user?.user?.id;
+  const userId = user?.id;
   console.log('USER ID:', userId);
 
   useEffect(() => {

@@ -17,7 +17,7 @@ import {DarkModeContext} from '../../navigation/DarkModeContext';
 
 const Comments = ({navigation}) => {
   const {user} = useAuth();
-  const comments = user?.user?.comments || [];
+  const comments = user?.comments || [];
   console.log('comments', comments);
 
   const formatDate = isoDate => {
@@ -38,7 +38,7 @@ const Comments = ({navigation}) => {
 
   // Вземи последните N рейтинга, колкото са валидните коментари
   const relevantRatings =
-    user?.user?.ratings?.slice(-validCommentObjects.length) || [];
+    user?.ratings?.slice(-validCommentObjects.length) || [];
 
   // Изгради структурата
   const structuredComments = validCommentObjects.map((c, index) => ({

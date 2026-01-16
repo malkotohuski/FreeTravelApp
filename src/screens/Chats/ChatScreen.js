@@ -20,8 +20,8 @@ const ChatScreen = ({navigation}) => {
   const {darkMode} = useContext(DarkModeContext);
   const {user} = useAuth();
   const {t} = useTranslation();
-  const username = user?.user?.username;
-  const userAllName = `${user?.user?.fName} ${user?.user?.lName}`;
+  const username = user?.username;
+  const userAllName = `${user?.fName} ${user?.lName}`;
   const [searchTerm, setSearchTerm] = useState('');
   const {routes, requests} = useRouteContext();
   const [recentChats, setRecentChats] = useState([

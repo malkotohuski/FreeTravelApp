@@ -27,13 +27,11 @@ const api = axios.create({
 
 const AccountSettings = ({navigation}) => {
   const {user, updateProfilePicture, updateUserData} = useAuth();
-  const [profilePicture, setProfilePicture] = useState(
-    user?.user?.userImage || null,
-  );
+  const [profilePicture, setProfilePicture] = useState(user?.userImage || null);
 
   const {t} = useTranslation();
-  const [fName, setFname] = useState(user?.user?.fName || '');
-  const [lName, setLname] = useState(user?.user?.lName || '');
+  const [fName, setFname] = useState(user?.fName || '');
+  const [lName, setLname] = useState(user?.lName || '');
   const [currentPassword, setCurrentPassword] = useState('');
   const [photoChanged, setPhotoChanged] = useState(false);
   const [newPassword, setNewPassword] = useState('');
@@ -59,8 +57,7 @@ const AccountSettings = ({navigation}) => {
 
       if (image?.path) {
         setProfilePicture(image.path);
-        updateProfilePicture(image.path);
-        setPhotoChanged(true);
+        setPhotoChanged(true); // вече използваме това за промяна
       }
     } catch (error) {
       console.log('ImagePicker Error: ', error);
@@ -69,64 +66,65 @@ const AccountSettings = ({navigation}) => {
 
   const handleSaveChanges = async () => {
     try {
-      const originalFname = user?.user?.fName || '';
-      const originalLname = user?.user?.lName || '';
+      const originalFname = user?.fName || '';
+      const originalLname = user?.lName || '';
+      const originalImage = user?.userImage || null;
 
       const changes = {};
 
-      // 🟡 Имена
+      // Имена
       if (fName !== originalFname) changes.fName = fName;
       if (lName !== originalLname) changes.lName = lName;
 
-      // 🔴 Парола
+      // Снимка
+      if (photoChanged && profilePicture !== originalImage) {
+        changes.userImage = profilePicture;
+      }
+
+      // Парола
       if (newPassword || confirmPassword) {
         if (!currentPassword) {
           Alert.alert(t('Error'), t('Please enter current password'));
           return;
         }
-
         if (newPassword !== confirmPassword) {
           Alert.alert(t('Error'), t('Passwords do not match'));
           return;
         }
-
         if (newPassword.length < 8) {
           Alert.alert(t('Error'), t('Password must be at least 8 characters'));
           return;
         }
-
         changes.currentPassword = currentPassword;
         changes.newPassword = newPassword;
       }
 
-      // ❗ НИЩО не е променено
-      if (Object.keys(changes).length === 0 && !photoChanged) {
+      // Ако няма промени
+      if (Object.keys(changes).length === 0) {
         Platform.OS === 'android'
           ? ToastAndroid.show(t('No changes to save'), ToastAndroid.SHORT)
           : Alert.alert(t('Info'), t('No changes to save'));
         return;
       }
 
-      // 🚀 PATCH
-      await api.patch('/user-changes', {
-        userId: user.user.id,
+      // PATCH заявка
+      const response = await api.patch('/user-changes', {
+        userId: user.id,
         ...changes,
       });
 
-      // ✅ Context update САМО за имена
-      if (changes.fName || changes.lName) {
-        updateUserData({
-          fName,
-          lName,
-        });
-      }
+      // Обновяване на контекст
+      updateUserData({
+        fName: response.data.user.fName,
+        lName: response.data.user.lName,
+        userImage: response.data.user.userImage,
+      });
 
-      // 🧹 Reset
+      // Reset полета
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
       setPhotoChanged(false);
-
       Keyboard.dismiss();
 
       Alert.alert(t('Success'), t('Changes saved successfully'), [
@@ -158,17 +156,17 @@ const AccountSettings = ({navigation}) => {
           <View style={styles.userInfoContainer}>
             <View style={styles.infoRow}>
               <Text style={styles.label}>{t('Username')}:</Text>
-              <Text style={styles.value}>{user?.user?.username}</Text>
+              <Text style={styles.value}>{user?.username}</Text>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.label}>{t('Full Name')}:</Text>
               <Text style={styles.value}>
-                {user?.user?.fName} {user?.user?.lName}
+                {user?.fName} {user?.lName}
               </Text>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.label}>{t('Email')}:</Text>
-              <Text style={styles.value}>{user?.user?.email}</Text>
+              <Text style={styles.value}>{user?.email}</Text>
             </View>
           </View>
           <View style={styles.userInfoContainerPhoto}>

@@ -31,9 +31,9 @@ function ViewRoutes({navigation}) {
     routes.filter(route => route.userRouteId !== 'deleted'),
   );
 
-  const usernameRequest = user?.user?.username;
-  const userFnameRequest = user?.user?.fName;
-  const userLnameRequest = user?.user?.lName;
+  const usernameRequest = user?.username;
+  const userFnameRequest = user?.fName;
+  const userLnameRequest = user?.lName;
   const fullUserInfo = {usernameRequest, userFnameRequest, userLnameRequest};
 
   const toggleFilterModal = () => {

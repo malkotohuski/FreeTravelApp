@@ -50,13 +50,13 @@ function RouteRequestScreen({route, navigation}) {
   const {requests, refreshUserData} = useRouteContext();
   const [routeRequests, setRouteRequests] = useState([]);
   const [notificationCount, setNotificationCount] = useState(0);
-  const requestUserFirstName = user?.user?.fName;
-  const requestUserLastName = user?.user?.lName;
-  const userNow = user?.user?.id;
-  const loginUser = user?.user?.username;
-  const requesterUsername = user?.user?.username;
-  const requestUserEmail = user?.user?.email;
-  const requestUserID = user?.user?.userID;
+  const requestUserFirstName = user?.fName;
+  const requestUserLastName = user?.lName;
+  const userNow = user?.id;
+  const loginUser = user?.username;
+  const requesterUsername = user?.username;
+  const requestUserEmail = user?.email;
+  const requestUserID = user?.userID;
 
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);

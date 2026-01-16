@@ -45,6 +45,9 @@ const StarRatingDisplay = ({rating, size = 50}) => {
 
 const AccountManager = ({navigation}) => {
   const {user} = useAuth();
+  const userNAME = user?.username;
+  console.log('USERINFO', userNAME);
+
   const {profilePicture} = useAuth();
   const defaultProfilePicture = require('../../../images/emptyUserImage.png');
   const {t} = useTranslation();
@@ -68,8 +71,8 @@ const AccountManager = ({navigation}) => {
           <View style={styles.profilePictureContainer}>
             <Image
               source={
-                user?.user?.userImage
-                  ? {uri: user.user.userImage} // Използва снимката от userImage, ако съществува
+                user?.userImage
+                  ? {uri: user.userImage} // Използва снимката от userImage, ако съществува
                   : defaultProfilePicture // В противен случай, използва снимката по подразбиране
               }
               style={styles.profilePicture}
@@ -80,27 +83,24 @@ const AccountManager = ({navigation}) => {
           <View style={styles.userInfoSection}>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>{t('Username')}:</Text>
-              <Text style={styles.infoText}>{user?.user?.username}</Text>
+              <Text style={styles.infoText}>{user?.username}</Text>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>{t('Names')}:</Text>
               <Text style={styles.infoText}>
-                {user?.user?.fName} {user?.user?.lName}
+                {user?.fName} {user?.lName}
               </Text>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>{t('Email')}:</Text>
-              <Text style={styles.infoText}>{user?.user?.email}</Text>
+              <Text style={styles.infoText}>{user?.email}</Text>
             </View>
           </View>
 
           {/* Rating Section */}
           <View style={styles.ratingSection}>
             <Text style={styles.ratingTitle}>{t('Your rating')}</Text>
-            <StarRatingDisplay
-              rating={user?.user?.averageRating || 0}
-              size={50}
-            />
+            <StarRatingDisplay rating={user?.averageRating || 0} size={50} />
           </View>
           <Text
             style={{
@@ -109,7 +109,7 @@ const AccountManager = ({navigation}) => {
               fontSize: 20,
               fontWeight: 'bold',
             }}>
-            ({user?.user?.averageRating?.toFixed(2) || '0.00'})
+            ({user?.averageRating?.toFixed(2) || '0.00'})
           </Text>
           {/* Buttons Section */}
           <View style={styles.buttonsContainer}>
