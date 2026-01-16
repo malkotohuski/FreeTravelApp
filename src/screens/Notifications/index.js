@@ -76,7 +76,7 @@ const Notifications = ({navigation, route}) => {
     }
 
     const recipientUser = respondingTo.requester?.username;
-    const senderUsername = user?.user?.username;
+    const senderUsername = user?.username;
 
     const message =
       responseType === 'accepted'
@@ -90,9 +90,9 @@ const Notifications = ({navigation, route}) => {
         routeId: respondingTo.routeId,
         requester: {
           username: senderUsername,
-          userFname: user?.user?.firstName,
-          userLname: user?.user?.lastName,
-          email: user?.user?.email,
+          userFname: user?.firstName,
+          userLname: user?.lastName,
+          email: user?.email,
         },
         personalMessage: responseComment,
         createdAt: new Date().toISOString(),
@@ -127,7 +127,7 @@ const Notifications = ({navigation, route}) => {
   const fetchNotifications = async () => {
     try {
       const response = await api.get(
-        `/notifications?recipient=${user?.user?.username}`,
+        `/notifications?recipient=${user?.username}`,
       );
       const activeNotifications = response.data.filter(
         n => n.status === 'active',

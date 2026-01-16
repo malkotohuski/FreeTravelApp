@@ -18,7 +18,7 @@ const WelcomeScreen = ({navigation}) => {
   const route = useRoute(); // Define route here
   const captionAnim = useRef(new Animated.Value(-width)).current;
   const {user} = useAuth();
-  const userNickName = user?.user?.username;
+  const userNickName = user?.username;
   console.log('user', user);
 
   const animateCaption = () => {

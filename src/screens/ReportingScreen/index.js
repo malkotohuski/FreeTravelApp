@@ -30,9 +30,9 @@ const ReportingScreen = ({navigation}) => {
   const {t} = useTranslation();
 
   const {user} = useAuth();
-  const userEmail = user?.user?.email;
-  const userName = user?.user?.username;
-  const userId = user?.user?.id;
+  const userEmail = user?.email;
+  const userName = user?.username;
+  const userId = user?.id;
 
   /*   const getHeaderStyles = () => ({
     flexDirection: 'row',

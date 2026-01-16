@@ -32,9 +32,9 @@ function Seekers({navigation}) {
 
   const {user} = useAuth();
 
-  const loggedUser = user?.user?.username;
-  const loggedUserName = user?.user?.fName;
-  const loggedUserFname = user?.user?.lName;
+  const loggedUser = user?.username;
+  const loggedUserName = user?.fName;
+  const loggedUserFname = user?.lName;
 
   const fetchSeekers = async () => {
     try {
@@ -79,7 +79,7 @@ function Seekers({navigation}) {
   const sendInvite = async () => {
     const recipient = selectedRoute.username;
 
-    if (recipient === user?.user?.username) {
+    if (recipient === user?.username) {
       Alert.alert(t('Грешка'), t('Не можете да изпращате покана на себе си.'));
       return;
     }
@@ -89,7 +89,7 @@ function Seekers({navigation}) {
       const alreadyInvited = res.data.some(
         n =>
           n.recipient === recipient &&
-          n.requester?.username === user?.user?.username &&
+          n.requester?.username === user?.username &&
           n.routeTitle === selectedRoute.routeTitle,
       );
 
@@ -109,10 +109,10 @@ function Seekers({navigation}) {
         routeChecker: true,
         status: 'active',
         requester: {
-          username: user?.user?.username,
-          userFname: user?.user?.userFname,
-          userLname: user?.user?.userLname,
-          email: user?.user?.email,
+          username: user?.username,
+          userFname: user?.userFname,
+          userLname: user?.userLname,
+          email: user?.email,
         },
         routeTitle: selectedRoute.routeTitle,
         createdAt: new Date().toISOString(),
@@ -255,7 +255,7 @@ function Seekers({navigation}) {
                   </Text>
 
                   <View style={styles.modalButtons}>
-                    {selectedRoute.username !== user?.user?.username ? (
+                    {selectedRoute.username !== user?.username ? (
                       <TouchableOpacity
                         style={styles.mainButton}
                         onPress={sendInvite}>

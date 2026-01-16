@@ -35,12 +35,12 @@ function Looking({navigation}) {
   const [modalArrival, setModalArrival] = useState(false);
   const [routeTitle, setRouteTitle] = useState('');
 
-  const userId = user?.user?.id;
-  const username = user?.user?.username;
-  const userFname = user?.user?.fName;
-  const userLname = user?.user?.lName;
-  const userEmail = user?.user?.email;
-  const userImage = user?.user?.userImage;
+  const userId = user?.id;
+  const username = user?.username;
+  const userFname = user?.fName;
+  const userLname = user?.lName;
+  const userEmail = user?.email;
+  const userImage = user?.userImage;
 
   const [filteredDepartureCities, setFilteredDepartureCities] = useState(
     cities.slice(0, 7),

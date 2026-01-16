@@ -358,4 +358,14 @@ export default StyleSheet.create({
     fontSize: 38,
     color: '#010101',
   },
+  forgotPasswordContainer: {
+    marginTop: 10,
+    alignSelf: 'center',
+  },
+
+  forgotPasswordText: {
+    color: '#fff',
+    fontSize: 14,
+    textDecorationLine: 'underline',
+  },
 });

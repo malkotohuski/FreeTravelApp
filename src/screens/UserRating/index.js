@@ -25,9 +25,9 @@ const RateUserScreen = ({navigation}) => {
   console.log('USER_ID', fromUserId);
 
   const {user} = useAuth();
-  const currentUser = user?.user?.username;
-  const currentUserId = user?.user?.id;
-  const currentUserImage = user?.user?.userImage;
+  const currentUser = user?.username;
+  const currentUserId = user?.id;
+  const currentUserImage = user?.userImage;
   const {darkMode} = useContext(DarkModeContext);
 
   const [rating, setRating] = useState(0);

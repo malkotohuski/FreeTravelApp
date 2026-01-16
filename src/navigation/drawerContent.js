@@ -40,6 +40,7 @@ import {DarkModeContext} from './DarkModeContext';
 import Seekers from '../screens/Seekers';
 import UserInfo from '../screens/UserInfo';
 import UserDetailsScreen from '../screens/UserDetails';
+import ResetPassword from '../screens/ResetPasswordScreen/index';
 
 const Drawer = createDrawerNavigator();
 
@@ -582,6 +583,16 @@ export const Navigator = ({isLoggedIn}) => {
         component={RouteHistory}
         options={{
           title: t('Routes History'),
+          ...screenStyles,
+          headerShown: false,
+          drawerItemStyle: {display: 'none'},
+        }}
+      />
+      <Drawer.Screen
+        name="ResetPassword"
+        component={ResetPassword}
+        options={{
+          title: t('Reset Password'),
           ...screenStyles,
           headerShown: false,
           drawerItemStyle: {display: 'none'},

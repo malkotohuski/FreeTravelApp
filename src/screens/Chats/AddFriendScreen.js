@@ -23,7 +23,7 @@ const API_BASE_URL = 'http://10.0.2.2:3000';
 const AddFriendScreen = ({navigation}) => {
   const {darkMode} = useContext(DarkModeContext);
   const {user} = useAuth();
-  const currentUserId = user?.user?.username;
+  const currentUserId = user?.username;
   const noImage = require('../../../images/no_image.png');
 
   const [users, setUsers] = useState([]);

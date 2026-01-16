@@ -50,11 +50,11 @@ function Confirm() {
     showBackButton = false,
   } = route.params;
 
-  const userId = user?.user?.id;
-  const username = user?.user?.username;
-  const userFname = user?.user?.fName;
-  const userLname = user?.user?.lName;
-  const userEmail = user?.user?.email;
+  const userId = user?.id;
+  const username = user?.username;
+  const userFname = user?.fName;
+  const userLname = user?.lName;
+  const userEmail = user?.email;
 
   const handleConfirm = async () => {
     if (isSubmitting || isGenerating) return;

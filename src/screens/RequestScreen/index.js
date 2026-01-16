@@ -37,12 +37,12 @@ function RouteDetails({route}) {
     arrivalCity,
     routeId,
   } = route.params;
-  const loginUser = user?.user?.username;
+  const loginUser = user?.username;
 
-  const requesterUsername = user?.user?.username;
-  const requestUserFirstName = user?.user?.fName;
-  const requestUserLastName = user?.user?.lName;
-  const requestUserEmail = user?.user?.email;
+  const requesterUsername = user?.username;
+  const requestUserFirstName = user?.fName;
+  const requestUserLastName = user?.lName;
+  const requestUserEmail = user?.email;
   const departureCityEmail = route.params.departureCity;
   const arrivalCityEmail = route.params.arrivalCity;
 
@@ -129,11 +129,11 @@ function RouteDetails({route}) {
               try {
                 await api.post('/send-request-to-user', {
                   requestingUser: {
-                    username: user?.user?.username,
-                    userFname: user?.user?.fName,
-                    userLname: user?.user?.lName,
+                    username: user?.username,
+                    userFname: user?.fName,
+                    userLname: user?.lName,
                     userEmail: requestUserEmail,
-                    userID: user?.user?.id,
+                    userID: user?.id,
                     userRouteId: route.params.userId,
                     departureCity: route.params.departureCity,
                     arrivalCity: route.params.arrivalCity,
