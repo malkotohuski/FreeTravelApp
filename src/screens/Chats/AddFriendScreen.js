@@ -12,13 +12,11 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import axios from 'axios';
+import api from '../../api/api';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useTranslation} from 'react-i18next';
 import {useAuth} from '../../context/AuthContext';
 import {DarkModeContext} from '../../navigation/DarkModeContext';
-
-const API_BASE_URL = 'http://10.0.2.2:3000';
 
 const AddFriendScreen = ({navigation}) => {
   const {darkMode} = useContext(DarkModeContext);
@@ -33,8 +31,8 @@ const AddFriendScreen = ({navigation}) => {
   const {t} = useTranslation();
 
   useEffect(() => {
-    axios
-      .get(`${API_BASE_URL}/users`)
+    api
+      .get('/users')
       .then(response => {
         setUsers(response.data);
       })
@@ -64,8 +62,8 @@ const AddFriendScreen = ({navigation}) => {
   };
 
   const handleAddFriend = () => {
-    axios
-      .post(`${API_BASE_URL}/approve-friend-request`, {
+    api
+      .post('/approve-friend-request', {
         userId: currentUserId,
         friendId: selectedUser.id,
       })

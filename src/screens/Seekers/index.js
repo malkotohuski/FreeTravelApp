@@ -16,9 +16,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import {useTranslation} from 'react-i18next';
 import {useFocusEffect} from '@react-navigation/native';
 import {useAuth} from '../../context/AuthContext';
-import axios from 'axios';
-
-const API_BASE_URL = 'http://10.0.2.2:3000';
+import api from '../../api/api';
 
 function Seekers({navigation}) {
   const {t, i18n} = useTranslation();
@@ -39,7 +37,7 @@ function Seekers({navigation}) {
   const fetchSeekers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_BASE_URL}/seekers`);
+      const response = await api.get('/seekers');
       if (response.status === 200) {
         const now = new Date();
         const updatedRoutes = await Promise.all(
@@ -47,7 +45,7 @@ function Seekers({navigation}) {
             const routeDate = new Date(route.selectedDateTime);
             if (routeDate < now) {
               try {
-                await axios.delete(`${API_BASE_URL}/seekers/${route.id}`);
+                await api.delete(`/seekers/${route.id}`);
                 return null;
               } catch (deleteErr) {
                 console.error(
@@ -85,7 +83,7 @@ function Seekers({navigation}) {
     }
 
     try {
-      const res = await axios.get(`${API_BASE_URL}/notifications`);
+      const res = await api.get('/notifications');
       const alreadyInvited = res.data.some(
         n =>
           n.recipient === recipient &&
@@ -103,7 +101,7 @@ function Seekers({navigation}) {
 
       const notificationMessage = `Имате нова покана от ${loggedUserName} ${loggedUserFname}`;
 
-      await axios.post(`${API_BASE_URL}/notifications`, {
+      await api.post('/notifications', {
         recipient,
         message: notificationMessage,
         routeChecker: true,

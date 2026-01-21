@@ -10,21 +10,17 @@ import {
 import {useAuth} from '../../context/AuthContext';
 import {useTranslation} from 'react-i18next';
 
-const LogoutScreen = ({navigation}) => {
+const LogoutScreen = () => {
   const {logout} = useAuth();
   const {t} = useTranslation();
 
-  // Handle the logout action
   const handleLogout = () => {
-    logout();
-    // Optionally, navigate to the login screen or any other screen after logout
-    navigation.navigate('Login');
+    logout(); // ✅ това е всичко
   };
 
-  const handleHome = () => {
-    logout();
-    // Optionally, navigate to the login screen or any other screen after logout
-    navigation.navigate('Home');
+  const handleCancel = () => {
+    // просто се връщаме назад
+    // без logout
   };
 
   return (
@@ -37,14 +33,17 @@ const LogoutScreen = ({navigation}) => {
         <Text style={styles.mainText}>
           {t('Are you sure you want to logout?')}
         </Text>
+
         <View style={styles.containerYesNo}>
           <TouchableOpacity
             style={styles.submitButtonYes}
             onPress={handleLogout}>
             <Text style={styles.sumbitTextYes}>{t('Yes')}</Text>
           </TouchableOpacity>
-          <View style={styles.submitPadding}></View>
-          <TouchableOpacity style={styles.submitButtonNo} onPress={handleHome}>
+
+          <TouchableOpacity
+            style={styles.submitButtonNo}
+            onPress={() => navigation.goBack()}>
             <Text style={styles.sumbitTextYes}>{t('No')}</Text>
           </TouchableOpacity>
         </View>

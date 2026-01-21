@@ -12,12 +12,7 @@ import {useFocusEffect} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {useAuth} from '../../context/AuthContext';
-import axios from 'axios';
-
-const API_BASE_URL = 'http://10.0.2.2:3000'; // JSON server
-const api = axios.create({
-  baseURL: API_BASE_URL,
-});
+import api from '../../api/api';
 
 function RouteDetails({route}) {
   const {t} = useTranslation();

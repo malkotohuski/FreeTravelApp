@@ -13,16 +13,9 @@ import {useRoute} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
 import styles from './styles';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
-import axios from 'axios';
+import api from '../../api/api';
 import {useAuth} from '../../context/AuthContext';
 import {DarkModeContext} from '../../navigation/DarkModeContext';
-import Seekers from '../Seekers';
-//import { DarkModeProvider } from '../../navigation/DarkModeContext';
-
-const API_BASE_URL = 'http://10.0.2.2:3000'; // JSON server
-const api = axios.create({
-  baseURL: API_BASE_URL,
-});
 
 function HomePage({navigation}) {
   const {darkMode} = useContext(DarkModeContext);

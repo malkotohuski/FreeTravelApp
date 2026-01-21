@@ -11,16 +11,11 @@ import {
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {useCallback} from 'react';
-import axios from 'axios';
+import api from '../../api/api';
 import styles from './styles';
 import {useTranslation} from 'react-i18next';
 import ImagePicker from 'react-native-image-crop-picker';
 import {useAuth} from '../../context/AuthContext';
-
-const API_BASE_URL = 'http://10.0.2.2:3000'; // JSON server
-const api = axios.create({
-  baseURL: API_BASE_URL,
-});
 
 export default function Register({navigation}) {
   const {t} = useTranslation();

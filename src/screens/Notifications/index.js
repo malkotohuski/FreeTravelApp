@@ -13,15 +13,9 @@ import {
 import {useFocusEffect} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
-import axios from 'axios';
+import api from '../../api/api';
 import {useAuth} from '../../context/AuthContext';
 import {DarkModeContext} from '../../navigation/DarkModeContext';
-
-const API_BASE_URL = 'http://10.0.2.2:3000';
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-});
 
 const Notifications = ({navigation, route}) => {
   const {user} = useAuth();

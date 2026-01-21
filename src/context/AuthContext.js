@@ -5,70 +5,89 @@ import React, {
   useState,
   useEffect,
 } from 'react';
-import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import api, {setLogoutHandler} from '../api/api';
 
-const API_BASE_URL = 'http://10.0.2.2:3000';
-// Action types
 const LOGIN = 'LOGIN';
 const LOGOUT = 'LOGOUT';
 const UPDATE_USER = 'UPDATE_USER';
 
-// Reducer function
 const authReducer = (state, action) => {
   switch (action.type) {
-    case 'LOGIN':
-      return {
-        ...state,
-        isAuthenticated: true,
-        user: action.payload, // директно юзер обекта
-      };
-    case 'UPDATE_USER':
-      return {
-        ...state,
-        user: {...state.user, ...action.payload}, // само с новите полета
-      };
-    case 'LOGOUT':
-      return {
-        ...state,
-        isAuthenticated: false,
-        user: null,
-      };
+    case LOGIN:
+      return {...state, isAuthenticated: true, user: action.payload};
+    case UPDATE_USER:
+      return {...state, user: {...state.user, ...action.payload}};
+    case LOGOUT:
+      return {...state, isAuthenticated: false, user: null};
     default:
       return state;
   }
 };
 
-// Initial state
-const initialState = {
-  isAuthenticated: false,
-  user: null,
-};
-
-// Create context
+const initialState = {isAuthenticated: false, user: null};
 const AuthContext = createContext();
 
-// AuthProvider component
-const AuthProvider = ({children}) => {
+export const AuthProvider = ({children}) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // важен за splash/loading screen
 
-  const login = user => {
-    dispatch({type: 'LOGIN', payload: user});
-    setLoading(false);
+  // ⚡ Persist login на стартиране
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const token = await AsyncStorage.getItem('@token');
+        const userString = await AsyncStorage.getItem('@user');
+
+        if (token && userString) {
+          const user = JSON.parse(userString);
+
+          // сетваме токена за interceptor автоматично
+          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+          dispatch({type: LOGIN, payload: user});
+        }
+      } catch (err) {
+        console.log('Error loading persisted user:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUser();
+    // 🧹 Свързваме автоматичния logout при 401
+    setLogoutHandler(() => {
+      dispatch({type: LOGOUT});
+    });
+  }, []);
+
+  const login = async (user, token) => {
+    try {
+      await AsyncStorage.setItem('@token', token);
+      await AsyncStorage.setItem('@user', JSON.stringify(user));
+
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      dispatch({type: LOGIN, payload: user});
+    } catch (err) {
+      console.error('Login storage error:', err);
+    }
   };
-
-  const logout = () => {
-    dispatch({type: 'LOGOUT'});
+  const logout = async () => {
+    await AsyncStorage.removeItem('@token');
+    await AsyncStorage.removeItem('@user');
+    dispatch({type: LOGOUT});
   };
 
   const updateUserData = updatedFields => {
-    dispatch({type: 'UPDATE_USER', payload: updatedFields});
+    dispatch({type: UPDATE_USER, payload: updatedFields});
+    // ⚡ опционално можем да обновим AsyncStorage
+    AsyncStorage.mergeItem('@user', JSON.stringify(updatedFields));
   };
 
   return (
     <AuthContext.Provider
       value={{
-        user: state.user, // директно user
+        user: state.user,
         isAuthenticated: state.isAuthenticated,
         loading,
         login,
@@ -80,13 +99,8 @@ const AuthProvider = ({children}) => {
   );
 };
 
-// Custom hook to use the AuthContext
-const useAuth = () => {
+export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 };
-
-export {AuthProvider, useAuth};

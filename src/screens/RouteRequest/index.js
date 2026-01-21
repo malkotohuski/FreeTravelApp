@@ -14,12 +14,7 @@ import {useFocusEffect} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
 import {useAuth} from '../../context/AuthContext';
 import {useRouteContext} from '../../context/RouteContext';
-import axios from 'axios';
-
-const API_BASE_URL = 'http://10.0.2.2:3000'; // JSON server
-const api = axios.create({
-  baseURL: API_BASE_URL,
-});
+import api from '../../api/api';
 
 const colors = [
   '#f44336',
