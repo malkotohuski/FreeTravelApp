@@ -9,11 +9,9 @@ import {
   SafeAreaView,
   Alert,
 } from 'react-native';
-import axios from 'axios';
+import api from '../../api/api';
 import {useTranslation} from 'react-i18next';
 import styles from './styles';
-
-const API_BASE_URL = 'http://10.0.2.2:3000';
 
 export default function ResetPassword({navigation}) {
   const {t} = useTranslation();
@@ -44,7 +42,7 @@ export default function ResetPassword({navigation}) {
   const sendResetCode = async () => {
     try {
       setLoading(true);
-      await axios.post(`${API_BASE_URL}/forgot-password`, {
+      await api.post('/forgot-password', {
         email,
       });
 
@@ -60,13 +58,20 @@ export default function ResetPassword({navigation}) {
   const resetPassword = async () => {
     try {
       setLoading(true);
-      await axios.post(`${API_BASE_URL}/reset-password`, {
+      await api.post('/reset-password', {
         email,
         code,
         newPassword,
       });
 
       Alert.alert(t('Success'), t('Password reset successful'));
+
+      // 🧹 ръчно чистене (за сигурност)
+      setEmail('');
+      setCode('');
+      setNewPassword('');
+      setCodeSent(false);
+
       navigation.goBack();
     } catch (err) {
       Alert.alert(t('Error'), t('Invalid code or expired'));
@@ -105,6 +110,7 @@ export default function ResetPassword({navigation}) {
           <TextInput
             style={styles.input}
             placeholder={t('6-digit code')}
+            maxLength={6}
             placeholderTextColor="#fff"
             keyboardType="numeric"
             value={code}

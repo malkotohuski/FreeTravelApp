@@ -15,15 +15,10 @@ import {
   ToastAndroid,
 } from 'react-native';
 import {useTranslation} from 'react-i18next';
-import axios from 'axios';
+import api from '../../api/api';
 import ImagePicker from 'react-native-image-crop-picker';
 import {useAuth} from '../../context/AuthContext';
 import {useFocusEffect} from '@react-navigation/native';
-
-const API_BASE_URL = 'http://10.0.2.2:3000';
-const api = axios.create({
-  baseURL: API_BASE_URL,
-});
 
 const AccountSettings = ({navigation}) => {
   const {user, updateProfilePicture, updateUserData} = useAuth();

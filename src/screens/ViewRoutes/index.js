@@ -14,10 +14,8 @@ import {
 import {useRouteContext} from '../../context/RouteContext';
 import {useTranslation} from 'react-i18next';
 import {useAuth} from '../../context/AuthContext';
-import axios from 'axios';
+import api from '../../api/api';
 import LinearGradient from 'react-native-linear-gradient';
-
-const API_BASE_URL = 'http://10.0.2.2:3000';
 
 function ViewRoutes({navigation}) {
   const {t, i18n} = useTranslation();
@@ -79,7 +77,7 @@ function ViewRoutes({navigation}) {
   useEffect(() => {
     const fetchAndCleanRoutes = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/routes`);
+        const response = await api.get('/routes');
         if (response.status === 200) {
           const currentDate = new Date();
           const filteredRoutes = await Promise.all(
@@ -94,7 +92,7 @@ function ViewRoutes({navigation}) {
                 route.userRouteId !== 'deleted'
               ) {
                 try {
-                  await axios.patch(`${API_BASE_URL}/routes/${route.id}`, {
+                  await api.patch(`/routes/${route.id}`, {
                     userRouteId: 'deleted',
                   });
                 } catch (patchErr) {
@@ -105,7 +103,7 @@ function ViewRoutes({navigation}) {
 
               if (expirationThreshold < currentDate) {
                 try {
-                  await axios.delete(`${API_BASE_URL}/routes/${route.id}`);
+                  await api.delete(`/routes/${route.id}`);
                   return null;
                 } catch (deleteErr) {
                   console.error('❌ Delete error:', deleteErr);

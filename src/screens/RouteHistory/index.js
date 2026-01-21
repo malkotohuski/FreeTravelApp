@@ -14,10 +14,8 @@ import {
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useAuth} from '../../context/AuthContext';
 import {useRouteContext} from '../../context/RouteContext';
-import axios from 'axios';
+import api from '../../api/api';
 import {DarkModeContext} from '../../navigation/DarkModeContext';
-
-const API_BASE_URL = 'http://10.0.2.2:3000';
 
 const RouteHistory = ({navigation}) => {
   const {user} = useAuth();
@@ -42,7 +40,7 @@ const RouteHistory = ({navigation}) => {
   useEffect(() => {
     const fetchRoutes = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/routes`);
+        const response = await api.get('/routes');
         if (response.status === 200) {
           const routes = response.data.filter(route => {
             return (
@@ -91,31 +89,29 @@ const RouteHistory = ({navigation}) => {
       [
         {
           text: t('Cancel'),
-          onPress: () => console.log('Cancel Pressed'),
           style: 'cancel',
         },
         {
           text: t('Delete'),
-          onPress: () => {
-            fetch(`http://10.0.2.2:3000/routes/${routeId}`, {
-              method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({userRouteId: 'deleted'}),
-            })
-              .then(response => {
-                if (response.ok) {
-                  const updatedRoutes = originalRoutesState.filter(
-                    route => route.id !== routeId,
-                  );
-                  setOriginalRoutesState(updatedRoutes);
-                  setFilteredRoutesState(updatedRoutes);
-                } else {
-                  throw new Error('Failed to delete route');
-                }
-              })
-              .catch(error => console.error('Error deleting route:', error));
+          onPress: async () => {
+            try {
+              await api.patch(`/routes/${routeId}`, {
+                userRouteId: 'deleted',
+              });
+
+              const updatedRoutes = originalRoutesState.filter(
+                route => route.id !== routeId,
+              );
+
+              setOriginalRoutesState(updatedRoutes);
+              setFilteredRoutesState(updatedRoutes);
+            } catch (error) {
+              console.error('Error deleting route:', error);
+              Alert.alert(
+                t('Error'),
+                t('Failed to delete route. Please try again.'),
+              );
+            }
           },
         },
       ],
@@ -133,80 +129,57 @@ const RouteHistory = ({navigation}) => {
     const completedRoute = originalRoutesState.find(
       route => route.id === routeId,
     );
+
     const mainRouteUser = user?.username;
 
-    setCompletedRoutes(prevRoutes => [...prevRoutes, completedRoute]);
+    Alert.alert(
+      t('Complete the route'),
+      t('Are you sure you want to mark this route as completed?'),
+      [
+        {
+          text: t('Cancel'),
+          style: 'cancel',
+        },
+        {
+          text: t('Mark as Completed'),
+          onPress: async () => {
+            try {
+              // ✅ 1. ВИНАГИ маркираме маршрута
+              await api.patch(`/routes/${routeId}`, {
+                userRouteId: 'completed',
+              });
 
-    if (matchingRequest.length > 0) {
-      const passengerList = matchingRequest
-        .map(req => `${req.username} (${req.userEmail})`)
-        .join(', ');
+              // ✅ 2. Махаме го от UI
+              const updatedRoutes = originalRoutesState.filter(
+                route => route.id !== routeId,
+              );
+              setOriginalRoutesState(updatedRoutes);
+              setFilteredRoutesState(updatedRoutes);
 
-      Alert.alert(
-        t('Complete the route'),
-        `${t('Are you sure you want to mark this route as completed?')} \n${t(
-          'Users',
-        )}: ${passengerList}`,
-        [
-          {
-            text: t('Cancel'),
-            onPress: () => console.log('Cancel Pressed'),
-            style: 'cancel',
-          },
-          {
-            text: t('Mark as Completed'),
-            onPress: async () => {
-              try {
-                const response = await fetch(
-                  `${API_BASE_URL}/routes/${routeId}`,
-                  {
-                    method: 'PATCH',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({userRouteId: 'completed'}),
-                  },
-                );
-
-                if (!response.ok)
-                  throw new Error('Failed to mark route as completed');
-
-                // Обнови списъка с маршрути
-                const updatedRoutes = originalRoutesState.filter(
-                  route => route.id !== routeId,
-                );
-                setOriginalRoutesState(updatedRoutes);
-                setFilteredRoutesState(updatedRoutes);
-
-                const mainRouteUser = user?.username;
-
-                // Изпращане на известия за всички пътници
+              // ✅ 3. Известия САМО ако има пътници
+              if (matchingRequest.length > 0) {
                 for (const req of matchingRequest) {
-                  // Известиe към пътника да оцени създателя
-                  await axios.post(`${API_BASE_URL}/notifications`, {
+                  await api.post('/notifications', {
                     recipient: req.username,
                     fromUserId: user?.id,
                     type: 'rate_user',
                     routeId,
                     message: `${t(
                       'Please rate the trip with',
-                    )} ${mainRouteUser}.\n${t('About the route')} ${
-                      req.departureCity
-                    }-${req.arrivalCity}`,
+                    )} ${mainRouteUser}`,
                     status: 'active',
                     isRead: false,
                     createdAt: new Date().toISOString(),
                     mainRouteUser,
                   });
 
-                  // Известиe към създателя да оцени конкретния пътник
-                  await axios.post(`${API_BASE_URL}/notifications`, {
+                  await api.post('/notifications', {
                     recipient: user?.username,
                     fromUserId: req.userID,
                     type: 'rate_passenger',
                     routeId,
                     message: `${t('Please rate your passenger')} ${
                       req.username
-                    }.\n${t('About the route')} ${req.departureCity}-${
-                      req.arrivalCity
                     }`,
                     status: 'active',
                     isRead: false,
@@ -214,26 +187,23 @@ const RouteHistory = ({navigation}) => {
                     mainRouteUser: req.username,
                   });
                 }
-
-                // Навигирай към известия
-                navigation.navigate('Notifications', {
-                  matchingRequest,
-                  mainRouteUser,
-                });
-              } catch (error) {
-                console.error(
-                  'Error completing route or sending notification:',
-                  error,
-                );
               }
-            },
+
+              navigation.navigate('Notifications', {
+                matchingRequest,
+                mainRouteUser,
+              });
+            } catch (error) {
+              console.error(
+                'Error completing route or sending notification:',
+                error,
+              );
+            }
           },
-        ],
-        {cancelable: false},
-      );
-    } else {
-      console.log('No matching request found. Cannot mark as completed.');
-    }
+        },
+      ],
+      {cancelable: false},
+    );
   };
 
   return (

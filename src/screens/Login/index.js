@@ -9,15 +9,12 @@ import {
   ScrollView,
   Animated,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import axios from 'axios';
 import {useTranslation} from 'react-i18next';
 import {useFocusEffect} from '@react-navigation/native';
 import styles from './styles';
 import i18next from 'i18next';
 import {useAuth} from '../../context/AuthContext';
-
-const API_BASE_URL = 'http://10.0.2.2:3000';
+import api from '../../api/api';
 
 export default function Login({navigation, route}) {
   const [email, setEmail] = useState('');
@@ -64,34 +61,33 @@ export default function Login({navigation, route}) {
     try {
       setIsLoading(true);
 
-      const response = await axios.post(`${API_BASE_URL}/login`, {
+      const response = await api.post('/login', {
         useremail: email,
         userpassword: password,
       });
 
-      if (response.status === 200) {
-        // ⬇️ backend връща { user }
-        login(response.data.user);
-        navigation.navigate('Home');
-      }
-    } catch (error) {
-      console.error('Login Error:', error.response?.data);
+      const {user, token} = response.data;
 
-      if (error.response?.status === 403) {
+      // ✅ само това
+      login(user, token);
+
+      // ❌ НЕ navigation.navigate('Home')
+    } catch (error) {
+      if (error.response?.status === 401) {
+        alert(t('Invalid email or password'));
+      } else if (error.response?.status === 403) {
         alert(t(error.response.data.error));
-      } else if (error.response?.status === 401) {
-        alert(t('Invalid email or password.'));
       } else {
-        alert(t('Server error. Please try again later.'));
+        alert(t('Server error'));
       }
     } finally {
       setIsLoading(false);
     }
   };
 
-  const skipLogin = () => {
+  /*  const skipLogin = () => {
     navigation.navigate('Home'); // да се премахне за тестване само !!!
-  };
+  }; */
 
   useFocusEffect(
     React.useCallback(() => {
@@ -151,9 +147,9 @@ export default function Login({navigation, route}) {
                   </TouchableOpacity>
                 </View>
               </View>
-              <TouchableOpacity onPress={skipLogin}>
+              {/*  <TouchableOpacity onPress={skipLogin}>
                 <Text style={styles.title}>{t('Login')}</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
               <TextInput
                 placeholderTextColor={'white'}
                 style={styles.input}

@@ -8,9 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import axios from 'axios';
-
-const API_BASE_URL = 'http://10.0.2.2:3000';
+import api from '../../api/api';
 
 const renderStars = rating => {
   const fullStars = Math.floor(rating);
@@ -46,9 +44,7 @@ const UserInfo = ({route}) => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const res = await axios.get(
-          `${API_BASE_URL}/users?username=${username}`,
-        );
+        const res = await api.get(`/users?username=${username}`);
         if (res.data.length > 0) {
           setUserData(res.data[0]);
         }

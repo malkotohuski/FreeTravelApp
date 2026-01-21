@@ -1,13 +1,14 @@
 const bcrypt = require('bcrypt');
 const SALT_ROUNDS = 12; // Number of salt rounds for bcrypt
 const jsonServer = require('json-server');
+const jwt = require('jsonwebtoken');
+const JWT_SECRET = 'super_secret_key_change_later';
 const server = jsonServer.create();
 const router = jsonServer.router('db.json');
 const middlewares = jsonServer.defaults();
 const cors = require('cors');
 const nodemailer = require('nodemailer');
 const fs = require('fs');
-const axios = require('axios');
 
 // Enable CORS, bodyParser and other middlewares
 server.use(middlewares);
@@ -597,11 +598,6 @@ server.post('/rateUser', (req, res) => {
 server.post('/login', async (req, res) => {
   const {useremail, userpassword} = req.body;
 
-  console.log('LOGIN TRY:', {
-    email: useremail,
-    passwordLength: userpassword?.length,
-  });
-
   try {
     const user = router.db.get('users').find({email: useremail}).value();
 
@@ -630,11 +626,23 @@ server.post('/login', async (req, res) => {
       });
     }
 
-    // ❗ ВАЖНО: копие, НЕ пипаме обекта в db
+    // 🔐 JWT
+    const token = jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+      },
+      JWT_SECRET,
+      {expiresIn: '7d'},
+    );
+
     const safeUser = {...user};
     delete safeUser.password;
 
-    return res.status(200).json({user: safeUser});
+    return res.status(200).json({
+      token,
+      user: safeUser,
+    });
   } catch (err) {
     console.error('Login error:', err);
     return res.status(500).json({error: 'Server error'});
