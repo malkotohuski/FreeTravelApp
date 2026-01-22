@@ -836,8 +836,3 @@ const host = '0.0.0.0';
 server.listen(port, host, () => {
   console.log(`JSON Server is running on http://${host}:${port}`);
 });
-
-/* app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something went wrong!');
-}); */
