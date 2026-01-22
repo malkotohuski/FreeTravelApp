@@ -750,6 +750,84 @@ server.post('/reset-password', async (req, res) => {
   });
 });
 
+server.patch('/routes/:id/complete', (req, res) => {
+  const routeId = Number(req.params.id);
+  const {userId, role} = req.body;
+  // role = 'creator' | 'passenger'
+
+  const route = router.db.get('routes').find({id: routeId}).value();
+
+  if (!route) {
+    return res.status(404).json({error: 'Route not found'});
+  }
+
+  // 🧱 Guard: ако вече е завършен
+  if (route.status === 'completed') {
+    return res.status(400).json({error: 'Route already completed'});
+  }
+
+  // ==========================
+  // 👤 PASSENGER COMPLETION
+  // ==========================
+  if (role === 'passenger') {
+    const passenger = route.passengers?.find(p => p.userId === userId);
+
+    if (!passenger) {
+      return res
+        .status(403)
+        .json({error: 'You are not a passenger on this route'});
+    }
+
+    passenger.completed = true;
+
+    router.db
+      .get('routes')
+      .find({id: routeId})
+      .assign({passengers: route.passengers})
+      .write();
+
+    return res.json({message: 'Passenger completed route'});
+  }
+
+  // ==========================
+  // 🚗 CREATOR COMPLETION
+  // ==========================
+  if (role === 'creator') {
+    // ❌ няма пътници
+    if (!route.passengers || route.passengers.length === 0) {
+      return res.status(400).json({
+        error: 'Route cannot be completed without passengers',
+      });
+    }
+
+    // ❌ не всички пътници са завършили
+    const allPassengersCompleted = route.passengers.every(
+      p => p.completed === true,
+    );
+
+    if (!allPassengersCompleted) {
+      return res.status(400).json({
+        error: 'All passengers must complete the route first',
+      });
+    }
+
+    // ✅ OK → завършваме
+    router.db
+      .get('routes')
+      .find({id: routeId})
+      .assign({
+        creatorCompleted: true,
+        status: 'completed',
+        completedAt: Date.now(),
+      })
+      .write();
+
+    return res.json({message: 'Route completed successfully'});
+  }
+
+  return res.status(400).json({error: 'Invalid role'});
+});
+
 // Use default router
 server.use(router);
 
@@ -758,8 +836,3 @@ const host = '0.0.0.0';
 server.listen(port, host, () => {
   console.log(`JSON Server is running on http://${host}:${port}`);
 });
-
-/* app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something went wrong!');
-}); */
