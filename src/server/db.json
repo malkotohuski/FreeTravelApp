@@ -185,6 +185,24 @@
       "userEmail": "shushkata7@gmail.com",
       "id": 1769012781878,
       "userRouteId": "completed"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A1111AA",
+      "selectedDateTime": "2026-01-24T12:58:00.000Z",
+      "departureCity": "Sofia",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Stara Zagora",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "routeTitle": "2",
+      "userId": 1768493729350,
+      "username": "Shushkata",
+      "userFname": "Arya",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1769087297363
     }
   ],
   "seekers": [],
@@ -1867,7 +1885,8 @@
       "isRead": false,
       "createdAt": "2026-01-21T16:35:42.396Z",
       "mainRouteUser": "Shushkata",
-      "id": 316
+      "id": 316,
+      "read": true
     }
   ]
 }
