@@ -69,28 +69,29 @@
         }
       ],
       "accountStatus": "active"
+    },
+    {
+      "id": 1769436396175,
+      "username": "Jessy",
+      "email": "devmasterstech@gmail.com",
+      "password": "$2b$12$ESeeUr60HX.bc3Qy98BajeaH2gnzIvIn2fp0q6r6OEm53Fr2FOlmm",
+      "fName": "Jesica",
+      "lName": "Dimitrova",
+      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/88e7a1a8-c307-493c-b7ce-5b76736431d1.jpg",
+      "confirmationCode": null,
+      "confirmationCodeExpiresAt": null,
+      "lastConfirmationResend": null,
+      "isActive": true,
+      "createdAt": 1769436396175,
+      "routes": [],
+      "friends": [],
+      "ratings": [],
+      "averageRating": 0,
+      "comments": [],
+      "accountStatus": "active"
     }
   ],
   "routes": [
-    {
-      "selectedVehicle": "Car",
-      "registrationNumber": "A1211AA",
-      "selectedDateTime": "2026-01-17T15:38:00.000Z",
-      "departureCity": "Sofia",
-      "departureStreet": "",
-      "departureNumber": "",
-      "arrivalCity": "Ruse",
-      "arrivalStreet": "",
-      "arrivalNumber": "",
-      "routeTitle": "2 free spot",
-      "userId": 1768488420566,
-      "username": "malkotohuski",
-      "userFname": "Daniel",
-      "userLname": "Dimitrov",
-      "userEmail": "malkotohuski@gmail.com",
-      "id": 1768492213992,
-      "userRouteId": "deleted"
-    },
     {
       "selectedVehicle": "Car",
       "registrationNumber": "A2121AA",
@@ -108,7 +109,7 @@
       "userLname": "Dimitrov",
       "userEmail": "malkotohuski@gmail.com",
       "id": 1769000913602,
-      "userRouteId": "completed"
+      "userRouteId": "deleted"
     },
     {
       "selectedVehicle": "Car",
@@ -127,7 +128,7 @@
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
       "id": 1769012219629,
-      "userRouteId": "completed"
+      "userRouteId": "deleted"
     },
     {
       "selectedVehicle": "Car",
@@ -146,7 +147,7 @@
       "userLname": "Dimitrov",
       "userEmail": "malkotohuski@gmail.com",
       "id": 1769012287318,
-      "userRouteId": "completed"
+      "userRouteId": "deleted"
     },
     {
       "selectedVehicle": "Car",
@@ -184,7 +185,7 @@
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
       "id": 1769012781878,
-      "userRouteId": "completed"
+      "userRouteId": "deleted"
     },
     {
       "selectedVehicle": "Car",
@@ -202,29 +203,89 @@
       "userFname": "Arya",
       "userLname": "Spasova",
       "userEmail": "shushkata7@gmail.com",
-      "id": 1769087297363
+      "id": 1769087297363,
+      "userRouteId": "deleted"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A1111AA",
+      "selectedDateTime": "2026-01-27T14:36:00.000Z",
+      "departureCity": "Sofia",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Burgas",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "routeTitle": "2 spot have",
+      "userId": 1769436396175,
+      "username": "Jessy",
+      "userFname": "Jesica",
+      "userLname": "Dimitrova",
+      "userEmail": "devmasterstech@gmail.com",
+      "id": 1769438214378
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A2111AA",
+      "selectedDateTime": "2026-01-28T17:45:00.000Z",
+      "departureCity": "Varna",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Ruse",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "routeTitle": "1",
+      "userId": 1769436396175,
+      "username": "Jessy",
+      "userFname": "Jesica",
+      "userLname": "Dimitrova",
+      "userEmail": "devmasterstech@gmail.com",
+      "id": 1769450119388,
+      "ownerId": 1769436396175,
+      "createdAt": 1769450119388,
+      "status": "active"
+    },
+    {
+      "selectedVehicle": "A minibus",
+      "registrationNumber": "A2211AA",
+      "selectedDateTime": "2026-01-28T17:59:00.000Z",
+      "departureCity": "Plovdiv",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Stara Zagora",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "routeTitle": "211",
+      "userId": 1769436396175,
+      "username": "Jessy",
+      "userFname": "Jesica",
+      "userLname": "Dimitrova",
+      "userEmail": "devmasterstech@gmail.com",
+      "id": 1769450435450,
+      "ownerId": 1769436396175,
+      "createdAt": 1769450435450,
+      "status": "active"
     }
   ],
-  "seekers": [],
-  "requests": [
+  "seekers": [
     {
-      "username": "Shushkata",
-      "userFname": "Vili",
+      "departureCity": "Plovdiv",
+      "arrivalCity": "Pleven",
+      "selectedDateTime": "2026-01-28T17:41:00.000Z",
+      "routeTitle": "2",
+      "userId": 1769436396175,
+      "username": "Jessy",
+      "userFname": "Jesica",
       "userLname": "Spasova",
-      "userEmail": "shushkata7@gmail.com",
-      "userID": 1768493729350,
-      "userRouteId": 1768488420566,
-      "departureCity": "Sofia",
-      "arrivalCity": "Ruse",
-      "routeId": 1768492213992,
-      "dataTime": "2026-01-17T15:38:00.000Z",
-      "requestComment": "Need one place",
-      "rateCreator": true,
-      "rateUser": true,
-      "status": "approved",
-      "read": true,
-      "id": 1768493788454
-    },
+      "userEmail": "devmasterstech@gmail.com",
+      "userImage": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/252bbe84-a8e1-4267-b8b3-cd3c31ad0ccf.jpg",
+      "id": 1769449319642,
+      "seekerId": 1769436396175,
+      "createdAt": 1769449319642,
+      "status": "active"
+    }
+  ],
+  "requests": [
     {
       "username": "Shushkata",
       "userFname": "Arya",
@@ -1681,23 +1742,6 @@
       "read": true
     },
     {
-      "recipient": "malkotohuski",
-      "message": "You have a candidate for your route: Sofia-Ruse with username: Shushkata!",
-      "routeId": 1768492213992,
-      "routeChecker": true,
-      "status": "active",
-      "requester": {
-        "username": "Shushkata",
-        "userFname": "Vili",
-        "userLname": "Spasova",
-        "email": "shushkata7@gmail.com",
-        "comment": "Need one place"
-      },
-      "createdAt": "2026-01-15T16:16:25.177Z",
-      "id": 303,
-      "read": true
-    },
-    {
       "recipient": "Shushkata",
       "message": "Your request has been approved from malkotohuski.\nAbout the route: Sofia-Ruse.\nFor date: 17.01.2026 г., 17:38",
       "routeChecker": true,
@@ -1710,32 +1754,6 @@
       },
       "createdAt": "2026-01-15T16:16:53.787Z",
       "id": 304,
-      "read": true
-    },
-    {
-      "recipient": "Shushkata",
-      "fromUserId": 1768488420566,
-      "type": "rate_user",
-      "routeId": 1768492213992,
-      "message": "Please rate the trip with malkotohuski.\nAbout the route Sofia-Ruse",
-      "status": "active",
-      "isRead": false,
-      "createdAt": "2026-01-15T16:18:32.630Z",
-      "mainRouteUser": "malkotohuski",
-      "id": 305,
-      "read": true
-    },
-    {
-      "recipient": "malkotohuski",
-      "fromUserId": 1768493729350,
-      "type": "rate_passenger",
-      "routeId": 1768492213992,
-      "message": "Please rate your passenger Shushkata.\nAbout the route Sofia-Ruse",
-      "status": "active",
-      "isRead": false,
-      "createdAt": "2026-01-15T16:18:32.671Z",
-      "mainRouteUser": "Shushkata",
-      "id": 306,
       "read": true
     },
     {

@@ -11,21 +11,26 @@ import api, {setLogoutHandler} from '../api/api';
 const LOGIN = 'LOGIN';
 const LOGOUT = 'LOGOUT';
 const UPDATE_USER = 'UPDATE_USER';
+const initialState = {isAuthenticated: false, user: null, token: null};
 
 const authReducer = (state, action) => {
   switch (action.type) {
     case LOGIN:
-      return {...state, isAuthenticated: true, user: action.payload};
+      return {
+        ...state,
+        isAuthenticated: true,
+        user: action.payload.user,
+        token: action.payload.token,
+      };
     case UPDATE_USER:
       return {...state, user: {...state.user, ...action.payload}};
     case LOGOUT:
-      return {...state, isAuthenticated: false, user: null};
+      return {...state, isAuthenticated: false, user: null, token: null};
     default:
       return state;
   }
 };
 
-const initialState = {isAuthenticated: false, user: null};
 const AuthContext = createContext();
 
 export const AuthProvider = ({children}) => {
@@ -42,10 +47,10 @@ export const AuthProvider = ({children}) => {
         if (token && userString) {
           const user = JSON.parse(userString);
 
-          // сетваме токена за interceptor автоматично
           api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-          dispatch({type: LOGIN, payload: user});
+          // ✅ тук също трябва да е {user, token}
+          dispatch({type: LOGIN, payload: {user, token}});
         }
       } catch (err) {
         console.log('Error loading persisted user:', err);
@@ -62,16 +67,22 @@ export const AuthProvider = ({children}) => {
   }, []);
 
   const login = async (user, token) => {
+    if (!user || !token) {
+      console.error('Login error: user or token is missing', {user, token});
+      return;
+    }
+
     try {
       await AsyncStorage.setItem('@token', token);
       await AsyncStorage.setItem('@user', JSON.stringify(user));
 
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      dispatch({type: LOGIN, payload: user});
+      dispatch({type: LOGIN, payload: {user, token}});
     } catch (err) {
       console.error('Login storage error:', err);
     }
   };
+
   const logout = async () => {
     await AsyncStorage.removeItem('@token');
     await AsyncStorage.removeItem('@user');
@@ -88,6 +99,7 @@ export const AuthProvider = ({children}) => {
     <AuthContext.Provider
       value={{
         user: state.user,
+        token: state.token, // ако искаш да имаш директен достъп
         isAuthenticated: state.isAuthenticated,
         loading,
         login,
@@ -102,5 +114,11 @@ export const AuthProvider = ({children}) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) throw new Error('useAuth must be used within an AuthProvider');
-  return context;
+
+  // helper за токен
+  const getToken = () => {
+    return context.token; // взимаме от state.token
+  };
+
+  return {...context, getToken, token: context.token};
 };

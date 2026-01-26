@@ -2,7 +2,8 @@ const bcrypt = require('bcrypt');
 const SALT_ROUNDS = 12; // Number of salt rounds for bcrypt
 const jsonServer = require('json-server');
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = 'super_secret_key_change_later';
+const authenticateJWT = require('./jwtMiddleware');
+const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_change_later';
 const server = jsonServer.create();
 const router = jsonServer.router('db.json');
 const middlewares = jsonServer.defaults();
@@ -91,11 +92,13 @@ server.post('/register', async (req, res) => {
     id: Date.now(),
     username,
     email: useremail,
-    password: hashedPassword, // хешираната парола
+    password: hashedPassword,
     fName: fName || '',
     lName: lName || '',
     userImage: userImage || '',
-    confirmationCode,
+    confirmationCode: confirmationCode.toString(),
+    confirmationCodeExpiresAt: Date.now() + 10 * 60 * 1000, // ⏱ 10 минути
+    lastConfirmationResend: null,
     isActive: false,
     createdAt: Date.now(),
     routes: [],
@@ -160,42 +163,42 @@ function deleteInactiveAccountsOlderThanOneDay() {
   console.log('Inactive accounts older than 1 day have been deleted.');
 }
 
-server.post('/delete-account', async (req, res) => {
-  const {userId} = req.body;
-
-  if (!userId) {
-    return res.status(400).json({error: 'Missing userId'});
-  }
-
+server.post('/delete-account', authenticateJWT, (req, res) => {
   try {
-    const db = JSON.parse(fs.readFileSync('./db.json', 'utf8'));
-    const id = parseInt(userId, 10);
-    const userIndex = db.users.findIndex(u => u.id === id);
+    const userId = req.user.id; // ✅ идва от JWT
 
-    if (userIndex === -1) {
+    const user = router.db.get('users').find({id: userId}).value();
+
+    if (!user) {
       return res.status(404).json({error: 'User not found'});
     }
 
-    // ❌ Не изтриваме – просто маркираме като изтрит
-    db.users[userIndex].accountStatus = 'deleted';
-    db.users[userIndex].isActive = false;
-    db.users[userIndex].deletedAt = Date.now();
+    if (user.accountStatus === 'deleted') {
+      return res.status(400).json({error: 'Account already deleted'});
+    }
 
-    fs.writeFileSync('./db.json', JSON.stringify(db, null, 2));
+    router.db
+      .get('users')
+      .find({id: userId})
+      .assign({
+        accountStatus: 'deleted',
+        isActive: false,
+        deletedAt: Date.now(),
+      })
+      .write();
 
-    res.json({success: true, message: 'User marked as deleted'});
+    return res.json({
+      success: true,
+      message: 'User marked as deleted',
+    });
   } catch (err) {
-    console.log('Delete error:', err);
-    res.status(500).json({error: 'Server error'});
+    console.error('Delete account error:', err);
+    return res.status(500).json({error: 'Server error'});
   }
 });
 
-server.post('/restore-account', (req, res) => {
-  const {userId} = req.body;
-
-  if (!userId) {
-    return res.status(400).json({error: 'Missing userId.'});
-  }
+server.post('/restore-account', authenticateJWT, (req, res) => {
+  const userId = req.user.id; // ✅ от JWT
 
   const user = router.db.get('users').find({id: userId}).value();
 
@@ -229,26 +232,38 @@ server.post('/resend-confirmation-code', (req, res) => {
 
   const user = router.db.get('users').find({email}).value();
 
-  if (!user || user.isActive) {
-    return res
-      .status(400)
-      .json({error: 'No inactive user found with this email.'});
+  if (!user) {
+    return res.status(404).json({error: 'User not found.'});
   }
 
-  // Генерирай нов код
+  if (user.isActive) {
+    return res.status(400).json({
+      error: 'Account is already confirmed.',
+    });
+  }
+
+  // ⏱️ Anti-spam: 1 минута между resend-и
+  if (
+    user.lastConfirmationResend &&
+    Date.now() - user.lastConfirmationResend < 60 * 1000
+  ) {
+    return res.status(429).json({
+      error: 'Please wait before requesting a new code.',
+    });
+  }
+
   const newCode = generateConfirmationCode();
 
-  // Обнови кода и датата
   router.db
     .get('users')
     .find({email})
     .assign({
       confirmationCode: newCode,
-      createdAt: Date.now(),
+      confirmationCodeExpiresAt: Date.now() + 10 * 60 * 1000, // 10 мин
+      lastConfirmationResend: Date.now(),
     })
     .write();
 
-  // Изпрати имейла
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -260,93 +275,128 @@ server.post('/resend-confirmation-code', (req, res) => {
   const mailOptions = {
     from: 'malkotohuski@gmail.com',
     to: email,
-    subject: 'Resent Confirmation Code',
+    subject: 'New confirmation code',
     text: `Your new confirmation code is: ${newCode}`,
   };
 
-  transporter.sendMail(mailOptions, (error, info) => {
+  transporter.sendMail(mailOptions, error => {
     if (error) {
       console.error('Resend error:', error);
       return res
         .status(500)
         .json({error: 'Failed to resend confirmation code.'});
-    } else {
-      console.log('Resend sent:', info.response);
-      return res.status(200).json({message: 'New confirmation code sent.'});
     }
+
+    return res.status(200).json({
+      message: 'New confirmation code sent.',
+    });
   });
 });
 
-server.patch('/user-changes', async (req, res) => {
-  const {userId, fName, lName, currentPassword, newPassword, userImage} =
-    req.body;
+server.patch('/user-changes', authenticateJWT, async (req, res) => {
+  try {
+    const userId = req.user?.id;
 
-  if (!userId) return res.status(400).json({error: 'Invalid userId.'});
+    if (!userId) {
+      return res.status(401).json({error: 'Unauthorized'});
+    }
 
-  const user = router.db.get('users').find({id: userId}).value();
-  if (!user) return res.status(404).json({error: 'User not found.'});
+    const {fName, lName, currentPassword, newPassword, userImage} = req.body;
 
-  // Смяна на парола
-  if (newPassword && newPassword.length > 0) {
-    if (!currentPassword)
-      return res.status(400).json({error: 'Current password is required.'});
+    const user = router.db.get('users').find({id: userId}).value();
+    if (!user) {
+      return res.status(404).json({error: 'User not found.'});
+    }
 
-    const isMatch = await bcrypt.compare(currentPassword, user.password);
-    if (!isMatch)
-      return res.status(400).json({error: 'Current password is incorrect.'});
+    // 🔐 Смяна на парола
+    if (newPassword) {
+      if (!currentPassword) {
+        return res.status(400).json({error: 'Current password is required.'});
+      }
 
-    const hashedNewPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) {
+        return res.status(400).json({error: 'Current password is incorrect.'});
+      }
 
-    router.db
-      .get('users')
-      .find({id: userId})
-      .assign({password: hashedNewPassword})
-      .write();
+      const hashedNewPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
+
+      router.db
+        .get('users')
+        .find({id: userId})
+        .assign({password: hashedNewPassword})
+        .write();
+    }
+
+    // ✏️ Данни
+    const updatedData = {};
+    if (fName !== undefined) updatedData.fName = fName;
+    if (lName !== undefined) updatedData.lName = lName;
+    if (userImage) updatedData.userImage = userImage;
+
+    router.db.get('users').find({id: userId}).assign(updatedData).write();
+
+    const updatedUser = router.db.get('users').find({id: userId}).value();
+
+    const safeUser = {...updatedUser};
+    delete safeUser.password;
+
+    return res.status(200).json({
+      message: 'User profile updated successfully.',
+      user: safeUser,
+    });
+  } catch (err) {
+    console.error('User changes error:', err);
+    return res.status(500).json({error: 'Server error'});
   }
-
-  // Имена + снимка
-  const updatedData = {
-    fName: fName ?? user.fName,
-    lName: lName ?? user.lName,
-  };
-  if (userImage) updatedData.userImage = userImage;
-
-  router.db.get('users').find({id: userId}).assign(updatedData).write();
-
-  // Връщаме актуализирания user
-  const updatedUser = router.db.get('users').find({id: userId}).value();
-
-  const safeUser = {...updatedUser};
-  delete safeUser.password;
-
-  return res.status(200).json({
-    message: 'User profile updated successfully.',
-    user: safeUser,
-  });
 });
 
-server.post('/create-route', (req, res) => {
+server.post('/create-route', authenticateJWT, (req, res) => {
+  const userId = req.user.id;
   const {route} = req.body;
 
-  // Add the new route to the "routes" array
-  const newRoute = {...route, id: Date.now()};
+  if (!route) {
+    return res.status(400).json({error: 'Missing route data'});
+  }
+
+  const newRoute = {
+    ...route,
+    id: Date.now(),
+    ownerId: userId, // ✅ ownership
+    createdAt: Date.now(),
+    status: 'active',
+  };
+
   router.db.get('routes').push(newRoute).write();
 
-  return res
-    .status(201)
-    .json({message: 'Route created successfully.', route: newRoute});
+  return res.status(201).json({
+    message: 'Route created successfully.',
+    route: newRoute,
+  });
 });
 
-server.post('/seekers-route', (req, res) => {
+server.post('/seekers-route', authenticateJWT, (req, res) => {
+  const userId = req.user.id;
   const {seeker} = req.body;
 
-  // Add the new route to the "routes" array
-  const newRoute = {...seeker, id: Date.now()};
-  router.db.get('seekers').push(newRoute).write();
+  if (!seeker) {
+    return res.status(400).json({error: 'Missing seeker data'});
+  }
 
-  return res
-    .status(201)
-    .json({message: 'Route created successfully.', seeker: newRoute});
+  const newSeekerRoute = {
+    ...seeker,
+    id: Date.now(),
+    seekerId: userId, // ✅ ownership
+    createdAt: Date.now(),
+    status: 'active',
+  };
+
+  router.db.get('seekers').push(newSeekerRoute).write();
+
+  return res.status(201).json({
+    message: 'Seeker route created successfully.',
+    seeker: newSeekerRoute,
+  });
 });
 
 server.post('/approve-friend-request', (req, res) => {
@@ -376,32 +426,58 @@ server.post('/approve-friend-request', (req, res) => {
 });
 
 // Verification endpoint
-server.post('/verify-confirmation-code', (req, res) => {
+server.post('/confirm', (req, res) => {
   const {email, confirmationCode} = req.body;
 
-  // Намери потребителя по имейл
+  if (!email || !confirmationCode) {
+    return res.status(400).json({
+      error: 'Email and confirmation code are required.',
+    });
+  }
+
   const user = router.db.get('users').find({email}).value();
 
   if (!user) {
-    // Потребителят не е намерен
-    return res.status(404).json({error: 'User not found.'});
+    return res.status(404).json({
+      error: 'User not found.',
+    });
   }
 
-  // Провери дали съвпада confirmationCode
-  if (user.confirmationCode === parseInt(confirmationCode, 10)) {
-    // Обнови статус на потребителя на активен
-    router.db
-      .get('users')
-      .find({email})
-      .assign({isActive: true, confirmationCode: null})
-      .write();
-
-    return res
-      .status(200)
-      .json({message: 'Confirmation code verified successfully.'});
-  } else {
-    return res.status(400).json({error: 'Invalid confirmation code.'});
+  if (user.isActive) {
+    return res.status(400).json({
+      error: 'Account already confirmed.',
+    });
   }
+
+  if (user.confirmationCode !== confirmationCode.toString()) {
+    return res.status(400).json({
+      error: 'Invalid confirmation code.',
+    });
+  }
+
+  if (
+    !user.confirmationCodeExpiresAt ||
+    Date.now() > user.confirmationCodeExpiresAt
+  ) {
+    return res.status(400).json({
+      error: 'Confirmation code expired.',
+    });
+  }
+
+  router.db
+    .get('users')
+    .find({email})
+    .assign({
+      isActive: true,
+      confirmationCode: null,
+      confirmationCodeExpiresAt: null,
+      lastConfirmationResend: null,
+    })
+    .write();
+
+  return res.status(200).json({
+    message: 'Account confirmed successfully.',
+  });
 });
 
 // New endpoint to send a request to the "imala" server

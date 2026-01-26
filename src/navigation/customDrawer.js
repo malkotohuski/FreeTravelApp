@@ -23,8 +23,6 @@ function CustomerDrawer({navigation}) {
   const profilePicture = user?.userImage; // userImage е директно в user
   const username = user?.username;
 
-  console.log('USERINFO', username);
-
   const handlerAccountScreen = () => {
     navigation.navigate('AccountManager');
     console.log('AccountManager clicked !!!');
