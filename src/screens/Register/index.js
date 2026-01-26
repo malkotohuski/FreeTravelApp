@@ -99,8 +99,7 @@ export default function Register({navigation}) {
 
             console.log('Registration Response:', response);
 
-            if (response.status === 201 && response.data?.confirmationCode) {
-              login(response.data.user); // само ако има успешна регистрация
+            if (response.status === 201) {
               setShowConfirmationCodeInput(true);
             } else {
               Alert.alert(
@@ -142,16 +141,13 @@ export default function Register({navigation}) {
     } else {
       // Потвърждаване на кода
       try {
-        const verificationResponse = await api.post(
-          '/verify-confirmation-code',
-          {
-            email,
-            confirmationCode,
-          },
-        );
+        const verificationResponse = await api.post('/confirm', {
+          email,
+          confirmationCode,
+        });
 
         if (verificationResponse.status === 200) {
-          navigation.navigate('WelcomeScreen', {name});
+          navigation.navigate('Login');
         } else {
           Alert.alert(
             t('Verification Error'),

@@ -71,6 +71,9 @@ export default function Login({navigation, route}) {
       // ✅ само това
       login(user, token);
 
+      console.log('Logged in user:', user);
+      console.log('Token:', token);
+
       // ❌ НЕ navigation.navigate('Home')
     } catch (error) {
       if (error.response?.status === 401) {
@@ -169,15 +172,13 @@ export default function Login({navigation, route}) {
                 <TouchableOpacity
                   style={styles.loginButtons}
                   onPress={handleLogin}>
-                  <Text style={styles.textButtons}>{t('Log in')}</Text>
+                  <Text style={styles.textButtons}>{t('Login')}</Text>
                 </TouchableOpacity>
                 <View style={styles.buttonSeparator} />
                 <TouchableOpacity
                   style={styles.loginButtons}
                   onPress={() => navigation.navigate('Register')}>
-                  <Text style={styles.textButtons}>
-                    {t('Create your account')}
-                  </Text>
+                  <Text style={styles.textButtons}>{t('Registration')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => navigation.navigate('ResetPassword')}

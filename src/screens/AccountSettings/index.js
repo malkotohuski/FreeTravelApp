@@ -104,7 +104,6 @@ const AccountSettings = ({navigation}) => {
 
       // PATCH заявка
       const response = await api.patch('/user-changes', {
-        userId: user.id,
         ...changes,
       });
 

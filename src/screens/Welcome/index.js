@@ -18,8 +18,7 @@ const WelcomeScreen = ({navigation}) => {
   const route = useRoute(); // Define route here
   const captionAnim = useRef(new Animated.Value(-width)).current;
   const {user} = useAuth();
-  const userNickName = user?.username;
-  console.log('user', user);
+  const userNickName = user ? user.username : 'Guest';
 
   const animateCaption = () => {
     Animated.timing(captionAnim, {
@@ -34,7 +33,7 @@ const WelcomeScreen = ({navigation}) => {
   }, []);
 
   const handlerButtonCont = () => {
-    navigation.navigate('AccountManager');
+    navigation.navigate('Home');
     console.log('go next clicked');
   };
 
@@ -53,7 +52,7 @@ const WelcomeScreen = ({navigation}) => {
         style={[styles.captionContainer, {left: captionAnim}]}
         onLayout={animateCaption}>
         <Text style={styles.captionText}>
-          {t('Welcome')} , {userNickName}
+          {t('Welcome')}, {userNickName} !
         </Text>
       </Animated.View>
       <View style={styles.buttonContainer}>

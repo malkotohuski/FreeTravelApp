@@ -21,7 +21,7 @@ import {useAuth} from '../../context/AuthContext';
 function Looking({navigation}) {
   const {t, i18n} = useTranslation();
   const cities = CitySelector();
-  const {user} = useAuth();
+  const {user, token} = useAuth(); // ✅ взимаме токена директно от context
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -80,6 +80,11 @@ function Looking({navigation}) {
       return;
     }
 
+    if (!token) {
+      Alert.alert(t('Error'), t('User is not logged in.'));
+      return;
+    }
+
     const newRoute = {
       departureCity,
       arrivalCity,
@@ -98,7 +103,10 @@ function Looking({navigation}) {
     try {
       const response = await fetch('http://10.0.2.2:3000/seekers-route', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`, // ✅ използваме реалния token
+        },
         body: JSON.stringify({seeker: newRoute}),
       });
 
@@ -118,6 +126,7 @@ function Looking({navigation}) {
       }
     } catch (error) {
       Alert.alert(t('Error'), 'An error occurred while creating the route.');
+      console.error('Route creation error:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -149,7 +158,6 @@ function Looking({navigation}) {
         <ScrollView contentContainerStyle={styles.scroll}>
           <Text style={styles.title}>{t('Looking for a route')}</Text>
 
-          {/* Departure */}
           <Text style={styles.label}>{t('Departure')}</Text>
           <TouchableOpacity
             style={styles.selectButton}
@@ -159,7 +167,6 @@ function Looking({navigation}) {
             </Text>
           </TouchableOpacity>
 
-          {/* Departure Modal */}
           <Modal visible={modalDeparture} transparent animationType="slide">
             <View style={styles.modalContainer}>
               <TextInput
@@ -190,7 +197,6 @@ function Looking({navigation}) {
             </View>
           </Modal>
 
-          {/* Arrival */}
           <Text style={styles.label}>{t('Arrival')}</Text>
           <TouchableOpacity
             style={styles.selectButton}
@@ -200,7 +206,6 @@ function Looking({navigation}) {
             </Text>
           </TouchableOpacity>
 
-          {/* Arrival Modal */}
           <Modal visible={modalArrival} transparent animationType="slide">
             <View style={styles.modalContainer}>
               <TextInput
@@ -227,7 +232,6 @@ function Looking({navigation}) {
             </View>
           </Modal>
 
-          {/* Route Info */}
           <Text style={styles.label}>{t('Route Information')}</Text>
           <TextInput
             style={styles.routeInput}
@@ -237,7 +241,6 @@ function Looking({navigation}) {
             onChangeText={setRouteTitle}
           />
 
-          {/* Date Picker */}
           {selectedDateTime && (
             <View style={styles.selectedDateContainer}>
               <Text style={styles.selectedDateLabel}>

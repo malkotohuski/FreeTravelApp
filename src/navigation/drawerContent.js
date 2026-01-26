@@ -195,6 +195,12 @@ export const Navigator = () => {
               drawerItemStyle: {display: 'none'},
             }}
           />
+        </>
+      )}
+
+      {/* ======= PROTECTED SCREENS ======= */}
+      {isAuthenticated && (
+        <>
           <Drawer.Screen
             name="WelcomeScreen"
             component={WelcomeScreen}
@@ -204,12 +210,6 @@ export const Navigator = () => {
               drawerItemStyle: {display: 'none'},
             }}
           />
-        </>
-      )}
-
-      {/* ======= PROTECTED SCREENS ======= */}
-      {isAuthenticated && (
-        <>
           <Drawer.Screen
             name="Home"
             component={HomePage}

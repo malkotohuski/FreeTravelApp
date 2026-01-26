@@ -26,7 +26,7 @@ function Confirm() {
 
   const routeContext = useRouteContext();
   const {addRoute} = routeContext;
-  const {user} = useAuth();
+  const {user, token} = useAuth();
   const route = useRoute();
 
   const selectedDateTime = route.params.selectedDateTime
@@ -87,7 +87,10 @@ function Confirm() {
       try {
         const response = await fetch('http://10.0.2.2:3000/create-route', {
           method: 'POST',
-          headers: {'Content-Type': 'application/json'},
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`, // <- важно
+          },
           body: JSON.stringify({route: newRoute}),
         });
 
