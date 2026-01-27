@@ -44,11 +44,19 @@ server.post('/register', async (req, res) => {
     routes,
   });
 
-  // Валидация
+  // 1️⃣ Базова валидация
   if (!username || !useremail || !userpassword) {
     return res
       .status(400)
       .json({error: 'Invalid input. Please provide all required fields.'});
+  }
+
+  // 2️⃣ Валидация на email формата
+  const emailRegex = /\S+@\S+\.\S+/;
+  if (!emailRegex.test(useremail)) {
+    return res.status(400).json({
+      error: 'Invalid email format.',
+    });
   }
 
   // Проверка за вече активен потребител
@@ -109,6 +117,12 @@ server.post('/register', async (req, res) => {
     accountStatus: 'active',
   };
 
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    return res.status(500).json({
+      error: 'Email service is not configured.',
+    });
+  }
+
   // Записваме юзъра
   router.db.get('users').push(user).write();
 
@@ -116,13 +130,14 @@ server.post('/register', async (req, res) => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: 'malkotohuski@gmail.com',
-      pass: 'ymnayjeocfmplvwb',
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
     },
   });
 
   const mailOptions = {
-    from: 'malkotohuski@gmail.com',
+    from: process.env.EMAIL_USER,
+
     to: useremail,
     subject: 'Account Confirmation',
     text: `Your confirmation code is: ${confirmationCode}`,
@@ -140,8 +155,15 @@ server.post('/register', async (req, res) => {
       // ❌ Връщаме потребителя без парола
       const safeUser = {...user};
       delete safeUser.password;
+      delete safeUser.confirmationCode;
+      delete safeUser.confirmationCodeExpiresAt;
+      delete safeUser.lastConfirmationResend;
 
-      return res.status(201).json({user: safeUser, confirmationCode});
+      return res.status(201).json({
+        message:
+          'Registration successful. Please check your email for the confirmation code.',
+        user: safeUser,
+      });
     }
   });
 });
@@ -237,19 +259,17 @@ server.post('/resend-confirmation-code', (req, res) => {
   }
 
   if (user.isActive) {
-    return res.status(400).json({
-      error: 'Account is already confirmed.',
-    });
+    return res.status(400).json({error: 'Account is already confirmed.'});
   }
 
-  // ⏱️ Anti-spam: 1 минута между resend-и
+  // ⏱ Anti-spam: 1 минута между resend-и
   if (
     user.lastConfirmationResend &&
     Date.now() - user.lastConfirmationResend < 60 * 1000
   ) {
-    return res.status(429).json({
-      error: 'Please wait before requesting a new code.',
-    });
+    return res
+      .status(429)
+      .json({error: 'Please wait before requesting a new code.'});
   }
 
   const newCode = generateConfirmationCode();
@@ -258,8 +278,8 @@ server.post('/resend-confirmation-code', (req, res) => {
     .get('users')
     .find({email})
     .assign({
-      confirmationCode: newCode,
-      confirmationCodeExpiresAt: Date.now() + 10 * 60 * 1000, // 10 мин
+      confirmationCode: newCode.toString(), // ✅ пазим като string
+      confirmationCodeExpiresAt: Date.now() + 10 * 60 * 1000, // 10 минути
       lastConfirmationResend: Date.now(),
     })
     .write();
@@ -267,13 +287,13 @@ server.post('/resend-confirmation-code', (req, res) => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: 'malkotohuski@gmail.com',
-      pass: 'ymnayjeocfmplvwb',
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
     },
   });
 
   const mailOptions = {
-    from: 'malkotohuski@gmail.com',
+    from: process.env.EMAIL_USER,
     to: email,
     subject: 'New confirmation code',
     text: `Your new confirmation code is: ${newCode}`,
@@ -281,15 +301,13 @@ server.post('/resend-confirmation-code', (req, res) => {
 
   transporter.sendMail(mailOptions, error => {
     if (error) {
-      console.error('Resend error:', error);
+      console.error('Resend confirmation code error:', error);
       return res
         .status(500)
         .json({error: 'Failed to resend confirmation code.'});
     }
 
-    return res.status(200).json({
-      message: 'New confirmation code sent.',
-    });
+    return res.status(200).json({message: 'New confirmation code sent.'});
   });
 });
 
@@ -359,15 +377,44 @@ server.post('/create-route', authenticateJWT, (req, res) => {
     return res.status(400).json({error: 'Missing route data'});
   }
 
+  const user = router.db.get('users').find({id: userId}).value();
+  if (!user) return res.status(404).json({error: 'User not found'});
+
+  const NOW = Date.now();
+  const ONE_HOUR = 60 * 60 * 1000;
+
+  // Инициализираме масива ако го няма
+  if (!Array.isArray(user.routeTimestamps)) user.routeTimestamps = [];
+
+  // Филтрираме само последния час
+  user.routeTimestamps = user.routeTimestamps.filter(ts => NOW - ts < ONE_HOUR);
+
+  // Проверка за максимум 3 маршрута
+  if (user.routeTimestamps.length >= 3) {
+    return res.status(429).json({
+      error: `Rate limit exceeded. You can create up to 3 routes per hour. Try again later.`,
+    });
+  }
+
+  // Създаваме маршрута
   const newRoute = {
     ...route,
     id: Date.now(),
-    ownerId: userId, // ✅ ownership
-    createdAt: Date.now(),
+    ownerId: userId,
+    createdAt: NOW,
     status: 'active',
   };
 
   router.db.get('routes').push(newRoute).write();
+
+  // Добавяме текущия timestamp в масива
+  router.db
+    .get('users')
+    .find({id: userId})
+    .assign({
+      routeTimestamps: [...user.routeTimestamps, NOW],
+    })
+    .write();
 
   return res.status(201).json({
     message: 'Route created successfully.',
@@ -383,15 +430,46 @@ server.post('/seekers-route', authenticateJWT, (req, res) => {
     return res.status(400).json({error: 'Missing seeker data'});
   }
 
+  const user = router.db.get('users').find({id: userId}).value();
+  if (!user) return res.status(404).json({error: 'User not found'});
+
+  const NOW = Date.now();
+  const ONE_HOUR = 60 * 60 * 1000;
+
+  // Инициализираме масива ако го няма
+  if (!Array.isArray(user.seekerTimestamps)) user.seekerTimestamps = [];
+
+  // Филтрираме само последния час
+  user.seekerTimestamps = user.seekerTimestamps.filter(
+    ts => NOW - ts < ONE_HOUR,
+  );
+
+  // Проверка за максимум 3 заявки
+  if (user.seekerTimestamps.length >= 3) {
+    return res.status(429).json({
+      error: `Rate limit exceeded. You can create up to 3 seeker routes per hour. Try again later.`,
+    });
+  }
+
+  // Създаваме заявката за търсене на маршрут
   const newSeekerRoute = {
     ...seeker,
     id: Date.now(),
-    seekerId: userId, // ✅ ownership
-    createdAt: Date.now(),
+    seekerId: userId,
+    createdAt: NOW,
     status: 'active',
   };
 
   router.db.get('seekers').push(newSeekerRoute).write();
+
+  // Добавяме текущия timestamp в масива
+  router.db
+    .get('users')
+    .find({id: userId})
+    .assign({
+      seekerTimestamps: [...user.seekerTimestamps, NOW],
+    })
+    .write();
 
   return res.status(201).json({
     message: 'Seeker route created successfully.',
@@ -435,35 +513,31 @@ server.post('/confirm', (req, res) => {
     });
   }
 
-  const user = router.db.get('users').find({email}).value();
+  const emailClean = email.trim().toLowerCase();
+  const user = router.db.get('users').find({email: emailClean}).value();
 
   if (!user) {
-    return res.status(404).json({
-      error: 'User not found.',
-    });
+    return res.status(404).json({error: 'User not found.'});
   }
 
   if (user.isActive) {
-    return res.status(400).json({
-      error: 'Account already confirmed.',
-    });
+    return res.status(400).json({error: 'Account already confirmed.'});
   }
 
+  // ✅ Проверка на confirmation code (консистентно като string)
   if (user.confirmationCode !== confirmationCode.toString()) {
-    return res.status(400).json({
-      error: 'Invalid confirmation code.',
-    });
+    return res.status(400).json({error: 'Invalid confirmation code.'});
   }
 
+  // Проверка за изтичане на кода
   if (
     !user.confirmationCodeExpiresAt ||
     Date.now() > user.confirmationCodeExpiresAt
   ) {
-    return res.status(400).json({
-      error: 'Confirmation code expired.',
-    });
+    return res.status(400).json({error: 'Confirmation code expired.'});
   }
 
+  // Активиране на акаунта
   router.db
     .get('users')
     .find({email})
@@ -475,42 +549,81 @@ server.post('/confirm', (req, res) => {
     })
     .write();
 
-  return res.status(200).json({
-    message: 'Account confirmed successfully.',
-  });
+  return res.status(200).json({message: 'Account confirmed successfully.'});
 });
 
 // New endpoint to send a request to the "imala" server
 
 server.post('/send-request-to-email', async (req, res) => {
-  const {email, text, image} = req.body;
-
-  console.log('Send Request to Email:', {email, text, image});
-
   try {
-    const user = router.db.get('users').find({email}).value();
+    const {email, text, image} = req.body;
 
+    // Проверка на задължителни полета
+    if (!email || !text || text.trim().length === 0) {
+      return res.status(400).json({
+        error: 'Email and text are required.',
+      });
+    }
+
+    // Ограничаваме текста до 2000 символа
+    if (text.length > 2000) {
+      return res
+        .status(400)
+        .json({error: 'Text too long. Max 2000 characters.'});
+    }
+
+    // Почистен email
+    const emailClean = email.trim().toLowerCase();
+
+    // Взимаме потребителя
+    const user = router.db.get('users').find({email: emailClean}).value();
     if (!user) {
-      console.error('User not found with email:', email);
       return res.status(404).json({error: 'User not found.'});
     }
 
+    // Проверка на image size (макс 5MB)
+    if (image) {
+      const sizeInBytes =
+        (image.length * 3) / 4 - (image.endsWith('==') ? 2 : 0);
+      if (sizeInBytes > 5 * 1024 * 1024) {
+        return res.status(400).json({error: 'Image too large. Max 5MB.'});
+      }
+    }
+
+    // Nodemailer transporter
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: 'malkotohuski@gmail.com',
-        pass: 'ymnayjeocfmplvwb',
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
       },
     });
 
+    // Почистване на текст за HTML (escape)
+    const escapeHtml = str =>
+      str.replace(
+        /[&<>"'`=\/]/g,
+        s =>
+          ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;',
+            '`': '&#x60;',
+            '=': '&#x3D;',
+            '/': '&#x2F;',
+          }[s]),
+      );
+
     const mailOptions = {
-      from: 'malkotohuski@gmail.com',
-      to: email,
+      from: process.env.EMAIL_USER,
+      to: emailClean,
       subject: '🚨 New Report Received',
       text: `Hello ${user.username},\n\n${text}`,
       html: `
         <p>📛 <strong>New Report Received</strong></p>
-        <p>${text.replace(/\n/g, '<br/>')}</p>
+        <p>${escapeHtml(text).replace(/\n/g, '<br/>')}</p>
         <p><strong>Attached image:</strong></p>
         ${
           image
@@ -536,11 +649,11 @@ server.post('/send-request-to-email', async (req, res) => {
         console.error('Email send error:', error);
         return res.status(500).json({error: 'Failed to send email.'});
       }
-      console.log('Email sent:', info.response);
+
       return res.status(200).json({message: 'Email sent successfully.'});
     });
-  } catch (error) {
-    console.error('Email error:', error);
+  } catch (err) {
+    console.error('Send request error:', err);
     return res.status(500).json({error: 'Internal Server Error'});
   }
 });
@@ -764,14 +877,15 @@ server.post('/forgot-password', (req, res) => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: 'malkotohuski@gmail.com',
-      pass: 'ymnayjeocfmplvwb',
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
     },
   });
 
   transporter.sendMail(
     {
-      from: 'malkotohuski@gmail.com',
+      from: process.env.EMAIL_USER,
+
       to: email,
       subject: 'Password reset code',
       text: `Your password reset code is: ${resetCode}`,
