@@ -1,19 +1,16 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  TextInput,
-  Modal,
-  ScrollView,
-  Alert,
-  SafeAreaView,
   Image,
+  Alert,
+  TextInput,
 } from 'react-native';
-import {useTranslation} from 'react-i18next';
-import {useNavigation} from '@react-navigation/native';
 import {useFocusEffect} from '@react-navigation/native';
+import {useTranslation} from 'react-i18next';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import {useAuth} from '../../context/AuthContext';
 import api from '../../api/api';
 
@@ -21,428 +18,326 @@ function RouteDetails({route}) {
   const {t} = useTranslation();
   const navigation = useNavigation();
   const {user} = useAuth();
+  const routeInfo = useRoute();
+  const loggedInUser = route.params.loggedInUser;
+
+  console.log(loggedInUser, '2221');
 
   const {
     username,
     userFname,
     userLname,
+    userEmail,
     departureCity,
     arrivalCity,
     routeId,
-    selectedDateTime,
   } = route.params;
+  const loginUser = user?.username;
 
-  console.log('rating', averageRating);
+  const requesterUsername = user?.username;
+  const requestUserFirstName = user?.fName;
+  const requestUserLastName = user?.lName;
+  const requestUserEmail = user?.email;
+  const departureCityEmail = route.params.departureCity;
+  const arrivalCityEmail = route.params.arrivalCity;
 
-  const loginUsername = user?.username;
-  const isOwnRoute = loginUsername === username;
+  const routeDateTime = route.params.selectedDateTime;
+  const dataTime = routeDateTime.replace('T', ' ').replace('.000Z', '');
 
-  const [comment, setComment] = useState('');
+  const [tripRequestText, setTripRequestText] = useState('');
+  const [notificationCount, setNotificationCount] = useState(0);
   const [hasRequested, setHasRequested] = useState(false);
-  const [profileVisible, setProfileVisible] = useState(false);
-  const [profileData, setProfileData] = useState(null);
-  const userImage = profileData?.userImage;
-  const averageRating = profileData?.averageRating;
-  const comments = profileData?.comments || [];
-
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const res = await api.get('/users'); // взимаме всички users
-        const userProfile = res.data.find(u => u.username === username);
-
-        if (userProfile) {
-          setProfileData(userProfile);
-        } else {
-          console.warn('User not found in database');
-        }
-      } catch (err) {
-        console.error('Failed to fetch user profile:', err);
-      }
-    };
-
-    fetchUserProfile();
-  }, [username]);
+  const isOwnRoute = requesterUsername === username;
 
   useFocusEffect(
     useCallback(() => {
-      setComment('');
+      setTripRequestText(''); // нулира стойността всеки път при фокус
     }, []),
   );
 
+  // Проверка за съществуваща заявка
   useEffect(() => {
-    const checkExistingRequest = async () => {
+    const fetchNotifications = async () => {
       try {
-        const res = await api.get('/notifications');
-        const exists = res.data.some(
-          n => n.requester?.username === loginUsername && n.routeId === routeId,
+        if (!loginUser || !routeId) {
+          console.error('Missing login user or route ID.');
+          return;
+        }
+
+        const response = await api.get('/notifications');
+
+        const alreadyRequested = response.data.some(
+          notification =>
+            notification.requester?.username === loginUser &&
+            notification.routeId === routeId,
         );
-        setHasRequested(exists);
-      } catch (e) {
-        console.log(e);
+
+        if (alreadyRequested) {
+          setHasRequested(true);
+        } else {
+          setHasRequested(false); // важно, ако юзер смени маршрут
+        }
+
+        const userNotifications = response.data.filter(
+          notification =>
+            notification.requester?.username === loginUser &&
+            !notification.read,
+        );
+
+        setNotificationCount(
+          userNotifications.length > 9 ? '9+' : userNotifications.length,
+        );
+      } catch (error) {
+        console.error('Failed to fetch notifications:', error);
       }
     };
 
-    checkExistingRequest();
-  }, [loginUsername, routeId]);
+    fetchNotifications();
+  }, [loginUser, routeId]);
 
-  const handleApply = () => {
-    if (!comment.trim()) {
-      Alert.alert(t('Error'), t('Please enter a comment.'));
-      return;
+  const handlerTripRequest = async () => {
+    try {
+      if (hasRequested) {
+        Alert.alert(
+          t('Error'),
+          t('You have already submitted a request for this route.'),
+        );
+        return;
+      }
+
+      if (!tripRequestText.trim()) {
+        Alert.alert(t('Error'), t('Please enter a comment before submitting.'));
+        return;
+      }
+
+      Alert.alert(
+        t('Confirm'),
+        t('Would you like to submit a request for this route?'),
+        [
+          {
+            text: t('Cancel'),
+            style: 'cancel',
+          },
+          {
+            text: 'OK',
+            onPress: async () => {
+              try {
+                await api.post('/send-request-to-user', {
+                  requestingUser: {
+                    username: user?.username,
+                    userFname: user?.fName,
+                    userLname: user?.lName,
+                    userEmail: requestUserEmail,
+                    userID: user?.id,
+                    userRouteId: route.params.userId,
+                    departureCity: route.params.departureCity,
+                    arrivalCity: route.params.arrivalCity,
+                    routeId: route.params.routeId,
+                    dataTime: route.params.selectedDateTime,
+                    requestComment: tripRequestText,
+                    rateCreator: false,
+                    rateUser: false,
+                    status: 'pending',
+                    read: false,
+                  },
+                });
+                setHasRequested(true);
+
+                await api.post('/notifications', {
+                  recipient: username,
+                  message: t(
+                    `You have a candidate for your route: ${departureCity}-${arrivalCity} with username: ${requesterUsername}!`,
+                  ),
+                  routeId,
+                  routeChecker: true,
+                  status: 'active',
+                  requester: {
+                    username: requesterUsername,
+                    userFname: requestUserFirstName,
+                    userLname: requestUserLastName,
+                    email: requestUserEmail,
+                    comment: tripRequestText,
+                  },
+                  createdAt: new Date().toISOString(),
+                });
+
+                Alert.alert(
+                  t('Success'),
+                  t('You have successfully applied for this route!'),
+                  [{text: 'OK', onPress: () => navigation.navigate('Home')}],
+                );
+              } catch (err) {
+                console.error('API error:', err);
+                Alert.alert(
+                  t('Error'),
+                  err.response?.data?.message || 'Failed to send trip request.',
+                );
+              }
+            },
+          },
+        ],
+        {cancelable: false},
+      );
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'Failed to send trip request.');
     }
+  };
 
-    Alert.alert(t('Confirm'), t('Do you want to apply for this route?'), [
-      {text: t('Cancel'), style: 'cancel'},
-      {
-        text: 'OK',
-        onPress: async () => {
-          try {
-            await api.post('/send-request-to-user', {
-              requestingUser: {
-                username: user?.username,
-                userID: user?.id,
-                routeId,
-                comment,
-                status: 'pending',
-              },
-            });
-
-            setHasRequested(true);
-
-            Alert.alert(
-              t('Success'),
-              t('Your request was sent successfully.'),
-              [{text: 'OK', onPress: () => navigation.navigate('Home')}],
-            );
-          } catch (err) {
-            Alert.alert(
-              t('Error'),
-              err.response?.data?.message || 'Request failed',
-            );
-          }
-        },
-      },
-    ]);
+  const handlerBackToViewRoute = () => {
+    navigation.navigate('View routes');
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.title}>
-          {departureCity} → {arrivalCity}
+    <View style={styles.container}>
+      <Image
+        source={require('../../../images/confirm2-background.jpg')}
+        style={{
+          flex: 1,
+          width: '100%',
+          height: '100%',
+          resizeMode: 'cover',
+          position: 'absolute',
+        }}
+      />
+
+      <Text style={styles.headerText}>{t('Route Details')}:</Text>
+      <Text style={styles.text}>
+        {' '}
+        {t('Nick name')} : {username}
+      </Text>
+      <Text style={styles.text}>
+        {' '}
+        {t('Names')} : {userFname} {userLname}
+      </Text>
+      <Text style={styles.text}>
+        {' '}
+        {t('Route')} : {departureCity}-{arrivalCity}{' '}
+      </Text>
+
+      <TextInput
+        style={styles.input}
+        onChangeText={text => setTripRequestText(text)}
+        value={tripRequestText}
+        placeholder={t('Enter your travel request comment here :')}
+        multiline={true}
+        numberOfLines={4}
+      />
+
+      <TouchableOpacity
+        style={[
+          styles.buttonConfirm,
+          (isOwnRoute || hasRequested) && {backgroundColor: '#ccc'},
+        ]}
+        onPress={() => {
+          if (isOwnRoute) {
+            Alert.alert(
+              t('Error'),
+              t('You cannot apply for this route because you created it.'),
+            );
+          } else if (hasRequested) {
+            Alert.alert(
+              t('Error'),
+              t('You have already submitted a request for this route.'),
+            );
+          } else {
+            handlerTripRequest();
+          }
+        }}
+        disabled={isOwnRoute || hasRequested}>
+        <Text style={styles.buttonText}>{t('Trip request')}</Text>
+      </TouchableOpacity>
+      {hasRequested && (
+        <Text style={styles.requestedText}>
+          {t('You have already applied for this route.')}
         </Text>
+      )}
 
-        <Text style={styles.subtitle}>
-          {new Date(selectedDateTime).toLocaleString()}
+      <TouchableOpacity
+        style={styles.buttonBack}
+        onPress={handlerBackToViewRoute}>
+        <Text style={styles.buttonText}>{t('Back')}</Text>
+      </TouchableOpacity>
+      {requesterUsername === username && (
+        <Text style={styles.warningText}>
+          {t('This route was created by you, and you cannot request it!')}
         </Text>
-
-        <View style={styles.divider} />
-
-        <Text style={styles.text}>
-          {t('Driver')}: {username}
-        </Text>
-
-        {!isOwnRoute && (
-          <TouchableOpacity onPress={() => setProfileVisible(true)}>
-            <Text style={styles.linkText}>{t('View profile')}</Text>
-          </TouchableOpacity>
-        )}
-
-        <View style={styles.divider} />
-
-        <TextInput
-          style={styles.input}
-          placeholder={t('Write a short message...')}
-          placeholderTextColor="#aaa"
-          value={comment}
-          onChangeText={setComment}
-          multiline
-        />
-
-        <TouchableOpacity
-          style={[
-            styles.primaryButton,
-            (isOwnRoute || hasRequested) && styles.disabledButton,
-          ]}
-          disabled={isOwnRoute || hasRequested}
-          onPress={handleApply}>
-          <Text style={styles.buttonText}>
-            {hasRequested ? t('Already applied') : t('Apply for this route')}
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.secondaryButton}
-          onPress={() => navigation.goBack()}>
-          <Text style={styles.buttonText}>{t('Back')}</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* 🔹 PROFILE MODAL */}
-      <Modal visible={profileVisible} transparent animationType="fade">
-        <View style={modal.overlay}>
-          <View style={modal.content}>
-            {/* Avatar */}
-            {profileData?.userImage ? (
-              <Image
-                source={{uri: profileData.userImage}}
-                style={modal.avatar}
-              />
-            ) : (
-              <View
-                style={[
-                  modal.avatar,
-                  {
-                    backgroundColor: '#888',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  },
-                ]}>
-                <Text
-                  style={{color: 'white', fontWeight: 'bold', fontSize: 24}}>
-                  {(profileData?.username || username)
-                    ?.slice(0, 2)
-                    .toUpperCase()}
-                </Text>
-              </View>
-            )}
-
-            <Text style={modal.title}>{profileData?.username || username}</Text>
-            <Text style={modal.text}>
-              {profileData?.fName || userFname}{' '}
-              {profileData?.lName || userLname}
-            </Text>
-
-            <Text style={modal.rating}>
-              ⭐ {profileData?.averageRating ?? t('No ratings yet')}
-            </Text>
-
-            <ScrollView style={{maxHeight: 180, marginTop: 10}}>
-              {profileData?.comments?.length ? (
-                profileData.comments.map((c, i) => (
-                  <View key={i} style={modal.commentContainer}>
-                    {c.image ? (
-                      <Image
-                        source={{uri: c.image}}
-                        style={modal.commentAvatar}
-                      />
-                    ) : (
-                      <View
-                        style={[
-                          modal.commentAvatar,
-                          {
-                            backgroundColor: '#888',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          },
-                        ]}>
-                        <Text
-                          style={{
-                            color: 'white',
-                            fontWeight: 'bold',
-                            fontSize: 14,
-                          }}>
-                          {c.user?.slice(0, 2).toUpperCase()}
-                        </Text>
-                      </View>
-                    )}
-                    <View style={{flex: 1}}>
-                      <Text style={modal.commentUser}>{c.user}</Text>
-                      <Text style={modal.commentText}>{c.comment}</Text>
-                      <Text style={modal.commentDate}>
-                        {new Date(c.date).toLocaleDateString()}
-                      </Text>
-                    </View>
-                  </View>
-                ))
-              ) : (
-                <Text style={modal.noComments}>{t('No comments yet')}</Text>
-              )}
-            </ScrollView>
-
-            <TouchableOpacity
-              style={modal.closeButton}
-              onPress={() => setProfileVisible(false)}>
-              <Text style={styles.buttonText}>{t('Close')}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-    </SafeAreaView>
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1f1f1f',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
+    backgroundColor: 'grey',
   },
-
-  card: {
-    width: '90%',
-    backgroundColor: '#2b2b2b',
-    borderRadius: 16,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+  headerText: {
+    fontWeight: 'bold',
+    fontSize: 24,
+    paddingBottom: 10,
+    color: '#1b1c1e',
+    borderBottomWidth: 3,
+    borderBottomColor: '#1b1c1e',
   },
-
-  title: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#fff',
-  },
-
-  subtitle: {
-    fontSize: 16,
-    color: '#bbb',
-    marginTop: 4,
-  },
-
-  divider: {
-    height: 1,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    marginVertical: 12,
-  },
-
   text: {
-    fontSize: 17,
-    color: '#eee',
-  },
-
-  linkText: {
-    color: '#f4511e',
-    fontSize: 16,
-    marginTop: 6,
-    fontWeight: '600',
-  },
-
-  input: {
-    backgroundColor: '#3a3a3a',
-    color: '#fff',
-    borderRadius: 10,
-    padding: 12,
-    marginTop: 12,
-    fontSize: 16,
-  },
-
-  primaryButton: {
-    backgroundColor: '#f4511e',
-    padding: 14,
-    borderRadius: 12,
-    marginTop: 14,
-    alignItems: 'center',
-  },
-
-  disabledButton: {
-    backgroundColor: '#555',
-  },
-
-  secondaryButton: {
-    backgroundColor: '#444',
-    padding: 14,
-    borderRadius: 12,
-    marginTop: 10,
-    alignItems: 'center',
-  },
-
-  buttonText: {
-    color: '#fff',
-    fontWeight: '600',
-    fontSize: 16,
-  },
-});
-
-const modal = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    justifyContent: 'center',
-    padding: 20,
-  },
-
-  content: {
-    backgroundColor: '#2b2b2b',
-    borderRadius: 16,
-    padding: 20,
-  },
-
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    alignSelf: 'center',
-    marginBottom: 10,
-  },
-
-  title: {
-    color: '#fff',
-    fontSize: 22,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-
-  text: {
-    color: '#ccc',
-    fontSize: 16,
-    textAlign: 'center',
-    marginTop: 4,
-  },
-
-  rating: {
-    color: '#f1c40f',
+    fontWeight: 'bold',
     fontSize: 18,
-    textAlign: 'center',
-    marginVertical: 10,
+    paddingBottom: 10,
+    color: '#1b1c1e',
+    borderBottomWidth: 1,
+    borderBottomColor: '#1b1c1e',
   },
-
-  commentContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-    backgroundColor: '#3a3a3a',
-    borderRadius: 10,
-    padding: 8,
-  },
-
-  commentAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 8,
-  },
-
-  commentUser: {
-    color: '#f4511e',
-    fontWeight: '700',
-    fontSize: 14,
-  },
-
-  commentText: {
-    color: '#eee',
-    fontSize: 14,
-  },
-
-  commentDate: {
-    color: '#aaa',
-    fontSize: 12,
-  },
-
-  noComments: {
-    color: '#777',
-    textAlign: 'center',
+  buttonConfirm: {
     marginTop: 10,
-  },
-
-  closeButton: {
-    backgroundColor: '#444',
-    padding: 12,
-    borderRadius: 10,
-    marginTop: 14,
+    padding: 15,
+    backgroundColor: '#27ae60',
     alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 18,
+    fontWeight: 'bold',
+    width: '90%',
+    borderRadius: 10,
+  },
+  buttonBack: {
+    marginTop: 10,
+    padding: 15,
+    backgroundColor: '#AE2727FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 18,
+    fontWeight: 'bold',
+    width: '90%',
+    borderRadius: 10,
+  },
+  buttonText: {
+    color: '#F1F1F1',
+    fontSize: 16,
+  },
+  input: {
+    marginTop: 10,
+    padding: 10,
+    width: '90%',
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 5,
+  },
+  warningText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: 'red',
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  requestedText: {
+    marginTop: 10,
+    marginBottom: 5,
+    fontSize: 16,
+    color: 'red',
+    textAlign: 'center',
+    fontWeight: 'bold',
   },
 });
 

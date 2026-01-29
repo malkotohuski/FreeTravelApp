@@ -740,11 +740,20 @@ server.get('/get-requests', (req, res) => {
     .json({message: 'Route created successfully.', request: requestingUser});
 });
 
-server.post('/rateUser', (req, res) => {
-  const {userId, fromUserId, stars, comment} = req.body;
+server.post('/rateUser', authenticateJWT, (req, res) => {
+  const {userId, stars, comment} = req.body;
+  const fromUserId = req.user.id;
 
-  if (!userId || !fromUserId || typeof stars !== 'number') {
+  if (!userId || typeof stars !== 'number') {
     return res.status(400).json({error: 'Missing or invalid fields.'});
+  }
+
+  if (stars < 1 || stars > 5) {
+    return res.status(400).json({error: 'Stars must be between 1 and 5.'});
+  }
+
+  if (userId === fromUserId) {
+    return res.status(400).json({error: 'You cannot rate yourself.'});
   }
 
   const user = router.db.get('users').find({id: userId}).value();
@@ -752,7 +761,6 @@ server.post('/rateUser', (req, res) => {
     return res.status(404).json({error: 'User not found.'});
   }
 
-  // Забрана за повече от 1 оценка от един и същ потребител (можеш да я премахнеш ако искаш)
   const alreadyRated = user.ratings.find(r => r.fromUserId === fromUserId);
   if (alreadyRated) {
     return res.status(400).json({error: 'You have already rated this user.'});
@@ -767,16 +775,14 @@ server.post('/rateUser', (req, res) => {
 
   user.ratings.push(rating);
 
-  // Изчисляване на средната стойност
   const totalStars = user.ratings.reduce((sum, r) => sum + r.stars, 0);
-  const avg = totalStars / user.ratings.length;
+  user.averageRating = parseFloat(
+    (totalStars / user.ratings.length).toFixed(1),
+  );
 
-  user.averageRating = parseFloat(avg.toFixed(1)); // например 4.5
-
-  // Записване обратно в базата
   router.db.get('users').find({id: userId}).assign(user).write();
 
-  res.status(200).json({
+  return res.status(200).json({
     message: 'Rating submitted successfully.',
     averageRating: user.averageRating,
   });
@@ -813,6 +819,10 @@ server.post('/login', async (req, res) => {
       return res.status(403).json({
         error: 'Account not confirmed.',
       });
+    }
+
+    if (!user.isActive) {
+      return res.status(403).json({error: 'Account is not active yet.'});
     }
 
     // 🔐 JWT
