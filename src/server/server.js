@@ -663,69 +663,127 @@ server.post('/send-request-to-email', async (req, res) => {
 server.post('/send-request-to-user', (req, res) => {
   const {requestingUser} = req.body;
 
-  // Проверка дали е подаден потребител
+  // 1. Проверки
   if (!requestingUser) {
-    console.error('Requesting user is undefined');
-    return res
-      .status(400)
-      .json({error: 'Invalid request. Requesting user is undefined.'});
+    return res.status(400).json({error: 'Requesting user is undefined.'});
   }
 
-  // Проверка за наличен routeId
   if (!requestingUser.routeId) {
-    console.error('Route ID is undefined in requestingUser');
-    return res.status(400).json({
-      error: 'Invalid request. Route ID is undefined in requestingUser.',
-    });
+    return res.status(400).json({error: 'Route ID is missing.'});
   }
 
-  // Проверка за наличен userID (идентификатор на кандидата)
   if (!requestingUser.userID) {
-    console.error('User ID is undefined in requestingUser');
-    return res.status(400).json({
-      error: 'Invalid request. User ID is undefined in requestingUser.',
-    });
+    return res.status(400).json({error: 'User ID is missing.'});
   }
 
-  // Проверка дали маршрута съществува
+  // 2. Намираме маршрута
   const route = router.db
     .get('routes')
     .find({id: requestingUser.routeId})
     .value();
 
   if (!route) {
-    console.error('Route not found');
     return res.status(404).json({error: 'Route not found.'});
   }
 
-  // Проверка дали вече има заявка от този user за този маршрут
+  // 3. Проверка за дублирана заявка
   const existingRequest = router.db
     .get('requests')
-    .find({routeId: requestingUser.routeId, userID: requestingUser.userID})
+    .find({
+      routeId: requestingUser.routeId,
+      userID: requestingUser.userID,
+    })
     .value();
 
   if (existingRequest) {
-    console.log('User has already requested this route');
     return res
       .status(400)
       .json({error: 'You have already submitted a request for this route.'});
   }
 
-  // Създаване на нова заявка
+  // 4. Записваме заявката
   const newRequest = {
     ...requestingUser,
     id: Date.now(),
     rateCreator: false,
     rateUser: false,
-  }; //ново 23/09
+  };
 
-  // Запис в базата (requests)
   router.db.get('requests').push(newRequest).write();
 
-  console.log('Request saved successfully');
-  return res
-    .status(200)
-    .json({message: 'Route request processed successfully.'});
+  // 5. Създаваме notification (СЛЕД като имаме route)
+  const notification = {
+    id: Date.now(),
+    recipient: route.username, // ✅ вече е OK
+    routeId: requestingUser.routeId,
+    message: `You have a candidate for your route: ${requestingUser.departureCity}-${requestingUser.arrivalCity}`,
+    requester: {
+      username: requestingUser.username,
+      userFname: requestingUser.userFname,
+      userLname: requestingUser.userLname,
+      email: requestingUser.userEmail,
+      comment: requestingUser.requestComment,
+    },
+    createdAt: new Date().toISOString(),
+    read: false,
+    status: 'active',
+  };
+
+  router.db.get('notifications').push(notification).write();
+
+  return res.status(200).json({
+    message: 'Route request processed successfully.',
+  });
+});
+
+server.post('/requests/:id/decision', (req, res) => {
+  const requestId = Number(req.params.id);
+  const {decision, currentUserId} = req.body;
+
+  if (!['approved', 'rejected'].includes(decision)) {
+    return res.status(400).json({error: 'Invalid decision value.'});
+  }
+
+  if (!currentUserId) {
+    return res.status(400).json({error: 'Missing currentUserId.'});
+  }
+
+  // 1. Намираме заявката
+  const request = router.db.get('requests').find({id: requestId}).value();
+
+  if (!request) {
+    return res.status(404).json({error: 'Request not found.'});
+  }
+
+  // 2. Проверка: дали този user е собственик на маршрута
+  if (request.userRouteId !== currentUserId) {
+    return res.status(403).json({
+      error: 'You are not allowed to decide on this request.',
+    });
+  }
+
+  // 3. Проверка дали вече е решена
+  if (request.status === 'approved' || request.status === 'rejected') {
+    return res.status(400).json({
+      error: 'Request already processed.',
+    });
+  }
+
+  // 4. Обновяване
+  router.db
+    .get('requests')
+    .find({id: requestId})
+    .assign({
+      status: decision,
+      decidedAt: new Date().toISOString(),
+    })
+    .write();
+
+  return res.status(200).json({
+    message: `Request ${decision} successfully.`,
+    requestId,
+    status: decision,
+  });
 });
 
 // New endpoint to get all requests

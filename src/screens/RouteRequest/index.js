@@ -139,8 +139,9 @@ For date: ${formattedDate}`);
       });
 
       // Обновяване на статуса на заявката
-      await api.patch(`/requests/${request.id}`, {
-        status: isApproved ? 'approved' : 'rejected',
+      await api.post(`/requests/${request.id}/decision`, {
+        decision: isApproved ? 'approved' : 'rejected',
+        currentUserId: userNow,
       });
 
       await fetchAndSetRequests();
