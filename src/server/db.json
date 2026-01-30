@@ -15,9 +15,10 @@
       "friends": [],
       "ratings": [
         5,
+        4.5,
         4.5
       ],
-      "averageRating": 4.75,
+      "averageRating": 4.67,
       "comments": [
         {
           "user": "Shushkata",
@@ -30,6 +31,12 @@
           "comment": "Goo pasen",
           "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/7c891c3a-718b-4a12-b986-8d7a59aab03a.jpg",
           "date": "2026-01-21T16:36:24.464Z"
+        },
+        {
+          "user": "Shushkata",
+          "comment": "Nice person !",
+          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/7c891c3a-718b-4a12-b986-8d7a59aab03a.jpg",
+          "date": "2026-01-30T13:21:02.855Z"
         }
       ],
       "accountStatus": "active",
@@ -54,9 +61,10 @@
       "friends": [],
       "ratings": [
         5,
+        4.5,
         4.5
       ],
-      "averageRating": 4.75,
+      "averageRating": 4.67,
       "comments": [
         {
           "user": "malkotohuski",
@@ -69,11 +77,17 @@
           "comment": "nice",
           "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/f8c0e3a9-718e-4af4-af37-0acb15b42f0b.jpg",
           "date": "2026-01-21T16:35:53.483Z"
+        },
+        {
+          "user": "malkotohuski",
+          "comment": "Nice driver!",
+          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/f8c0e3a9-718e-4af4-af37-0acb15b42f0b.jpg",
+          "date": "2026-01-30T13:21:35.906Z"
         }
       ],
       "accountStatus": "active",
       "routeTimestamps": [
-        1769688854847
+        1769777687384
       ]
     },
     {
@@ -292,7 +306,8 @@
       "id": 1769700056227,
       "ownerId": 1768488420566,
       "createdAt": 1769700056227,
-      "status": "active"
+      "status": "active",
+      "userRouteId": "deleted"
     },
     {
       "selectedVehicle": "Car",
@@ -335,6 +350,28 @@
       "ownerId": 1768488420566,
       "createdAt": 1769706203575,
       "status": "active"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A2111AA",
+      "selectedDateTime": "2026-01-30T14:54:00.000Z",
+      "departureCity": "Burgas",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Plovdiv",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "routeTitle": "3 spot left",
+      "userId": 1768493729350,
+      "username": "Shushkata",
+      "userFname": "Arya",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1769777687384,
+      "ownerId": 1768493729350,
+      "createdAt": 1769777687384,
+      "status": "active",
+      "userRouteId": "completed"
     }
   ],
   "seekers": [],
@@ -433,9 +470,29 @@
       "requestComment": "44",
       "rateCreator": false,
       "rateUser": false,
-      "status": "pending",
+      "status": "approved",
       "read": false,
-      "id": 1769706231923
+      "id": 1769706231923,
+      "decidedAt": "2026-01-30T12:24:13.774Z"
+    },
+    {
+      "username": "malkotohuski",
+      "userFname": "Dani",
+      "userLname": "Dimitrov",
+      "userEmail": "malkotohuski@gmail.com",
+      "userID": 1768488420566,
+      "userRouteId": 1768493729350,
+      "departureCity": "Burgas",
+      "arrivalCity": "Plovdiv",
+      "routeId": 1769777687384,
+      "dataTime": "2026-01-30T14:54:00.000Z",
+      "requestComment": "yo",
+      "rateCreator": true,
+      "rateUser": true,
+      "status": "approved",
+      "read": false,
+      "id": 1769779152571,
+      "decidedAt": "2026-01-30T13:19:45.610Z"
     }
   ],
   "userChanges": [],
@@ -1912,7 +1969,93 @@
         "comment": "44"
       },
       "createdAt": "2026-01-29T17:03:47.804Z",
-      "id": 315
+      "id": 315,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata",
+      "message": "Your request has been approved from malkotohuski.\nAbout the route: Sofia-Ruse.\nFor date: 2.02.2026 г., 19:02",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "malkotohuski",
+        "userFname": "Dani",
+        "userLname": "Dimitrov",
+        "email": "malkotohuski@gmail.com"
+      },
+      "createdAt": "2026-01-30T12:24:06.703Z",
+      "id": 316,
+      "read": true
+    },
+    {
+      "id": 1769779152572,
+      "recipient": "Shushkata",
+      "routeId": 1769777687384,
+      "message": "You have a candidate for your route: Burgas-Plovdiv",
+      "requester": {
+        "username": "malkotohuski",
+        "userFname": "Dani",
+        "userLname": "Dimitrov",
+        "email": "malkotohuski@gmail.com",
+        "comment": "yo"
+      },
+      "createdAt": "2026-01-30T13:19:12.572Z",
+      "read": true,
+      "status": "active"
+    },
+    {
+      "recipient": "malkotohuski",
+      "message": "Shushkata accepted your invitation.",
+      "routeId": 1769777687384,
+      "requester": {
+        "username": "Shushkata",
+        "email": "shushkata7@gmail.com"
+      },
+      "personalMessage": "ok",
+      "createdAt": "2026-01-30T13:19:41.539Z",
+      "read": true,
+      "status": "active",
+      "id": 1769779152573
+    },
+    {
+      "recipient": "malkotohuski",
+      "message": "Your request has been approved from Shushkata.\nAbout the route: Burgas-Plovdiv.\nFor date: 30.01.2026 г., 16:54",
+      "routeChecker": true,
+      "status": "active",
+      "requester": {
+        "username": "Shushkata",
+        "userFname": "Arya",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com"
+      },
+      "createdAt": "2026-01-30T13:19:45.333Z",
+      "id": 1769779152574,
+      "read": true
+    },
+    {
+      "recipient": "malkotohuski",
+      "fromUserId": 1768493729350,
+      "type": "rate_user",
+      "routeId": 1769777687384,
+      "message": "Please rate the trip with Shushkata",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2026-01-30T13:20:48.833Z",
+      "mainRouteUser": "Shushkata",
+      "id": 1769779152575,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata",
+      "fromUserId": 1768488420566,
+      "type": "rate_passenger",
+      "routeId": 1769777687384,
+      "message": "Please rate your passenger malkotohuski",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2026-01-30T13:20:48.893Z",
+      "mainRouteUser": "malkotohuski",
+      "id": 1769779152576
     }
   ]
 }

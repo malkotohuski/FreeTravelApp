@@ -68,8 +68,9 @@ function RouteDetails({route}) {
 
         const alreadyRequested = response.data.some(
           notification =>
+            notification.routeId === routeId &&
             notification.requester?.username === loginUser &&
-            notification.routeId === routeId,
+            notification.status !== 'rejected',
         );
 
         if (alreadyRequested) {
@@ -142,24 +143,6 @@ function RouteDetails({route}) {
                   },
                 });
                 setHasRequested(true);
-
-                await api.post('/notifications', {
-                  recipient: username,
-                  message: t(
-                    `You have a candidate for your route: ${departureCity}-${arrivalCity} with username: ${requesterUsername}!`,
-                  ),
-                  routeId,
-                  routeChecker: true,
-                  status: 'active',
-                  requester: {
-                    username: requesterUsername,
-                    userFname: requestUserFirstName,
-                    userLname: requestUserLastName,
-                    email: requestUserEmail,
-                    comment: tripRequestText,
-                  },
-                  createdAt: new Date().toISOString(),
-                });
 
                 Alert.alert(
                   t('Success'),
