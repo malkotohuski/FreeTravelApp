@@ -93,67 +93,28 @@ function RouteRequestScreen({route, navigation}) {
   }, [isMigrating]);
 
   const sendRouteResponse = async (request, isApproved) => {
-    const dateObj = new Date(request.dataTime);
-    const formattedDate = `${dateObj.toLocaleDateString(
-      'bg-BG',
-    )}, ${dateObj.toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    })}`;
-
     try {
-      const emailText = isApproved
-        ? t(
-            `Your request has been approved by: ${requestUserFirstName} ${requestUserLastName}.`,
-          )
-        : t(
-            `Your request has NOT been approved by: ${requestUserFirstName} ${requestUserLastName}.`,
-          );
+      const decision = isApproved ? 'approved' : 'rejected';
 
-      await api.post('/send-request-to-email', {
-        email: request.userEmail,
-        text: emailText,
-      });
-
-      const notificationMessage = isApproved
-        ? t(`Your request has been approved from ${requesterUsername}.
-About the route: ${request.departureCity}-${request.arrivalCity}.
-For date: ${formattedDate}`)
-        : t(`Your request has NOT been approved from ${requesterUsername}.
-About the route: ${request.departureCity}-${request.arrivalCity}.
-For date: ${formattedDate}`);
-
-      await api.post('/notifications', {
-        recipient: request.username,
-        message: notificationMessage,
-        routeChecker: true,
-        status: 'active',
-        requester: {
-          username: requesterUsername,
-          userFname: requestUserFirstName,
-          userLname: requestUserLastName,
-          email: requestUserEmail,
-        },
-        createdAt: new Date().toISOString(),
-      });
-
-      // Обновяване на статуса на заявката
       await api.post(`/requests/${request.id}/decision`, {
-        decision: isApproved ? 'approved' : 'rejected',
-        currentUserId: userNow,
+        decision,
       });
+
+      Alert.alert(
+        t('Success'),
+        decision === 'approved'
+          ? t('Request approved.')
+          : t('Request rejected.'),
+      );
 
       await fetchAndSetRequests();
-      Alert.alert(
-        'Success',
-        isApproved ? 'Request approved.' : 'Request rejected.',
-      );
     } catch (error) {
-      console.error('Error while handling request:', error);
-      Alert.alert('Error', 'An error occurred while handling the request.');
-    } finally {
-      setIsMigrating(false);
+      console.error('Decision error:', error);
+
+      Alert.alert(
+        t('Error'),
+        error.response?.data?.error || t('Failed to process request.'),
+      );
     }
   };
 

@@ -736,54 +736,94 @@ server.post('/send-request-to-user', (req, res) => {
   });
 });
 
-server.post('/requests/:id/decision', (req, res) => {
-  const requestId = Number(req.params.id);
-  const {decision, currentUserId} = req.body;
+server.post('/requests/:id/decision', async (req, res) => {
+  try {
+    const requestId = Number(req.params.id);
+    const {decision} = req.body; // 'approved' | 'rejected'
 
-  if (!['approved', 'rejected'].includes(decision)) {
-    return res.status(400).json({error: 'Invalid decision value.'});
-  }
+    if (!['approved', 'rejected'].includes(decision)) {
+      return res.status(400).json({error: 'Invalid decision value.'});
+    }
 
-  if (!currentUserId) {
-    return res.status(400).json({error: 'Missing currentUserId.'});
-  }
+    const db = router.db;
 
-  // 1. Намираме заявката
-  const request = router.db.get('requests').find({id: requestId}).value();
+    // 1️⃣ Намираме заявката
+    const request = db.get('requests').find({id: requestId}).value();
 
-  if (!request) {
-    return res.status(404).json({error: 'Request not found.'});
-  }
+    if (!request) {
+      return res.status(404).json({error: 'Request not found.'});
+    }
 
-  // 2. Проверка: дали този user е собственик на маршрута
-  if (request.userRouteId !== currentUserId) {
-    return res.status(403).json({
-      error: 'You are not allowed to decide on this request.',
+    if (request.status === 'approved' || request.status === 'rejected') {
+      return res.status(409).json({
+        error: 'Request already processed.',
+        status: request.status,
+      });
+    }
+
+    // 2️⃣ Update status
+    db.get('requests').find({id: requestId}).assign({status: decision}).write();
+
+    // 3️⃣ Notification
+    const dateObj = new Date(request.dataTime);
+    const formattedDate = `${dateObj.toLocaleDateString(
+      'bg-BG',
+    )} ${dateObj.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    })}`;
+
+    const notificationMessage =
+      decision === 'approved'
+        ? `Your request was approved.
+Route: ${request.departureCity}-${request.arrivalCity}
+Date: ${formattedDate}`
+        : `Your request was rejected.
+Route: ${request.departureCity}-${request.arrivalCity}
+Date: ${formattedDate}`;
+
+    db.get('notifications')
+      .push({
+        id: Date.now(),
+        recipient: request.username,
+        message: notificationMessage,
+        routeId: request.routeId,
+        requester: {
+          username: request.userRouteId,
+        },
+        createdAt: new Date().toISOString(),
+        read: false,
+        status: 'active',
+      })
+      .write();
+
+    // 4️⃣ Email (best-effort, не чупи решението)
+    try {
+      await fetch('http://localhost:3000/send-request-to-email', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          email: request.userEmail,
+          text:
+            decision === 'approved'
+              ? 'Your route request has been approved.'
+              : 'Your route request has been rejected.',
+        }),
+      });
+    } catch (emailError) {
+      console.warn('⚠️ Email failed but decision saved.');
+    }
+
+    // 5️⃣ Success
+    return res.status(200).json({
+      message: 'Decision processed successfully.',
+      decision,
+      requestId,
     });
+  } catch (err) {
+    console.error('❌ Decision endpoint error:', err);
+    return res.status(500).json({error: 'Internal server error.'});
   }
-
-  // 3. Проверка дали вече е решена
-  if (request.status === 'approved' || request.status === 'rejected') {
-    return res.status(400).json({
-      error: 'Request already processed.',
-    });
-  }
-
-  // 4. Обновяване
-  router.db
-    .get('requests')
-    .find({id: requestId})
-    .assign({
-      status: decision,
-      decidedAt: new Date().toISOString(),
-    })
-    .write();
-
-  return res.status(200).json({
-    message: `Request ${decision} successfully.`,
-    requestId,
-    status: decision,
-  });
 });
 
 // New endpoint to get all requests
@@ -799,7 +839,7 @@ server.get('/get-requests', (req, res) => {
 });
 
 server.post('/rateUser', authenticateJWT, (req, res) => {
-  const {userId, stars, comment} = req.body;
+  const {userId, routeId, stars, comment} = req.body;
   const fromUserId = req.user.id;
 
   if (!userId || typeof stars !== 'number') {
@@ -819,13 +859,19 @@ server.post('/rateUser', authenticateJWT, (req, res) => {
     return res.status(404).json({error: 'User not found.'});
   }
 
-  const alreadyRated = user.ratings.find(r => r.fromUserId === fromUserId);
+  const alreadyRated = user.ratings.find(
+    r => r.fromUserId === fromUserId && r.routeId === routeId,
+  );
+
   if (alreadyRated) {
-    return res.status(400).json({error: 'You have already rated this user.'});
+    return res
+      .status(400)
+      .json({error: 'You have already rated this user for this route.'});
   }
 
   const rating = {
     fromUserId,
+    routeId,
     stars,
     comment: comment || '',
     date: new Date().toISOString(),
@@ -847,7 +893,6 @@ server.post('/rateUser', authenticateJWT, (req, res) => {
 });
 
 // Handle user login
-
 server.post('/login', async (req, res) => {
   const {useremail, userpassword} = req.body;
 
