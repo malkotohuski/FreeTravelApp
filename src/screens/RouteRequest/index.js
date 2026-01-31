@@ -52,6 +52,7 @@ function RouteRequestScreen({route, navigation}) {
   const requesterUsername = user?.username;
   const requestUserEmail = user?.email;
   const requestUserID = user?.userID;
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -92,12 +93,14 @@ function RouteRequestScreen({route, navigation}) {
     };
   }, [isMigrating]);
 
-  const sendRouteResponse = async (request, isApproved) => {
-    try {
-      const decision = isApproved ? 'approved' : 'rejected';
+  const handleDecision = async (requestId, decision) => {
+    if (isProcessing) return;
 
-      await api.post(`/requests/${request.id}/decision`, {
-        decision,
+    setIsProcessing(true);
+
+    try {
+      await api.post(`/requests/${requestId}/decision`, {
+        decision, // 'approved' | 'rejected'
       });
 
       Alert.alert(
@@ -107,14 +110,16 @@ function RouteRequestScreen({route, navigation}) {
           : t('Request rejected.'),
       );
 
-      await fetchAndSetRequests();
-    } catch (error) {
-      console.error('Decision error:', error);
+      await fetchAndSetRequests(); // refresh list
+    } catch (err) {
+      console.error('Decision error:', err);
 
-      Alert.alert(
-        t('Error'),
-        error.response?.data?.error || t('Failed to process request.'),
-      );
+      const message =
+        err.response?.data?.error || t('Failed to process request.');
+
+      Alert.alert(t('Error'), message);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -199,21 +204,36 @@ function RouteRequestScreen({route, navigation}) {
 
             <View style={styles.modalButtons}>
               <TouchableOpacity
-                style={[styles.modalButton, {backgroundColor: '#4CAF50'}]}
+                style={[
+                  styles.modalButton,
+                  {backgroundColor: '#4CAF50', opacity: isProcessing ? 0.6 : 1},
+                ]}
+                disabled={isProcessing}
                 onPress={() => {
                   setModalVisible(false);
-                  sendRouteResponse(selectedRequest, true);
+                  handleDecision(selectedRequest.id, 'approved');
                 }}>
-                <Text style={styles.modalButtonText}>✅ {t('Approve')}</Text>
+                <Text style={styles.modalButtonText}>
+                  {isProcessing ? '⏳' : '✅'} {t('Approve')}
+                </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.modalButton, {backgroundColor: '#5a120dff'}]}
+                style={[
+                  styles.modalButton,
+                  {
+                    backgroundColor: '#5a120dff',
+                    opacity: isProcessing ? 0.6 : 1,
+                  },
+                ]}
+                disabled={isProcessing}
                 onPress={() => {
                   setModalVisible(false);
-                  sendRouteResponse(selectedRequest, false);
+                  handleDecision(selectedRequest.id, 'rejected');
                 }}>
-                <Text style={styles.modalButtonText}>❌ {t('Reject')}</Text>
+                <Text style={styles.modalButtonText}>
+                  {isProcessing ? '⏳' : '❌'} {t('Reject')}
+                </Text>
               </TouchableOpacity>
 
               <TouchableOpacity

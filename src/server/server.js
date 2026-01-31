@@ -736,24 +736,38 @@ server.post('/send-request-to-user', (req, res) => {
   });
 });
 
-server.post('/requests/:id/decision', async (req, res) => {
+server.post('/requests/:id/decision', authenticateJWT, async (req, res) => {
   try {
     const requestId = Number(req.params.id);
     const {decision} = req.body; // 'approved' | 'rejected'
+    const decisionByUserId = req.user.id;
 
+    // 1️⃣ Validate input
     if (!['approved', 'rejected'].includes(decision)) {
-      return res.status(400).json({error: 'Invalid decision value.'});
+      return res.status(400).json({
+        error: 'Invalid decision value.',
+      });
     }
 
     const db = router.db;
 
-    // 1️⃣ Намираме заявката
+    // 2️⃣ Find request
     const request = db.get('requests').find({id: requestId}).value();
 
     if (!request) {
-      return res.status(404).json({error: 'Request not found.'});
+      return res.status(404).json({
+        error: 'Request not found.',
+      });
     }
 
+    // 3️⃣ Authorization (само owner на маршрута)
+    if (request.userRouteId !== decisionByUserId) {
+      return res.status(403).json({
+        error: 'You are not allowed to process this request.',
+      });
+    }
+
+    // 4️⃣ Idempotency (не може второ решение)
     if (request.status === 'approved' || request.status === 'rejected') {
       return res.status(409).json({
         error: 'Request already processed.',
@@ -761,10 +775,16 @@ server.post('/requests/:id/decision', async (req, res) => {
       });
     }
 
-    // 2️⃣ Update status
-    db.get('requests').find({id: requestId}).assign({status: decision}).write();
+    // 5️⃣ Update request status (atomic intent)
+    db.get('requests')
+      .find({id: requestId})
+      .assign({
+        status: decision,
+        decidedAt: new Date().toISOString(),
+      })
+      .write();
 
-    // 3️⃣ Notification
+    // 6️⃣ Prepare notification message
     const dateObj = new Date(request.dataTime);
     const formattedDate = `${dateObj.toLocaleDateString(
       'bg-BG',
@@ -782,22 +802,24 @@ Date: ${formattedDate}`
 Route: ${request.departureCity}-${request.arrivalCity}
 Date: ${formattedDate}`;
 
+    // 7️⃣ Save notification (non-blocking for decision)
     db.get('notifications')
       .push({
         id: Date.now(),
-        recipient: request.username,
-        message: notificationMessage,
+        recipient: request.username, // кандидатът
         routeId: request.routeId,
+        message: notificationMessage,
         requester: {
-          username: request.userRouteId,
+          userId: decisionByUserId,
         },
         createdAt: new Date().toISOString(),
         read: false,
         status: 'active',
+        type: 'route-decision',
       })
       .write();
 
-    // 4️⃣ Email (best-effort, не чупи решението)
+    // 8️⃣ Email (best-effort)
     try {
       await fetch('http://localhost:3000/send-request-to-email', {
         method: 'POST',
@@ -810,19 +832,23 @@ Date: ${formattedDate}`;
               : 'Your route request has been rejected.',
         }),
       });
-    } catch (emailError) {
-      console.warn('⚠️ Email failed but decision saved.');
+    } catch (err) {
+      console.warn('⚠️ Email failed, decision already saved.');
     }
 
-    // 5️⃣ Success
+    // 9️⃣ Success
     return res.status(200).json({
       message: 'Decision processed successfully.',
-      decision,
       requestId,
+      decision,
+      routeId: request.routeId,
+      candidateUserId: request.userID,
     });
   } catch (err) {
     console.error('❌ Decision endpoint error:', err);
-    return res.status(500).json({error: 'Internal server error.'});
+    return res.status(500).json({
+      error: 'Internal server error.',
+    });
   }
 });
 
@@ -839,57 +865,117 @@ server.get('/get-requests', (req, res) => {
 });
 
 server.post('/rateUser', authenticateJWT, (req, res) => {
-  const {userId, routeId, stars, comment} = req.body;
-  const fromUserId = req.user.id;
+  try {
+    const {userId, routeId, stars, comment} = req.body;
+    const fromUserId = req.user.id;
 
-  if (!userId || typeof stars !== 'number') {
-    return res.status(400).json({error: 'Missing or invalid fields.'});
+    // 1️⃣ Basic validation
+    if (!userId || !routeId || typeof stars !== 'number') {
+      return res.status(400).json({
+        error: 'Missing or invalid fields.',
+      });
+    }
+
+    if (stars < 1 || stars > 5) {
+      return res.status(400).json({
+        error: 'Stars must be between 1 and 5.',
+      });
+    }
+
+    if (userId === fromUserId) {
+      return res.status(400).json({
+        error: 'You cannot rate yourself.',
+      });
+    }
+
+    // 2️⃣ Validate users
+    const ratedUser = router.db.get('users').find({id: userId}).value();
+
+    if (!ratedUser) {
+      return res.status(404).json({
+        error: 'User not found.',
+      });
+    }
+
+    // 3️⃣ Check route exists
+    const route = router.db.get('routes').find({id: routeId}).value();
+
+    if (!route) {
+      return res.status(404).json({
+        error: 'Route not found.',
+      });
+    }
+
+    // 3.5️⃣ Validate approved request between users
+    const request = router.db
+      .get('requests')
+      .find({
+        routeId,
+        userID: fromUserId,
+        status: 'approved',
+      })
+      .value();
+
+    if (!request) {
+      return res.status(403).json({
+        error: 'You can rate users only after an approved trip.',
+      });
+    }
+
+    // 4️⃣ Prevent duplicate rating for SAME ROUTE
+    const alreadyRated = ratedUser.ratings?.find(
+      r => r.fromUserId === fromUserId && r.routeId === routeId,
+    );
+
+    if (alreadyRated) {
+      return res.status(400).json({
+        error: 'You have already rated this user for this route.',
+      });
+    }
+
+    // 5️⃣ Create rating
+    const rating = {
+      id: Date.now(),
+      fromUserId,
+      routeId,
+      stars,
+      comment: comment?.trim() || '',
+      createdAt: new Date().toISOString(),
+    };
+
+    // 6️⃣ Save rating
+    if (!ratedUser.ratings) {
+      ratedUser.ratings = [];
+    }
+
+    ratedUser.ratings.push(rating);
+
+    // 7️⃣ Recalculate average rating
+    const totalStars = ratedUser.ratings.reduce((sum, r) => sum + r.stars, 0);
+
+    ratedUser.averageRating = parseFloat(
+      (totalStars / ratedUser.ratings.length).toFixed(1),
+    );
+
+    router.db
+      .get('users')
+      .find({id: userId})
+      .assign({
+        ratings: ratedUser.ratings,
+        averageRating: ratedUser.averageRating,
+      })
+      .write();
+
+    return res.status(200).json({
+      message: 'Rating submitted successfully.',
+      averageRating: ratedUser.averageRating,
+    });
+  } catch (err) {
+    console.error('Rate user error:', err);
+    return res.status(500).json({
+      error: 'Server error.',
+    });
   }
-
-  if (stars < 1 || stars > 5) {
-    return res.status(400).json({error: 'Stars must be between 1 and 5.'});
-  }
-
-  if (userId === fromUserId) {
-    return res.status(400).json({error: 'You cannot rate yourself.'});
-  }
-
-  const user = router.db.get('users').find({id: userId}).value();
-  if (!user) {
-    return res.status(404).json({error: 'User not found.'});
-  }
-
-  const alreadyRated = user.ratings.find(
-    r => r.fromUserId === fromUserId && r.routeId === routeId,
-  );
-
-  if (alreadyRated) {
-    return res
-      .status(400)
-      .json({error: 'You have already rated this user for this route.'});
-  }
-
-  const rating = {
-    fromUserId,
-    routeId,
-    stars,
-    comment: comment || '',
-    date: new Date().toISOString(),
-  };
-
-  user.ratings.push(rating);
-
-  const totalStars = user.ratings.reduce((sum, r) => sum + r.stars, 0);
-  user.averageRating = parseFloat(
-    (totalStars / user.ratings.length).toFixed(1),
-  );
-
-  router.db.get('users').find({id: userId}).assign(user).write();
-
-  return res.status(200).json({
-    message: 'Rating submitted successfully.',
-    averageRating: user.averageRating,
-  });
 });
 
 // Handle user login
