@@ -57,114 +57,94 @@ function RouteDetails({route}) {
 
   // Проверка за съществуваща заявка
   useEffect(() => {
-    const fetchNotifications = async () => {
+    const checkIfAlreadyRequested = async () => {
       try {
-        if (!loginUser || !routeId) {
-          console.error('Missing login user or route ID.');
-          return;
-        }
+        if (!routeId || !user?.id) return;
 
-        const response = await api.get('/notifications');
+        const response = await api.get('/requests');
 
         const alreadyRequested = response.data.some(
-          notification =>
-            notification.routeId === routeId &&
-            notification.requester?.username === loginUser &&
-            notification.status !== 'rejected',
+          req =>
+            req.routeId === routeId &&
+            req.userID === user.id &&
+            req.status !== 'rejected',
         );
 
-        if (alreadyRequested) {
-          setHasRequested(true);
-        } else {
-          setHasRequested(false); // важно, ако юзер смени маршрут
-        }
-
-        const userNotifications = response.data.filter(
-          notification =>
-            notification.requester?.username === loginUser &&
-            !notification.read,
-        );
-
-        setNotificationCount(
-          userNotifications.length > 9 ? '9+' : userNotifications.length,
-        );
-      } catch (error) {
-        console.error('Failed to fetch notifications:', error);
+        setHasRequested(alreadyRequested);
+      } catch (err) {
+        console.error('Failed to check existing requests:', err);
       }
     };
 
-    fetchNotifications();
-  }, [loginUser, routeId]);
+    checkIfAlreadyRequested();
+  }, [routeId, user?.id]);
 
   const handlerTripRequest = async () => {
-    try {
-      if (hasRequested) {
-        Alert.alert(
-          t('Error'),
-          t('You have already submitted a request for this route.'),
-        );
-        return;
-      }
-
-      if (!tripRequestText.trim()) {
-        Alert.alert(t('Error'), t('Please enter a comment before submitting.'));
-        return;
-      }
-
+    if (isOwnRoute) {
       Alert.alert(
-        t('Confirm'),
-        t('Would you like to submit a request for this route?'),
-        [
-          {
-            text: t('Cancel'),
-            style: 'cancel',
-          },
-          {
-            text: 'OK',
-            onPress: async () => {
-              try {
-                await api.post('/send-request-to-user', {
-                  requestingUser: {
-                    username: user?.username,
-                    userFname: user?.fName,
-                    userLname: user?.lName,
-                    userEmail: requestUserEmail,
-                    userID: user?.id,
-                    userRouteId: route.params.userId,
-                    departureCity: route.params.departureCity,
-                    arrivalCity: route.params.arrivalCity,
-                    routeId: route.params.routeId,
-                    dataTime: route.params.selectedDateTime,
-                    requestComment: tripRequestText,
-                    rateCreator: false,
-                    rateUser: false,
-                    status: 'pending',
-                    read: false,
-                  },
-                });
-                setHasRequested(true);
-
-                Alert.alert(
-                  t('Success'),
-                  t('You have successfully applied for this route!'),
-                  [{text: 'OK', onPress: () => navigation.navigate('Home')}],
-                );
-              } catch (err) {
-                console.error('API error:', err);
-                Alert.alert(
-                  t('Error'),
-                  err.response?.data?.message || 'Failed to send trip request.',
-                );
-              }
-            },
-          },
-        ],
-        {cancelable: false},
+        t('Error'),
+        t('You cannot apply for this route because you created it.'),
       );
-    } catch (error) {
-      console.error('Error:', error);
-      Alert.alert('Error', 'Failed to send trip request.');
+      return;
     }
+
+    if (hasRequested) {
+      Alert.alert(
+        t('Error'),
+        t('You have already submitted a request for this route.'),
+      );
+      return;
+    }
+
+    if (!tripRequestText.trim()) {
+      Alert.alert(t('Error'), t('Please enter a comment before submitting.'));
+      return;
+    }
+
+    Alert.alert(
+      t('Confirm'),
+      t('Would you like to submit a request for this route?'),
+      [
+        {text: t('Cancel'), style: 'cancel'},
+        {
+          text: 'OK',
+          onPress: async () => {
+            try {
+              await api.post('/send-request-to-user', {
+                requestingUser: {
+                  username: user.username,
+                  userFname: user.fName,
+                  userLname: user.lName,
+                  userEmail: user.email,
+                  userID: user.id,
+                  userRouteId: route.params.userId,
+                  departureCity,
+                  arrivalCity,
+                  routeId,
+                  dataTime: route.params.selectedDateTime,
+                  requestComment: tripRequestText,
+                  status: 'pending',
+                },
+              });
+
+              setHasRequested(true);
+
+              Alert.alert(
+                t('Success'),
+                t('You have successfully applied for this route!'),
+                [{text: 'OK', onPress: () => navigation.navigate('Home')}],
+              );
+            } catch (err) {
+              console.error('API error:', err);
+              Alert.alert(
+                t('Error'),
+                err.response?.data?.error || 'Failed to send trip request.',
+              );
+            }
+          },
+        },
+      ],
+    );
   };
 
   const handlerBackToViewRoute = () => {

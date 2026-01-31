@@ -57,12 +57,12 @@ function Confirm() {
   const userEmail = user?.email;
 
   const handleConfirm = async () => {
-    if (isSubmitting || isGenerating) return;
+    if (isSubmitting) return;
 
-    setIsGenerating(true);
-    setTimeout(async () => {
-      setIsGenerating(false);
-      setIsSubmitting(true);
+    setIsSubmitting(true);
+
+    try {
+      setIsGenerating(true);
 
       const newRoute = {
         selectedVehicle,
@@ -80,38 +80,37 @@ function Confirm() {
         userFname,
         userLname,
         userEmail,
-        routeId,
-        user_id,
       };
 
-      try {
-        const response = await fetch('http://10.0.2.2:3000/create-route', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`, // <- важно
-          },
-          body: JSON.stringify({route: newRoute}),
-        });
+      const response = await fetch('http://10.0.2.2:3000/create-route', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({route: newRoute}),
+      });
 
-        if (response.ok) {
-          const responseData = await response.json();
-          addRoute(responseData.route);
-          setSuccessMessage(t('The route has been created!'));
-          setTimeout(() => {
-            setSuccessMessage('');
-            navigation.navigate('View routes');
-          }, 2000);
-        } else {
-          const errorData = await response.json();
-          console.error('Failed to create route:', errorData.error);
-        }
-      } catch (error) {
-        console.error('Error creating route:', error);
-      } finally {
-        setIsSubmitting(false);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Create route failed');
       }
-    }, 2500);
+
+      const responseData = await response.json();
+      addRoute(responseData.route);
+
+      setSuccessMessage(t('The route has been created!'));
+
+      setTimeout(() => {
+        navigation.navigate('View routes');
+      }, 1500);
+    } catch (err) {
+      console.error(err);
+      Alert.alert(t('Error'), t('Failed to create route.'));
+    } finally {
+      setIsGenerating(false);
+      setIsSubmitting(false);
+    }
   };
 
   useLayoutEffect(() => {
@@ -198,7 +197,8 @@ function Confirm() {
           )}
           {showConfirmButton && !isSubmitting && (
             <TouchableOpacity
-              style={styles.buttonPrimary}
+              style={[styles.buttonPrimary, isSubmitting && {opacity: 0.6}]}
+              disabled={isSubmitting}
               onPress={handleConfirm}>
               <Text style={styles.buttonText}>{t('Confirm')}</Text>
             </TouchableOpacity>
