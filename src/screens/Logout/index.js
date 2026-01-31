@@ -10,7 +10,7 @@ import {
 import {useAuth} from '../../context/AuthContext';
 import {useTranslation} from 'react-i18next';
 
-const LogoutScreen = () => {
+const LogoutScreen = ({navigation}) => {
   const {logout} = useAuth();
   const {t} = useTranslation();
 
@@ -43,7 +43,7 @@ const LogoutScreen = () => {
 
           <TouchableOpacity
             style={styles.submitButtonNo}
-            onPress={() => navigation.goBack()}>
+            onPress={() => navigation.navigate('Home')}>
             <Text style={styles.sumbitTextYes}>{t('No')}</Text>
           </TouchableOpacity>
         </View>

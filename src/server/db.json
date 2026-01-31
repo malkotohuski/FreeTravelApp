@@ -16,9 +16,11 @@
       "ratings": [
         5,
         4.5,
-        4.5
+        4.5,
+        4,
+        5
       ],
-      "averageRating": 4.67,
+      "averageRating": 4.6,
       "comments": [
         {
           "user": "Shushkata",
@@ -37,13 +39,25 @@
           "comment": "Nice person !",
           "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/7c891c3a-718b-4a12-b986-8d7a59aab03a.jpg",
           "date": "2026-01-30T13:21:02.855Z"
+        },
+        {
+          "user": "Shushkata",
+          "comment": "Drive too fast , but is fine!!!",
+          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/7c891c3a-718b-4a12-b986-8d7a59aab03a.jpg",
+          "date": "2026-01-31T18:51:21.724Z"
+        },
+        {
+          "user": "Shushkata",
+          "comment": "",
+          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/7c891c3a-718b-4a12-b986-8d7a59aab03a.jpg",
+          "date": "2026-01-31T19:30:01.021Z"
         }
       ],
       "accountStatus": "active",
       "resetPasswordCode": null,
       "resetPasswordExpires": null,
       "routeTimestamps": [
-        1769706203575
+        1769885287216
       ]
     },
     {
@@ -62,9 +76,11 @@
       "ratings": [
         5,
         4.5,
+        4.5,
+        4.5,
         4.5
       ],
-      "averageRating": 4.67,
+      "averageRating": 4.6,
       "comments": [
         {
           "user": "malkotohuski",
@@ -83,11 +99,23 @@
           "comment": "Nice driver!",
           "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/f8c0e3a9-718e-4af4-af37-0acb15b42f0b.jpg",
           "date": "2026-01-30T13:21:35.906Z"
+        },
+        {
+          "user": "malkotohuski",
+          "comment": "gg",
+          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/f8c0e3a9-718e-4af4-af37-0acb15b42f0b.jpg",
+          "date": "2026-01-31T18:50:36.339Z"
+        },
+        {
+          "user": "malkotohuski",
+          "comment": "Nice girl",
+          "image": "file:///storage/emulated/0/Android/data/com.freetravelapp/files/Pictures/f8c0e3a9-718e-4af4-af37-0acb15b42f0b.jpg",
+          "date": "2026-01-31T19:30:59.789Z"
         }
       ],
       "accountStatus": "active",
       "routeTimestamps": [
-        1769777687384
+        1769887475643
       ]
     },
     {
@@ -264,7 +292,8 @@
       "id": 1769699031255,
       "ownerId": 1768488420566,
       "createdAt": 1769699031255,
-      "status": "active"
+      "status": "active",
+      "userRouteId": "deleted"
     },
     {
       "selectedVehicle": "Motorcycle",
@@ -285,7 +314,8 @@
       "id": 1769699179594,
       "ownerId": 1768488420566,
       "createdAt": 1769699179594,
-      "status": "active"
+      "status": "active",
+      "userRouteId": "deleted"
     },
     {
       "selectedVehicle": "Car",
@@ -370,6 +400,50 @@
       "id": 1769777687384,
       "ownerId": 1768493729350,
       "createdAt": 1769777687384,
+      "status": "active",
+      "userRouteId": "deleted"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A2121AA",
+      "selectedDateTime": "2026-02-02T18:47:00.000Z",
+      "departureCity": "Plovdiv",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Burgas",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "routeTitle": "1 spot",
+      "userId": 1768488420566,
+      "username": "malkotohuski",
+      "userFname": "Dani",
+      "userLname": "Dimitrov",
+      "userEmail": "malkotohuski@gmail.com",
+      "id": 1769885287216,
+      "ownerId": 1768488420566,
+      "createdAt": 1769885287216,
+      "status": "active",
+      "userRouteId": "completed"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "CA3467BH",
+      "selectedDateTime": "2026-02-01T04:20:00.000Z",
+      "departureCity": "Sofia",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Oborishte (Pazardzhik)",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "routeTitle": "No SMOKE 2 spots ",
+      "userId": 1768493729350,
+      "username": "Shushkata",
+      "userFname": "Arya",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1769887475643,
+      "ownerId": 1768493729350,
+      "createdAt": 1769887475643,
       "status": "active",
       "userRouteId": "completed"
     }
@@ -493,6 +567,42 @@
       "read": false,
       "id": 1769779152571,
       "decidedAt": "2026-01-30T13:19:45.610Z"
+    },
+    {
+      "username": "Shushkata",
+      "userFname": "Arya",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "userID": 1768493729350,
+      "userRouteId": 1768488420566,
+      "departureCity": "Plovdiv",
+      "arrivalCity": "Burgas",
+      "routeId": 1769885287216,
+      "dataTime": "2026-02-02T18:47:00.000Z",
+      "requestComment": "I need",
+      "rateCreator": true,
+      "rateUser": true,
+      "status": "approved",
+      "read": false,
+      "id": 1769885349957
+    },
+    {
+      "username": "malkotohuski",
+      "userFname": "Dani",
+      "userLname": "Dimitrov",
+      "userEmail": "malkotohuski@gmail.com",
+      "userID": 1768488420566,
+      "userRouteId": 1768493729350,
+      "departureCity": "Sofia",
+      "arrivalCity": "Oborishte (Pazardzhik)",
+      "routeId": 1769887475643,
+      "dataTime": "2026-02-01T04:20:00.000Z",
+      "requestComment": "One hot girl ",
+      "rateCreator": true,
+      "rateUser": true,
+      "status": "approved",
+      "read": false,
+      "id": 1769887529203
     }
   ],
   "userChanges": [],
@@ -2055,7 +2165,129 @@
       "isRead": false,
       "createdAt": "2026-01-30T13:20:48.893Z",
       "mainRouteUser": "malkotohuski",
-      "id": 1769779152576
+      "id": 1769779152576,
+      "read": true
+    },
+    {
+      "id": 1769885349957,
+      "recipient": "malkotohuski",
+      "routeId": 1769885287216,
+      "message": "You have a candidate for your route: Plovdiv-Burgas",
+      "requester": {
+        "username": "Shushkata",
+        "userFname": "Arya",
+        "userLname": "Spasova",
+        "email": "shushkata7@gmail.com",
+        "comment": "I need"
+      },
+      "createdAt": "2026-01-31T18:49:09.957Z",
+      "read": true,
+      "status": "active"
+    },
+    {
+      "id": 1769885416718,
+      "recipient": "Shushkata",
+      "message": "Your request was approved.\nRoute: Plovdiv-Burgas\nDate: 2.02.2026 г. 08:47 PM",
+      "routeId": 1769885287216,
+      "requester": {
+        "username": 1768488420566
+      },
+      "createdAt": "2026-01-31T18:50:16.718Z",
+      "read": true,
+      "status": "active"
+    },
+    {
+      "recipient": "Shushkata",
+      "fromUserId": 1768488420566,
+      "type": "rate_user",
+      "routeId": 1769885287216,
+      "message": "Please rate the trip with malkotohuski",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2026-01-31T18:50:28.067Z",
+      "mainRouteUser": "malkotohuski",
+      "id": 1769885416719,
+      "read": true
+    },
+    {
+      "recipient": "malkotohuski",
+      "fromUserId": 1768493729350,
+      "type": "rate_passenger",
+      "routeId": 1769885287216,
+      "message": "Please rate your passenger Shushkata",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2026-01-31T18:50:28.132Z",
+      "mainRouteUser": "Shushkata",
+      "id": 1769885416720,
+      "read": true
+    },
+    {
+      "id": 1769887529204,
+      "recipient": "Shushkata",
+      "routeId": 1769887475643,
+      "message": "You have a candidate for your route: Sofia-Oborishte (Pazardzhik)",
+      "requester": {
+        "username": "malkotohuski",
+        "userFname": "Dani",
+        "userLname": "Dimitrov",
+        "email": "malkotohuski@gmail.com",
+        "comment": "One hot girl "
+      },
+      "createdAt": "2026-01-31T19:25:29.204Z",
+      "read": true,
+      "status": "active"
+    },
+    {
+      "recipient": "malkotohuski",
+      "message": "Shushkata accepted your invitation.",
+      "routeId": 1769887475643,
+      "requester": {
+        "username": "Shushkata",
+        "email": "shushkata7@gmail.com"
+      },
+      "personalMessage": "Nice ok ",
+      "createdAt": "2026-01-31T19:26:01.688Z",
+      "read": true,
+      "status": "active",
+      "id": 1769887529205
+    },
+    {
+      "id": 1769887565235,
+      "recipient": "malkotohuski",
+      "message": "Your request was approved.\nRoute: Sofia-Oborishte (Pazardzhik)\nDate: 1.02.2026 г. 06:20 AM",
+      "routeId": 1769887475643,
+      "requester": {
+        "username": 1768493729350
+      },
+      "createdAt": "2026-01-31T19:26:05.235Z",
+      "read": true,
+      "status": "active"
+    },
+    {
+      "recipient": "malkotohuski",
+      "fromUserId": 1768493729350,
+      "type": "rate_user",
+      "routeId": 1769887475643,
+      "message": "Please rate the trip with Shushkata",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2026-01-31T19:29:56.699Z",
+      "mainRouteUser": "Shushkata",
+      "id": 1769887565236,
+      "read": true
+    },
+    {
+      "recipient": "Shushkata",
+      "fromUserId": 1768488420566,
+      "type": "rate_passenger",
+      "routeId": 1769887475643,
+      "message": "Please rate your passenger malkotohuski",
+      "status": "active",
+      "isRead": false,
+      "createdAt": "2026-01-31T19:29:56.768Z",
+      "mainRouteUser": "malkotohuski",
+      "id": 1769887565237
     }
   ]
 }
