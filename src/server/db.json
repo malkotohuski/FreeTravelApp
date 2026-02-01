@@ -85,7 +85,9 @@
       "resetPasswordCode": null,
       "resetPasswordExpires": null,
       "routeTimestamps": [
-        1769892019269
+        1769964338002,
+        1769964373823,
+        1769964374232
       ]
     },
     {
@@ -178,9 +180,7 @@
       ],
       "accountStatus": "active",
       "routeTimestamps": [
-        1769891754271,
-        1769891758239,
-        1769894697028
+        1769973503389
       ]
     },
     {
@@ -264,25 +264,6 @@
     }
   ],
   "routes": [
-    {
-      "selectedVehicle": "Car",
-      "registrationNumber": "A1111AA",
-      "selectedDateTime": "2026-01-27T14:36:00.000Z",
-      "departureCity": "Sofia",
-      "departureStreet": "",
-      "departureNumber": "",
-      "arrivalCity": "Burgas",
-      "arrivalStreet": "",
-      "arrivalNumber": "",
-      "routeTitle": "2 spot have",
-      "userId": 1769436396175,
-      "username": "Jessy",
-      "userFname": "Jesica",
-      "userLname": "Dimitrova",
-      "userEmail": "devmasterstech@gmail.com",
-      "id": 1769438214378,
-      "userRouteId": "deleted"
-    },
     {
       "selectedVehicle": "Car",
       "registrationNumber": "A2111AA",
@@ -434,7 +415,8 @@
       "id": 1769705938899,
       "ownerId": 1769436396175,
       "createdAt": 1769705938899,
-      "status": "active"
+      "status": "active",
+      "userRouteId": "deleted"
     },
     {
       "selectedVehicle": "Car",
@@ -521,7 +503,7 @@
       "ownerId": 1768493729350,
       "createdAt": 1769887475643,
       "status": "active",
-      "userRouteId": "completed"
+      "userRouteId": "deleted"
     },
     {
       "selectedVehicle": "Car",
@@ -693,6 +675,132 @@
       "id": 1769894770659,
       "ownerId": 1769436396175,
       "createdAt": 1769894770659,
+      "status": "active"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "CA2112HH",
+      "selectedDateTime": "2026-02-03T16:44:00.000Z",
+      "departureCity": "Sofia",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Plovdiv",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "routeTitle": "1 spot",
+      "userId": 1768488420566,
+      "username": "malkotohuski",
+      "userFname": "Dani",
+      "userLname": "Dimitrov",
+      "userEmail": "malkotohuski@gmail.com",
+      "id": 1769964338002,
+      "ownerId": 1768488420566,
+      "createdAt": 1769964338002,
+      "status": "active"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A2211AA",
+      "selectedDateTime": "2026-02-02T16:45:00.000Z",
+      "departureCity": "Plovdiv",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Stara Zagora",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "routeTitle": "11",
+      "userId": 1768488420566,
+      "username": "malkotohuski",
+      "userFname": "Dani",
+      "userLname": "Dimitrov",
+      "userEmail": "malkotohuski@gmail.com",
+      "id": 1769964373823,
+      "ownerId": 1768488420566,
+      "createdAt": 1769964373823,
+      "status": "active"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A2211AA",
+      "selectedDateTime": "2026-02-02T16:45:00.000Z",
+      "departureCity": "Plovdiv",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Stara Zagora",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "routeTitle": "11",
+      "userId": 1768488420566,
+      "username": "malkotohuski",
+      "userFname": "Dani",
+      "userLname": "Dimitrov",
+      "userEmail": "malkotohuski@gmail.com",
+      "id": 1769964374232,
+      "ownerId": 1768488420566,
+      "createdAt": 1769964374232,
+      "status": "active"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A2111AA",
+      "selectedDateTime": "2026-02-04T17:14:00.000Z",
+      "departureCity": "Sofia",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Ruse",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "routeTitle": "44",
+      "userId": 1768493729350,
+      "username": "Shushkata",
+      "userFname": "Arya",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1769966117564,
+      "ownerId": 1768493729350,
+      "createdAt": 1769966117564,
+      "status": "active"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A2111AA",
+      "selectedDateTime": "2026-02-03T17:15:00.000Z",
+      "departureCity": "Sofia",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Varna",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "routeTitle": "555",
+      "userId": 1768493729350,
+      "username": "Shushkata",
+      "userFname": "Arya",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1769966173908,
+      "ownerId": 1768493729350,
+      "createdAt": 1769966173908,
+      "status": "active"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A1211AA",
+      "selectedDateTime": "2026-02-03T19:18:00.000Z",
+      "departureCity": "Burgas",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Stara Zagora",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "routeTitle": "6",
+      "userId": 1768493729350,
+      "username": "Shushkata",
+      "userFname": "Arya",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1769973503389,
+      "ownerId": 1768493729350,
+      "createdAt": 1769973503389,
       "status": "active"
     }
   ],
