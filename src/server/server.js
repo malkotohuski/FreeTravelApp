@@ -372,6 +372,25 @@ server.patch('/user-changes', authenticateJWT, async (req, res) => {
 server.post('/create-route', authenticateJWT, (req, res) => {
   const userId = req.user.id;
   const {route} = req.body;
+  const key = req.headers['idempotency-key'];
+  const ONE_DAY = 24 * 60 * 60 * 1000;
+
+  router.db
+    .get('idempotencyKeys')
+    .remove(k => Date.now() - k.createdAt > ONE_DAY)
+    .write();
+
+  if (!key) {
+    return res.status(400).json({
+      error: 'Missing Idempotency-Key header',
+    });
+  }
+
+  const existing = router.db.get('idempotencyKeys').find({key, userId}).value();
+
+  if (existing) {
+    return res.status(200).json(existing.response);
+  }
 
   if (!route) {
     return res.status(400).json({error: 'Missing route data'});
@@ -392,7 +411,29 @@ server.post('/create-route', authenticateJWT, (req, res) => {
   // Проверка за максимум 3 маршрута
   if (user.routeTimestamps.length >= 3) {
     return res.status(429).json({
-      error: `Rate limit exceeded. You can create up to 3 routes per hour. Try again later.`,
+      error:
+        'Rate limit exceeded. You can create up to 3 routes per hour. Try again later.',
+    });
+  }
+
+  // 🔒 DUPLICATE ROUTE GUARD (idempotency)
+  const existingRoute = router.db
+    .get('routes')
+    .find({
+      ownerId: userId,
+      departureCity: route.departureCity,
+      departureStreet: route.departureStreet,
+      departureNumber: route.departureNumber,
+      arrivalCity: route.arrivalCity,
+      arrivalStreet: route.arrivalStreet,
+      arrivalNumber: route.arrivalNumber,
+      selectedDateTime: route.selectedDateTime,
+    })
+    .value();
+
+  if (existingRoute) {
+    return res.status(409).json({
+      error: 'Route already exists. Duplicate creation prevented.',
     });
   }
 
@@ -407,6 +448,21 @@ server.post('/create-route', authenticateJWT, (req, res) => {
 
   router.db.get('routes').push(newRoute).write();
 
+  const responsePayload = {
+    message: 'Route created successfully.',
+    route: newRoute,
+  };
+
+  router.db
+    .get('idempotencyKeys')
+    .push({
+      key,
+      userId,
+      response: responsePayload,
+      createdAt: Date.now(),
+    })
+    .write();
+
   // Добавяме текущия timestamp в масива
   router.db
     .get('users')
@@ -416,10 +472,7 @@ server.post('/create-route', authenticateJWT, (req, res) => {
     })
     .write();
 
-  return res.status(201).json({
-    message: 'Route created successfully.',
-    route: newRoute,
-  });
+  return res.status(201).json(responsePayload);
 });
 
 server.post('/seekers-route', authenticateJWT, (req, res) => {

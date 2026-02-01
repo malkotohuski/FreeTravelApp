@@ -1,4 +1,4 @@
-import React, {useState, useLayoutEffect} from 'react';
+import React, {useState, useLayoutEffect, useRef, useEffect} from 'react';
 import Icons from 'react-native-vector-icons/MaterialIcons';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {
@@ -18,11 +18,18 @@ import {useRouteContext} from '../../context/RouteContext';
 import {useAuth} from '../../context/AuthContext';
 
 function Confirm() {
+  const submitLock = useRef(false);
   const {t} = useTranslation();
   const navigation = useNavigation();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const idempotencyKeyRef = useRef(null);
+
+  useEffect(() => {
+    if (!idempotencyKeyRef.current && user && selectedDateTime) {
+      idempotencyKeyRef.current = `${user.id}-${selectedDateTime.getTime()}`;
+    }
+  }, [user, selectedDateTime]);
 
   const routeContext = useRouteContext();
   const {addRoute} = routeContext;
@@ -57,13 +64,12 @@ function Confirm() {
   const userEmail = user?.email;
 
   const handleConfirm = async () => {
-    if (isSubmitting) return;
+    if (submitLock.current) return;
 
+    submitLock.current = true;
     setIsSubmitting(true);
 
     try {
-      setIsGenerating(true);
-
       const newRoute = {
         selectedVehicle,
         registrationNumber,
@@ -85,6 +91,7 @@ function Confirm() {
       const response = await fetch('http://10.0.2.2:3000/create-route', {
         method: 'POST',
         headers: {
+          'Idempotency-Key': idempotencyKeyRef.current,
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
@@ -108,7 +115,7 @@ function Confirm() {
       console.error(err);
       Alert.alert(t('Error'), t('Failed to create route.'));
     } finally {
-      setIsGenerating(false);
+      submitLock.current = false;
       setIsSubmitting(false);
     }
   };
@@ -134,105 +141,109 @@ function Confirm() {
   }, [navigation, selectedVehicle, registrationNumber]);
 
   return (
-    <LinearGradient
-      colors={['#0d0d0d', '#1a1a1a']}
-      style={styles.gradientBackground}>
-      <SafeAreaView style={styles.mainContainer}>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          <Text style={styles.headerText}>{t('Review route')}</Text>
+    <View style={{flex: 1}} pointerEvents={isSubmitting ? 'none' : 'auto'}>
+      <LinearGradient
+        colors={['#0d0d0d', '#1a1a1a']}
+        style={styles.gradientBackground}>
+        <SafeAreaView style={styles.mainContainer}>
+          <ScrollView contentContainerStyle={styles.scrollContent}>
+            <Text style={styles.headerText}>{t('Review route')}</Text>
 
-          <View style={styles.card}>
-            <View style={styles.cardHeaderRow}>
-              <Icon name="account-circle" size={24} color="#f4511e" />
-              <Text style={styles.cardHeader}>{t('Driver')}</Text>
-            </View>
-            <Text style={styles.text}>
-              {t('Username')}: {username}
-            </Text>
-            <Text style={styles.text}>
-              {t('Names')}: {userFname} {userLname}
-            </Text>
-          </View>
-
-          <View style={styles.card}>
-            <View style={styles.cardHeaderRow}>
-              <Icon name="car-arrow-right" size={24} color="#f4511e" />
-              <Text style={styles.cardHeader}>{t('Departure')}</Text>
-            </View>
-            <Text style={styles.text}>
-              {departureCity} {departureStreet}
-              {departureNumber ? ` - ${departureNumber}` : ''}
-            </Text>
-          </View>
-
-          <View style={styles.card}>
-            <View style={styles.cardHeaderRow}>
-              <Icon name="car-select" size={24} color="#f4511e" />
-              <Text style={styles.cardHeader}>{t('Arrival')}</Text>
-            </View>
-            <Text style={styles.text}>
-              {arrivalCity} {arrivalStreet}
-              {arrivalNumber ? ` - ${arrivalNumber}` : ''}
-            </Text>
-          </View>
-
-          <View style={styles.card}>
-            <View style={styles.cardHeaderRow}>
-              <Icon name="calendar" size={24} color="#f4511e" />
-              <Text style={styles.cardHeader}>
-                {t('Time and date of departure')}
+            <View style={styles.card}>
+              <View style={styles.cardHeaderRow}>
+                <Icon name="account-circle" size={24} color="#f4511e" />
+                <Text style={styles.cardHeader}>{t('Driver')}</Text>
+              </View>
+              <Text style={styles.text}>
+                {t('Username')}: {username}
+              </Text>
+              <Text style={styles.text}>
+                {t('Names')}: {userFname} {userLname}
               </Text>
             </View>
-            <Text style={styles.text}>
-              {selectedDateTime?.toLocaleString()}
-            </Text>
-          </View>
 
-          {showChangesButton && (
-            <TouchableOpacity
-              style={styles.buttonSecondary}
-              onPress={() => navigation.navigate('Vehicle')}>
-              <Text style={styles.buttonText}>{t('Make changes')}</Text>
-            </TouchableOpacity>
-          )}
-          {showConfirmButton && !isSubmitting && (
-            <TouchableOpacity
-              style={[styles.buttonPrimary, isSubmitting && {opacity: 0.6}]}
-              disabled={isSubmitting}
-              onPress={handleConfirm}>
-              <Text style={styles.buttonText}>{t('Confirm')}</Text>
-            </TouchableOpacity>
-          )}
-          {showBackButton && (
-            <TouchableOpacity
-              style={styles.buttonSecondary}
-              onPress={() => navigation.navigate('View routes')}>
-              <Text style={styles.buttonText}>{t('Back')}</Text>
-            </TouchableOpacity>
-          )}
+            <View style={styles.card}>
+              <View style={styles.cardHeaderRow}>
+                <Icon name="car-arrow-right" size={24} color="#f4511e" />
+                <Text style={styles.cardHeader}>{t('Departure')}</Text>
+              </View>
+              <Text style={styles.text}>
+                {departureCity} {departureStreet}
+                {departureNumber ? ` - ${departureNumber}` : ''}
+              </Text>
+            </View>
 
-          {isGenerating && (
-            <View style={styles.loadingOverlay}>
-              <View style={styles.loadingModal}>
-                <LottieView
-                  source={require('../../../assets/animations/road.json')}
-                  autoPlay
-                  loop
-                  style={styles.generatingImage}
-                />
-                <Text style={styles.generatingText}>
-                  {t('Generating your route...')}
+            <View style={styles.card}>
+              <View style={styles.cardHeaderRow}>
+                <Icon name="car-select" size={24} color="#f4511e" />
+                <Text style={styles.cardHeader}>{t('Arrival')}</Text>
+              </View>
+              <Text style={styles.text}>
+                {arrivalCity} {arrivalStreet}
+                {arrivalNumber ? ` - ${arrivalNumber}` : ''}
+              </Text>
+            </View>
+
+            <View style={styles.card}>
+              <View style={styles.cardHeaderRow}>
+                <Icon name="calendar" size={24} color="#f4511e" />
+                <Text style={styles.cardHeader}>
+                  {t('Time and date of departure')}
                 </Text>
               </View>
+              <Text style={styles.text}>
+                {selectedDateTime?.toLocaleString()}
+              </Text>
             </View>
-          )}
 
-          {successMessage && (
-            <Text style={styles.successMessage}>{successMessage}</Text>
-          )}
-        </ScrollView>
-      </SafeAreaView>
-    </LinearGradient>
+            {showChangesButton && (
+              <TouchableOpacity
+                style={styles.buttonSecondary}
+                onPress={() => navigation.navigate('Vehicle')}>
+                <Text style={styles.buttonText}>{t('Make changes')}</Text>
+              </TouchableOpacity>
+            )}
+            {showConfirmButton && (
+              <TouchableOpacity
+                style={[styles.buttonPrimary, isSubmitting && {opacity: 0.5}]}
+                disabled={isSubmitting}
+                onPress={handleConfirm}>
+                <Text style={styles.buttonText}>
+                  {isSubmitting ? t('Creating...') : t('Confirm')}
+                </Text>
+              </TouchableOpacity>
+            )}
+            {showBackButton && (
+              <TouchableOpacity
+                style={styles.buttonSecondary}
+                onPress={() => navigation.navigate('View routes')}>
+                <Text style={styles.buttonText}>{t('Back')}</Text>
+              </TouchableOpacity>
+            )}
+
+            {isSubmitting && (
+              <View style={styles.loadingOverlay} pointerEvents="auto">
+                <View style={styles.loadingModal}>
+                  <LottieView
+                    source={require('../../../assets/animations/road.json')}
+                    autoPlay
+                    loop
+                    style={styles.generatingImage}
+                  />
+                  <Text style={styles.generatingText}>
+                    {t('Generating your route...')}
+                  </Text>
+                </View>
+              </View>
+            )}
+
+            {successMessage && (
+              <Text style={styles.successMessage}>{successMessage}</Text>
+            )}
+          </ScrollView>
+        </SafeAreaView>
+      </LinearGradient>
+    </View>
   );
 }
 
