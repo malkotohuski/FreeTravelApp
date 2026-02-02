@@ -530,7 +530,7 @@ server.post('/seekers-route', authenticateJWT, (req, res) => {
   });
 });
 
-server.post('/approve-friend-request', (req, res) => {
+/* server.post('/approve-friend-request', (req, res) => {
   const {userId, friendId} = req.body;
 
   // Намери потребителя и приятеля в базата данни
@@ -554,7 +554,7 @@ server.post('/approve-friend-request', (req, res) => {
   return res
     .status(200)
     .json({message: 'Friend request approved successfully.'});
-});
+}); */
 
 // Verification endpoint
 server.post('/confirm', (req, res) => {
