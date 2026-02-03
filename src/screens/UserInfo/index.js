@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import api from '../../api/api';
+import {useTranslation} from 'react-i18next';
 import {DarkModeContext} from '../../navigation/DarkModeContext';
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -44,7 +45,7 @@ const renderStars = rating => {
 
 const UserInfo = ({route, navigation}) => {
   const {darkMode} = useContext(DarkModeContext);
-
+  const {t} = useTranslation();
   // Взимаме всички params за RouteDetails бутона
   const {
     username,
@@ -269,7 +270,7 @@ const UserInfo = ({route, navigation}) => {
         </View>
         <Text
           style={[styles.commentsHeader, {color: darkMode ? '#fff' : '#000'}]}>
-          💬 Коментари:
+          💬 {t('Comments')}
         </Text>
         {comments.length > 0 ? (
           comments.map(renderComment)
