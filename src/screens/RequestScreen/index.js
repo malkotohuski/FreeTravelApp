@@ -18,20 +18,8 @@ function RouteDetails({route}) {
   const {t} = useTranslation();
   const navigation = useNavigation();
   const {user} = useAuth();
-  const routeInfo = useRoute();
-  const loggedInUser = route.params.loggedInUser;
 
-  console.log(loggedInUser, '2221');
-
-  const {
-    username,
-    userFname,
-    userLname,
-    userEmail,
-    departureCity,
-    arrivalCity,
-    routeId,
-  } = route.params;
+  const {username, userFname, userLname, userEmail, routeId} = route.params;
   const loginUser = user?.username;
 
   const requesterUsername = user?.username;
@@ -40,9 +28,11 @@ function RouteDetails({route}) {
   const requestUserEmail = user?.email;
   const departureCityEmail = route.params.departureCity;
   const arrivalCityEmail = route.params.arrivalCity;
+  const departureCity = route.params.departureCity;
+  const arrivalCity = route.params.arrivalCity;
 
   const routeDateTime = route.params.selectedDateTime;
-  const dataTime = routeDateTime.replace('T', ' ').replace('.000Z', '');
+  /*  const dataTime = routeDateTime.replace('T', ' ').replace('.000Z', ''); */
 
   const [tripRequestText, setTripRequestText] = useState('');
   const [notificationCount, setNotificationCount] = useState(0);
@@ -186,6 +176,28 @@ function RouteDetails({route}) {
         multiline={true}
         numberOfLines={4}
       />
+
+      <TouchableOpacity
+        style={styles.buttonConfirm}
+        onPress={() =>
+          navigation.navigate('UserInfo', {
+            username,
+            userFname,
+            userLname,
+            userEmail,
+            userId: route.params.userId,
+            departureCity, // свежо
+            arrivalCity, // свежо
+            selectedVehicle: route.params.selectedVehicle,
+            registrationNumber: route.params.registrationNumber,
+            routeDetailsData: {
+              routeId,
+              selectedDateTime: route.params.selectedDateTime,
+            },
+          })
+        }>
+        <Text style={styles.buttonText}>{t('viewUserInfo')}</Text>
+      </TouchableOpacity>
 
       <TouchableOpacity
         style={[

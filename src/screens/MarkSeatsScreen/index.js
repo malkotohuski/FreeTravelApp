@@ -27,10 +27,7 @@ const MarkSeatsScreen = () => {
 
   const [registrationNumber, setRegistrationNumber] = useState('');
 
-  const regex = useMemo(
-    () => /^([ABCEHKMOPTXY]{1,2})(\d{4})([ABCEHKMOPTXY]{2})$/i,
-    [],
-  );
+  const regex = /^[А-ЯA-Z]{1,2}\d{4}[А-ЯA-Z]{2}$/;
 
   const isValidRegistrationNumber = useCallback(
     () => regex.test(registrationNumber.trim()),
@@ -77,12 +74,12 @@ const MarkSeatsScreen = () => {
           <ScrollView contentContainerStyle={styles.scrollContainer}>
             <View style={styles.card}>
               <Text style={styles.title}>
-                {t('Vehicle Type')}:{' '}
-                <Text style={styles.highlight}>{selectedVehicle}</Text>
+                {t('vehicleТype')}:{' '}
+                <Text style={styles.highlight}>{t(selectedVehicle)}</Text>
               </Text>
 
               <TextInput
-                placeholder={t('Enter Registration Number')}
+                placeholder={t('enterRegistrationNumber')}
                 placeholderTextColor="rgba(255,255,255,0.6)"
                 value={registrationNumber}
                 onChangeText={setRegistrationNumber}
@@ -103,7 +100,7 @@ const MarkSeatsScreen = () => {
               {registrationNumber.length > 0 &&
                 !isValidRegistrationNumber() && (
                   <Text style={styles.warningText}>
-                    {t('Invalid format, example: CA1234AB')}
+                    {t('invalidFormatExample')}
                   </Text>
                 )}
 

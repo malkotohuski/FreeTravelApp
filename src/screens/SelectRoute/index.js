@@ -8,7 +8,6 @@ import {
   TextInput,
   StyleSheet,
   Alert,
-  Image,
   FlatList,
   Modal,
   ScrollView,
@@ -37,17 +36,19 @@ function SelectRouteScreen({route, navigation}) {
   const [open, setOpen] = useState(false);
   const [selectedDateTime, setSelectedDateTime] = useState(null);
 
-  const [departureCity, setdepartureCity] = useState(null);
+  const [departureCity, setDepartureCity] = useState(null);
   const [departureStreet, setDepartureStreet] = useState('');
   const [departureNumber, setDepartureNumber] = useState('');
 
-  const [arrivalCity, setarrivalCity] = useState(null);
+  const [arrivalCity, setArrivalCity] = useState(null);
   const [arrivalStreet, setArrivalStreet] = useState('');
   const [arrivalNumber, setArrivalNumber] = useState('');
   const [routeTitle, setRouteTitle] = useState('');
 
   const [modalVisibleDeparture, setModalVisibleDeparture] = useState(false);
   const [modalVisibleArrival, setModalVisibleArrival] = useState(false);
+
+  const locale = i18n.language === 'bg' ? 'bg-BG' : 'en-US';
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -71,17 +72,15 @@ function SelectRouteScreen({route, navigation}) {
     React.useCallback(() => {
       setDepartureSearchText('');
       setArrivalSearchText('');
-      setdepartureCity(null);
+      setDepartureCity(null);
       setDepartureStreet('');
       setDepartureNumber('');
-      setarrivalCity(null);
+      setArrivalCity(null);
       setArrivalStreet('');
       setArrivalNumber('');
       setSelectedDateTime(null);
       setDate(new Date());
       setRouteTitle('');
-
-      // 🧠 добави това:
       setFilteredCities(cities.slice(0, 7));
       setArrivalFilteredCities(cities.slice(0, 7));
     }, []),
@@ -145,7 +144,10 @@ function SelectRouteScreen({route, navigation}) {
       colors={['#1b1b1b', '#2b2b2b', '#3b3b3b']}
       style={{flex: 1}}>
       <SafeAreaView style={{flex: 1}}>
-        <ScrollView contentContainerStyle={styles.container}>
+        {/* ScrollView за основното съдържание */}
+        <ScrollView
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled">
           {/* DEPARTURE */}
           <Text style={styles.sectionTitle}>{t('Departure')}</Text>
           <View style={styles.row}>
@@ -156,7 +158,6 @@ function SelectRouteScreen({route, navigation}) {
                 {departureCity || t('Select City')}
               </Text>
             </TouchableOpacity>
-
             <TextInput
               placeholder={t('Street')}
               placeholderTextColor="#888"
@@ -183,7 +184,6 @@ function SelectRouteScreen({route, navigation}) {
                 {arrivalCity || t('Select City')}
               </Text>
             </TouchableOpacity>
-
             <TextInput
               placeholder={t('Street')}
               placeholderTextColor="#888"
@@ -200,7 +200,7 @@ function SelectRouteScreen({route, navigation}) {
             />
           </View>
 
-          {/* TITLE */}
+          {/* ROUTE TITLE */}
           <Text style={styles.sectionTitle}>{t('Route Title')}</Text>
           <TextInput
             style={styles.titleInput}
@@ -211,7 +211,7 @@ function SelectRouteScreen({route, navigation}) {
             maxLength={40}
           />
 
-          {/* DATE PICKER */}
+          {/* DATE BUTTON */}
           <TouchableOpacity
             style={styles.dateButton}
             onPress={() => setOpen(true)}>
@@ -220,26 +220,10 @@ function SelectRouteScreen({route, navigation}) {
             </Text>
           </TouchableOpacity>
 
-          <DatePicker
-            modal
-            open={open}
-            date={date}
-            mode="datetime"
-            theme="dark"
-            minimumDate={new Date()}
-            locale="bg"
-            onConfirm={selected => {
-              setOpen(false);
-              setDate(selected);
-              setSelectedDateTime(selected);
-            }}
-            onCancel={() => setOpen(false)}
-          />
-
           {selectedDateTime && (
             <View style={styles.dateDisplay}>
               <Text style={styles.dateText}>
-                {selectedDateTime.toLocaleDateString(i18n.language, {
+                {selectedDateTime.toLocaleDateString(locale, {
                   weekday: 'long',
                   year: 'numeric',
                   month: 'long',
@@ -247,7 +231,7 @@ function SelectRouteScreen({route, navigation}) {
                 })}
               </Text>
               <Text style={styles.dateText}>
-                {selectedDateTime.toLocaleTimeString(i18n.language, {
+                {selectedDateTime.toLocaleTimeString(locale, {
                   hour: '2-digit',
                   minute: '2-digit',
                   hour12: false,
@@ -257,74 +241,94 @@ function SelectRouteScreen({route, navigation}) {
           )}
 
           {/* CONTINUE BUTTON */}
-          <TouchableOpacity onPress={handleContinue} style={styles.continueBtn}>
+          <TouchableOpacity style={styles.continueBtn} onPress={handleContinue}>
             <Text style={styles.continueText}>{t('Continue')}</Text>
           </TouchableOpacity>
-
-          {/* DEPARTURE MODAL */}
-          <Modal transparent visible={modalVisibleDeparture}>
-            <TouchableOpacity
-              style={styles.modalOverlay}
-              onPressOut={() => setModalVisibleDeparture(false)}>
-              <TouchableWithoutFeedback>
-                <View style={styles.modalContainer}>
-                  <TextInput
-                    placeholder={t('Search City')}
-                    placeholderTextColor="#888"
-                    value={departureSearchText}
-                    onChangeText={filterDepartureCities}
-                    style={styles.modalInput}
-                  />
-                  <FlatList
-                    data={filteredCities}
-                    renderItem={({item}) =>
-                      renderCityItem({
-                        item,
-                        onSelect: city => {
-                          setdepartureCity(city);
-                          setModalVisibleDeparture(false);
-                        },
-                      })
-                    }
-                    keyExtractor={item => item.value}
-                  />
-                </View>
-              </TouchableWithoutFeedback>
-            </TouchableOpacity>
-          </Modal>
-
-          {/* ARRIVAL MODAL */}
-          <Modal transparent visible={modalVisibleArrival}>
-            <TouchableOpacity
-              style={styles.modalOverlay}
-              onPressOut={() => setModalVisibleArrival(false)}>
-              <TouchableWithoutFeedback>
-                <View style={styles.modalContainer}>
-                  <TextInput
-                    placeholder={t('Search City')}
-                    placeholderTextColor="#888"
-                    value={arrivalSearchText}
-                    onChangeText={filterArrivalCities}
-                    style={styles.modalInput}
-                  />
-                  <FlatList
-                    data={arrivalFilteredCities}
-                    renderItem={({item}) =>
-                      renderCityItem({
-                        item,
-                        onSelect: city => {
-                          setarrivalCity(city);
-                          setModalVisibleArrival(false);
-                        },
-                      })
-                    }
-                    keyExtractor={item => item.value}
-                  />
-                </View>
-              </TouchableWithoutFeedback>
-            </TouchableOpacity>
-          </Modal>
         </ScrollView>
+
+        {/* DEPARTURE CITY MODAL */}
+        <Modal transparent visible={modalVisibleDeparture}>
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            onPressOut={() => setModalVisibleDeparture(false)}>
+            <TouchableWithoutFeedback>
+              <View style={styles.modalContainer}>
+                <TextInput
+                  placeholder={t('Search City')}
+                  placeholderTextColor="#888"
+                  value={departureSearchText}
+                  onChangeText={filterDepartureCities}
+                  style={styles.modalInput}
+                />
+                <FlatList
+                  data={filteredCities}
+                  renderItem={({item}) =>
+                    renderCityItem({
+                      item,
+                      onSelect: city => {
+                        setDepartureCity(city);
+                        setModalVisibleDeparture(false);
+                      },
+                    })
+                  }
+                  keyExtractor={item => item.value}
+                />
+              </View>
+            </TouchableWithoutFeedback>
+          </TouchableOpacity>
+        </Modal>
+
+        {/* ARRIVAL CITY MODAL */}
+        <Modal transparent visible={modalVisibleArrival}>
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            onPressOut={() => setModalVisibleArrival(false)}>
+            <TouchableWithoutFeedback>
+              <View style={styles.modalContainer}>
+                <TextInput
+                  placeholder={t('Search City')}
+                  placeholderTextColor="#888"
+                  value={arrivalSearchText}
+                  onChangeText={filterArrivalCities}
+                  style={styles.modalInput}
+                />
+                <FlatList
+                  data={arrivalFilteredCities}
+                  renderItem={({item}) =>
+                    renderCityItem({
+                      item,
+                      onSelect: city => {
+                        setArrivalCity(city);
+                        setModalVisibleArrival(false);
+                      },
+                    })
+                  }
+                  keyExtractor={item => item.value}
+                />
+              </View>
+            </TouchableWithoutFeedback>
+          </TouchableOpacity>
+        </Modal>
+
+        {/* DATE PICKER извън ScrollView */}
+        <DatePicker
+          modal
+          open={open}
+          date={date}
+          mode="datetime"
+          theme="dark"
+          minimumDate={new Date()}
+          locale={locale}
+          title={t('selectDate')}
+          cancelText={t('Cancel')}
+          confirmText={t('Confirm')}
+          onConfirm={selected => {
+            setOpen(false);
+            setDate(selected);
+            setSelectedDateTime(selected);
+          }}
+          onCancel={() => setOpen(false)}
+        />
       </SafeAreaView>
     </LinearGradient>
   );
@@ -332,11 +336,9 @@ function SelectRouteScreen({route, navigation}) {
 
 export default SelectRouteScreen;
 
+// Твоите стилове остават същите
 const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-    alignItems: 'center',
-  },
+  container: {padding: 16, alignItems: 'center'},
   sectionTitle: {
     fontWeight: '700',
     fontSize: 18,
@@ -362,10 +364,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.07)',
     marginRight: 8,
   },
-  citySelectText: {
-    color: '#fff',
-    fontWeight: '600',
-  },
+  citySelectText: {color: '#fff', fontWeight: '600'},
   input: {
     flex: 1,
     height: 50,
@@ -398,20 +397,9 @@ const styles = StyleSheet.create({
     borderWidth: 1.3,
     borderColor: '#fff',
   },
-  dateButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 15,
-  },
-  dateDisplay: {
-    marginTop: 15,
-    alignItems: 'center',
-  },
-  dateText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
-  },
+  dateButtonText: {color: '#fff', fontWeight: 'bold', fontSize: 15},
+  dateDisplay: {marginTop: 15, alignItems: 'center'},
+  dateText: {fontSize: 16, fontWeight: '600', color: '#fff'},
   continueBtn: {
     marginTop: 35,
     backgroundColor: '#f4511e',
@@ -421,11 +409,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.3,
     borderColor: '#fff',
   },
-  continueText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 17,
-  },
+  continueText: {color: '#fff', fontWeight: 'bold', fontSize: 17},
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.6)',
@@ -455,10 +439,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#444',
   },
-  cityItemText: {
-    fontSize: 16,
-    color: '#fff',
-  },
+  cityItemText: {fontSize: 16, color: '#fff'},
   headerButton: {marginRight: 16, flexDirection: 'row', alignItems: 'center'},
   headerText: {color: 'white', marginRight: 6, fontSize: 16},
 });

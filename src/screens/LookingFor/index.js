@@ -53,6 +53,8 @@ function Looking({navigation}) {
   const [open, setOpen] = useState(false);
   const [selectedDateTime, setSelectedDateTime] = useState(null);
 
+  const locale = i18n.language === 'bg' ? 'bg-BG' : 'en-US';
+
   useFocusEffect(
     useCallback(() => {
       setDepartureCity(null);
@@ -68,15 +70,12 @@ function Looking({navigation}) {
     if (isSubmitting || isGenerating) return;
 
     if (!departureCity || !arrivalCity) {
-      Alert.alert(
-        t('Error'),
-        t('Please select both departure and arrival cities.'),
-      );
+      Alert.alert(t('Error'), t('pleaseSelectBothDepartureArrivalCities'));
       return;
     }
 
     if (!selectedDateTime || isNaN(selectedDateTime.getTime())) {
-      Alert.alert(t('Error'), t('Please select a valid date and time.'));
+      Alert.alert(t('Error'), t('selectDateTime'));
       return;
     }
 
@@ -156,7 +155,7 @@ function Looking({navigation}) {
     <LinearGradient colors={['#0d0d0d', '#1a1a1a']} style={styles.gradient}>
       <SafeAreaView style={{flex: 1}}>
         <ScrollView contentContainerStyle={styles.scroll}>
-          <Text style={styles.title}>{t('Looking for a route')}</Text>
+          <Text style={styles.title}>{t('lookingRorARoute')}</Text>
 
           <Text style={styles.label}>{t('Departure')}</Text>
           <TouchableOpacity
@@ -243,22 +242,25 @@ function Looking({navigation}) {
 
           {selectedDateTime && (
             <View style={styles.selectedDateContainer}>
-              <Text style={styles.selectedDateLabel}>
-                {t('Selected Date:')}
-              </Text>
+              <Text style={styles.selectedDateLabel}>{t('selectedDate')}</Text>
               <Text style={styles.selectedDateText}>
                 {selectedDateTime.toLocaleDateString(i18n.language, {
                   weekday: 'long',
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric',
+                })}{' '}
+                {selectedDateTime.toLocaleTimeString(i18n.language, {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: false,
                 })}
               </Text>
             </View>
           )}
 
           <TouchableOpacity style={styles.button} onPress={() => setOpen(true)}>
-            <Text style={styles.buttonText}>{t('Select date')}</Text>
+            <Text style={styles.buttonText}>{t('selectDate')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
@@ -273,11 +275,16 @@ function Looking({navigation}) {
             modal
             open={open}
             date={date}
+            mode="datetime"
             theme="dark"
-            mode="date"
             minimumDate={new Date()}
+            locale={locale}
+            title={t('selectDate')}
+            cancelText={t('Cancel')}
+            confirmText={t('Confirm')}
             onConfirm={selected => {
               setOpen(false);
+              setDate(selected);
               setSelectedDateTime(selected);
             }}
             onCancel={() => setOpen(false)}

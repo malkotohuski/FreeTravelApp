@@ -1,4 +1,10 @@
-import React, {useEffect, useState} from 'react';
+import React, {
+  useEffect,
+  useState,
+  useLayoutEffect,
+  useRef,
+  useContext,
+} from 'react';
 import {
   View,
   Text,
@@ -6,9 +12,13 @@ import {
   Image,
   ScrollView,
   ActivityIndicator,
+  TouchableOpacity,
+  Animated,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import api from '../../api/api';
+import {DarkModeContext} from '../../navigation/DarkModeContext';
+import LinearGradient from 'react-native-linear-gradient';
 
 const renderStars = rating => {
   const fullStars = Math.floor(rating);
@@ -16,30 +26,81 @@ const renderStars = rating => {
   const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
 
   const stars = [];
-
   for (let i = 0; i < fullStars; i++) {
     stars.push(
-      <Icon key={`full-${i}`} name="star" size={24} color="#FFD700" />,
+      <Icon key={`full-${i}`} name="star" size={20} color="#FFD700" />,
     );
   }
-
   if (halfStar) {
-    stars.push(<Icon key="half" name="star-half" size={24} color="#FFD700" />);
+    stars.push(<Icon key="half" name="star-half" size={20} color="#FFD700" />);
   }
-
   for (let i = 0; i < emptyStars; i++) {
     stars.push(
-      <Icon key={`empty-${i}`} name="star-border" size={24} color="#FFD700" />,
+      <Icon key={`empty-${i}`} name="star-border" size={20} color="#FFD700" />,
     );
   }
-
   return stars;
 };
 
-const UserInfo = ({route}) => {
-  const {username, fName, lName, userImage} = route.params;
+const UserInfo = ({route, navigation}) => {
+  const {darkMode} = useContext(DarkModeContext);
+
+  // Взимаме всички params за RouteDetails бутона
+  const {
+    username,
+    userFname,
+    userLname,
+    userEmail,
+    userId,
+    selectedVehicle,
+    registrationNumber,
+    routeDetailsData,
+    departureCity,
+    arrivalCity,
+  } = route.params;
+
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const fadeAnims = useRef([]).current;
+
+  // Фиксираме логиката за бутона за back
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          style={{marginRight: 16}}
+          onPress={() =>
+            navigation.navigate('RouteDetails', {
+              username,
+              userFname,
+              userLname,
+              userEmail,
+              userId,
+              departureCity,
+              arrivalCity,
+              selectedVehicle,
+              registrationNumber,
+              routeDetailsData,
+            })
+          }>
+          <Icon name="keyboard-backspace" size={26} color="#ffffff" />
+        </TouchableOpacity>
+      ),
+    });
+  }, [
+    navigation,
+    username,
+    userFname,
+    userLname,
+    userEmail,
+    userId,
+    selectedVehicle,
+    registrationNumber,
+    routeDetailsData,
+    departureCity,
+    arrivalCity,
+  ]);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -54,13 +115,35 @@ const UserInfo = ({route}) => {
         setLoading(false);
       }
     };
-
     fetchUserData();
   }, [username]);
 
+  useEffect(() => {
+    if (userData?.comments) {
+      userData.comments.forEach((_, i) => {
+        fadeAnims[i] = new Animated.Value(0);
+      });
+
+      const animations = fadeAnims.map((fadeAnim, index) =>
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 500,
+          delay: index * 150,
+          useNativeDriver: true,
+        }),
+      );
+
+      Animated.stagger(100, animations).start();
+    }
+  }, [userData]);
+
   if (loading) {
     return (
-      <View style={styles.centered}>
+      <View
+        style={[
+          styles.centered,
+          {backgroundColor: darkMode ? '#111' : '#fff'},
+        ]}>
         <ActivityIndicator size="large" color="#f4511e" />
       </View>
     );
@@ -68,150 +151,207 @@ const UserInfo = ({route}) => {
 
   if (!userData) {
     return (
-      <View style={styles.centered}>
-        <Text style={styles.errorText}>Потребителят не беше намерен.</Text>
+      <View
+        style={[
+          styles.centered,
+          {backgroundColor: darkMode ? '#111' : '#fff'},
+        ]}>
+        <Text style={{color: 'red', fontSize: 18}}>
+          Потребителят не беше намерен.
+        </Text>
       </View>
     );
   }
 
-  const {averageRating, comments} = userData;
+  const {averageRating, comments = []} = userData;
+
+  const formatDate = isoDate => {
+    if (!isoDate) return 'Unknown date';
+    const date = new Date(isoDate);
+    return date.toLocaleDateString('bg-BG', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
+  const renderComment = (c, index) => {
+    const fadeAnim = fadeAnims[index] || new Animated.Value(1);
+    return (
+      <Animated.View
+        key={index}
+        style={[
+          styles.commentCard,
+          {
+            backgroundColor: darkMode ? '#222' : '#fff',
+            opacity: fadeAnim,
+            transform: [
+              {
+                translateY: fadeAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [20, 0],
+                }),
+              },
+            ],
+          },
+        ]}>
+        <View style={styles.commentHeader}>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            {c.image ? (
+              <Image source={{uri: c.image}} style={styles.avatar} />
+            ) : (
+              <View
+                style={[
+                  styles.avatar,
+                  {
+                    backgroundColor: '#888',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  },
+                ]}>
+                <Text style={{color: '#fff', fontWeight: 'bold'}}>
+                  {c.user?.slice(0, 2).toUpperCase() || 'AN'}
+                </Text>
+              </View>
+            )}
+            <Text
+              style={[
+                styles.username,
+                {color: darkMode ? '#ffa726' : '#f4511e', marginLeft: 10},
+              ]}>
+              {c.user || 'Анонимен'}
+            </Text>
+          </View>
+          <Text style={{color: darkMode ? '#ccc' : '#666', fontSize: 12}}>
+            {formatDate(c.date)}
+          </Text>
+        </View>
+        <Text style={[styles.commentText, {color: darkMode ? '#fff' : '#000'}]}>
+          {c.comment}
+        </Text>
+        {c.rating !== undefined && (
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            {renderStars(c.rating)}
+            <Text style={{marginLeft: 6, color: darkMode ? '#ccc' : '#333'}}>
+              ({c.rating})
+            </Text>
+          </View>
+        )}
+      </Animated.View>
+    );
+  };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Image
-        source={require('../../../images/d7.png')}
-        style={styles.backgroundImage}
-      />
-      <Image
-        source={{uri: userImage || userData.userImage}}
-        style={styles.avatar}
-      />
-      <Text style={styles.name}>
-        {fName} {lName}
-      </Text>
-      <Text style={styles.username}>@{username}</Text>
-      <View style={styles.starsRow}>
-        {renderStars(averageRating || 0)}
-        <Text style={styles.numericRating}>
-          ({averageRating?.toFixed(2) || '0.00'})
+    <LinearGradient
+      colors={['#1b1b1b', '#686666']}
+      style={styles.mainContainer}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Image source={{uri: userData.userImage}} style={styles.avatarLarge} />
+        <Text style={[styles.name, {color: darkMode ? '#fff' : '#000'}]}>
+          {userData.userFname} {userData.userLname}
         </Text>
-      </View>
-
-      <Text style={styles.commentsHeader}>💬 Коментари:</Text>
-
-      {Array.isArray(comments) && comments.length > 0 ? (
-        comments
-          .filter(c => typeof c === 'object' && c.comment?.trim())
-          .map((c, index) => (
-            <View key={index} style={styles.commentBox}>
-              <Text style={styles.commentUser}>👤 {c.user || 'Анонимен'}:</Text>
-              <Text style={styles.commentText}>{c.comment}</Text>
-              {c.image && (
-                <Image source={{uri: c.image}} style={styles.commentImage} />
-              )}
-              {c.date && (
-                <Text style={styles.commentDate}>
-                  📅 {new Date(c.date).toLocaleDateString('bg-BG')}
-                </Text>
-              )}
-            </View>
-          ))
-      ) : (
-        <Text style={styles.noComments}>Няма налични коментари.</Text>
-      )}
-    </ScrollView>
+        <Text
+          style={[styles.usernameText, {color: darkMode ? '#ccc' : '#000000'}]}>
+          @{username}
+        </Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginVertical: 12,
+          }}>
+          {renderStars(averageRating || 0)}
+          <Text style={{marginLeft: 6, color: darkMode ? '#ccc' : '#000000'}}>
+            ({averageRating?.toFixed(2) || '0.00'})
+          </Text>
+        </View>
+        <Text
+          style={[styles.commentsHeader, {color: darkMode ? '#fff' : '#000'}]}>
+          💬 Коментари:
+        </Text>
+        {comments.length > 0 ? (
+          comments.map(renderComment)
+        ) : (
+          <Text
+            style={{
+              textAlign: 'center',
+              marginTop: 20,
+              color: darkMode ? '#ccc' : '#080808',
+            }}>
+            Няма налични коментари.
+          </Text>
+        )}
+      </ScrollView>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
+  mainContainer: {
+    flex: 1,
+  },
   container: {
     alignItems: 'center',
-  },
-  backgroundImage: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
+    padding: 16,
+    paddingBottom: 40,
   },
   centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  errorText: {color: 'red', fontSize: 18},
-  avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+  avatarLarge: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
     backgroundColor: '#ccc',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   name: {
-    fontSize: 22,
-    fontWeight: 'bold',
-  },
-  username: {
-    fontSize: 18,
-    color: '#666',
-    marginBottom: 10,
-  },
-  rating: {
-    fontSize: 18,
-    color: '#f4511e',
-    fontWeight: '600',
-    marginBottom: 20,
-  },
-  commentsHeader: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 10,
-    alignSelf: 'flex-start',
   },
-  commentBox: {
-    width: '100%',
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 2,
-  },
-  commentUser: {
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  commentText: {
+  usernameText: {
     fontSize: 16,
-    marginBottom: 6,
+    marginBottom: 10,
   },
-  commentImage: {
-    width: '100%',
-    height: 200,
-    borderRadius: 10,
-    marginTop: 6,
-  },
-  commentDate: {
-    fontSize: 12,
-    color: '#999',
-    marginTop: 6,
-    textAlign: 'right',
-  },
-  noComments: {
-    fontStyle: 'italic',
-    color: '#888',
-  },
-  starsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  commentsHeader: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    alignSelf: 'flex-start',
     marginVertical: 10,
   },
-  numericRating: {
-    fontSize: 16,
-    color: '#333',
-    marginLeft: 8,
-    fontWeight: '600',
+  commentCard: {
+    width: '100%',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  commentHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+    alignItems: 'center',
+  },
+  username: {
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  commentText: {
+    fontSize: 15,
+    marginVertical: 6,
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
   },
 });
 

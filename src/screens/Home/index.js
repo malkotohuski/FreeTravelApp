@@ -226,9 +226,19 @@ function HomePage({navigation}) {
   };
 
   const handlerChatScreen = () => {
-    navigation.navigate('Chat');
-    console.log('Chats screen clicked !!!');
+    Alert.alert(t('Coming soon'), t('Work in progress 🚧'), [{text: t('OK')}], {
+      cancelable: true,
+    });
   };
+  const getDisabledIconBackground = () => ({
+    alignItems: 'center',
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: darkMode ? '#2a2a2a' : '#cccccc',
+    justifyContent: 'center',
+    opacity: 0.6,
+  });
 
   const handlerNotificationScreen = async () => {
     try {
@@ -411,8 +421,9 @@ function HomePage({navigation}) {
         </View>
 
         <TouchableOpacity
-          style={getNotificationIconBackground()}
-          onPress={handlerChatScreen}>
+          style={getDisabledIconBackground()}
+          onPress={handlerChatScreen}
+          activeOpacity={0.8}>
           <Icons name="chat" {...getNotificationIconColor()} />
         </TouchableOpacity>
         <View style={styles.notificationWrapper}>

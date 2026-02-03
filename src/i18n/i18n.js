@@ -18,9 +18,16 @@ i18next.use(initReactI18next).init({
         Ratings: 'Ratings',
         'You appreciate': 'You appreciate',
         'General Notifications': 'General Notifications',
+        viewUserInfo: 'User Info',
+        pleaseSelectBothDepartureArrivalCities:
+          'Please select both departure and arrival cities.',
+        selectDateTime: 'Please select a valid date and time.',
+        lookingRorARoute: 'Looking for a route',
+        selectDate: 'Select Date:',
         Hold: 'Hold',
         'Edit Profile': 'Edit Profile',
         'Deleting in {{count}}...': 'Deleting in {{count}}...',
+        invalidFormatExample: 'Invalid format, example: CA1234AB',
         'Change Password': 'Change Password',
         'Release to cancel': 'Release to cancel',
         'Delete Account': 'Delete Account',
@@ -57,6 +64,7 @@ i18next.use(initReactI18next).init({
         Information: 'Information',
         'You have already rated this route.':
           'You have already rated this route.',
+        'Vehicle Type': 'Vehicle Type',
         'You cannot resend an invitation.': 'You cannot resend an invitation.',
         'Search by starting point': 'Search by starting point',
         'There is a request from:': 'There is a request from:',
@@ -66,6 +74,7 @@ i18next.use(initReactI18next).init({
         'You cannot send an invitation to your own route.':
           'You cannot send an invitation to your own route.',
         'Selected Date:': 'Selected Date:',
+        selectedDate: 'Selected Date',
         'Send rating': 'Send rating',
         'Do you want to approve the request?':
           'Do you want to approve the request?',
@@ -124,7 +133,9 @@ i18next.use(initReactI18next).init({
         Motorcycle: 'Motorcycle',
         'A minibus': 'A minibus',
         'A bus': 'A bus',
-        'Select vehicle': 'Select vehicle',
+        selectVehicle: 'Select vehicle',
+        chooseVehicle: 'Choose vehicle',
+        vehicleТype: 'Vehicle Type',
         'Select date and time of departure':
           'Select date and time of departure',
         English: 'English',
@@ -139,7 +150,7 @@ i18next.use(initReactI18next).init({
         'Invalid registration number format':
           'Invalid registration number format',
         'Registration Number:': 'Registration Number:',
-        'Enter Registration Number': 'Enter Registration Number',
+        enterRegistrationNumber: 'Enter Registration Number',
         'Invalid Registration Number': 'Invalid Registration Number',
         'Please enter a valid registration number.':
           'Please enter a valid registration number.',
@@ -5191,6 +5202,7 @@ i18next.use(initReactI18next).init({
         Seekers: 'Търсачи',
         'Write a personal message to the route creator (optional)':
           'Напиши лично съобщение към създателя на маршрута (по избор)',
+        selectDate: 'Изберете дата ',
         Comments: 'Коментари',
         Video: 'Видео',
         New: 'Нов',
@@ -5207,7 +5219,7 @@ i18next.use(initReactI18next).init({
         'Searchers list': 'Списък с търсещи',
         'A bus': 'Автобус',
         Rating: 'Рейтинг',
-        'Select vehicle': 'Изберете превозно средство',
+        selectVehicle: 'Изберете превозно средство',
         'Search by Arrival City': 'Търсене по град на пристигане',
         English: 'Английски',
         Bulgarian: 'Български',
@@ -5224,25 +5236,32 @@ i18next.use(initReactI18next).init({
         'Invalid registration number format':
           'Невалиден формат на регистрационния номер',
         'Registration Number:': 'Регистрационен номер:',
-        'Enter Registration Number': 'Въведете регистрационен номер',
+        enterRegistrationNumber: 'Въведете регистрационен номер',
         'Invalid Registration Number': 'Невалиден регистрационен номер',
         'Please enter a valid registration number.':
           'Моля, въведете валиден регистрационен номер.',
+        invalidFormatExample: 'Невалиден формат, пример: CA1234AB',
+        lookingRorARoute: 'Търся маршрут',
         Answer: 'Отговор',
         'Enter your travel request comment here :':
           'Въведете вашият коментар на заявка за пътуване тук : ',
         Home: 'Дом',
         Chats: 'Чатове',
         'Change Photo': 'Смяна на снимка',
+        selectDateTime: 'Моля, изберете валидна дата и час.',
         'I suggest': 'Предлагам',
         'I am looking for': 'Търся',
         Login: 'Влизане',
         Inquiries: 'Запитвания',
         'In process of development!': 'В процес на разработка!',
+        chooseVehicle: 'Изберете превозно средство',
         'Route Title': 'Заглавие на маршрута',
         'Describe the problem...': 'Опиши проблема...',
+        vehicleТype: 'Тип превозно средство',
         'User not found.': 'Потребителят не е намерен.',
         'Please select a number of stars.': 'Моля, избери брой звезди.',
+        pleaseSelectBothDepartureArrivalCities:
+          'Моля, изберете както града на заминаване, така и града на пристигане.',
         'Review route': 'Преглед на маршрута',
         'You have already applied for this route.':
           'Вече сте кандидатствали за този маршрут.',
@@ -5271,6 +5290,7 @@ i18next.use(initReactI18next).init({
         Street: 'Улица',
         'Lets move on': 'Да продължим напред',
         'Routes history': 'История на маршрутите',
+        selectedDate: 'Избрана дата',
         Number: 'Номер',
         'This route was created by you, and you cannot request it!':
           'Този маршрут е създаден от вас, и не можете да го заявите!',
@@ -5291,6 +5311,7 @@ i18next.use(initReactI18next).init({
         'Selected Vehicle:': 'Избрано превозно средство:',
         'Marked Seats:': 'Маркирани места:',
         'Add a comment (optional)...': 'Добави коментар (по избор)...',
+        viewUserInfo: 'Информацията за потребителя',
         'Registration Number:': 'Регистрационен номер:',
         'Routes History': 'История на маршрутите',
         Confirm: 'Потвърдете',
@@ -8894,6 +8915,7 @@ i18next.use(initReactI18next).init({
         'Pobeda (oblast Pleven)': 'Победа (обл. Плевен)',
         'Pobeda (oblast Yambol)': 'Победа (обл. Ямбол)',
         'Pobeda (oblast Dobrich)': 'Победа (обл. Добрич)',
+        'Vehicle Types': 'Видове превозни средства',
         'Pobit kamak (oblast Razgrad)': 'Побит камък (обл. Разград)',
         'Pobit kamak (oblast Pazardzhik)': 'Побит камък (обл. Пазарджик)',
         'Pobit kamak (oblast Kyustendil)': 'Побит камък (обл. Кюстендил)',

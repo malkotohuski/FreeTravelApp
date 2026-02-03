@@ -49,11 +49,11 @@ const Vehicle = () => {
       colors={['#2b2b2b', '#444']}
       style={styles.gradientBackground}>
       <View style={styles.container}>
-        <Text style={styles.title}>{t('Select Vehicle')}</Text>
+        <Text style={styles.title}>{t('vehicleТype')}</Text>
 
         <RNPickerSelect
           items={vehicleTypes}
-          placeholder={{label: t('Choose vehicle...'), value: null}}
+          placeholder={{label: t('chooseVehicle'), value: null}}
           onValueChange={setSelectedVehicle}
           value={selectedVehicle}
           style={pickerSelectStyles}
