@@ -150,6 +150,16 @@ export const Navigator = () => {
     </TouchableOpacity>
   );
 
+  const BackButtonToRouteDetails = ({navigation}) => (
+    <TouchableOpacity
+      style={{marginRight: 16}}
+      onPress={() => {
+        navigation.navigate('RouteDetails');
+      }}>
+      <Icons name="keyboard-backspace" size={24} color="white" />
+    </TouchableOpacity>
+  );
+
   const BackButtonRouteViewRoutes = ({navigation}) => (
     <TouchableOpacity
       style={{marginRight: 16}}
@@ -526,17 +536,12 @@ export const Navigator = () => {
             options={{
               title: t('UserInfo'),
               ...screenStyles,
-              drawerIcon: ({color, size}) => (
-                <Icons name="routes" size={size} color={color} />
-              ),
-            }}
-            listeners={({navigation}) => ({
-              focus: () => {
-                navigation.setOptions({
-                  headerRight: () => BackButtonToSeekers({navigation}),
-                });
+              headerTitleStyle: {
+                fontSize: 18,
               },
-            })}
+              drawerItemStyle: {display: 'none'},
+              unmountOnBlur: true,
+            }}
           />
           <Drawer.Screen
             name="UsersScreen"

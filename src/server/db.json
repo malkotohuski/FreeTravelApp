@@ -180,7 +180,10 @@
       ],
       "accountStatus": "active",
       "routeTimestamps": [
-        1769973503389
+        1770123475221
+      ],
+      "seekerTimestamps": [
+        1770127999720
       ]
     },
     {
@@ -267,72 +270,6 @@
     {
       "selectedVehicle": "Car",
       "registrationNumber": "A2111AA",
-      "selectedDateTime": "2026-01-28T17:45:00.000Z",
-      "departureCity": "Varna",
-      "departureStreet": "",
-      "departureNumber": "",
-      "arrivalCity": "Ruse",
-      "arrivalStreet": "",
-      "arrivalNumber": "",
-      "routeTitle": "1",
-      "userId": 1769436396175,
-      "username": "Jessy",
-      "userFname": "Jesica",
-      "userLname": "Dimitrova",
-      "userEmail": "devmasterstech@gmail.com",
-      "id": 1769450119388,
-      "ownerId": 1769436396175,
-      "createdAt": 1769450119388,
-      "status": "active",
-      "userRouteId": "deleted"
-    },
-    {
-      "selectedVehicle": "A minibus",
-      "registrationNumber": "A2211AA",
-      "selectedDateTime": "2026-01-28T17:59:00.000Z",
-      "departureCity": "Plovdiv",
-      "departureStreet": "",
-      "departureNumber": "",
-      "arrivalCity": "Stara Zagora",
-      "arrivalStreet": "",
-      "arrivalNumber": "",
-      "routeTitle": "211",
-      "userId": 1769436396175,
-      "username": "Jessy",
-      "userFname": "Jesica",
-      "userLname": "Dimitrova",
-      "userEmail": "devmasterstech@gmail.com",
-      "id": 1769450435450,
-      "ownerId": 1769436396175,
-      "createdAt": 1769450435450,
-      "status": "active",
-      "userRouteId": "deleted"
-    },
-    {
-      "selectedVehicle": "Car",
-      "registrationNumber": "A2111AA",
-      "selectedDateTime": "2026-01-29T13:13:00.000Z",
-      "departureCity": "Sofia",
-      "departureStreet": "",
-      "departureNumber": "",
-      "arrivalCity": "Ruse",
-      "arrivalStreet": "",
-      "arrivalNumber": "",
-      "routeTitle": "12",
-      "userId": 1768493729350,
-      "username": "Shushkata",
-      "userFname": "Arya",
-      "userLname": "Spasova",
-      "userEmail": "shushkata7@gmail.com",
-      "id": 1769688854847,
-      "ownerId": 1768493729350,
-      "createdAt": 1769688854847,
-      "status": "active",
-      "userRouteId": "deleted"
-    },
-    {
-      "selectedVehicle": "Car",
-      "registrationNumber": "A2111AA",
       "selectedDateTime": "2026-01-30T15:03:00.000Z",
       "departureCity": "Sofia",
       "departureStreet": "",
@@ -371,28 +308,6 @@
       "id": 1769699179594,
       "ownerId": 1768488420566,
       "createdAt": 1769699179594,
-      "status": "active",
-      "userRouteId": "deleted"
-    },
-    {
-      "selectedVehicle": "Car",
-      "registrationNumber": "A1211AA",
-      "selectedDateTime": "2026-01-29T18:20:00.000Z",
-      "departureCity": "Plovdiv",
-      "departureStreet": "",
-      "departureNumber": "",
-      "arrivalCity": "Ruse",
-      "arrivalStreet": "",
-      "arrivalNumber": "",
-      "routeTitle": "1",
-      "userId": 1768488420566,
-      "username": "malkotohuski",
-      "userFname": "Dani",
-      "userLname": "Dimitrov",
-      "userEmail": "malkotohuski@gmail.com",
-      "id": 1769700056227,
-      "ownerId": 1768488420566,
-      "createdAt": 1769700056227,
       "status": "active",
       "userRouteId": "deleted"
     },
@@ -437,7 +352,8 @@
       "id": 1769706203575,
       "ownerId": 1768488420566,
       "createdAt": 1769706203575,
-      "status": "active"
+      "status": "active",
+      "userRouteId": "deleted"
     },
     {
       "selectedVehicle": "Car",
@@ -481,7 +397,7 @@
       "ownerId": 1768488420566,
       "createdAt": 1769885287216,
       "status": "active",
-      "userRouteId": "completed"
+      "userRouteId": "deleted"
     },
     {
       "selectedVehicle": "Car",
@@ -525,7 +441,7 @@
       "ownerId": 1768488420566,
       "createdAt": 1769888406587,
       "status": "active",
-      "userRouteId": "completed"
+      "userRouteId": "deleted"
     },
     {
       "selectedVehicle": "Car",
@@ -547,7 +463,7 @@
       "ownerId": 1768493729350,
       "createdAt": 1769891754271,
       "status": "active",
-      "userRouteId": "completed"
+      "userRouteId": "deleted"
     },
     {
       "selectedVehicle": "Car",
@@ -568,7 +484,8 @@
       "id": 1769891758239,
       "ownerId": 1768493729350,
       "createdAt": 1769891758239,
-      "status": "active"
+      "status": "active",
+      "userRouteId": "deleted"
     },
     {
       "selectedVehicle": "Car",
@@ -590,7 +507,7 @@
       "ownerId": 1768488420566,
       "createdAt": 1769892019269,
       "status": "active",
-      "userRouteId": "completed"
+      "userRouteId": "deleted"
     },
     {
       "selectedVehicle": "Car",
@@ -612,7 +529,7 @@
       "ownerId": 1768493729350,
       "createdAt": 1769894697028,
       "status": "active",
-      "userRouteId": "completed"
+      "userRouteId": "deleted"
     },
     {
       "selectedVehicle": "A minibus",
@@ -633,7 +550,8 @@
       "id": 1769894769650,
       "ownerId": 1769436396175,
       "createdAt": 1769894769650,
-      "status": "active"
+      "status": "active",
+      "userRouteId": "deleted"
     },
     {
       "selectedVehicle": "A minibus",
@@ -654,7 +572,8 @@
       "id": 1769894770042,
       "ownerId": 1769436396175,
       "createdAt": 1769894770042,
-      "status": "active"
+      "status": "active",
+      "userRouteId": "deleted"
     },
     {
       "selectedVehicle": "A minibus",
@@ -675,7 +594,8 @@
       "id": 1769894770659,
       "ownerId": 1769436396175,
       "createdAt": 1769894770659,
-      "status": "active"
+      "status": "active",
+      "userRouteId": "deleted"
     },
     {
       "selectedVehicle": "Car",
@@ -696,7 +616,8 @@
       "id": 1769964338002,
       "ownerId": 1768488420566,
       "createdAt": 1769964338002,
-      "status": "active"
+      "status": "active",
+      "userRouteId": "deleted"
     },
     {
       "selectedVehicle": "Car",
@@ -717,7 +638,8 @@
       "id": 1769964373823,
       "ownerId": 1768488420566,
       "createdAt": 1769964373823,
-      "status": "active"
+      "status": "active",
+      "userRouteId": "deleted"
     },
     {
       "selectedVehicle": "Car",
@@ -738,7 +660,8 @@
       "id": 1769964374232,
       "ownerId": 1768488420566,
       "createdAt": 1769964374232,
-      "status": "active"
+      "status": "active",
+      "userRouteId": "deleted"
     },
     {
       "selectedVehicle": "Car",
@@ -780,7 +703,8 @@
       "id": 1769966173908,
       "ownerId": 1768493729350,
       "createdAt": 1769966173908,
-      "status": "active"
+      "status": "active",
+      "userRouteId": "deleted"
     },
     {
       "selectedVehicle": "Car",
@@ -802,20 +726,31 @@
       "ownerId": 1768493729350,
       "createdAt": 1769973503389,
       "status": "active"
+    },
+    {
+      "selectedVehicle": "Car",
+      "registrationNumber": "A2111AA",
+      "selectedDateTime": "2026-02-05T12:57:00.000Z",
+      "departureCity": "София",
+      "departureStreet": "",
+      "departureNumber": "",
+      "arrivalCity": "Варна",
+      "arrivalStreet": "",
+      "arrivalNumber": "",
+      "routeTitle": "3 spot have ",
+      "userId": 1768493729350,
+      "username": "Shushkata",
+      "userFname": "Arya",
+      "userLname": "Spasova",
+      "userEmail": "shushkata7@gmail.com",
+      "id": 1770123475221,
+      "ownerId": 1768493729350,
+      "createdAt": 1770123475221,
+      "status": "active"
     }
   ],
   "seekers": [],
   "requests": [
-    {
-      "username": "malkotohuski",
-      "userID": 1768488420566,
-      "routeId": 1769688854847,
-      "comment": "Have 1spot ",
-      "status": "pending",
-      "id": 1769689295603,
-      "rateCreator": false,
-      "rateUser": false
-    },
     {
       "username": "Shushkata",
       "userID": 1768493729350,
@@ -833,26 +768,6 @@
       "comment": "1",
       "status": "pending",
       "id": 1769699214324,
-      "rateCreator": false,
-      "rateUser": false
-    },
-    {
-      "username": "Shushkata",
-      "userID": 1768493729350,
-      "routeId": 1769700056227,
-      "comment": "11",
-      "status": "pending",
-      "id": 1769700085444,
-      "rateCreator": false,
-      "rateUser": false
-    },
-    {
-      "username": "Jessy",
-      "userID": 1769436396175,
-      "routeId": 1769700056227,
-      "comment": "1 spot ?",
-      "status": "pending",
-      "id": 1769700388438,
       "rateCreator": false,
       "rateUser": false
     },
