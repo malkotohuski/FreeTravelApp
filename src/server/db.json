@@ -725,7 +725,8 @@
       "id": 1769973503389,
       "ownerId": 1768493729350,
       "createdAt": 1769973503389,
-      "status": "active"
+      "status": "active",
+      "userRouteId": "deleted"
     },
     {
       "selectedVehicle": "Car",

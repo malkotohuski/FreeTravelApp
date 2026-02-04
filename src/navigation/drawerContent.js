@@ -25,7 +25,8 @@ import Messages from '../screens/Chats/Messages';
 import AccountSettings from '../screens/AccountSettings';
 import WelcomeScreen from '../screens/Welcome';
 import LogoutScreen from '../screens/Logout';
-import SettingsScreen from '../screens/Settings';
+import SettingsScreen from '../screens/Settings/index';
+import ReportBugScreen from '../screens/Settings/ReportBugScreen';
 import {RouteDetails} from '../screens/RequestScreen';
 import ChatScreen from '../screens/Chats/ChatScreen';
 import AddFriendScreen from '../screens/Chats/AddFriendScreen';
@@ -135,6 +136,16 @@ export const Navigator = () => {
       style={{marginRight: 16}}
       onPress={() => {
         navigation.navigate('Home');
+      }}>
+      <Icons name="keyboard-backspace" size={24} color="white" />
+    </TouchableOpacity>
+  );
+
+  const BackButtonSettings = ({navigation}) => (
+    <TouchableOpacity
+      style={{marginRight: 16}}
+      onPress={() => {
+        navigation.navigate('Settings');
       }}>
       <Icons name="keyboard-backspace" size={24} color="white" />
     </TouchableOpacity>
@@ -569,6 +580,25 @@ export const Navigator = () => {
               focus: () => {
                 navigation.setOptions({
                   headerRight: () => BackButtonRouteRequests({navigation}),
+                });
+              },
+            })}
+          />
+          <Drawer.Screen
+            name="ReportBugScreen"
+            component={ReportBugScreen}
+            options={{
+              title: t('UserReportBugScreenInfo'),
+              ...screenStyles,
+              headerTitleStyle: {
+                fontSize: 18,
+              },
+              drawerItemStyle: {display: 'none'},
+            }}
+            listeners={({navigation}) => ({
+              focus: () => {
+                navigation.setOptions({
+                  headerRight: () => BackButtonSettings({navigation}),
                 });
               },
             })}
