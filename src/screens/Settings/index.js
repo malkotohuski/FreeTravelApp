@@ -95,13 +95,13 @@ const SettingsScreen = () => {
         navigation.navigate('AccountManager');
         break;
       case 'changePassword':
-        navigation.navigate('ChangePassword');
+        navigation.navigate('AccountSettings');
         break;
       case 'deleteAccount':
         setShowDeleteModal(true);
         break;
       case 'reportBug':
-        navigation.navigate('ReportBug');
+        navigation.navigate('ReportBugScreen');
         break;
       case 'contactUs':
         navigation.navigate('ContactUs');
@@ -247,13 +247,13 @@ const SettingsScreen = () => {
       header: t('Preferences') || 'Preferences',
       icon: 'settings',
       items: [
-        {
+        /*  {
           id: 'language',
           icon: 'language',
           color: '#fe9488',
           label: t('Language') || 'Language',
           type: 'link',
-        },
+        }, */
         {
           id: 'darkMode',
           icon: 'dark-mode',

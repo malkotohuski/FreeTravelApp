@@ -12,6 +12,7 @@ import {useFocusEffect} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {useAuth} from '../../context/AuthContext';
+import LinearGradient from 'react-native-linear-gradient';
 import api from '../../api/api';
 
 function RouteDetails({route}) {
@@ -142,8 +143,11 @@ function RouteDetails({route}) {
   };
 
   return (
-    <View style={styles.container}>
-      <Image
+    <LinearGradient
+      colors={['#1b1b1b', '#2a2a2a']}
+      style={styles.mainContainer}>
+      <View style={styles.container}>
+        {/*   <Image
         source={require('../../../images/confirm2-background.jpg')}
         style={{
           flex: 1,
@@ -152,118 +156,132 @@ function RouteDetails({route}) {
           resizeMode: 'cover',
           position: 'absolute',
         }}
-      />
+      /> */}
 
-      <Text style={styles.headerText}>{t('Route Details')}:</Text>
-      <Text style={styles.text}>
-        {' '}
-        {t('Nick name')} : {username}
-      </Text>
-      <Text style={styles.text}>
-        {' '}
-        {t('Names')} : {userFname} {userLname}
-      </Text>
-      <Text style={styles.text}>
-        {' '}
-        {t('Route')} : {departureCity}-{arrivalCity}{' '}
-      </Text>
-
-      <TextInput
-        style={styles.input}
-        onChangeText={text => setTripRequestText(text)}
-        value={tripRequestText}
-        placeholder={t('Enter your travel request comment here :')}
-        multiline={true}
-        numberOfLines={4}
-      />
-
-      <TouchableOpacity
-        style={styles.buttonConfirm}
-        onPress={() =>
-          navigation.navigate('UserInfo', {
-            username,
-            userFname,
-            userLname,
-            userEmail,
-            userId: route.params.userId,
-            departureCity, // свежо
-            arrivalCity, // свежо
-            selectedVehicle: route.params.selectedVehicle,
-            registrationNumber: route.params.registrationNumber,
-            routeDetailsData: {
-              routeId,
-              selectedDateTime: route.params.selectedDateTime,
-            },
-          })
-        }>
-        <Text style={styles.buttonText}>{t('viewUserInfo')}</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[
-          styles.buttonConfirm,
-          (isOwnRoute || hasRequested) && {backgroundColor: '#ccc'},
-        ]}
-        onPress={() => {
-          if (isOwnRoute) {
-            Alert.alert(
-              t('Error'),
-              t('You cannot apply for this route because you created it.'),
-            );
-          } else if (hasRequested) {
-            Alert.alert(
-              t('Error'),
-              t('You have already submitted a request for this route.'),
-            );
-          } else {
-            handlerTripRequest();
-          }
-        }}
-        disabled={isOwnRoute || hasRequested}>
-        <Text style={styles.buttonText}>{t('Trip request')}</Text>
-      </TouchableOpacity>
-      {hasRequested && (
-        <Text style={styles.requestedText}>
-          {t('You have already applied for this route.')}
+        <Text style={styles.headerText}>{t('Route Details')}:</Text>
+        <Text style={styles.text}>
+          {' '}
+          {t('Nick name')} : {username}
         </Text>
-      )}
-
-      <TouchableOpacity
-        style={styles.buttonBack}
-        onPress={handlerBackToViewRoute}>
-        <Text style={styles.buttonText}>{t('Back')}</Text>
-      </TouchableOpacity>
-      {requesterUsername === username && (
-        <Text style={styles.warningText}>
-          {t('This route was created by you, and you cannot request it!')}
+        <Text style={styles.text}>
+          {' '}
+          {t('Names')} : {userFname} {userLname}
         </Text>
-      )}
-    </View>
+        <Text style={styles.text}>
+          {' '}
+          {t('Route')} : {departureCity}-{arrivalCity}{' '}
+        </Text>
+
+        <TextInput
+          style={styles.input}
+          onChangeText={text => setTripRequestText(text)}
+          value={tripRequestText}
+          placeholder={t('Enter your travel request comment here :')}
+          multiline={true}
+          numberOfLines={4}
+        />
+
+        <TouchableOpacity
+          style={styles.buttonUserInfo}
+          onPress={() =>
+            navigation.navigate('UserInfo', {
+              username,
+              userFname,
+              userLname,
+              userEmail,
+              userId: route.params.userId,
+              departureCity, // свежо
+              arrivalCity, // свежо
+              selectedVehicle: route.params.selectedVehicle,
+              registrationNumber: route.params.registrationNumber,
+              routeDetailsData: {
+                routeId,
+                selectedDateTime: route.params.selectedDateTime,
+              },
+            })
+          }>
+          <Text style={styles.infoButtonText}>{t('viewUserInfo')}</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.buttonConfirm,
+            (isOwnRoute || hasRequested) && {backgroundColor: '#ccc'},
+          ]}
+          onPress={() => {
+            if (isOwnRoute) {
+              Alert.alert(
+                t('Error'),
+                t('You cannot apply for this route because you created it.'),
+              );
+            } else if (hasRequested) {
+              Alert.alert(
+                t('Error'),
+                t('You have already submitted a request for this route.'),
+              );
+            } else {
+              handlerTripRequest();
+            }
+          }}
+          disabled={isOwnRoute || hasRequested}>
+          <Text style={styles.buttonText}>{t('Trip request')}</Text>
+        </TouchableOpacity>
+        {hasRequested && (
+          <Text style={styles.requestedText}>
+            {t('You have already applied for this route.')}
+          </Text>
+        )}
+
+        <TouchableOpacity
+          style={styles.buttonBack}
+          onPress={handlerBackToViewRoute}>
+          <Text style={styles.buttonText}>{t('Back')}</Text>
+        </TouchableOpacity>
+        {requesterUsername === username && (
+          <Text style={styles.warningText}>
+            {t('This route was created by you, and you cannot request it!')}
+          </Text>
+        )}
+      </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
+  mainContainer: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    backgroundColor: 'grey',
   },
   headerText: {
     fontWeight: 'bold',
     fontSize: 24,
     paddingBottom: 10,
-    color: '#1b1c1e',
+    color: '#e0e0e0',
     borderBottomWidth: 3,
-    borderBottomColor: '#1b1c1e',
+    borderBottomColor: '#cacaca',
   },
   text: {
     fontWeight: 'bold',
     fontSize: 18,
     paddingBottom: 10,
-    color: '#1b1c1e',
+    color: '#b9b9b9',
     borderBottomWidth: 1,
-    borderBottomColor: '#1b1c1e',
+    borderBottomColor: '#919191',
+  },
+  buttonUserInfo: {
+    marginTop: 10,
+    padding: 15,
+    backgroundColor: '#e3e9e5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 18,
+    fontWeight: 'bold',
+    width: '90%',
+    borderRadius: 10,
   },
   buttonConfirm: {
     marginTop: 10,
@@ -275,6 +293,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     width: '90%',
     borderRadius: 10,
+  },
+  infoButtonText: {
+    color: '#464646',
+    fontSize: 16,
   },
   buttonBack: {
     marginTop: 10,
@@ -298,6 +320,9 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 5,
+    color: '#e9e9e9',
+    backgroundColor: '#929090',
+    textAlignVertical: 'top',
   },
   warningText: {
     marginTop: 10,
