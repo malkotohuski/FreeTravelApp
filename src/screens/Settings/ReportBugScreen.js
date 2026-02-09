@@ -14,17 +14,16 @@ import DeviceInfo from 'react-native-device-info';
 import {launchImageLibrary} from 'react-native-image-picker';
 import {useAuth} from '../../context/AuthContext';
 import {useTranslation} from 'react-i18next';
-
-const API_BASE_URL = 'http://10.0.2.2:3000';
+import {submitBugReport} from '../../api/bugReport.api';
 
 const ReportBugScreen = () => {
-  const {user} = useAuth();
   const {t} = useTranslation();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [steps, setSteps] = useState('');
   const [screenshot, setScreenshot] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [screenshots, setScreenshots] = useState([]);
 
   const appVersion = DeviceInfo.getVersion();
   const systemVersion = DeviceInfo.getSystemVersion();
@@ -34,23 +33,23 @@ const ReportBugScreen = () => {
     const result = await launchImageLibrary({
       mediaType: 'photo',
       quality: 0.8,
+      includeBase64: true,
     });
 
     if (!result.didCancel && result.assets?.length) {
-      setScreenshot(result.assets[0]);
+      setScreenshots(prev => [...prev, ...result.assets]);
     }
   };
 
   const submitBug = async () => {
     if (!title.trim()) {
-      Alert.alert('Validation', 'Title is required');
+      Alert.alert(t('validation'), t('titleRequired'));
       return;
     }
 
     setLoading(true);
 
     const payload = {
-      userId: user?.id,
       title,
       description,
       steps,
@@ -58,25 +57,20 @@ const ReportBugScreen = () => {
       platform: Platform.OS,
       systemVersion,
       deviceModel,
-      screenshot: screenshot?.base64 || null,
+      screenshot: screenshots.map(s => s.base64),
     };
 
     try {
-      const res = await fetch(`${API_BASE_URL}/report-bug`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(payload),
-      });
+      await submitBugReport(payload);
 
-      if (!res.ok) throw new Error();
-
-      Alert.alert('Thank you 🙏', 'Bug report sent successfully');
+      Alert.alert(t('thankYou'), t('bugSent'));
       setTitle('');
       setDescription('');
       setSteps('');
       setScreenshot(null);
     } catch (e) {
-      Alert.alert('Error', 'Could not send report');
+      console.log('Bug submit error:', e);
+      Alert.alert(t('error'), t('bugSendFailed'));
     } finally {
       setLoading(false);
     }

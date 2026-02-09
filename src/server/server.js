@@ -1270,6 +1270,50 @@ server.patch('/routes/:id/complete', (req, res) => {
   return res.status(400).json({error: 'Invalid role'});
 });
 
+server.post('/api/bug-reports', authenticateJWT, (req, res) => {
+  try {
+    const {
+      title,
+      description,
+      steps,
+      appVersion,
+      platform,
+      systemVersion,
+      deviceModel,
+      screenshot,
+    } = req.body;
+
+    if (!title || !title.trim()) {
+      return res.status(400).json({error: 'Title is required'});
+    }
+
+    const bugReport = {
+      id: Date.now(),
+      userId: req.user.id,
+      title: title.trim(),
+      description: description?.trim() || '',
+      steps: steps?.trim() || '',
+      appVersion,
+      platform,
+      systemVersion,
+      deviceModel,
+      screenshot: screenshot || null,
+      status: 'open',
+      createdAt: new Date().toISOString(),
+    };
+
+    router.db.get('bugReports').push(bugReport).write();
+
+    return res.status(201).json({
+      message: 'Bug report submitted successfully',
+      id: bugReport.id,
+    });
+  } catch (err) {
+    console.error('Bug report error:', err);
+    return res.status(500).json({error: 'Server error'});
+  }
+});
+
 // Use default router
 server.use(router);
 
