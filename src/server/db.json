@@ -2947,6 +2947,21 @@
       ],
       "status": "open",
       "createdAt": "2026-02-09T14:12:39.005Z"
+    },
+    {
+      "id": 1770725458022,
+      "userId": 1768488420566,
+      "title": "Login problem",
+      "description": "",
+      "steps": "",
+      "appVersion": "1.0",
+      "platform": "android",
+      "systemVersion": "15",
+      "deviceModel": "sdk_gphone64_x86_64",
+      "screenshot": [],
+      "status": "in_progress",
+      "createdAt": "2026-02-10T12:10:58.022Z",
+      "startedAt": "2026-02-10T14:14:20.302Z"
     }
   ]
 }
