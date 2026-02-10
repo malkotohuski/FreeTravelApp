@@ -39,6 +39,7 @@ import Seekers from '../screens/Seekers';
 import UserInfo from '../screens/UserInfo';
 import UserDetailsScreen from '../screens/UserDetails';
 import ResetPassword from '../screens/ResetPasswordScreen/index';
+import PrivacyPolicyScreen from '../screens/Settings/privacyPolicy';
 
 const Drawer = createDrawerNavigator();
 
@@ -599,6 +600,25 @@ export const Navigator = () => {
               focus: () => {
                 navigation.setOptions({
                   headerRight: () => BackButtonSettings({navigation}),
+                });
+              },
+            })}
+          />
+          <Drawer.Screen
+            name="PrivacyPolicyScreen"
+            component={PrivacyPolicyScreen}
+            options={{
+              title: t('privacyPolicy'),
+              ...screenStyles,
+              headerTitleStyle: {
+                fontSize: 18,
+              },
+              drawerItemStyle: {display: 'none'},
+            }}
+            listeners={({navigation}) => ({
+              focus: () => {
+                navigation.setOptions({
+                  headerRight: () => BackButtonRouteRequests({navigation}),
                 });
               },
             })}
