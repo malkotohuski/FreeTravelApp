@@ -109,6 +109,9 @@ const SettingsScreen = () => {
       case 'about':
         navigation.navigate('About');
         break;
+      case 'privacyPolicy':
+        navigation.navigate('PrivacyPolicyScreen'); // нов screen
+        break;
       default:
         console.log('Pressed', id);
     }
@@ -321,6 +324,13 @@ const SettingsScreen = () => {
       header: t('Help') || 'Help',
       icon: 'help',
       items: [
+        {
+          id: 'privacyPolicy',
+          icon: 'privacy-tip',
+          color: '#007AFE',
+          label: t('privacyPolicy') || 'Privacy Policy',
+          type: 'link',
+        },
         {
           id: 'reportBug',
           icon: 'bug-report',
