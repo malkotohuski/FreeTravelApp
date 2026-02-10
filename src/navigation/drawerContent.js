@@ -618,7 +618,7 @@ export const Navigator = () => {
             listeners={({navigation}) => ({
               focus: () => {
                 navigation.setOptions({
-                  headerRight: () => BackButtonRouteRequests({navigation}),
+                  headerRight: () => BackButtonSettings({navigation}),
                 });
               },
             })}
