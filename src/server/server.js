@@ -7,6 +7,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_change_later';
 const server = jsonServer.create();
 const router = jsonServer.router('db.json');
 const middlewares = jsonServer.defaults();
+const internalOnly = require('./middlewares/internalOnly');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
 const fs = require('fs');
@@ -184,7 +185,7 @@ function deleteInactiveAccountsOlderThanOneDay() {
   router.db.set('users', activeUsers).write();
   console.log('Inactive accounts older than 1 day have been deleted.');
 }
-
+// New endpoint to delete account (soft delete)
 server.post('/delete-account', authenticateJWT, (req, res) => {
   try {
     const userId = req.user.id; // ✅ идва от JWT
@@ -218,7 +219,7 @@ server.post('/delete-account', authenticateJWT, (req, res) => {
     return res.status(500).json({error: 'Server error'});
   }
 });
-
+// New endpoint to restore a deleted account
 server.post('/restore-account', authenticateJWT, (req, res) => {
   const userId = req.user.id; // ✅ от JWT
 
@@ -244,7 +245,7 @@ server.post('/restore-account', authenticateJWT, (req, res) => {
 
   return res.status(200).json({message: 'Account restored successfully.'});
 });
-
+// New endpoint to resend confirmation code with anti-spam measures
 server.post('/resend-confirmation-code', (req, res) => {
   const {email} = req.body;
 
@@ -310,7 +311,7 @@ server.post('/resend-confirmation-code', (req, res) => {
     return res.status(200).json({message: 'New confirmation code sent.'});
   });
 });
-
+//
 server.patch('/user-changes', authenticateJWT, async (req, res) => {
   try {
     const userId = req.user?.id;
@@ -368,7 +369,7 @@ server.patch('/user-changes', authenticateJWT, async (req, res) => {
     return res.status(500).json({error: 'Server error'});
   }
 });
-
+// New endpoint to submit bug reports
 server.post('/create-route', authenticateJWT, (req, res) => {
   const userId = req.user.id;
   const {route} = req.body;
@@ -474,7 +475,7 @@ server.post('/create-route', authenticateJWT, (req, res) => {
 
   return res.status(201).json(responsePayload);
 });
-
+// New endpoint to create seeker route with rate limiting
 server.post('/seekers-route', authenticateJWT, (req, res) => {
   const userId = req.user.id;
   const {seeker} = req.body;
@@ -788,7 +789,7 @@ server.post('/send-request-to-user', (req, res) => {
     message: 'Route request processed successfully.',
   });
 });
-
+// New endpoint to handle route request decision (approve/reject)
 server.post('/requests/:id/decision', authenticateJWT, async (req, res) => {
   try {
     const requestId = Number(req.params.id);
@@ -916,7 +917,7 @@ server.get('/get-requests', (req, res) => {
     .status(201)
     .json({message: 'Route created successfully.', request: requestingUser});
 });
-
+// New endpoint to rate a user after a trip
 server.post('/rateUser', authenticateJWT, (req, res) => {
   try {
     const {userId, routeId, stars, comment} = req.body;
@@ -1031,7 +1032,7 @@ server.post('/rateUser', authenticateJWT, (req, res) => {
   }
 });
 
-// Handle user login
+// Login endpoint with enhanced error handling and JWT generation
 server.post('/login', async (req, res) => {
   const {useremail, userpassword} = req.body;
 
@@ -1100,7 +1101,7 @@ server.get('/notifications/:username', (req, res) => {
     .value();
   res.json(notifications);
 });
-
+// New endpoint to handle forgot password and send reset code
 server.post('/forgot-password', (req, res) => {
   const {email} = req.body;
 
@@ -1154,7 +1155,7 @@ server.post('/forgot-password', (req, res) => {
     },
   );
 });
-
+// New endpoint to reset password using the code
 server.post('/reset-password', async (req, res) => {
   const {email, code, newPassword} = req.body;
 
@@ -1191,7 +1192,7 @@ server.post('/reset-password', async (req, res) => {
     message: 'Password reset successful',
   });
 });
-
+// New endpoint to mark route as completed by creator or passenger
 server.patch('/routes/:id/complete', (req, res) => {
   const routeId = Number(req.params.id);
   const {userId, role} = req.body;
@@ -1269,7 +1270,7 @@ server.patch('/routes/:id/complete', (req, res) => {
 
   return res.status(400).json({error: 'Invalid role'});
 });
-
+// New endpoint to submit bug reports
 server.post('/api/bug-reports', authenticateJWT, (req, res) => {
   try {
     const {
@@ -1297,9 +1298,11 @@ server.post('/api/bug-reports', authenticateJWT, (req, res) => {
       platform,
       systemVersion,
       deviceModel,
-      screenshot: screenshot || null,
+      screenshots: screenshot || [],
       status: 'open',
       createdAt: new Date().toISOString(),
+      startedAt: null,
+      closedAt: null,
     };
 
     router.db.get('bugReports').push(bugReport).write();
@@ -1313,6 +1316,54 @@ server.post('/api/bug-reports', authenticateJWT, (req, res) => {
     return res.status(500).json({error: 'Server error'});
   }
 });
+// Admin endpoint to get all bug reports
+server.get(
+  '/api/admin/bug-reports',
+  authenticateJWT,
+  internalOnly,
+  (req, res) => {
+    const reports = router.db
+      .get('bugReports')
+      .orderBy('createdAt', 'desc')
+      .value();
+
+    res.json(reports);
+  },
+);
+
+// Admin endpoint to update bug report status
+server.patch(
+  '/api/admin/bug-reports/:id/status',
+  authenticateJWT,
+  (req, res) => {
+    const {status} = req.body;
+    const id = Number(req.params.id);
+
+    const allowed = ['open', 'in_progress', 'closed'];
+    if (!allowed.includes(status)) {
+      return res.status(400).json({error: 'Invalid status'});
+    }
+
+    const report = router.db.get('bugReports').find({id}).value();
+    if (!report) {
+      return res.status(404).json({error: 'Bug report not found'});
+    }
+
+    const update = {status};
+
+    if (status === 'in_progress' && !report.startedAt) {
+      update.startedAt = new Date().toISOString();
+    }
+
+    if (status === 'closed') {
+      update.closedAt = new Date().toISOString();
+    }
+
+    router.db.get('bugReports').find({id}).assign(update).write();
+
+    res.json({success: true});
+  },
+);
 
 // Use default router
 server.use(router);

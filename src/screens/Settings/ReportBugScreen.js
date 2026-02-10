@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useCallback} from 'react';
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import {launchImageLibrary} from 'react-native-image-picker';
 import {useAuth} from '../../context/AuthContext';
 import {useTranslation} from 'react-i18next';
 import {submitBugReport} from '../../api/bugReport.api';
+import {useFocusEffect} from '@react-navigation/native';
 
 const ReportBugScreen = () => {
   const {t} = useTranslation();
@@ -29,6 +30,16 @@ const ReportBugScreen = () => {
   const systemVersion = DeviceInfo.getSystemVersion();
   const deviceModel = DeviceInfo.getModel();
 
+  useFocusEffect(
+    useCallback(() => {
+      // Нулираме полетата за парола при всяко влизане в екрана
+      setTitle('');
+      setDescription('');
+      setSteps('');
+      setScreenshot(null);
+    }, []),
+  );
+
   const pickImage = async () => {
     const result = await launchImageLibrary({
       mediaType: 'photo',
@@ -42,8 +53,8 @@ const ReportBugScreen = () => {
   };
 
   const submitBug = async () => {
-    if (!title.trim()) {
-      Alert.alert(t('validation'), t('titleRequired'));
+    if (!title.trim() || !description.trim()) {
+      Alert.alert(t('Error'), t('pleaseFill'));
       return;
     }
 
@@ -86,7 +97,7 @@ const ReportBugScreen = () => {
         onChangeText={setTitle}
       />
 
-      <Text style={styles.label}>{t('detailedDescription')}</Text>
+      <Text style={styles.label}>{t('detailedDescription')} *</Text>
       <TextInput
         style={[styles.input, styles.multiline]}
         multiline
