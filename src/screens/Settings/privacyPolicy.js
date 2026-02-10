@@ -5,7 +5,11 @@ import {WebView} from 'react-native-webview';
 export default function PrivacyPolicyScreen() {
   return (
     <SafeAreaView style={styles.container}>
-      <WebView source={{uri: 'https://yourdomain.com/privacy-policy.html'}} />
+      <WebView
+        source={{
+          uri: 'https://malkotohuski.github.io/FreeTravelApp/privacy-policy.html',
+        }}
+      />
     </SafeAreaView>
   );
 }
