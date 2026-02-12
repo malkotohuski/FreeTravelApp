@@ -40,6 +40,7 @@ import UserInfo from '../screens/UserInfo';
 import UserDetailsScreen from '../screens/UserDetails';
 import ResetPassword from '../screens/ResetPasswordScreen/index';
 import PrivacyPolicyScreen from '../screens/Settings/privacyPolicy';
+import TermsOfServiceScreen from '../screens/Settings/termsOfServiceScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -567,24 +568,7 @@ export const Navigator = () => {
               ),
             }}
           />
-          <Drawer.Screen
-            name="Settings"
-            component={SettingsScreen}
-            options={{
-              title: t('Settings'),
-              ...screenStyles,
-              drawerIcon: ({color, size}) => (
-                <Icon name="settings" size={size} color={color} />
-              ),
-            }}
-            listeners={({navigation}) => ({
-              focus: () => {
-                navigation.setOptions({
-                  headerRight: () => BackButtonRouteRequests({navigation}),
-                });
-              },
-            })}
-          />
+
           <Drawer.Screen
             name="ReportBugScreen"
             component={ReportBugScreen}
@@ -604,25 +588,7 @@ export const Navigator = () => {
               },
             })}
           />
-          <Drawer.Screen
-            name="PrivacyPolicyScreen"
-            component={PrivacyPolicyScreen}
-            options={{
-              title: t('privacyPolicy'),
-              ...screenStyles,
-              headerTitleStyle: {
-                fontSize: 18,
-              },
-              drawerItemStyle: {display: 'none'},
-            }}
-            listeners={({navigation}) => ({
-              focus: () => {
-                navigation.setOptions({
-                  headerRight: () => BackButtonSettings({navigation}),
-                });
-              },
-            })}
-          />
+
           <Drawer.Screen
             name="AccountManager"
             component={AccountManager}
@@ -702,6 +668,56 @@ export const Navigator = () => {
               headerShown: false,
               drawerItemStyle: {display: 'none'},
             }}
+          />
+          <Drawer.Screen
+            name="PrivacyPolicyScreen"
+            component={PrivacyPolicyScreen}
+            options={{
+              title: t('privacyPolicy'),
+              ...screenStyles,
+              drawerItemStyle: {display: 'none'},
+            }}
+            listeners={({navigation}) => ({
+              focus: () => {
+                navigation.setOptions({
+                  headerRight: () => BackButtonSettings({navigation}),
+                });
+              },
+            })}
+          />
+          <Drawer.Screen
+            name="TermsOfServiceScreen"
+            component={TermsOfServiceScreen}
+            options={{
+              title: t('termsOfService'),
+              ...screenStyles,
+              drawerItemStyle: {display: 'none'},
+            }}
+            listeners={({navigation}) => ({
+              focus: () => {
+                navigation.setOptions({
+                  headerRight: () => BackButtonSettings({navigation}),
+                });
+              },
+            })}
+          />
+          <Drawer.Screen
+            name="Settings"
+            component={SettingsScreen}
+            options={{
+              title: t('Settings'),
+              ...screenStyles,
+              drawerIcon: ({color, size}) => (
+                <Icon name="settings" size={size} color={color} />
+              ),
+            }}
+            listeners={({navigation}) => ({
+              focus: () => {
+                navigation.setOptions({
+                  headerRight: () => BackButtonRouteRequests({navigation}),
+                });
+              },
+            })}
           />
         </>
       )}

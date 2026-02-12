@@ -110,7 +110,10 @@ const SettingsScreen = () => {
         navigation.navigate('About');
         break;
       case 'privacyPolicy':
-        navigation.navigate('PrivacyPolicyScreen'); // нов screen
+        navigation.navigate('PrivacyPolicyScreen');
+        break;
+      case 'termsOfService':
+        navigation.navigate('TermsOfServiceScreen');
         break;
       default:
         console.log('Pressed', id);
@@ -329,6 +332,13 @@ const SettingsScreen = () => {
           icon: 'privacy-tip',
           color: '#007AFE',
           label: t('privacyPolicy') || 'Privacy Policy',
+          type: 'link',
+        },
+        {
+          id: 'termsOfService',
+          icon: 'description',
+          color: '#34C759',
+          label: t('termsOfService') || 'Terms of Service',
           type: 'link',
         },
         {

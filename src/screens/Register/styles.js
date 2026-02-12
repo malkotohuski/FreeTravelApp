@@ -80,4 +80,23 @@ export default StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
+  languageSwitchContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    padding: 10,
+  },
+  languageButton: {
+    alignItems: 'center',
+  },
+  flagImage: {
+    width: 50, // Adjust the size as needed
+    height: 50, // Adjust the size as needed
+    borderRadius: 25, // Half of the width and height to make it round
+    marginBottom: 5, // Adjust the spacing as needed
+  },
+  languageText: {
+    fontSize: 23,
+    fontWeight: 'bold',
+    color: '#FAFAFA',
+  },
 });

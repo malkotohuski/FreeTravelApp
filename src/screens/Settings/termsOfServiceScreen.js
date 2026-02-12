@@ -3,13 +3,13 @@ import {SafeAreaView, StyleSheet} from 'react-native';
 import {WebView} from 'react-native-webview';
 import {useTranslation} from 'react-i18next';
 
-export default function PrivacyPolicyScreen() {
+export default function TermsOfServiceScreen() {
   const {i18n} = useTranslation();
 
   const source =
     i18n.language === 'bg'
-      ? require('../../../docs/privacy-policy-bg.html')
-      : require('../../../docs/privacy-policy-eng.html');
+      ? require('../../../docs/terms-of-service-bg.html')
+      : require('../../../docs/terms-of-service-en.html');
 
   return (
     <SafeAreaView style={styles.container}>

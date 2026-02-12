@@ -157,11 +157,13 @@ i18next.use(initReactI18next).init({
         Username: 'Username',
         'Choose how many free places you have:':
           'Choose how many free places you have:',
+        termsOfService: 'Terms of Service',
         'Invalid registration number format':
           'Invalid registration number format',
         'Registration Number:': 'Registration Number:',
         enterRegistrationNumber: 'Enter Registration Number',
         'Invalid Registration Number': 'Invalid Registration Number',
+        byCreatingAccount: 'By creating an account, you agree to our',
         'Please enter a valid registration number.':
           'Please enter a valid registration number.',
         Home: 'Home',
@@ -5175,6 +5177,7 @@ i18next.use(initReactI18next).init({
         'Route request': 'Запитване за маршрут',
         'View routes': 'Преглед на маршрутите',
         'More info about': 'Повече информация за',
+        termsOfService: 'Условия за ползване',
         UserReportBugScreenInfo: 'Докладвай за грешки',
         Reporting: 'Подаване на сигнал',
         'You cannot send an invitation to your own route.':
@@ -5187,6 +5190,7 @@ i18next.use(initReactI18next).init({
         'We travel freely': 'Пътуваме свободно',
         detailedDescription: 'Детайлно описание',
         stepsReproduce: 'Стъпки за възпроизвеждане',
+        byCreatingAccount: 'Създавайки акаунт, вие се съгласявате с нашите',
         'Search here': 'Търсете тук',
         Decline: 'Отказ',
         'Route Information': 'Информация за маршрута',
