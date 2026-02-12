@@ -14,8 +14,10 @@ import {useCallback} from 'react';
 import api from '../../api/api';
 import styles from './styles';
 import {useTranslation} from 'react-i18next';
+import i18next from 'i18next';
 import ImagePicker from 'react-native-image-crop-picker';
 import {useAuth} from '../../context/AuthContext';
+import TermsModal from '../../componets/TermsModal';
 
 export default function Register({navigation}) {
   const {t} = useTranslation();
@@ -31,6 +33,14 @@ export default function Register({navigation}) {
   const [showConfirmationCodeInput, setShowConfirmationCodeInput] =
     useState(false);
   const [profilePicture, setProfilePicture] = useState('');
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [termsType, setTermsType] = useState('terms'); // 'terms' или 'privacy'
+  const [isBulgaria, setisBulgaria] = useState(false);
+
+  const changeLanguage = lng => {
+    i18next.changeLanguage(lng);
+    setisBulgaria(lng === 'bg');
+  };
 
   const resendConfirmationCode = async () => {
     try {
@@ -176,6 +186,29 @@ export default function Register({navigation}) {
             source={require('../../../images/login-background.jpg')}
             style={styles.backgroundImage}
           />
+          <View style={{marginTop: 20}}>
+            <View style={styles.languageSwitchContainer}>
+              <TouchableOpacity
+                style={styles.languageButton}
+                onPress={() => changeLanguage('en')}>
+                <Image
+                  source={require('../../../images/eng1-flag.png')}
+                  style={styles.flagImage}
+                />
+                <Text style={styles.languageText}>{t('English')}</Text>
+              </TouchableOpacity>
+              <View style={{margin: 60}} />
+              <TouchableOpacity
+                style={styles.languageButton}
+                onPress={() => changeLanguage('bg')}>
+                <Image
+                  source={require('../../../images/bulg-flag.png')}
+                  style={styles.flagImage}
+                />
+                <Text style={styles.languageText}>{t('Bulgarian')}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
           <TouchableOpacity
             onPress={handleImagePicker}
             style={[styles.profilePictureContainer, styles.topRight]}>
@@ -272,6 +305,43 @@ export default function Register({navigation}) {
                 </Text>
               </TouchableOpacity>
             )}
+            <View style={{marginTop: 20, paddingHorizontal: 10}}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  fontSize: 14,
+                  color: '#F5FDFE',
+                  lineHeight: 20,
+                }}>
+                {t('byCreatingAccount')}{' '}
+                <Text
+                  style={{color: '#4da6ff', textDecorationLine: 'underline'}}
+                  onPress={() => {
+                    setTermsType('terms');
+                    setShowTermsModal(true);
+                  }}>
+                  {t('termsOfService')}
+                </Text>{' '}
+                {t('and')}{' '}
+                <Text
+                  style={{color: '#4da6ff', textDecorationLine: 'underline'}}
+                  onPress={() => {
+                    setTermsType('privacy');
+                    setShowTermsModal(true);
+                  }}>
+                  {t('privacyPolicy')}
+                </Text>
+                .
+              </Text>
+            </View>
+
+            {/* TermsModal */}
+            <TermsModal
+              visible={showTermsModal}
+              type={termsType}
+              isBulgaria={isBulgaria} // <<< добавено
+              onClose={() => setShowTermsModal(false)}
+            />
           </View>
         </View>
       </ScrollView>
