@@ -41,6 +41,8 @@ import UserDetailsScreen from '../screens/UserDetails';
 import ResetPassword from '../screens/ResetPasswordScreen/index';
 import PrivacyPolicyScreen from '../screens/Settings/privacyPolicy';
 import TermsOfServiceScreen from '../screens/Settings/termsOfServiceScreen';
+import ContactUsScreen from '../screens/Settings/ContactUsScreen';
+import AboutUsScreen from '../screens/Settings/AboutUsScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -690,6 +692,38 @@ export const Navigator = () => {
             component={TermsOfServiceScreen}
             options={{
               title: t('termsOfService'),
+              ...screenStyles,
+              drawerItemStyle: {display: 'none'},
+            }}
+            listeners={({navigation}) => ({
+              focus: () => {
+                navigation.setOptions({
+                  headerRight: () => BackButtonSettings({navigation}),
+                });
+              },
+            })}
+          />
+          <Drawer.Screen
+            name="ContactUsScreen"
+            component={ContactUsScreen}
+            options={{
+              title: t('ContactUsScreen'),
+              ...screenStyles,
+              drawerItemStyle: {display: 'none'},
+            }}
+            listeners={({navigation}) => ({
+              focus: () => {
+                navigation.setOptions({
+                  headerRight: () => BackButtonSettings({navigation}),
+                });
+              },
+            })}
+          />
+          <Drawer.Screen
+            name="AboutUsScreen"
+            component={AboutUsScreen}
+            options={{
+              title: t('AboutUsScreen'),
               ...screenStyles,
               drawerItemStyle: {display: 'none'},
             }}
