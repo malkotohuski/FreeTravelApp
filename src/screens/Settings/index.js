@@ -8,6 +8,7 @@ import {
   Alert,
   Modal,
   Pressable,
+  SafeAreaView,
 } from 'react-native';
 import {ListItem, Icon} from 'react-native-elements';
 import {useTranslation} from 'react-i18next';
@@ -104,10 +105,10 @@ const SettingsScreen = () => {
         navigation.navigate('ReportBugScreen');
         break;
       case 'contactUs':
-        navigation.navigate('ContactUs');
+        navigation.navigate('ContactUsScreen');
         break;
       case 'about':
-        navigation.navigate('About');
+        navigation.navigate('AboutUsScreen');
         break;
       case 'privacyPolicy':
         navigation.navigate('PrivacyPolicyScreen');
@@ -269,7 +270,7 @@ const SettingsScreen = () => {
         },
       ],
     },
-    {
+    /*  {
       header: t('Notifications') || 'Notifications',
       icon: 'notifications',
       items: [
@@ -295,7 +296,7 @@ const SettingsScreen = () => {
           type: 'toggle',
         },
       ],
-    },
+    }, */
     {
       header: t('Account') || 'Account',
       icon: 'person',
@@ -368,16 +369,21 @@ const SettingsScreen = () => {
 
   return (
     <>
-      <ScrollView>
-        <View style={getContainerStyle()}>
+      <SafeAreaView style={{flex: 1}}>
+        <ScrollView
+          contentContainerStyle={{
+            flexGrow: 1,
+            padding: 15,
+            backgroundColor: darkMode ? '#121212' : '#fff',
+          }}>
           {SECTIONS.map(section => (
-            <View key={section.header}>
+            <View key={section.header} style={{marginBottom: 20}}>
               <Text style={getSectionHeaderStyle()}>{section.header}</Text>
               {section.items.map(item => renderItem(item))}
             </View>
           ))}
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </SafeAreaView>
 
       <DeleteHoldModal
         visible={showDeleteModal}
