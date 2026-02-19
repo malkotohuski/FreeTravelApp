@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Report {
+  id          Int      @id @default(autoincrement())
+  text        String
+  image       String?
+  status      ReportStatus @default(PENDING)
+
+  reporterId  Int
+  reportedId  Int
+
+  reporter    User @relation("Reporter", fields: [reporterId], references: [id])
+  reported    User @relation("ReportedUser", fields: [reportedId], references: [id])
+
+  createdAt   DateTime @default(now())
+}
+
+enum ReportStatus {
+  PENDING
+  RESOLVED
+  REJECTED
+}
+
+model User {
+  id                        Int       @id @default(autoincrement())
+  username                  String    @unique
+  email                     String    @unique
+  password                  String
+  fName                     String?
+  lName                     String?
+  userImage                 String?
+  confirmationCode          String?
+  confirmationCodeExpiresAt DateTime?
+  lastConfirmationResend    DateTime?
+  isActive                  Boolean   @default(false)
+  isAdmin                   Boolean   @default(false)
+  createdAt                 DateTime  @default(now())
+  accountStatus             String    @default("active")
+
+  routes        Json?
+  friends       Json?
+  ratings       Json?
+  averageRating Float @default(0)
+  comments      Json?
+
+  reportsSent     Report[] @relation("Reporter")
+  reportsReceived Report[] @relation("ReportedUser")
+}
+
