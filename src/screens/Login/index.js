@@ -61,9 +61,9 @@ export default function Login({navigation, route}) {
     try {
       setIsLoading(true);
 
-      const response = await api.post('/login', {
-        useremail: email,
-        userpassword: password,
+      const response = await api.post('/api/auth/login', {
+        email: email, // ⚡ преди: useremail
+        password: password, // ⚡ преди: userpassword
       });
 
       const {user, token} = response.data;

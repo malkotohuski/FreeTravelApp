@@ -6,7 +6,7 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  ActivityIndicator,
+  Alert,
   SafeAreaView,
   ScrollView,
 } from 'react-native';
@@ -18,18 +18,12 @@ import {useRouteContext} from '../../context/RouteContext';
 import {useAuth} from '../../context/AuthContext';
 
 function Confirm() {
-  const submitLock = useRef(false);
+  const submitLock = useRef(false); // предотвратява двойно изпращане
   const {t} = useTranslation();
   const navigation = useNavigation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const idempotencyKeyRef = useRef(null);
-
-  useEffect(() => {
-    if (!idempotencyKeyRef.current && user && selectedDateTime) {
-      idempotencyKeyRef.current = `${user.id}-${selectedDateTime.getTime()}`;
-    }
-  }, [user, selectedDateTime]);
 
   const routeContext = useRouteContext();
   const {addRoute} = routeContext;
@@ -39,6 +33,13 @@ function Confirm() {
   const selectedDateTime = route.params.selectedDateTime
     ? new Date(route.params.selectedDateTime)
     : null;
+
+  // Генерираме уникален key за фронтенд защита
+  useEffect(() => {
+    if (!idempotencyKeyRef.current && user && selectedDateTime) {
+      idempotencyKeyRef.current = `${user.id}-${selectedDateTime.getTime()}`;
+    }
+  }, [user, selectedDateTime]);
 
   const {
     selectedVehicle,
@@ -50,8 +51,6 @@ function Confirm() {
     arrivalStreet,
     arrivalNumber,
     routeTitle,
-    id: routeId,
-    userId: user_id,
     showConfirmButton = true,
     showChangesButton = true,
     showBackButton = false,
@@ -88,14 +87,13 @@ function Confirm() {
         userEmail,
       };
 
-      const response = await fetch('http://10.0.2.2:3000/create-route', {
+      const response = await fetch('http://10.0.2.2:3000/api/routes', {
         method: 'POST',
         headers: {
-          'Idempotency-Key': idempotencyKeyRef.current,
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({route: newRoute}),
+        body: JSON.stringify(newRoute), // бекенда очаква route обект директно
       });
 
       if (!response.ok) {

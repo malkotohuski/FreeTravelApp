@@ -17,6 +17,7 @@ import * as Animatable from 'react-native-animatable';
 import {useAuth} from '../../context/AuthContext';
 import {DarkModeContext} from '../../navigation/DarkModeContext';
 import ProblemInput from '../../componets/ProblemInput';
+import api from '../../api/api';
 
 const ReportingScreen = ({navigation}) => {
   const {darkMode} = useContext(DarkModeContext);
@@ -27,6 +28,7 @@ const ReportingScreen = ({navigation}) => {
   /*   const [isValidVehicleNumber, setValidVehicleNumber] = useState(true); */
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false); // Добавено състояние
+  const [reportedUsername, setReportedUsername] = useState('');
   const {t} = useTranslation();
 
   const {user} = useAuth();
@@ -67,53 +69,30 @@ const ReportingScreen = ({navigation}) => {
   };
 
   const sendReport = async () => {
-    if (isButtonDisabled) return; // Бутонът не е активен
-
-    if (!problemDescription.trim()) {
-      Alert.alert(t('Missing Fields'), t('Please fill out all fields!'));
-      return;
-    }
-
-    if (problemDescription.trim().length < 20) {
-      Alert.alert(
-        t('Too short'),
-        t('Please describe the problem in more detail.'),
-      );
+    if (!problemDescription.trim() || !reportedUsername.trim()) {
+      Alert.alert('Error', 'Please fill all fields');
       return;
     }
 
     try {
-      setIsButtonDisabled(true); // Деактивиране на бутона
-      const serverEndpoint = 'http://10.0.2.2:3000/send-request-to-email';
-      const emailBody = `
-                ${t('Problem Description')}: ${problemDescription} 
-                ${t('User email:')}: ${userEmail || 'N/A'} ${t(
-        'Username:',
-      )}: ${userName} with ID: ${userId}
-            `;
+      setIsButtonDisabled(true);
 
-      await fetch(serverEndpoint, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          email: 'malkotohuski@gmail.com',
-          text: emailBody,
-          image: profilePicture, // 🟢 ВАЖНО: изпращаш изображението като Base64
-        }),
+      await api.post('/api/report', {
+        reportedUsername: reportedUsername.trim(),
+        text: problemDescription,
+        image: profilePicture || null,
       });
 
-      setShowSuccessMessage(true);
+      Alert.alert('Success', 'Report submitted');
 
-      setTimeout(() => {
-        setShowSuccessMessage(false);
-        setProblemDescription(''); // Изчистване на полето
-        setVehicleNumber(''); // Изчистване на полето
-        setIsButtonDisabled(false); // Активиране на бутона отново, ако е нужно
-        navigation.navigate('Home');
-      }, 5000);
+      setProblemDescription('');
+      setReportedUsername('');
+      setIsButtonDisabled(false);
+      navigation.navigate('Home');
     } catch (error) {
-      console.error('Error sending report:', error);
-      setIsButtonDisabled(false); // Активиране на бутона при грешка
+      console.log(error.response?.data);
+      Alert.alert('Error', error.response?.data?.error || 'Server error');
+      setIsButtonDisabled(false);
     }
   };
 
@@ -135,6 +114,12 @@ const ReportingScreen = ({navigation}) => {
           value={problemDescription}
           onChangeText={setProblemDescription}
           maxLength={400}
+        />
+        <TextInput
+          placeholder="Username of the user"
+          value={reportedUsername}
+          onChangeText={setReportedUsername}
+          style={styles.input}
         />
 
         {/* Vehicle Number */}

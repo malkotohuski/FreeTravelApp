@@ -79,17 +79,18 @@ export default function Register({navigation}) {
         width: 300,
         height: 300,
         cropping: true,
+        includeBase64: true, // ✅ Вземаме base64 данни
       });
 
-      if (image.path) {
-        // Local image
-        setProfilePicture(image.path);
-      } else if (image.uri) {
-        // Remote image
-        setProfilePicture(image.uri);
+      if (image.data) {
+        const base64Image = `data:${image.mime};base64,${image.data}`;
+        setProfilePicture(base64Image); // ⚡ Сега сме готови за бекенд
+      } else {
+        setProfilePicture(''); // fallback
       }
     } catch (error) {
       console.log('ImagePicker Error: ', error);
+      setProfilePicture('');
     }
   };
 
@@ -98,13 +99,13 @@ export default function Register({navigation}) {
       if (password === confirmPassword) {
         if (email.includes('@') && email.includes('.') && email.length >= 5) {
           try {
-            const response = await api.post('/register', {
+            const response = await api.post('/api/auth/register', {
               username: name,
               useremail: email,
               userpassword: password,
               fName: firstName,
               lName: lastName,
-              userImage: profilePicture,
+              userImage: profilePicture || '', // ⚡ base64 или празно
             });
 
             console.log('Registration Response:', response);
