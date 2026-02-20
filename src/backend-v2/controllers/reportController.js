@@ -76,36 +76,30 @@ async function sendStatusEmail(report, reporterEmail) {
 // POST /api/report
 exports.sendReport = async (req, res) => {
   try {
-    const {reportedUserId, text, image} = req.body;
+    const {reportedUsername, text, image} = req.body;
 
-    // Валидации
-    if (!reportedUserId || !text) {
+    if (!reportedUsername || !text) {
       return res
         .status(400)
-        .json({error: 'Reported user id and text are required.'});
+        .json({error: 'Reported username and text are required.'});
     }
 
-    const reportedUserIdInt = parseInt(reportedUserId);
-    if (isNaN(reportedUserIdInt)) {
-      return res.status(400).json({error: 'Invalid reported user id.'});
-    }
-
-    if (reportedUserIdInt === req.user.userId) {
-      return res.status(400).json({error: 'You cannot report yourself.'});
-    }
-
-    // Проверка за съществуване на reported user
+    // Намираме потребителя по username
     const reportedUser = await prisma.user.findUnique({
-      where: {id: reportedUserIdInt},
+      where: {username: reportedUsername},
     });
 
     if (!reportedUser) {
-      return res.status(404).json({error: 'Reported user not found.'});
+      return res.status(404).json({error: 'User not found.'});
     }
 
-    // Rate-limiting: максимум 2 репорта на ден
+    if (reportedUser.id === req.user.userId) {
+      return res.status(400).json({error: 'You cannot report yourself.'});
+    }
+
+    // Rate limit – 2 на ден
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // начало на деня
+    today.setHours(0, 0, 0, 0);
 
     const reportsToday = await prisma.report.count({
       where: {
@@ -120,33 +114,14 @@ exports.sendReport = async (req, res) => {
         .json({error: 'You can only submit 2 reports per day.'});
     }
 
-    // Създаваме report
     const report = await prisma.report.create({
       data: {
         text,
         image: image || null,
         reporterId: req.user.userId,
-        reportedId: reportedUserIdInt,
+        reportedId: reportedUser.id,
       },
     });
-
-    // Пращаме email към admin (ако има)
-    if (process.env.ADMIN_EMAIL) {
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
-        },
-      });
-
-      await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: process.env.ADMIN_EMAIL,
-        subject: '🚨 New User Report',
-        text: `New Report ID: ${report.id}\nReporter ID: ${req.user.userId}\nReported User ID: ${reportedUserIdInt}\n\nMessage:\n${text}`,
-      });
-    }
 
     return res.status(201).json({
       message: 'Report submitted successfully.',

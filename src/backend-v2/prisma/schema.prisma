@@ -7,6 +7,60 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ======================
+// Модел за потребители
+// ======================
+model User {
+  id                        Int       @id @default(autoincrement())
+  username                  String    @unique
+  email                     String    @unique
+  password                  String
+  fName                     String?
+  lName                     String?
+  userImage                 String?
+  confirmationCode          String?
+  confirmationCodeExpiresAt DateTime?
+  lastConfirmationResend    DateTime?
+  isActive                  Boolean   @default(false)
+  isAdmin                   Boolean   @default(false)
+  createdAt                 DateTime  @default(now())
+  accountStatus             String    @default("active")
+
+  routes        Route[]          @relation("UserRoutes")  // Връзка към маршрути
+  friends       Json?
+  ratings       Json?
+  averageRating Float @default(0)
+  comments      Json?
+
+  reportsSent     Report[] @relation("Reporter")
+  reportsReceived Report[] @relation("ReportedUser")
+}
+
+// ======================
+// Модел за маршрути
+// ======================
+model Route {
+  id                 Int      @id @default(autoincrement())
+  ownerId            Int
+  selectedVehicle    String
+  registrationNumber String?
+  departureCity      String
+  departureStreet    String?
+  departureNumber    String?
+  arrivalCity        String
+  arrivalStreet      String?
+  arrivalNumber      String?
+  selectedDateTime   DateTime
+  routeTitle         String?
+  status             String   @default("active")
+  createdAt          DateTime @default(now())
+
+  owner User @relation("UserRoutes", fields: [ownerId], references: [id])
+}
+
+// ======================
+// Модел за репорти
+// ======================
 model Report {
   id          Int      @id @default(autoincrement())
   text        String
@@ -27,30 +81,3 @@ enum ReportStatus {
   RESOLVED
   REJECTED
 }
-
-model User {
-  id                        Int       @id @default(autoincrement())
-  username                  String    @unique
-  email                     String    @unique
-  password                  String
-  fName                     String?
-  lName                     String?
-  userImage                 String?
-  confirmationCode          String?
-  confirmationCodeExpiresAt DateTime?
-  lastConfirmationResend    DateTime?
-  isActive                  Boolean   @default(false)
-  isAdmin                   Boolean   @default(false)
-  createdAt                 DateTime  @default(now())
-  accountStatus             String    @default("active")
-
-  routes        Json?
-  friends       Json?
-  ratings       Json?
-  averageRating Float @default(0)
-  comments      Json?
-
-  reportsSent     Report[] @relation("Reporter")
-  reportsReceived Report[] @relation("ReportedUser")
-}
-

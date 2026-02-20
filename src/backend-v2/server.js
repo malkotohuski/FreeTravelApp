@@ -10,6 +10,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+console.log('EMAIL_USER:', process.env.EMAIL_USER);
+console.log('EMAIL_PASS:', process.env.EMAIL_PASS);
+console.log(process.env.JWT_SECRET);
+console.log(process.env.EMAIL_USER);
+console.log(process.env.DATABASE_URL);
+
 const authRoutes = require('./routes/authRoutes');
 app.use('/api/auth', authRoutes);
 
@@ -22,6 +28,9 @@ app.get('/users', async (req, res) => {
   const users = await prisma.user.findMany();
   res.json(users);
 });
+
+const routeRoutes = require('./routes/routeRoutes');
+app.use('/api/routes', routeRoutes);
 
 app.get('/api/protected', authenticateJWT, (req, res) => {
   res.json({

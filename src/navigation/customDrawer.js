@@ -44,7 +44,7 @@ function CustomerDrawer({navigation}) {
   };
 
   const handlerReporting = () => {
-    navigation.navigate('Reporting');
+    navigation.navigate('Reporting'); // предаваме userId като параметър
     console.log('Reporting clicked !!!');
   };
 
