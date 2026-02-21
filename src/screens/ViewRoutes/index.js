@@ -10,24 +10,25 @@ import {
   TextInput,
   Modal,
   Pressable,
+  RefreshControl,
 } from 'react-native';
-import {useRouteContext} from '../../context/RouteContext';
 import {useTranslation} from 'react-i18next';
 import {useAuth} from '../../context/AuthContext';
 import api from '../../api/api';
 import LinearGradient from 'react-native-linear-gradient';
+import {ActivityIndicator} from 'react-native';
 
 function ViewRoutes({navigation}) {
   const {t, i18n} = useTranslation();
   const [enteredDepartureCity, setEnteredDepartureCity] = useState('');
   const [enteredArrivalCity, setEnteredArrivalCity] = useState('');
-  const {routes, deleteRoute} = useRouteContext();
   const {user} = useAuth();
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [sortByDate, setSortByDate] = useState(false);
-  const [filteredRoutesState, setFilteredRoutesState] = useState(
-    routes.filter(route => route.userRouteId !== 'deleted'),
-  );
+  const [routes, setRoutes] = useState([]);
+  const [filteredRoutesState, setFilteredRoutesState] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const usernameRequest = user?.username;
   const userFnameRequest = user?.fName;
@@ -41,12 +42,14 @@ function ViewRoutes({navigation}) {
   const clearFilters = () => {
     setEnteredDepartureCity('');
     setEnteredArrivalCity('');
+    setFilteredRoutesState(routes);
     toggleFilterModal();
   };
 
   const applyFilters = () => {
     toggleFilterModal();
-    const filteredRoutesWithoutSort = routes.filter(
+
+    let filtered = routes.filter(
       route =>
         route.departureCity
           .toLowerCase()
@@ -55,12 +58,24 @@ function ViewRoutes({navigation}) {
           .toLowerCase()
           .includes(enteredArrivalCity.toLowerCase()),
     );
-    const sortedRoutes = filteredRoutesWithoutSort.slice().sort((a, b) => {
-      const dateA = new Date(a.selectedDateTime);
-      const dateB = new Date(b.selectedDateTime);
-      return sortByDate ? dateA - dateB : dateB - dateA;
-    });
-    setFilteredRoutesState(sortedRoutes);
+
+    filtered = filtered.filter(
+      route =>
+        new Date(route.selectedDateTime) >= new Date() &&
+        route.status !== 'completed',
+    );
+
+    if (sortByDate) {
+      filtered.sort(
+        (a, b) => new Date(a.selectedDateTime) - new Date(b.selectedDateTime),
+      );
+    } else {
+      filtered.sort(
+        (a, b) => new Date(b.selectedDateTime) - new Date(a.selectedDateTime),
+      );
+    }
+
+    setFilteredRoutesState(filtered);
   };
 
   const handlerSeeView = routeParams => {
@@ -74,62 +89,47 @@ function ViewRoutes({navigation}) {
     });
   };
 
+  const fetchRoutes = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('api/routes');
+      setRoutes(response.data);
+      setFilteredRoutesState(response.data);
+    } catch (error) {
+      console.error('Fetch error:', error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchAndCleanRoutes = async () => {
-      try {
-        const response = await api.get('/routes');
-        if (response.status === 200) {
-          const currentDate = new Date();
-          const filteredRoutes = await Promise.all(
-            response.data.map(async route => {
-              const routeDate = new Date(route.selectedDateTime);
-              const expirationThreshold = new Date(routeDate);
-              expirationThreshold.setDate(expirationThreshold.getDate() + 5);
+    fetchRoutes();
+  }, []);
 
-              if (
-                routeDate < currentDate &&
-                expirationThreshold >= currentDate &&
-                route.userRouteId !== 'deleted'
-              ) {
-                try {
-                  await api.patch(`/routes/${route.id}`, {
-                    userRouteId: 'deleted',
-                  });
-                } catch (patchErr) {
-                  console.error('❌ Patch error:', patchErr);
-                }
-                return null;
-              }
+  useEffect(() => {
+    if (navigation?.addListener) {
+      const unsubscribe = navigation.addListener('focus', () => {
+        fetchRoutes();
+      });
 
-              if (expirationThreshold < currentDate) {
-                try {
-                  await api.delete(`/routes/${route.id}`);
-                  return null;
-                } catch (deleteErr) {
-                  console.error('❌ Delete error:', deleteErr);
-                  return null;
-                }
-              }
-              return route;
-            }),
-          );
-          const cleanedRoutes = filteredRoutes.filter(
-            r =>
-              r !== null &&
-              r.selectedDateTime &&
-              !isNaN(new Date(r.selectedDateTime)) &&
-              !r.isDeleted &&
-              r.userRouteId !== 'deleted' &&
-              r.userRouteId !== 'completed',
-          );
-          setFilteredRoutesState(cleanedRoutes);
-        }
-      } catch (error) {
-        console.error('❌ Fetch error:', error);
-      }
-    };
-    fetchAndCleanRoutes();
-  }, [routes]);
+      return unsubscribe;
+    }
+  }, [navigation]);
+
+  if (loading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: '#1b1b1b',
+        }}>
+        <ActivityIndicator size="large" color="#fff" />
+      </View>
+    );
+  }
 
   return (
     <LinearGradient
@@ -191,10 +191,21 @@ function ViewRoutes({navigation}) {
         </View>
       </Modal>
 
-      <ScrollView style={styles.scrollView}>
+      <ScrollView
+        style={styles.scrollView}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => {
+              setRefreshing(true);
+              fetchRoutes();
+            }}
+            tintColor="#fff"
+          />
+        }>
         <View style={styles.routesContainer}>
           {filteredRoutesState.map((route, index) => {
-            const isOwnRoute = route.username === usernameRequest;
+            const isOwnRoute = route.owner.id === user.id;
             return (
               <TouchableOpacity
                 key={index}
@@ -213,10 +224,10 @@ function ViewRoutes({navigation}) {
                     arrivalNumber: route.arrivalNumber,
                     routeTitle: route.routeTitle,
                     userId: route.userId,
-                    username: route.username,
-                    userFname: route.userFname,
-                    userLname: route.userLname,
-                    userEmail: route.userEmail,
+                    username: route.owner.username,
+                    userFname: route.owner.fName,
+                    userLname: route.owner.lName,
+                    userEmail: route.owner.email,
                     routeId: route.id,
                     user_id: route.userId,
                   })

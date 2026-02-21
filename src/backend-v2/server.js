@@ -32,6 +32,9 @@ app.get('/users', async (req, res) => {
 const routeRoutes = require('./routes/routeRoutes');
 app.use('/api/routes', routeRoutes);
 
+const requestRoutes = require('./routes/requestRoutes');
+app.use('/api', requestRoutes);
+
 app.get('/api/protected', authenticateJWT, (req, res) => {
   res.json({
     message: 'You have access to this protected route!',

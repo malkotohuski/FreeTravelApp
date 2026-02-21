@@ -179,7 +179,7 @@ export const Navigator = () => {
     <TouchableOpacity
       style={{marginRight: 16}}
       onPress={() => {
-        navigation.navigate('View routes');
+        navigation.navigate('ViewRoutes');
       }}>
       <Icons name="keyboard-backspace" size={24} color="white" />
     </TouchableOpacity>
@@ -451,7 +451,7 @@ export const Navigator = () => {
           />
 
           <Drawer.Screen
-            name="View routes"
+            name="ViewRoutes"
             component={ViewRoutes}
             options={{
               title: t('View routes'),

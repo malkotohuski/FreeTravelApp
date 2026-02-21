@@ -216,8 +216,8 @@ function HomePage({navigation}) {
   };
 
   const handlerRouteViewer = () => {
-    navigation.navigate('View routes');
-    console.log('Routes history !!!');
+    navigation.navigate('ViewRoutes');
+    console.log('View Routes clicked !!!');
   };
 
   const handlerReporting = () => {
