@@ -52,7 +52,7 @@ function RouteDetails({route}) {
       try {
         if (!routeId || !user?.id) return;
 
-        const response = await api.get('/requests');
+        const response = await api.get('/api/requests');
 
         const alreadyRequested = response.data.some(
           req =>
@@ -101,18 +101,18 @@ function RouteDetails({route}) {
           text: 'OK',
           onPress: async () => {
             try {
-              await api.post('/send-request-to-user', {
+              await api.post('/api/send-request-to-user', {
                 requestingUser: {
+                  routeId,
+                  userID: user.id,
                   username: user.username,
                   userFname: user.fName,
                   userLname: user.lName,
                   userEmail: user.email,
-                  userID: user.id,
-                  userRouteId: route.params.userId,
+                  userRouteId: route.params.userId || 0,
                   departureCity,
                   arrivalCity,
-                  routeId,
-                  dataTime: route.params.selectedDateTime,
+                  dataTime: route.params.selectedDateTime, // трябва да е ISO string
                   requestComment: tripRequestText,
                   status: 'pending',
                 },
@@ -139,7 +139,7 @@ function RouteDetails({route}) {
   };
 
   const handlerBackToViewRoute = () => {
-    navigation.navigate('View routes');
+    navigation.navigate('ViewRoutes');
   };
 
   return (

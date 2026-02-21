@@ -34,6 +34,7 @@ model User {
 
   reportsSent     Report[] @relation("Reporter")
   reportsReceived Report[] @relation("ReportedUser")
+  requests        Request[] @relation("UserRequests")
 }
 
 // ======================
@@ -55,7 +56,8 @@ model Route {
   status             String   @default("active")
   createdAt          DateTime @default(now())
 
-  owner User @relation("UserRoutes", fields: [ownerId], references: [id])
+  owner    User @relation("UserRoutes", fields: [ownerId], references: [id])
+  requests Request[] @relation("RouteRequests")
 }
 
 // ======================
@@ -80,4 +82,38 @@ enum ReportStatus {
   PENDING
   RESOLVED
   REJECTED
+}
+// ======================
+// Модел за рикуести
+// ======================
+model Request {
+  id             Int   @id @default(autoincrement())
+  route          Route @relation("RouteRequests", fields: [routeId], references: [id])
+  routeId        Int
+  user           User  @relation("UserRequests", fields: [userID], references: [id])
+  userID         Int
+  username       String
+  userFname      String
+  userLname      String
+  userEmail      String
+  userRouteId    Int
+  departureCity  String
+  arrivalCity    String
+  dataTime       DateTime
+  requestComment String
+  status         String   @default("pending")
+  rateCreator    Boolean  @default(false)
+  rateUser       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+}
+
+model Notification {
+  id          Int      @id @default(autoincrement())
+  recipient   String   // username на собственика на маршрута
+  routeId     Int
+  message     String
+  requester   Json     // информация за потребителя, който е кандидатствал
+  createdAt   DateTime @default(now())
+  read        Boolean  @default(false)
+  status      String   @default("active")
 }

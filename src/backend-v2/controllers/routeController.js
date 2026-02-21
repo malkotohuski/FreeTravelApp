@@ -69,3 +69,37 @@ exports.createRoute = async (req, res) => {
     return res.status(500).json({error: 'Internal server error'});
   }
 };
+
+exports.getActiveRoutes = async (req, res) => {
+  try {
+    const now = new Date();
+
+    const routes = await prisma.route.findMany({
+      where: {
+        selectedDateTime: {
+          gte: now,
+        },
+        status: 'active',
+      },
+      orderBy: {
+        selectedDateTime: 'asc',
+      },
+      include: {
+        owner: {
+          select: {
+            id: true,
+            username: true,
+            fName: true,
+            lName: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    return res.status(200).json(routes);
+  } catch (error) {
+    console.error('Get routes error:', error);
+    return res.status(500).json({error: 'Internal server error'});
+  }
+};

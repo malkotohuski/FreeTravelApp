@@ -107,7 +107,7 @@ function Confirm() {
       setSuccessMessage(t('The route has been created!'));
 
       setTimeout(() => {
-        navigation.navigate('View routes');
+        navigation.navigate('ViewRoutes', {refresh: true});
       }, 1500);
     } catch (err) {
       console.error(err);
