@@ -57,27 +57,19 @@ function RouteRequestScreen({route, navigation}) {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const getRequestsForCurrentUser = () => {
-    return requests.filter(request => {
-      const currentDate = new Date();
-      return (
-        request.userRouteId === userNow &&
-        new Date(request.dataTime) >= currentDate &&
-        (request.status === undefined || request.status === 'pending')
-      );
-    });
-  };
-
-  const fetchAndSetRequests = async () => {
-    await refreshUserData();
-    setRouteRequests(getRequestsForCurrentUser());
-  };
-
   useFocusEffect(
     useCallback(() => {
-      fetchAndSetRequests();
-    }, [requests]),
+      refreshUserData();
+    }, [route.params?.fromNotification]),
   );
+
+  useEffect(() => {
+    const filtered = requests.filter(
+      request => request.toUserId === user.id && request.status === 'pending',
+    );
+    console.log('Filtered requests for user:', filtered);
+    setRouteRequests(filtered);
+  }, [requests, user.id]);
 
   const [isMigrating, setIsMigrating] = useState(false);
 
@@ -110,7 +102,7 @@ function RouteRequestScreen({route, navigation}) {
           : t('Request rejected.'),
       );
 
-      await fetchAndSetRequests(); // refresh list
+      await refreshUserData();
     } catch (err) {
       console.error('Decision error:', err);
 
@@ -253,7 +245,7 @@ function RouteRequestScreen({route, navigation}) {
         />
         <View style={styles.container}>
           <Text style={styles.headerText}>{t('Inquiries')}:</Text>
-          <Button title="🔄 Refresh" onPress={fetchAndSetRequests} />
+          <Button title="🔄 Refresh" onPress={refreshUserData} />
           {renderRoutes()}
         </View>
       </ScrollView>

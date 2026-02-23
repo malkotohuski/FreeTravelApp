@@ -104,15 +104,14 @@ function HomePage({navigation}) {
       if (!loginUser) return;
 
       try {
-        const response = await api.get('/notifications');
+        const response = await api.get(`/notifications/${loginUser}`);
 
-        const userNotifications = response.data.filter(
-          notification =>
-            notification.recipient === loginUser && !notification.read,
+        const unreadNotifications = response.data.filter(
+          notification => !notification.read,
         );
 
         setNotificationCount(
-          userNotifications.length > 9 ? '9+' : userNotifications.length,
+          unreadNotifications.length > 9 ? '9+' : unreadNotifications.length,
         );
       } catch (error) {
         console.error('Failed to fetch notifications:', error);
@@ -132,7 +131,7 @@ function HomePage({navigation}) {
       }
 
       try {
-        const response = await api.get('/requests');
+        const response = await api.get('/api/requests');
 
         const pendingRequests = response.data.filter(
           req => req.userRouteId === userId && req.status === 'pending',
@@ -180,7 +179,7 @@ function HomePage({navigation}) {
   const handlerRouteRequest = async () => {
     try {
       // Вземаме всички заявки
-      const response = await api.get('/requests');
+      const response = await api.get('/api/requests');
 
       // Филтрираме чакащите към текущия потребител
       const pendingRequests = response.data.filter(
@@ -242,21 +241,23 @@ function HomePage({navigation}) {
 
   const handlerNotificationScreen = async () => {
     try {
-      // Актуализиране на нотификациите на сървъра
-      const response = await api.get('/notifications');
-      const userNotifications = response.data.filter(
-        notification =>
-          notification.recipient === loginUser && !notification.read,
+      if (!loginUser) return;
+
+      const response = await api.get(`/api/notifications/${loginUser}`);
+
+      const unreadNotifications = response.data.filter(
+        notification => !notification.read,
       );
 
-      for (const notification of userNotifications) {
-        await api.patch(`/notifications/${notification.id}`, {read: true});
+      for (const notification of unreadNotifications) {
+        await api.put(`/api/notifications/read/${notification.id}`);
       }
 
-      // Пренасочване към екрана с нотификациите
-      navigation.navigate('Notifications', {resetNotificationCount: true});
-      console.log('Notifications screen clicked!');
-      setNotificationCount(0); // Зануляваме броя на нотификациите на клиента
+      setNotificationCount(0);
+
+      navigation.navigate('Notifications', {
+        resetNotificationCount: true,
+      });
     } catch (error) {
       console.error('Failed to mark notifications as read:', error);
       Alert.alert('Error', 'Failed to update notifications.');

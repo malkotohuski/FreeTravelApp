@@ -17,7 +17,7 @@ export const RouteProvider = ({children}) => {
   }, []);
 
   const refreshUserData = async () => {
-    fetchAllRequests();
+    await fetchAllRequests();
   };
 
   const refreshRoutesData = async () => {
@@ -106,12 +106,11 @@ export const RouteProvider = ({children}) => {
 
   const fetchAllRequests = async () => {
     try {
-      const response = await api.get(`/requests`);
+      const response = await api.get('/api/requests');
 
       if (response.status === 200) {
         setRequests(response.data);
-      } else {
-        alert(t('Login failed. Please check your credentials.'));
+        return response.data; // 🔥 важно
       }
     } catch (error) {
       console.error('Error fetching requests:', error);

@@ -92,6 +92,7 @@ model Request {
   routeId        Int
   user           User  @relation("UserRequests", fields: [userID], references: [id])
   userID         Int
+  toUserId       Int 
   username       String
   userFname      String
   userLname      String

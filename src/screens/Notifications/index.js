@@ -43,7 +43,7 @@ const Notifications = ({navigation, route}) => {
     useCallback(() => {
       const fetchRequests = async () => {
         try {
-          const resp = await api.get('/requests');
+          const resp = await api.get('/api/requests');
           setRequests(resp.data);
         } catch (error) {
           console.error('Failed to fetch requests:', error);
@@ -55,19 +55,7 @@ const Notifications = ({navigation, route}) => {
   );
 
   const handleRespond = async responseType => {
-    if (responseType === 'accepted' || responseType === 'rejected') {
-      const request = requests.find(
-        r =>
-          r.routeId === respondingTo.routeId &&
-          r.username === respondingTo.requester?.username,
-      );
-
-      if (request?.status === 'approved') {
-        navigation.navigate('Home'); // вече одобрена → Home
-      } else {
-        navigation.navigate('Route request'); // още не е одобрена
-      }
-    }
+    if (!respondingTo) return;
 
     const recipientUser = respondingTo.requester?.username;
     const senderUsername = user?.username;
@@ -78,7 +66,8 @@ const Notifications = ({navigation, route}) => {
         : `${senderUsername} declined your invitation.`;
 
     try {
-      await api.post('/notifications', {
+      // ✅ използваме правилния API път за POST
+      await api.post('/api/notifications', {
         recipient: recipientUser,
         message: message,
         routeId: respondingTo.routeId,
@@ -94,25 +83,11 @@ const Notifications = ({navigation, route}) => {
         status: 'active',
       });
 
-      console.log('✅ Успешно изпратена нотификация');
-
       setRespondModalVisible(false);
       setRespondingTo(null);
       setResponseComment('');
 
-      if (responseType === 'accepted') {
-        // Проверяваме в requests масива
-        const requestResp = await api.get(
-          `/requests?routeId=${respondingTo.routeId}&username=${recipientUser}`,
-        );
-
-        const request = requestResp.data[0]; // първата заявка
-        if (request?.status === 'approved') {
-          navigation.navigate('Home'); // вече е одобрена → Home
-        } else {
-          navigation.navigate('Route request'); // още не е одобрена
-        }
-      }
+      fetchNotifications(); // ✅ обновяваме списъка с нотификации
     } catch (error) {
       console.error('❌ Грешка при изпращане на нотификация:', error);
     }
@@ -120,9 +95,8 @@ const Notifications = ({navigation, route}) => {
 
   const fetchNotifications = async () => {
     try {
-      const response = await api.get(
-        `/notifications?recipient=${user?.username}`,
-      );
+      // ✅ използваме правилния API път
+      const response = await api.get(`/api/notifications/${user?.username}`);
       const activeNotifications = response.data.filter(
         n => n.status === 'active',
       );
@@ -141,9 +115,18 @@ const Notifications = ({navigation, route}) => {
     }, [user]),
   );
 
-  const handleNotificationPress = notification => {
+  const handleNotificationPress = async notification => {
     try {
+      // Маркираме като прочетена
+      if (!notification.read) {
+        await api.put(`/api/notifications/read/${notification.id}`);
+        setNotifications(prev =>
+          prev.map(n => (n.id === notification.id ? {...n, read: true} : n)),
+        );
+      }
+
       const message = notification.message.toLowerCase();
+
       if (
         message.includes('оцени пътуването') ||
         message.includes('rate the trip') ||
@@ -155,9 +138,16 @@ const Notifications = ({navigation, route}) => {
           type: notification.type,
           fromUserId: notification.fromUserId,
         });
+      } else if (
+        message.includes('your route') &&
+        (message.includes('candidate') || message.includes('new request'))
+      ) {
+        navigation.navigate('Route request', {
+          fromNotification: true,
+        });
       }
-    } catch (e) {
-      console.error('Navigation error:', e);
+    } catch (error) {
+      console.error('Navigation or mark-as-read error:', error);
     }
   };
 
@@ -178,7 +168,7 @@ const Notifications = ({navigation, route}) => {
 
   const deleteNotification = async id => {
     try {
-      await api.patch(`/notifications/${id}`, {status: 'deleted'});
+      await api.patch(`/api/notifications/${id}`, {status: 'deleted'});
       setNotifications(prev => prev.filter(n => n.id !== id));
       setVisibleModalId(null);
     } catch (error) {

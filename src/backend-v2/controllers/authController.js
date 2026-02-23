@@ -83,17 +83,16 @@ exports.register = async (req, res) => {
         username,
         email: useremail,
         password: hashedPassword,
-        fName: fName || '',
-        lName: lName || '',
-        userImage: userImage || '',
+        fName: fName || null,
+        lName: lName || null,
+        userImage: userImage || null,
         confirmationCode,
         confirmationCodeExpiresAt: new Date(Date.now() + 10 * 60 * 1000),
         isActive: false,
-        routes: [],
-        friends: [],
-        ratings: [],
+        friends: '[]', // Json поле като string
+        ratings: '[]', // Json поле като string
         averageRating: 0,
-        comments: [],
+        comments: '[]', // Json поле като string
       },
     });
 
