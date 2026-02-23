@@ -45,6 +45,9 @@ app.get('/api/protected', authenticateJWT, (req, res) => {
 const reportRoutes = require('./routes/reportRoutes');
 app.use('/api/report', reportRoutes);
 
+const notificationRoutes = require('./routes/notificationRoutes');
+app.use('/api', notificationRoutes);
+
 app.listen(3000, () => {
   console.log('Server running on port 3000');
 });

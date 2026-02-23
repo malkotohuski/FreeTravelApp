@@ -36,25 +36,7 @@ exports.createRequest = async (req, res) => {
       return res.status(400).json({error: 'Invalid date format'});
     }
 
-    // 1️⃣ Създаване на новата заявка
-    const newRequest = await prisma.request.create({
-      data: {
-        routeId: requestingUser.routeId,
-        userID: requestingUser.userID,
-        username: requestingUser.username,
-        userFname: requestingUser.userFname,
-        userLname: requestingUser.userLname,
-        userEmail: requestingUser.userEmail,
-        userRouteId: requestingUser.userRouteId || 0,
-        departureCity: requestingUser.departureCity,
-        arrivalCity: requestingUser.arrivalCity,
-        dataTime: parsedDate,
-        requestComment: requestingUser.requestComment,
-        status: requestingUser.status || 'pending',
-      },
-    });
-
-    // 2️⃣ Намираме собственика на маршрута
+    // 1️⃣ намираме маршрута първо
     const route = await prisma.route.findUnique({
       where: {id: requestingUser.routeId},
       include: {owner: true},
@@ -63,6 +45,25 @@ exports.createRequest = async (req, res) => {
     if (!route) {
       return res.status(404).json({error: 'Route not found'});
     }
+
+    // 2️⃣ създаваме заявката
+    const newRequest = await prisma.request.create({
+      data: {
+        routeId: requestingUser.routeId,
+        userID: requestingUser.userID,
+        toUserId: route.owner.id,
+        username: requestingUser.username,
+        userFname: requestingUser.userFname,
+        userLname: requestingUser.userLname,
+        userEmail: requestingUser.userEmail,
+        userRouteId: requestingUser.userRouteId || 0,
+        departureCity: requestingUser.departureCity,
+        arrivalCity: requestingUser.arrivalCity,
+        dataTime: new Date(requestingUser.dataTime),
+        requestComment: requestingUser.requestComment,
+        status: 'pending',
+      },
+    });
 
     // 3️⃣ Създаваме notification
     await prisma.notification.create({

@@ -152,7 +152,7 @@ export default function Register({navigation}) {
     } else {
       // Потвърждаване на кода
       try {
-        const verificationResponse = await api.post('/confirm', {
+        const verificationResponse = await api.post('/api/auth/confirm', {
           email,
           confirmationCode,
         });
