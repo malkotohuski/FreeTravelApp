@@ -90,9 +90,7 @@ exports.register = async (req, res) => {
         confirmationCodeExpiresAt: new Date(Date.now() + 10 * 60 * 1000),
         isActive: false,
         friends: '[]', // Json поле като string
-        ratings: '[]', // Json поле като string
         averageRating: 0,
-        comments: '[]', // Json поле като string
       },
     });
 

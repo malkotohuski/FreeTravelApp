@@ -87,13 +87,10 @@ function RouteRequestScreen({route, navigation}) {
 
   const handleDecision = async (requestId, decision) => {
     if (isProcessing) return;
-
     setIsProcessing(true);
 
     try {
-      await api.post(`/requests/${requestId}/decision`, {
-        decision, // 'approved' | 'rejected'
-      });
+      await api.post(`/api/requests/${requestId}/decision`, {decision});
 
       Alert.alert(
         t('Success'),
@@ -102,13 +99,11 @@ function RouteRequestScreen({route, navigation}) {
           : t('Request rejected.'),
       );
 
-      await refreshUserData();
+      await refreshUserData(); // обновява списъка
     } catch (err) {
       console.error('Decision error:', err);
-
       const message =
         err.response?.data?.error || t('Failed to process request.');
-
       Alert.alert(t('Error'), message);
     } finally {
       setIsProcessing(false);
