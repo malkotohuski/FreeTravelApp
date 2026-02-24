@@ -29,6 +29,12 @@ app.get('/users', async (req, res) => {
   res.json(users);
 });
 
+const usersRoutes = require('./routes/usersRoutes');
+app.use('/users', usersRoutes);
+
+const commentRoutes = require('./routes/commentRoutes');
+app.use('/api', commentRoutes);
+
 const routeRoutes = require('./routes/routeRoutes');
 app.use('/api/routes', routeRoutes);
 

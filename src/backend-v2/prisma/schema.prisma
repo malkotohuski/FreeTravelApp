@@ -26,15 +26,37 @@ model User {
   createdAt                 DateTime  @default(now())
   accountStatus             String    @default("active")
 
-  routes        Route[]          @relation("UserRoutes")  // Връзка към маршрути
+  routes        Route[]          @relation("UserRoutes")
   friends       Json?
-  ratings       Json?
   averageRating Float @default(0)
-  comments      Json?
 
   reportsSent     Report[] @relation("Reporter")
   reportsReceived Report[] @relation("ReportedUser")
   requests        Request[] @relation("UserRequests")
+
+  givenComments    Comment[] @relation("GivenComments")
+  receivedComments Comment[] @relation("ReceivedComments")
+}
+
+// ======================
+// Модел за коментарите
+// ======================
+
+model Comment {
+  id          Int      @id @default(autoincrement())
+  text        String
+  rating      Int
+  authorId    Int
+  recipientId Int
+  routeId     Int?
+  createdAt   DateTime @default(now())
+
+  author    User  @relation("GivenComments", fields: [authorId], references: [id])
+  recipient User  @relation("ReceivedComments", fields: [recipientId], references: [id])
+
+  route     Route? @relation(fields: [routeId], references: [id])
+
+  @@index([recipientId])
 }
 
 // ======================
@@ -55,6 +77,7 @@ model Route {
   routeTitle         String?
   status             String   @default("active")
   createdAt          DateTime @default(now())
+  comments           Comment[]
 
   owner    User @relation("UserRoutes", fields: [ownerId], references: [id])
   requests Request[] @relation("RouteRequests")
@@ -87,10 +110,10 @@ enum ReportStatus {
 // Модел за рикуести
 // ======================
 model Request {
-  id             Int   @id @default(autoincrement())
-  route          Route @relation("RouteRequests", fields: [routeId], references: [id])
+  id             Int      @id @default(autoincrement())
+  route          Route    @relation("RouteRequests", fields: [routeId], references: [id])
   routeId        Int
-  user           User  @relation("UserRequests", fields: [userID], references: [id])
+  user           User     @relation("UserRequests", fields: [userID], references: [id])
   userID         Int
   toUserId       Int 
   username       String
@@ -106,6 +129,7 @@ model Request {
   rateCreator    Boolean  @default(false)
   rateUser       Boolean  @default(false)
   createdAt      DateTime @default(now())
+  decidedAt      DateTime? // ← тук добавяме новото поле
 }
 
 model Notification {

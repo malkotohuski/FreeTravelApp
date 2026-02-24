@@ -5,7 +5,6 @@ import {
   StyleSheet,
   Image,
   FlatList,
-  ImageBackground,
   ActivityIndicator,
 } from 'react-native';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -26,7 +25,6 @@ function UserDetailsScreen() {
   const formatDate = isoString => {
     if (!isoString) return '';
     const date = new Date(isoString);
-
     return (
       date.toLocaleDateString('bg-BG', {
         day: 'numeric',
@@ -34,10 +32,7 @@ function UserDetailsScreen() {
         year: 'numeric',
       }) +
       ' в ' +
-      date.toLocaleTimeString('bg-BG', {
-        hour: '2-digit',
-        minute: '2-digit',
-      })
+      date.toLocaleTimeString('bg-BG', {hour: '2-digit', minute: '2-digit'})
     );
   };
 
@@ -46,10 +41,7 @@ function UserDetailsScreen() {
       try {
         console.log('Fetching user from:', `${API_BASE_URL}/users/${userId}`);
         const res = await fetch(`${API_BASE_URL}/users/${userId}`);
-
-        if (!res.ok) {
-          throw new Error('Failed to fetch user');
-        }
+        if (!res.ok) throw new Error('Failed to fetch user');
         const data = await res.json();
         setUser(data);
       } catch (err) {
@@ -59,7 +51,6 @@ function UserDetailsScreen() {
         setLoading(false);
       }
     };
-
     fetchUser();
   }, [userId]);
 
@@ -67,19 +58,16 @@ function UserDetailsScreen() {
     if (!rating) return null;
     const fullStars = Math.floor(rating);
     const halfStar = rating % 1 >= 0.5;
-
     let stars = [];
-    for (let i = 0; i < fullStars; i++) {
+    for (let i = 0; i < fullStars; i++)
       stars.push(
         <Icons key={`full-${i}`} name="star" size={24} color="gold" />,
       );
-    }
-    if (halfStar) {
+    if (halfStar)
       stars.push(
         <Icons key="half" name="star-half-full" size={24} color="gold" />,
       );
-    }
-    while (stars.length < 5) {
+    while (stars.length < 5)
       stars.push(
         <Icons
           key={`empty-${stars.length}`}
@@ -88,36 +76,30 @@ function UserDetailsScreen() {
           color="gold"
         />,
       );
-    }
     return stars;
   };
 
-  if (loading) {
+  if (loading)
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color="blue" />
       </View>
     );
-  }
-
-  if (!user) {
+  if (!user)
     return (
       <View style={styles.center}>
         <Text>{t('User not found')}</Text>
       </View>
     );
-  }
 
-  // Замени ImageBackground с прост View
   return (
     <View style={styles.container}>
       <FlatList
         ListHeaderComponent={
           <View style={styles.headerWrapper}>
-            {/* Аватар с ореол */}
             <View style={styles.avatarHaloWrapper}>
               <LinearGradient
-                colors={['rgba(255, 255, 255, 0.5)', 'transparent']}
+                colors={['rgba(255,255,255,0.5)', 'transparent']}
                 style={styles.avatarHalo}
               />
             </View>
@@ -127,7 +109,6 @@ function UserDetailsScreen() {
               {user.fName} {user.lName}
             </Text>
 
-            {/* Рейтинг */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>{t('Rating')}</Text>
               <View style={styles.starsContainer}>
@@ -143,14 +124,17 @@ function UserDetailsScreen() {
             </Text>
           </View>
         }
-        data={user.comments || []}
-        keyExtractor={(_, idx) => idx.toString()}
+        data={user.receivedComments || []}
+        keyExtractor={item => item.id.toString()}
         renderItem={({item: c}) => (
           <View style={styles.commentBox}>
             <View style={styles.commentHeader}>
               <View style={styles.commentLeft}>
-                {c.image ? (
-                  <Image source={{uri: c.image}} style={styles.commentAvatar} />
+                {c.author.userImage ? (
+                  <Image
+                    source={{uri: c.author.userImage}}
+                    style={styles.commentAvatar}
+                  />
                 ) : (
                   <View
                     style={[
@@ -158,15 +142,18 @@ function UserDetailsScreen() {
                       styles.commentAvatarFallback,
                     ]}>
                     <Text style={styles.commentAvatarText}>
-                      {(c.user ? c.user.slice(0, 2) : 'NA').toUpperCase()}
+                      {c.author.username.slice(0, 2).toUpperCase()}
                     </Text>
                   </View>
                 )}
-                <Text style={styles.commentUser}>{c.user}</Text>
+                <Text style={styles.commentUser}>{c.author.username}</Text>
               </View>
-              <Text style={styles.commentDate}>{formatDate(c.date)}</Text>
+              <Text style={styles.commentDate}>{formatDate(c.createdAt)}</Text>
             </View>
-            <Text style={styles.commentText}>{c.comment}</Text>
+            <Text style={styles.commentText}>{c.text}</Text>
+            <View style={{flexDirection: 'row', marginTop: 4}}>
+              {renderStars(c.rating)}
+            </View>
           </View>
         )}
         ListEmptyComponent={
@@ -182,20 +169,11 @@ function UserDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#145e8fff', // светъл и чист фон
+    backgroundColor: '#145e8fff',
     paddingHorizontal: 16,
     paddingTop: 20,
   },
-  backgroundImage: {
-    ...StyleSheet.absoluteFillObject,
-    resizeMode: 'cover',
-    zIndex: -1,
-  },
-  avatarContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
+  center: {flex: 1, justifyContent: 'center', alignItems: 'center'},
   avatarHaloWrapper: {
     position: 'absolute',
     width: 140,
@@ -205,12 +183,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     zIndex: 0,
   },
-
-  avatarHalo: {
-    width: 130,
-    height: 130,
-    borderRadius: 65,
-  },
+  avatarHalo: {width: 130, height: 130, borderRadius: 65},
   avatar: {
     width: 120,
     height: 120,
@@ -220,25 +193,14 @@ const styles = StyleSheet.create({
     zIndex: 1,
     marginBottom: 10,
   },
-
   headerWrapper: {
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
     position: 'relative',
   },
-  username: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-
-  fullName: {
-    fontSize: 16,
-    color: '#020202ff',
-    marginBottom: 10,
-  },
-
+  username: {fontSize: 18, fontWeight: 'bold', color: '#333'},
+  fullName: {fontSize: 16, color: '#020202ff', marginBottom: 10},
   section: {
     width: '100%',
     backgroundColor: '#fff',
@@ -252,26 +214,18 @@ const styles = StyleSheet.create({
     elevation: 3,
     alignItems: 'center',
   },
-
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#222',
     marginBottom: 6,
   },
-
   starsContainer: {
     flexDirection: 'row',
     marginVertical: 5,
     justifyContent: 'center',
   },
-
-  ratingText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#111',
-  },
-
+  ratingText: {fontSize: 18, fontWeight: '600', color: '#111'},
   commentBox: {
     backgroundColor: '#fff',
     padding: 12,
@@ -283,59 +237,35 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-
   commentUser: {
     fontWeight: 'bold',
     fontSize: 14,
     color: '#222',
     marginBottom: 2,
   },
-
-  commentText: {
-    fontSize: 14,
-    color: '#333',
-  },
-
+  commentText: {fontSize: 14, color: '#333'},
   commentHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 6,
   },
-
-  commentAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    marginRight: 8,
-  },
-
+  commentAvatar: {width: 32, height: 32, borderRadius: 16, marginRight: 8},
   commentAvatarFallback: {
     backgroundColor: '#888',
     justifyContent: 'center',
     alignItems: 'center',
   },
-
-  commentAvatarText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-
-  commentLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-
-  commentDate: {
-    fontSize: 12,
-    color: '#666',
-  },
+  commentAvatarText: {color: '#fff', fontWeight: 'bold'},
+  commentLeft: {flexDirection: 'row', alignItems: 'center'},
+  commentDate: {fontSize: 12, color: '#666'},
   noData: {
     fontSize: 14,
     color: '#999',
     textAlign: 'center',
     marginVertical: 20,
   },
+  listContent: {paddingBottom: 30},
 });
 
 export default UserDetailsScreen;

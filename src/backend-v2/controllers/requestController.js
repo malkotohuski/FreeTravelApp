@@ -100,3 +100,37 @@ exports.getAllRequests = async (req, res) => {
     res.status(500).json({error: 'Failed to fetch requests.'});
   }
 };
+
+exports.makeDecision = async (req, res) => {
+  try {
+    const requestId = parseInt(req.params.id, 10);
+    const {decision} = req.body; // 'approved' или 'rejected'
+
+    if (!['approved', 'rejected'].includes(decision)) {
+      return res.status(400).json({error: 'Invalid decision value.'});
+    }
+
+    const request = await prisma.request.findUnique({
+      where: {id: requestId},
+    });
+
+    if (!request) return res.status(404).json({error: 'Request not found.'});
+    if (request.status !== 'pending')
+      return res
+        .status(400)
+        .json({error: 'Request has already been processed.'});
+
+    const updatedRequest = await prisma.request.update({
+      where: {id: requestId},
+      data: {status: decision},
+    });
+
+    res.status(200).json({
+      message: `Request ${decision} successfully`,
+      request: updatedRequest,
+    });
+  } catch (err) {
+    console.error('Decision error:', err);
+    res.status(500).json({error: 'Internal server error.'});
+  }
+};
