@@ -8,6 +8,7 @@ import {
   Alert,
   Image,
   ScrollView,
+  TextInput,
   Button,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
@@ -53,6 +54,7 @@ function RouteRequestScreen({route, navigation}) {
   const requestUserEmail = user?.email;
   const requestUserID = user?.userID;
   const [isProcessing, setIsProcessing] = useState(false);
+  const [decisionMessage, setDecisionMessage] = useState('');
 
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -90,7 +92,12 @@ function RouteRequestScreen({route, navigation}) {
     setIsProcessing(true);
 
     try {
-      await api.post(`/api/requests/${requestId}/decision`, {decision});
+      await api.post(`/api/requests/${requestId}/decision`, {
+        decision,
+        personalMessage: decisionMessage,
+      });
+
+      setDecisionMessage('');
 
       Alert.alert(
         t('Success'),
@@ -99,7 +106,7 @@ function RouteRequestScreen({route, navigation}) {
           : t('Request rejected.'),
       );
 
-      await refreshUserData(); // обновява списъка
+      await refreshUserData();
     } catch (err) {
       console.error('Decision error:', err);
       const message =
@@ -175,6 +182,18 @@ function RouteRequestScreen({route, navigation}) {
             <Text style={styles.modalComment}>
               "{selectedRequest.requestComment || t('No comment provided.')}"
             </Text>
+
+            <Text style={[styles.modalText, {marginTop: 15}]}>
+              {t('Personal message (optional)')}:
+            </Text>
+
+            <TextInput
+              style={styles.messageInput}
+              placeholder={t('Write a message...')}
+              value={decisionMessage}
+              onChangeText={setDecisionMessage}
+              multiline
+            />
 
             <TouchableOpacity
               style={[styles.modalButton, {backgroundColor: '#007AFF'}]}
@@ -287,6 +306,15 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
     position: 'absolute',
     zIndex: -1,
+  },
+  messageInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    padding: 8,
+    marginTop: 5,
+    minHeight: 60,
+    textAlignVertical: 'top',
   },
   text: {
     fontWeight: '600',

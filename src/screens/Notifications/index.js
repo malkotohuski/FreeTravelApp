@@ -290,26 +290,25 @@ const Notifications = ({navigation, route}) => {
                   </TouchableOpacity>
                 )}
 
-              {item.personalMessage ? (
-                <TouchableOpacity
-                  onPress={() => handlePersonalMessagePress(item)}
+              {item.personalMessage && (
+                <View
                   style={{
                     marginTop: 8,
+                    alignSelf: 'flex-start',
+                    backgroundColor: '#e6f7ff',
                     padding: 10,
-                    backgroundColor: '#f2f2f2',
-                    borderRadius: 8,
+                    borderRadius: 12,
+                    maxWidth: '85%',
                   }}>
                   <Text
                     style={{
-                      color: '#333',
+                      color: '#005fcb',
                       fontSize: 14,
-                      fontStyle: 'italic',
                     }}>
-                    "{item.personalMessage}"
+                    💬 {item.personalMessage}
                   </Text>
-                </TouchableOpacity>
-              ) : null}
-
+                </View>
+              )}
               <Text style={styles.date}>{formatDate(item.createdAt)}</Text>
 
               <Modal
@@ -352,7 +351,7 @@ const Notifications = ({navigation, route}) => {
                       {recipientUser}
                     </Text>
                     <Text style={styles.modalMessage}>
-                      {respondingTo?.personalMessage}
+                      {respondingTo?.requester?.comment}
                     </Text>
                     <TextInput
                       style={styles.responseInput}
@@ -409,6 +408,11 @@ const styles = StyleSheet.create({
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
+  },
+  personalMessage: {
+    marginTop: 5,
+    fontStyle: 'italic',
+    color: '#555',
   },
   message: {fontSize: 16, color: '#010101', marginBottom: 8},
   date: {fontSize: 12, color: '#202020FF'},

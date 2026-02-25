@@ -104,7 +104,7 @@ exports.getAllRequests = async (req, res) => {
 exports.makeDecision = async (req, res) => {
   try {
     const requestId = parseInt(req.params.id, 10);
-    const {decision} = req.body; // 'approved' или 'rejected'
+    const {decision, personalMessage} = req.body;
 
     if (!['approved', 'rejected'].includes(decision)) {
       return res.status(400).json({error: 'Invalid decision value.'});
@@ -115,14 +115,36 @@ exports.makeDecision = async (req, res) => {
     });
 
     if (!request) return res.status(404).json({error: 'Request not found.'});
+
     if (request.status !== 'pending')
       return res
         .status(400)
         .json({error: 'Request has already been processed.'});
 
+    // 1️⃣ update request
     const updatedRequest = await prisma.request.update({
       where: {id: requestId},
       data: {status: decision},
+    });
+
+    // 2️⃣ създаваме notification към кандидата
+    const message =
+      decision === 'approved'
+        ? `Your request for ${request.departureCity}-${request.arrivalCity} was approved.`
+        : `Your request for ${request.departureCity}-${request.arrivalCity} was rejected.`;
+
+    await prisma.notification.create({
+      data: {
+        recipient: request.username,
+        routeId: request.routeId,
+        message: message,
+        requester: {
+          username: request.username,
+        },
+        personalMessage: personalMessage || null,
+        read: false,
+        status: 'active',
+      },
     });
 
     res.status(200).json({
