@@ -138,6 +138,7 @@ model Notification {
   routeId     Int
   message     String
   requester   Json     // информация за потребителя, който е кандидатствал
+  personalMessage String?  
   createdAt   DateTime @default(now())
   read        Boolean  @default(false)
   status      String   @default("active")

@@ -11,6 +11,7 @@ router.post(
 );
 
 router.get('/requests', authenticateJWT, requestController.getAllRequests);
+
 router.post(
   '/send-request-to-user',
   authenticateJWT,
