@@ -27,6 +27,9 @@ model User {
   createdAt                 DateTime  @default(now())
   accountStatus             String    @default("active")
 
+  conversationsAsUser1 Conversation[] @relation("ConversationUser1")
+  conversationsAsUser2 Conversation[] @relation("ConversationUser2")
+
   routes        Route[]          @relation("UserRoutes")
   friends       Json?
   averageRating Float @default(0)
@@ -155,6 +158,7 @@ model Notification {
   createdAt       DateTime @default(now())
   read            Boolean  @default(false)
   status          String   @default("active")
+  approver        Json?
 }
 
 // ======================
@@ -169,6 +173,11 @@ model Conversation {
   createdAt DateTime  @default(now())
 
   messages  Message[]
+
+  user1     User @relation("ConversationUser1", fields: [user1Id], references: [id])
+  user2     User @relation("ConversationUser2", fields: [user2Id], references: [id])
+
+  @@unique([routeId, user1Id, user2Id])
 }
 
 // ======================
