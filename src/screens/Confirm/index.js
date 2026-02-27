@@ -80,7 +80,6 @@ function Confirm() {
         arrivalStreet,
         arrivalNumber,
         routeTitle,
-        userId,
         username,
         userFname,
         userLname,
@@ -91,9 +90,9 @@ function Confirm() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`, // backend ще вземе userId от JWT
         },
-        body: JSON.stringify(newRoute), // бекенда очаква route обект директно
+        body: JSON.stringify(newRoute),
       });
 
       if (!response.ok) {

@@ -29,7 +29,6 @@ const Notifications = ({navigation, route}) => {
   const [respondModalVisible, setRespondModalVisible] = useState(false);
   const [respondingTo, setRespondingTo] = useState(null);
   const [responseComment, setResponseComment] = useState('');
-
   const recipientUser = respondingTo?.requester?.username;
 
   const handlePersonalMessagePress = notification => {
@@ -78,6 +77,7 @@ const Notifications = ({navigation, route}) => {
           email: user?.email,
         },
         personalMessage: responseComment,
+        senderId: user.id,
         createdAt: new Date().toISOString(),
         read: false,
         status: 'active',
@@ -291,7 +291,11 @@ const Notifications = ({navigation, route}) => {
                 )}
 
               {item.personalMessage && (
-                <View
+                <TouchableOpacity
+                  onPress={() => {
+                    setRespondingTo(item);
+                    setRespondModalVisible(true);
+                  }}
                   style={{
                     marginTop: 8,
                     alignSelf: 'flex-start',
@@ -307,7 +311,7 @@ const Notifications = ({navigation, route}) => {
                     }}>
                     💬 {item.personalMessage}
                   </Text>
-                </View>
+                </TouchableOpacity>
               )}
               <Text style={styles.date}>{formatDate(item.createdAt)}</Text>
 
@@ -353,6 +357,11 @@ const Notifications = ({navigation, route}) => {
                     <Text style={styles.modalMessage}>
                       {respondingTo?.requester?.comment}
                     </Text>
+                    {respondingTo?.personalMessage && (
+                      <Text style={{marginTop: 10, fontStyle: 'italic'}}>
+                        💬 {respondingTo.personalMessage}
+                      </Text>
+                    )}
                     <TextInput
                       style={styles.responseInput}
                       placeholder={t('Type masseges here...')}

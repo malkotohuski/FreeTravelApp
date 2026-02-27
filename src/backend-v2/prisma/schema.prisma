@@ -10,6 +10,7 @@ datasource db {
 // ======================
 // Модел за потребители
 // ======================
+
 model User {
   id                        Int       @id @default(autoincrement())
   username                  String    @unique
@@ -36,6 +37,8 @@ model User {
 
   givenComments    Comment[] @relation("GivenComments")
   receivedComments Comment[] @relation("ReceivedComments")
+
+  sentMessages Message[] @relation("SenderMessages") // ← добавено
 }
 
 // ======================
@@ -62,6 +65,7 @@ model Comment {
 // ======================
 // Модел за маршрути
 // ======================
+
 model Route {
   id                 Int      @id @default(autoincrement())
   ownerId            Int
@@ -86,6 +90,7 @@ model Route {
 // ======================
 // Модел за репорти
 // ======================
+
 model Report {
   id          Int      @id @default(autoincrement())
   text        String
@@ -106,9 +111,11 @@ enum ReportStatus {
   RESOLVED
   REJECTED
 }
+
 // ======================
 // Модел за рикуести
 // ======================
+
 model Request {
   id             Int      @id @default(autoincrement())
   route          Route    @relation("RouteRequests", fields: [routeId], references: [id])
@@ -132,14 +139,53 @@ model Request {
   decidedAt      DateTime? // ← тук добавяме новото поле
 }
 
+// ======================
+// Модел за нотификации
+// ======================
+
 model Notification {
-  id          Int      @id @default(autoincrement())
-  recipient   String   // username на собственика на маршрута
-  routeId     Int
-  message     String
-  requester   Json     // информация за потребителя, който е кандидатствал
+  id              Int      @id @default(autoincrement())
+  recipient       String   // username на собственика на маршрута
+  routeId         Int
+  message         String
+  requester       Json
   personalMessage String?  
-  createdAt   DateTime @default(now())
-  read        Boolean  @default(false)
-  status      String   @default("active")
+  senderId        Int    
+  conversationId  String?
+  createdAt       DateTime @default(now())
+  read            Boolean  @default(false)
+  status          String   @default("active")
+}
+
+// ======================
+// Модел за разговор
+// ======================
+
+model Conversation {
+  id        Int       @id @default(autoincrement())
+  routeId   Int
+  user1Id   Int
+  user2Id   Int
+  createdAt DateTime  @default(now())
+
+  messages  Message[]
+}
+
+// ======================
+// Модел за съобщения
+// ======================
+
+model Message {
+  id             Int      @id @default(autoincrement())
+  conversationId Int
+  senderId       Int
+  text           String
+  createdAt      DateTime @default(now())
+  read           Boolean  @default(false)
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  sender         User @relation("SenderMessages", fields: [senderId], references: [id]) // ← добавен name
+
+  @@index([conversationId])
+  @@index([senderId])
 }

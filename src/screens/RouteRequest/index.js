@@ -97,6 +97,9 @@ function RouteRequestScreen({route, navigation}) {
         personalMessage: decisionMessage,
       });
 
+      // махаме заявката локално
+      setRouteRequests(prev => prev.filter(r => r.id !== requestId));
+
       setDecisionMessage('');
 
       Alert.alert(

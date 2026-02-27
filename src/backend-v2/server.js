@@ -48,6 +48,9 @@ app.get('/api/protected', authenticateJWT, (req, res) => {
   });
 });
 
+const conversationRoutes = require('./routes/conversationRoutes');
+app.use('/api/conversations', conversationRoutes);
+
 const reportRoutes = require('./routes/reportRoutes');
 app.use('/api/report', reportRoutes);
 

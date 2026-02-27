@@ -55,3 +55,58 @@ exports.deleteNotification = async (req, res) => {
     res.status(500).json({error: 'Failed to delete notification'});
   }
 };
+
+exports.getConversation = async (req, res) => {
+  try {
+    const {conversationId} = req.params;
+
+    const messages = await prisma.notification.findMany({
+      where: {
+        conversationId,
+        status: 'active',
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+    });
+
+    res.json(messages);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({error: 'Failed to fetch conversation'});
+  }
+};
+
+exports.createNotification = async (req, res) => {
+  try {
+    const {
+      recipient,
+      message,
+      routeId,
+      personalMessage,
+      requester,
+      conversationId,
+      senderId,
+    } = req.body;
+
+    const notification = await prisma.notification.create({
+      data: {
+        recipient,
+        message,
+        routeId,
+        personalMessage: personalMessage || null,
+        requester: requester || null,
+        conversationId: conversationId || null,
+        read: false,
+        status: 'active',
+        createdAt: new Date(),
+        senderId: Number(senderId),
+      },
+    });
+
+    res.status(201).json(notification);
+  } catch (error) {
+    console.error('Create notification error:', error);
+    res.status(500).json({error: 'Failed to create notification'});
+  }
+};
