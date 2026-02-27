@@ -58,7 +58,11 @@ const styles = StyleSheet.create({
 export const Navigator = () => {
   const {t} = useTranslation();
   const {darkMode} = useContext(DarkModeContext);
-  const {isAuthenticated} = useAuth(); // ✅ взимаме дали потребителят е логнат
+  const {isAuthenticated, loading} = useAuth();
+
+  if (loading) {
+    return null; // или <SplashScreen />
+  }
 
   //const backgroundImage = require('../../images/drawer.jpg');
 
@@ -382,14 +386,23 @@ export const Navigator = () => {
             })}
           />
           <Drawer.Screen
-            name="Chat"
+            name="ChatScreen"
             component={ChatScreen}
             options={{
               title: t('Chat'),
               ...screenStyles,
-              headerShown: false,
+              headerTitleStyle: {
+                fontSize: 18, // <-- промени размера тук
+              },
               drawerItemStyle: {display: 'none'},
             }}
+            listeners={({navigation}) => ({
+              focus: () => {
+                navigation.setOptions({
+                  headerRight: () => BackButtonRouteRequests({navigation}),
+                });
+              },
+            })}
           />
           <Drawer.Screen
             name="AddFriendScreen"

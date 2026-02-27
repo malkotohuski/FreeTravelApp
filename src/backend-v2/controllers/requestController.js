@@ -71,6 +71,7 @@ exports.createRequest = async (req, res) => {
         recipient: route.owner.username,
         routeId: requestingUser.routeId,
         message: `You have a new candidate for your route: ${requestingUser.departureCity}-${requestingUser.arrivalCity}`,
+        senderId: requestingUser.userID,
         requester: {
           username: requestingUser.username,
           userFname: requestingUser.userFname,
@@ -78,6 +79,9 @@ exports.createRequest = async (req, res) => {
           userEmail: requestingUser.userEmail,
           comment: requestingUser.requestComment,
         },
+        personalMessage: null,
+        read: false,
+        status: 'active',
       },
     });
 
@@ -138,6 +142,7 @@ exports.makeDecision = async (req, res) => {
         recipient: request.username,
         routeId: request.routeId,
         message: message,
+        senderId: request.toUserId,
         requester: {
           username: request.username,
         },

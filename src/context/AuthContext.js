@@ -63,6 +63,7 @@ export const AuthProvider = ({children}) => {
     // 🧹 Свързваме автоматичния logout при 401
     setLogoutHandler(() => {
       dispatch({type: LOGOUT});
+      console.log('TOKEN FROM STORAGE:', token);
     });
   }, []);
 

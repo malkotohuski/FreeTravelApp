@@ -88,7 +88,7 @@ export const RouteProvider = ({children}) => {
 
   const fetchAllRoutes = async () => {
     try {
-      const response = await api.get(`/routes`);
+      const response = await api.get(`/api/routes`);
       if (response.status === 200) {
         // Филтрираме маршрутите, които имат userRouteId, различен от "deleted"
         const filteredRoutes = response.data.filter(
@@ -100,7 +100,7 @@ export const RouteProvider = ({children}) => {
       }
     } catch (error) {
       console.error('Login Error:', error);
-      alert(t('Login failed.Invlid email  password.'));
+      console.error('Error fetching routes:', error);
     }
   };
 
