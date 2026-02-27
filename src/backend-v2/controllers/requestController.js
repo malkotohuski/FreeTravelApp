@@ -116,6 +116,13 @@ exports.makeDecision = async (req, res) => {
 
     const request = await prisma.request.findUnique({
       where: {id: requestId},
+      include: {
+        route: {
+          include: {
+            owner: true,
+          },
+        },
+      },
     });
 
     if (!request) return res.status(404).json({error: 'Request not found.'});
@@ -143,14 +150,42 @@ exports.makeDecision = async (req, res) => {
         routeId: request.routeId,
         message: message,
         senderId: request.toUserId,
+
         requester: {
           username: request.username,
         },
+
+        // 👇 НОВО – данни на одобряващия
+        approver: {
+          username: request.route.owner.username,
+          fname: request.route.owner.fName,
+          lname: request.route.owner.lName,
+          email: request.route.owner.email,
+        },
+
         personalMessage: personalMessage || null,
         read: false,
         status: 'active',
       },
     });
+
+    if (decision === 'approved') {
+      await prisma.conversation.upsert({
+        where: {
+          routeId_user1Id_user2Id: {
+            routeId: request.routeId,
+            user1Id: request.toUserId, // owner
+            user2Id: request.fromUserId, // кандидат
+          },
+        },
+        update: {},
+        create: {
+          routeId: request.routeId,
+          user1Id: request.toUserId,
+          user2Id: request.fromUserId,
+        },
+      });
+    }
 
     res.status(200).json({
       message: `Request ${decision} successfully`,

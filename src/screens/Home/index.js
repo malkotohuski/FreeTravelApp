@@ -225,9 +225,7 @@ function HomePage({navigation}) {
   };
 
   const handlerChatScreen = () => {
-    Alert.alert(t('Coming soon'), t('Work in progress 🚧'), [{text: t('OK')}], {
-      cancelable: true,
-    });
+    navigation.navigate('ConversationsScreen');
   };
   const getDisabledIconBackground = () => ({
     alignItems: 'center',

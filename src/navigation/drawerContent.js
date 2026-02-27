@@ -28,7 +28,8 @@ import LogoutScreen from '../screens/Logout';
 import SettingsScreen from '../screens/Settings/index';
 import ReportBugScreen from '../screens/Settings/ReportBugScreen';
 import {RouteDetails} from '../screens/RequestScreen';
-import ChatScreen from '../screens/Chats/ChatScreen';
+import ChatScreen from '../screens/Chats/ChatListScreen';
+import ConversationsScreen from '../screens/Chats/ConversationsScreen';
 import AddFriendScreen from '../screens/Chats/AddFriendScreen';
 import RouteHistory from '../screens/RouteHistory';
 import UsersScreen from '../screens/Users';
@@ -390,6 +391,25 @@ export const Navigator = () => {
             component={ChatScreen}
             options={{
               title: t('Chat'),
+              ...screenStyles,
+              headerTitleStyle: {
+                fontSize: 18, // <-- промени размера тук
+              },
+              drawerItemStyle: {display: 'none'},
+            }}
+            listeners={({navigation}) => ({
+              focus: () => {
+                navigation.setOptions({
+                  headerRight: () => BackButtonRouteRequests({navigation}),
+                });
+              },
+            })}
+          />
+          <Drawer.Screen
+            name="ConversationsScreen"
+            component={ConversationsScreen}
+            options={{
+              title: t('ConversationsScreen'),
               ...screenStyles,
               headerTitleStyle: {
                 fontSize: 18, // <-- промени размера тук

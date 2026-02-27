@@ -29,7 +29,9 @@ const Notifications = ({navigation, route}) => {
   const [respondModalVisible, setRespondModalVisible] = useState(false);
   const [respondingTo, setRespondingTo] = useState(null);
   const [responseComment, setResponseComment] = useState('');
-  const recipientUser = respondingTo?.requester?.username;
+  console.log('FULL NOTIFICATION:', respondingTo);
+  const recipientUser = respondingTo?.requester?.username ?? 'Unknown';
+  console.log('recipientUser:', recipientUser);
 
   const handlePersonalMessagePress = notification => {
     setRespondingTo(notification);
@@ -53,7 +55,7 @@ const Notifications = ({navigation, route}) => {
     }, []),
   );
 
-  const handleRespond = async responseType => {
+  /*   const handleRespond = async responseType => {
     if (!respondingTo) return;
 
     const recipientUser = respondingTo.requester?.username;
@@ -91,7 +93,7 @@ const Notifications = ({navigation, route}) => {
     } catch (error) {
       console.error('❌ Грешка при изпращане на нотификация:', error);
     }
-  };
+  }; */
 
   const fetchNotifications = async () => {
     try {
@@ -127,6 +129,7 @@ const Notifications = ({navigation, route}) => {
 
       const message = notification.message.toLowerCase();
 
+      // ⭐ RATE
       if (
         message.includes('оцени пътуването') ||
         message.includes('rate the trip') ||
@@ -138,12 +141,41 @@ const Notifications = ({navigation, route}) => {
           type: notification.type,
           fromUserId: notification.fromUserId,
         });
-      } else if (
+      }
+
+      // ⭐ ROUTE REQUEST
+      else if (
         message.includes('your route') &&
         (message.includes('candidate') || message.includes('new request'))
       ) {
         navigation.navigate('Route request', {
           fromNotification: true,
+        });
+      }
+
+      // ⭐ APPROVED → CHAT
+      else if (message.includes('approved')) {
+        const response = await api.post('/api/conversations/start', {
+          routeId: notification.routeId,
+          user1Id: user.id,
+          user2Id: notification.senderId,
+        });
+
+        const conversation = response.data;
+
+        // 🔥 намираме кой е другия човек
+        const otherUser =
+          conversation.user1.id === user.id
+            ? conversation.user2
+            : conversation.user1;
+
+        navigation.navigate('ChatScreen', {
+          conversationId: conversation.id,
+          otherUser: otherUser,
+          routeInfo: {
+            departureCity: notification.departureCity,
+            arrivalCity: notification.arrivalCity,
+          },
         });
       }
     } catch (error) {
@@ -368,7 +400,7 @@ const Notifications = ({navigation, route}) => {
                       value={responseComment}
                       onChangeText={setResponseComment}
                     />
-                    <TouchableOpacity
+                    {/*  <TouchableOpacity
                       style={styles.modalButton}
                       onPress={() => handleRespond('accepted')}>
                       <Text style={styles.modalButtonText}>{t('Send')}</Text>
@@ -377,7 +409,7 @@ const Notifications = ({navigation, route}) => {
                       style={[styles.modalButton, styles.cancelButton]}
                       onPress={() => handleRespond('rejected')}>
                       <Text style={styles.modalButtonText}>{t('Decline')}</Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                     <TouchableOpacity
                       style={[styles.modalButton, styles.cancelButton]}
                       onPress={() => setRespondModalVisible(false)}>
