@@ -11,6 +11,9 @@ i18next.use(initReactI18next).init({
         'Register your vehicle': 'Register your vehicle',
         'Route request': 'Route request',
         'Select date:': 'Select date:',
+        Chat: 'Chat',
+        letsStart: "Let's start!",
+        LetTravel: "Let's travel",
         discoverConnectTravel: 'Discover. Connect. Travel.',
         aboutTheApp: 'About the App',
         ourMission: 'Our Mission',
@@ -135,6 +138,7 @@ i18next.use(initReactI18next).init({
         'Departure City': 'Departure City',
         'Arrival City': 'Arrival City',
         'Type a message...': 'Type a message...',
+        conversationsScreen: 'Conversations',
         'Hold to permanently delete account':
           'Hold to permanently delete account',
         'Change Photo': 'Change Photo',
@@ -1900,6 +1904,7 @@ i18next.use(initReactI18next).init({
         Drumokhar: 'Drumokhar',
         Drumche: 'Drumche',
         Drumsha: 'Drumsha',
+
         Drandar: 'Drandar',
         Dryanitsa: 'Dryanitsa',
         'Dryanovа glava': 'Dryanovа glava',
@@ -1959,6 +1964,7 @@ i18next.use(initReactI18next).init({
         'Dalgo pole (obl. Plovdiv)': 'Dalgo pole (obl. Plovdiv)',
         Dalgodeltsi: 'Dalgodeltsi',
         Dangovo: 'Dangovo',
+        yesterday: 'Yesterday',
         Darvari: 'Darvari',
         Dazhdovniitsa: 'Dazhdovniitsa',
         Daskari: 'Daskari',
@@ -5197,6 +5203,7 @@ i18next.use(initReactI18next).init({
           'Вашата заявка за маршрут {{departureCity}}-{{arrivalCity}} c дата {{formattedDateTime}} e одобрен от {{requesterUsername}}!',
         'Register your vehicle': 'Регистрирай автомобила си ',
         'Route request': 'Запитване за маршрут',
+        letsStart: 'Нека започнем!',
         'View routes': 'Преглед на маршрутите',
         'More info about': 'Повече информация за',
         termsOfService: 'Условия за ползване',
@@ -5206,6 +5213,7 @@ i18next.use(initReactI18next).init({
         Reporting: 'Подаване на сигнал',
         'You cannot send an invitation to your own route.':
           'Не можете да изпращате покана към собствен маршрут.',
+        conversationsScreen: 'Съобщения',
         ourMissionText:
           'Да свързваме пътуващите чрез споделени преживявания, намаляване на автомобилите на пътя, намаляване на въглеродните емисии и шофиране по по-интелигентен и по-екологичен начин на пътуване.',
         attachScreenshot: 'Прикачете екранна снимка (по избор)',
@@ -5215,11 +5223,13 @@ i18next.use(initReactI18next).init({
         aboutTheAppText1:
           'FreeTravelApp е проектиран да направи пътуването по-лесно, по-умно и по-свързано. Нашата цел е да помогнем на потребителите да изследват нови дестинации и да споделят преживявания сигурно.',
         Approve: 'Одобряване',
+        LetTravel: 'Нека пътуваме',
         aboutTheApp: 'За приложението',
         Reject: 'Отхвърляне',
         'We travel freely': 'Пътуваме свободно',
         ourVision: 'Нашата визия',
         detailedDescription: 'Детайлно описание',
+        yesterday: 'Вчера',
         stepsReproduce: 'Стъпки за възпроизвеждане',
         byCreatingAccount: 'Създавайки акаунт, вие се съгласявате с нашите',
         ourVisionText:
@@ -5396,6 +5406,7 @@ i18next.use(initReactI18next).init({
           'Въведете номера на автомобила или потребителско име !',
         'Select date and time of departure':
           'изберете дата и час на заминаване',
+        Chat: 'Чат',
         Type: 'Тип',
         Reporting: 'Подаване на сигнал ',
         'Free seats': 'Свободни места',

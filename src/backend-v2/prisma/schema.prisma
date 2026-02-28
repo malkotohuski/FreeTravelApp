@@ -167,7 +167,7 @@ model Notification {
 
 model Conversation {
   id        Int       @id @default(autoincrement())
-  routeId   Int
+  routeId   Int?
   user1Id   Int
   user2Id   Int
   createdAt DateTime  @default(now())
@@ -176,6 +176,9 @@ model Conversation {
 
   user1     User @relation("ConversationUser1", fields: [user1Id], references: [id])
   user2     User @relation("ConversationUser2", fields: [user2Id], references: [id])
+
+  departureCity String
+  arrivalCity   String
 
   @@unique([routeId, user1Id, user2Id])
 }

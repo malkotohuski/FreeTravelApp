@@ -57,7 +57,7 @@ const WelcomeScreen = ({navigation}) => {
       </Animated.View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button} onPress={handlerButtonCont}>
-          <Text style={styles.text}>{t('Go next step')}</Text>
+          <Text style={styles.text}>{t('LetTravel')}</Text>
         </TouchableOpacity>
       </View>
     </View>

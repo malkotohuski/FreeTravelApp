@@ -116,7 +116,15 @@ exports.makeDecision = async (req, res) => {
 
     const request = await prisma.request.findUnique({
       where: {id: requestId},
-      include: {
+      select: {
+        id: true,
+        routeId: true,
+        userID: true, // 👈 ВАЖНО
+        toUserId: true, // 👈 ВАЖНО
+        departureCity: true,
+        arrivalCity: true,
+        username: true,
+        status: true,
         route: {
           include: {
             owner: true,
@@ -175,14 +183,16 @@ exports.makeDecision = async (req, res) => {
           routeId_user1Id_user2Id: {
             routeId: request.routeId,
             user1Id: request.toUserId, // owner
-            user2Id: request.fromUserId, // кандидат
+            user2Id: request.userID, // кандидат
           },
         },
         update: {},
         create: {
           routeId: request.routeId,
           user1Id: request.toUserId,
-          user2Id: request.fromUserId,
+          user2Id: request.userID,
+          departureCity: request.departureCity,
+          arrivalCity: request.arrivalCity,
         },
       });
     }
