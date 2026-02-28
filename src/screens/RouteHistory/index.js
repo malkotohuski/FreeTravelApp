@@ -40,27 +40,22 @@ const RouteHistory = ({navigation}) => {
   useEffect(() => {
     const fetchRoutes = async () => {
       try {
-        const response = await api.get('/routes');
-        if (response.status === 200) {
-          const routes = response.data.filter(route => {
-            return (
-              route.userId === user?.id &&
-              !route.isDeleted &&
-              route.userRouteId !== 'deleted' &&
-              route.userRouteId !== 'completed'
-            );
-          });
-          setOriginalRoutesState(routes);
-          setFilteredRoutesState(routes);
-        } else {
-          throw new Error('Failed to fetch routes');
-        }
+        const response = await api.get('api/routes');
+
+        const routes = response.data.filter(route => {
+          return route.ownerId === user?.id && route.status === 'active';
+        });
+
+        setOriginalRoutesState(routes);
+        setFilteredRoutesState(routes);
       } catch (error) {
         console.error('Error fetching routes:', error);
       }
     };
 
-    fetchRoutes();
+    if (user?.id) {
+      fetchRoutes();
+    }
   }, [user]);
 
   useEffect(() => {
@@ -119,7 +114,22 @@ const RouteHistory = ({navigation}) => {
     );
   };
 
-  const handleMarkAsCompleted = routeId => {
+  const handleMarkAsCompleted = async routeId => {
+    try {
+      await api.patch(`/routes/${routeId}/complete`);
+
+      const updatedRoutes = originalRoutesState.filter(
+        route => route.id !== routeId,
+      );
+
+      setOriginalRoutesState(updatedRoutes);
+      setFilteredRoutesState(updatedRoutes);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  /*  const handleMarkAsCompleted = routeId => {
     const matchingRequest = requests.filter(
       request =>
         String(request.routeId) === String(routeId) &&
@@ -204,7 +214,7 @@ const RouteHistory = ({navigation}) => {
       ],
       {cancelable: false},
     );
-  };
+  }; */
 
   return (
     <SafeAreaView style={styles.mainContainer}>

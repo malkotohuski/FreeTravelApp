@@ -410,7 +410,6 @@ function HomePage({navigation}) {
             style={getNotificationIconBackground()}
             onPress={handlerRouteRequest}>
             <Icons name="routes" {...getNotificationIconColor()} />
-
             {reqestsCount > 0 && (
               <View style={styles.notificationBadge}>
                 <Text style={styles.notificationText}>{reqestsCount}</Text>
@@ -418,13 +417,14 @@ function HomePage({navigation}) {
             )}
           </TouchableOpacity>
         </View>
-
-        <TouchableOpacity
-          style={getDisabledIconBackground()}
-          onPress={handlerChatScreen}
-          activeOpacity={0.8}>
-          <Icons name="chat" {...getNotificationIconColor()} />
-        </TouchableOpacity>
+        <View style={styles.notificationWrapper}>
+          <TouchableOpacity
+            style={getNotificationIconBackground()}
+            onPress={handlerChatScreen}
+            activeOpacity={0.8}>
+            <Icons name="chat-processing" {...getNotificationIconColor()} />
+          </TouchableOpacity>
+        </View>
         <View style={styles.notificationWrapper}>
           <TouchableOpacity
             style={getNotificationIconBackground()}

@@ -150,6 +150,16 @@ export const Navigator = () => {
     </TouchableOpacity>
   );
 
+  const BackButtonChatScreen = ({navigation}) => (
+    <TouchableOpacity
+      style={{marginRight: 16}}
+      onPress={() => {
+        navigation.navigate('ConversationsScreen');
+      }}>
+      <Icons name="keyboard-backspace" size={24} color="white" />
+    </TouchableOpacity>
+  );
+
   const BackButtonSettings = ({navigation}) => (
     <TouchableOpacity
       style={{marginRight: 16}}
@@ -400,7 +410,7 @@ export const Navigator = () => {
             listeners={({navigation}) => ({
               focus: () => {
                 navigation.setOptions({
-                  headerRight: () => BackButtonRouteRequests({navigation}),
+                  headerRight: () => BackButtonChatScreen({navigation}),
                 });
               },
             })}
@@ -409,7 +419,7 @@ export const Navigator = () => {
             name="ConversationsScreen"
             component={ConversationsScreen}
             options={{
-              title: t('ConversationsScreen'),
+              title: t('conversationsScreen'),
               ...screenStyles,
               headerTitleStyle: {
                 fontSize: 18, // <-- промени размера тук

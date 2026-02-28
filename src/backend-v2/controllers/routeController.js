@@ -103,3 +103,82 @@ exports.getActiveRoutes = async (req, res) => {
     return res.status(500).json({error: 'Internal server error'});
   }
 };
+
+exports.completeRoute = async (req, res) => {
+  try {
+    const routeId = Number(req.params.id);
+    const userId = req.user.userId;
+
+    // 1️⃣ Проверка дали маршрутът съществува
+    const route = await prisma.route.findUnique({
+      where: {id: routeId},
+    });
+
+    if (!route) {
+      return res.status(404).json({error: 'Route not found'});
+    }
+
+    // 2️⃣ Проверка дали принадлежи на user-а
+    if (route.ownerId !== userId) {
+      return res.status(403).json({error: 'Unauthorized'});
+    }
+
+    // 3️⃣ Проверка дали вече е completed
+    if (route.status === 'completed') {
+      return res.status(400).json({error: 'Route already completed'});
+    }
+
+    await prisma.$transaction(async tx => {
+      // ✅ Update route
+      await tx.route.update({
+        where: {id: routeId},
+        data: {status: 'completed'},
+      });
+
+      // ✅ Взимаме всички approved заявки
+      const approvedRequests = await tx.request.findMany({
+        where: {
+          routeId: routeId,
+          status: 'approved',
+        },
+      });
+
+      // ✅ Ако няма пътници — спираме тук
+      if (approvedRequests.length === 0) {
+        return;
+      }
+
+      // ✅ Създаваме нотификации
+      for (const req of approvedRequests) {
+        // Към пътника
+        await tx.notification.create({
+          data: {
+            recipient: req.username,
+            routeId: routeId,
+            message: `Please rate the trip`,
+            senderId: userId,
+            read: false,
+            status: 'active',
+          },
+        });
+
+        // Към шофьора
+        await tx.notification.create({
+          data: {
+            recipient: route.ownerId.toString(),
+            routeId: routeId,
+            message: `Please rate your passenger`,
+            senderId: req.userID,
+            read: false,
+            status: 'active',
+          },
+        });
+      }
+    });
+
+    return res.status(200).json({message: 'Route marked as completed'});
+  } catch (error) {
+    console.error('Complete route error:', error);
+    return res.status(500).json({error: 'Internal server error'});
+  }
+};
