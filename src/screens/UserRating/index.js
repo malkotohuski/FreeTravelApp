@@ -1,4 +1,4 @@
-import React, {useState, useContext, useCallback} from 'react';
+import React, {useState, useContext, useCallback, useEffect} from 'react';
 import {
   View,
   Text,
@@ -15,15 +15,13 @@ import StarRating from 'react-native-star-rating-widget';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {DarkModeContext} from '../../navigation/DarkModeContext';
 import {useAuth} from '../../context/AuthContext';
-
-const API_BASE_URL = 'http://10.0.2.2:3000';
+import api from '../../api/api';
 
 const RateUserScreen = ({navigation}) => {
   const {t} = useTranslation();
   const route = useRoute();
-  const {mainRouteUser, routeId, type, fromUserId} = route.params;
-  console.log('USER_ID', fromUserId);
-
+  const {routeId, ratedId} = route.params;
+  const [ratedUsername, setRatedUsername] = useState(null);
   const {user} = useAuth();
   const currentUser = user?.username;
   const currentUserId = user?.id;
@@ -33,6 +31,24 @@ const RateUserScreen = ({navigation}) => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
 
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await api.get(`/api/users/${ratedId}`);
+        console.log('USER RESPONSE:', res.data); // 👈 добави това
+        setRatedUsername(res.data.username);
+      } catch (err) {
+        console.log('User fetch error', err.response?.data || err);
+      }
+    };
+
+    if (ratedId) {
+      fetchUser();
+    }
+  }, [ratedId]);
+
+  console.log('ROUTE PARAMS:', route.params);
+  console.log('RatedId:', ratedId);
   useFocusEffect(
     useCallback(() => {
       setComment('');
@@ -47,129 +63,25 @@ const RateUserScreen = ({navigation}) => {
     }
 
     try {
-      console.log('=== SUBMIT RATING START ===');
-      console.log('route.params:', route.params);
-      console.log('currentUserId:', currentUserId, 'username:', currentUser);
-
-      // 1. Взимаме всички потребители
-      const usersResponse = await fetch(`${API_BASE_URL}/users`);
-      const users = await usersResponse.json();
-
-      const ratingUser = users.find(u => u.id === currentUserId);
-      if (!ratingUser) {
-        Alert.alert(t('Error'), t('Current user not found.'));
-        return;
-      }
-
-      // Този, който ще бъде оценен (mainRouteUser идва от навигацията)
-      let userToRate = users.find(u => u.username === mainRouteUser);
-
-      // 2. Взимаме всички заявки за маршрута
-      const requestsResponse = await fetch(`${API_BASE_URL}/requests`);
-      const requests = await requestsResponse.json();
-
-      const routeRequests = requests.filter(
-        r => r.routeId === routeId && r.status === 'approved',
-      );
-
-      if (routeRequests.length === 0) {
-        Alert.alert(t('Error'), t('No approved requests for this route.'));
-        return;
-      }
-
-      let requestToUpdate = null;
-      let updateField = null;
-
-      // 🟢 Ако логнатият е създателя на маршрута
-      if (ratingUser.id === routeRequests[0].userRouteId) {
-        console.log('Current user IS the creator');
-
-        // Търсим участника, който трябва да бъде оценен
-        requestToUpdate = routeRequests.find(
-          r =>
-            r.userID === fromUserId &&
-            r.rateUser === false &&
-            r.username === mainRouteUser,
-        );
-
-        if (!requestToUpdate) {
-          Alert.alert(
-            t('Information'),
-            t('This participant is already rated or not found.'),
-          );
-          return;
-        }
-
-        userToRate = users.find(u => u.id === fromUserId);
-        updateField = {rateUser: true};
-      } else {
-        // 🟢 Ако логнатият е участник → оценява създателя
-        console.log('Current user IS a participant');
-
-        const creatorId = routeRequests[0].userRouteId;
-        requestToUpdate = routeRequests.find(
-          r =>
-            r.userID === ratingUser.id &&
-            r.rateCreator === false &&
-            r.userRouteId === creatorId,
-        );
-
-        if (!requestToUpdate) {
-          Alert.alert(
-            t('Information'),
-            t('You have already rated the creator or request not found.'),
-          );
-          return;
-        }
-
-        userToRate = users.find(u => u.id === creatorId);
-        updateField = {rateCreator: true};
-      }
-
-      if (!userToRate) {
-        Alert.alert(t('Error'), t('User to rate not found.'));
-        return;
-      }
-
-      // 3. Подготвяме новите данни за user
-      const updatedRatings = [...(userToRate.ratings || []), rating];
-      const updatedComments = [
-        ...(userToRate.comments || []),
-        {
-          user: currentUser,
-          comment: comment || '',
-          image: currentUserImage,
-          date: new Date().toISOString(),
-        },
-      ];
-      const averageRating =
-        updatedRatings.reduce((sum, r) => sum + r, 0) / updatedRatings.length;
-
-      // PATCH user
-      await fetch(`${API_BASE_URL}/users/${userToRate.id}`, {
-        method: 'PATCH',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          ratings: updatedRatings,
-          comments: updatedComments,
-          averageRating: parseFloat(averageRating.toFixed(2)),
-        }),
+      const response = await api.post('/api/ratings', {
+        routeId: routeId,
+        ratedId: ratedId,
+        score: rating,
+        comment: comment,
       });
-
-      // PATCH request → rateUser или rateCreator
-      if (requestToUpdate && updateField) {
-        await fetch(`${API_BASE_URL}/requests/${requestToUpdate.id}`, {
-          method: 'PATCH',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify(updateField),
-        });
-      }
 
       Alert.alert(t('Success'), t('Successfully rated the user.'));
       navigation.navigate('Home');
     } catch (error) {
-      console.error('❌ Error in submitRating:', error);
-      Alert.alert(t('Error'), t('Problem with the server request.'));
+      console.log('Rating error:', error.response?.data);
+
+      if (error.response?.status === 400) {
+        Alert.alert(t('Information'), error.response.data.message);
+      } else if (error.response?.status === 403) {
+        Alert.alert(t('Error'), error.response.data.message);
+      } else {
+        Alert.alert(t('Error'), t('Server error.'));
+      }
     }
   };
 
@@ -202,13 +114,11 @@ const RateUserScreen = ({navigation}) => {
             {backgroundColor: darkMode ? '#121212' : '#fafafa'},
           ]}>
           <Text style={[styles.title, {color: darkMode ? '#fff' : '#000'}]}>
-            {type === 'rate_user'
-              ? t('Rate the creator')
-              : t('Rate the passenger')}
+            {t('Rate user')}
           </Text>
           <Text style={[styles.subText, {color: darkMode ? '#ccc' : '#000'}]}>
             {t('You appreciate')}{' '}
-            <Text style={styles.bold}>{mainRouteUser}</Text>
+            <Text style={styles.bold}>{ratedUsername ?? t('Loading...')}</Text>
           </Text>
           <StarRating
             rating={rating}

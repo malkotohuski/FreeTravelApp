@@ -355,10 +355,10 @@ const styles = StyleSheet.create({
     borderColor: '#777',
   },
   selectedDateLabel: {color: '#bbb', fontSize: 16},
-  selectedDateText: {color: '#ff6600', fontSize: 18, fontWeight: '700'},
+  selectedDateText: {color: '#f4511e', fontSize: 18, fontWeight: '700'},
 
   button: {
-    backgroundColor: '#ff6600',
+    backgroundColor: '#f4511e',
     borderRadius: 10,
     width: 200,
     height: 55,
@@ -369,7 +369,7 @@ const styles = StyleSheet.create({
   buttonText: {fontSize: 18, fontWeight: '600', color: '#fff'},
 
   searchButton: {
-    backgroundColor: '#ff6600',
+    backgroundColor: '#f4511e',
     borderRadius: 10,
     width: 200,
     height: 55,
@@ -378,7 +378,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   searchButtonText: {fontSize: 18, fontWeight: '600', color: '#fff'},
-  loadingText: {color: '#ff6600', marginTop: 10, fontWeight: '600'},
+  loadingText: {color: '#f4511e', marginTop: 10, fontWeight: '600'},
 });
 
 export default Looking;

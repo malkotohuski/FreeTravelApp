@@ -40,10 +40,10 @@ const RouteHistory = ({navigation}) => {
   useEffect(() => {
     const fetchRoutes = async () => {
       try {
-        const response = await api.get('api/routes');
+        const response = await api.get('/api/routes/my');
 
         const routes = response.data.filter(route => {
-          return route.ownerId === user?.id && route.status === 'active';
+          return route.status === 'active';
         });
 
         setOriginalRoutesState(routes);
@@ -90,10 +90,8 @@ const RouteHistory = ({navigation}) => {
           text: t('Delete'),
           onPress: async () => {
             try {
-              await api.patch(`/routes/${routeId}`, {
-                userRouteId: 'deleted',
-              });
-
+              await api.patch(`/api/routes/${routeId}/delete`);
+              console.log('Deleted route:', routeId);
               const updatedRoutes = originalRoutesState.filter(
                 route => route.id !== routeId,
               );
@@ -116,7 +114,7 @@ const RouteHistory = ({navigation}) => {
 
   const handleMarkAsCompleted = async routeId => {
     try {
-      await api.patch(`/routes/${routeId}/complete`);
+      await api.patch(`/api/routes/${routeId}/complete`);
 
       const updatedRoutes = originalRoutesState.filter(
         route => route.id !== routeId,
@@ -128,93 +126,6 @@ const RouteHistory = ({navigation}) => {
       console.error(error);
     }
   };
-
-  /*  const handleMarkAsCompleted = routeId => {
-    const matchingRequest = requests.filter(
-      request =>
-        String(request.routeId) === String(routeId) &&
-        request.status === 'approved',
-    );
-
-    const completedRoute = originalRoutesState.find(
-      route => route.id === routeId,
-    );
-
-    const mainRouteUser = user?.username;
-
-    Alert.alert(
-      t('Complete the route'),
-      t('Are you sure you want to mark this route as completed?'),
-      [
-        {
-          text: t('Cancel'),
-          style: 'cancel',
-        },
-        {
-          text: t('Mark as Completed'),
-          onPress: async () => {
-            try {
-              // ✅ 1. ВИНАГИ маркираме маршрута
-              await api.patch(`/routes/${routeId}`, {
-                userRouteId: 'completed',
-              });
-
-              // ✅ 2. Махаме го от UI
-              const updatedRoutes = originalRoutesState.filter(
-                route => route.id !== routeId,
-              );
-              setOriginalRoutesState(updatedRoutes);
-              setFilteredRoutesState(updatedRoutes);
-
-              // ✅ 3. Известия САМО ако има пътници
-              if (matchingRequest.length > 0) {
-                for (const req of matchingRequest) {
-                  await api.post('/notifications', {
-                    recipient: req.username,
-                    fromUserId: user?.id,
-                    type: 'rate_user',
-                    routeId,
-                    message: `${t(
-                      'Please rate the trip with',
-                    )} ${mainRouteUser}`,
-                    status: 'active',
-                    isRead: false,
-                    createdAt: new Date().toISOString(),
-                    mainRouteUser,
-                  });
-
-                  await api.post('/notifications', {
-                    recipient: user?.username,
-                    fromUserId: req.userID,
-                    type: 'rate_passenger',
-                    routeId,
-                    message: `${t('Please rate your passenger')} ${
-                      req.username
-                    }`,
-                    status: 'active',
-                    isRead: false,
-                    createdAt: new Date().toISOString(),
-                    mainRouteUser: req.username,
-                  });
-                }
-              }
-
-              navigation.navigate('Notifications', {
-                matchingRequest,
-                mainRouteUser,
-              });
-            } catch (error) {
-              console.error(
-                'Error completing route or sending notification:',
-                error,
-              );
-            }
-          },
-        },
-      ],
-      {cancelable: false},
-    );
-  }; */
 
   return (
     <SafeAreaView style={styles.mainContainer}>

@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useEffect, useCallback, useContext} from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import {useTranslation} from 'react-i18next';
 import {useAuth} from '../../context/AuthContext';
 import {useRouteContext} from '../../context/RouteContext';
 import api from '../../api/api';
+import {DarkModeContext} from '../../navigation/DarkModeContext';
 
 const colors = [
   '#f44336',
@@ -55,7 +56,7 @@ function RouteRequestScreen({route, navigation}) {
   const requestUserID = user?.userID;
   const [isProcessing, setIsProcessing] = useState(false);
   const [decisionMessage, setDecisionMessage] = useState('');
-
+  const {darkMode} = useContext(DarkModeContext);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -163,7 +164,8 @@ function RouteRequestScreen({route, navigation}) {
   };
 
   return (
-    <SafeAreaView style={styles.mainContainer}>
+    <SafeAreaView
+      style={{flex: 1, backgroundColor: darkMode ? '#fff' : '#222'}}>
       {modalVisible && selectedRequest && (
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
@@ -256,10 +258,10 @@ function RouteRequestScreen({route, navigation}) {
       )}
 
       <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-        <Image
+        {/*  <Image
           source={require('../../../images/routes2-background.jpg')}
           style={styles.backgroundImage}
-        />
+        /> */}
         <View style={styles.container}>
           <Text style={styles.headerText}>{t('Inquiries')}:</Text>
           <Button title="🔄 Refresh" onPress={refreshUserData} />
@@ -271,7 +273,7 @@ function RouteRequestScreen({route, navigation}) {
 }
 
 const styles = StyleSheet.create({
-  mainContainer: {flex: 1},
+  mainContainer: {flex: 1, justifyContent: 'flex-start'},
   scrollViewContainer: {flexGrow: 1},
   container: {
     flex: 1,
@@ -282,7 +284,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 24,
     marginBottom: 15,
-    color: '#0a0a0aff',
+    color: 'rgba(255,255,255,0.85)',
     textShadowColor: 'rgba(0,0,0,0.4)',
     textShadowOffset: {width: 1, height: 1},
     textShadowRadius: 3,

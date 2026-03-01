@@ -28,10 +28,6 @@ const Notifications = ({navigation, route}) => {
   const [visibleModalId, setVisibleModalId] = useState(null);
   const [respondModalVisible, setRespondModalVisible] = useState(false);
   const [respondingTo, setRespondingTo] = useState(null);
-  const [responseComment, setResponseComment] = useState('');
-  console.log('FULL NOTIFICATION:', respondingTo);
-  const recipientUser = respondingTo?.requester?.username ?? 'Unknown';
-  console.log('recipientUser:', recipientUser);
 
   const handlePersonalMessagePress = notification => {
     setRespondingTo(notification);
@@ -55,50 +51,10 @@ const Notifications = ({navigation, route}) => {
     }, []),
   );
 
-  /*   const handleRespond = async responseType => {
-    if (!respondingTo) return;
-
-    const recipientUser = respondingTo.requester?.username;
-    const senderUsername = user?.username;
-
-    const message =
-      responseType === 'accepted'
-        ? `${senderUsername} accepted your invitation.`
-        : `${senderUsername} declined your invitation.`;
-
-    try {
-      // ✅ използваме правилния API път за POST
-      await api.post('/api/notifications', {
-        recipient: recipientUser,
-        message: message,
-        routeId: respondingTo.routeId,
-        requester: {
-          username: senderUsername,
-          userFname: user?.firstName,
-          userLname: user?.lastName,
-          email: user?.email,
-        },
-        personalMessage: responseComment,
-        senderId: user.id,
-        createdAt: new Date().toISOString(),
-        read: false,
-        status: 'active',
-      });
-
-      setRespondModalVisible(false);
-      setRespondingTo(null);
-      setResponseComment('');
-
-      fetchNotifications(); // ✅ обновяваме списъка с нотификации
-    } catch (error) {
-      console.error('❌ Грешка при изпращане на нотификация:', error);
-    }
-  }; */
-
   const fetchNotifications = async () => {
     try {
       // ✅ използваме правилния API път
-      const response = await api.get(`/api/notifications/${user?.username}`);
+      const response = await api.get('/api/notifications');
       const activeNotifications = response.data.filter(
         n => n.status === 'active',
       );
@@ -118,6 +74,7 @@ const Notifications = ({navigation, route}) => {
   );
 
   const handleNotificationPress = async notification => {
+    console.log('NOTIFICATION OBJECT:', notification);
     try {
       // Маркираме като прочетена
       if (!notification.read) {
@@ -128,7 +85,6 @@ const Notifications = ({navigation, route}) => {
       }
 
       const message = notification.message.toLowerCase();
-
       // ⭐ RATE
       if (
         message.includes('оцени пътуването') ||
@@ -136,10 +92,9 @@ const Notifications = ({navigation, route}) => {
         message.includes('rate your passenger')
       ) {
         navigation.navigate('RateUser', {
-          mainRouteUser: notification.mainRouteUser,
           routeId: notification.routeId,
-          type: notification.type,
-          fromUserId: notification.fromUserId,
+          ratedId: notification.senderId,
+          ratedUsername: notification.senderUsername,
         });
       }
 
@@ -233,16 +188,17 @@ const Notifications = ({navigation, route}) => {
   const isNewNotification = createdAt => {
     const now = new Date();
     const date = new Date(createdAt);
-    const diffHr = (now - date) / (1000 * 60 * 60);
-    return diffHr < 24;
+    const diffHr = (now - date) / (1000 * 30 * 30);
+    return diffHr < 12;
   };
 
   return (
-    <SafeAreaView style={styles.mainContainer}>
-      <Image
+    <SafeAreaView
+      style={{flex: 1, backgroundColor: darkMode ? '#fff' : '#222'}}>
+      {/*  <Image
         source={require('../../../images/user-background.jpg')}
         style={styles.backgroundImage}
-      />
+      /> */}
       <View
         style={{flex: 1, justifyContent: 'flex-start', alignItems: 'center'}}>
         <View style={getHeaderStyles()}>
@@ -314,7 +270,7 @@ const Notifications = ({navigation, route}) => {
                               fontSize: 14,
                               fontStyle: 'italic',
                             }}>
-                            "{item.requester.comment}"
+                            "{item.requester?.comment}"
                           </Text>
                         </TouchableOpacity>
                       ) : null}
@@ -376,48 +332,6 @@ const Notifications = ({navigation, route}) => {
                   </View>
                 </View>
               </Modal>
-              <Modal
-                visible={respondModalVisible}
-                animationType="none"
-                onRequestClose={() => setRespondModalVisible(false)}>
-                <View style={styles.simpleModalContainer}>
-                  <View style={styles.modalContent}>
-                    <Text style={styles.modalTitle}>
-                      {t('Answers to:')}
-                      {recipientUser}
-                    </Text>
-                    <Text style={styles.modalMessage}>
-                      {respondingTo?.requester?.comment}
-                    </Text>
-                    {respondingTo?.personalMessage && (
-                      <Text style={{marginTop: 10, fontStyle: 'italic'}}>
-                        💬 {respondingTo.personalMessage}
-                      </Text>
-                    )}
-                    <TextInput
-                      style={styles.responseInput}
-                      placeholder={t('Type masseges here...')}
-                      value={responseComment}
-                      onChangeText={setResponseComment}
-                    />
-                    {/*  <TouchableOpacity
-                      style={styles.modalButton}
-                      onPress={() => handleRespond('accepted')}>
-                      <Text style={styles.modalButtonText}>{t('Send')}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[styles.modalButton, styles.cancelButton]}
-                      onPress={() => handleRespond('rejected')}>
-                      <Text style={styles.modalButtonText}>{t('Decline')}</Text>
-                    </TouchableOpacity> */}
-                    <TouchableOpacity
-                      style={[styles.modalButton, styles.cancelButton]}
-                      onPress={() => setRespondModalVisible(false)}>
-                      <Text style={styles.modalButtonText}>{t('Close')}</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </Modal>
             </View>
           )}
         />
@@ -439,12 +353,12 @@ const styles = StyleSheet.create({
   notificationList: {padding: 16},
   notification: {
     padding: 15,
-    backgroundColor: '#fff',
+    backgroundColor: '#9b9999',
     borderRadius: 10,
     marginBottom: 20,
     elevation: 2,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#000000',
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
@@ -456,7 +370,7 @@ const styles = StyleSheet.create({
     color: '#555',
   },
   message: {fontSize: 16, color: '#010101', marginBottom: 8},
-  date: {fontSize: 12, color: '#202020FF'},
+  date: {fontSize: 12, color: 'rgb(0, 0, 0)'},
   emptyState: {
     flex: 1,
     justifyContent: 'center',

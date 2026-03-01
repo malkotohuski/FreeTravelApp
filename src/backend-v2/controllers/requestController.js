@@ -4,41 +4,51 @@ const prisma = new PrismaClient();
 // Създаване на нова заявка
 exports.createRequest = async (req, res) => {
   try {
-    const {requestingUser} = req.body;
-    if (!requestingUser) {
-      return res.status(400).json({error: 'Requesting user is undefined.'});
-    }
+    console.log('REQ BODY:', req.body);
 
-    if (!requestingUser.routeId || !requestingUser.userID) {
-      return res
-        .status(400)
-        .json({error: 'Route ID and User ID are required.'});
+    const userId = req.user.userId;
+
+    const {
+      routeId,
+      username,
+      userFname,
+      userLname,
+      userEmail,
+      userRouteId,
+      departureCity,
+      arrivalCity,
+      dataTime,
+      requestComment,
+    } = req.body;
+
+    if (!routeId) {
+      return res.status(400).json({error: 'Route ID is required.'});
     }
 
     // Проверка за съществуваща заявка
     const existing = await prisma.request.findFirst({
       where: {
-        routeId: requestingUser.routeId,
-        userID: requestingUser.userID,
+        routeId: routeId,
+        userID: userId,
         status: {not: 'rejected'},
       },
     });
 
     if (existing) {
-      return res
-        .status(400)
-        .json({error: 'You already submitted a request for this route.'});
+      return res.status(400).json({
+        error: 'You already submitted a request for this route.',
+      });
     }
 
-    // Проверка и конвертиране на дата
-    const parsedDate = new Date(requestingUser.dataTime);
+    // Проверка на дата
+    const parsedDate = new Date(dataTime);
     if (isNaN(parsedDate.getTime())) {
       return res.status(400).json({error: 'Invalid date format'});
     }
 
-    // 1️⃣ намираме маршрута първо
+    // намираме маршрута
     const route = await prisma.route.findUnique({
-      where: {id: requestingUser.routeId},
+      where: {id: routeId},
       include: {owner: true},
     });
 
@@ -46,38 +56,38 @@ exports.createRequest = async (req, res) => {
       return res.status(404).json({error: 'Route not found'});
     }
 
-    // 2️⃣ създаваме заявката
+    // създаваме заявката
     const newRequest = await prisma.request.create({
       data: {
-        routeId: requestingUser.routeId,
-        userID: requestingUser.userID,
+        routeId: routeId,
+        userID: userId,
         toUserId: route.owner.id,
-        username: requestingUser.username,
-        userFname: requestingUser.userFname,
-        userLname: requestingUser.userLname,
-        userEmail: requestingUser.userEmail,
-        userRouteId: requestingUser.userRouteId || 0,
-        departureCity: requestingUser.departureCity,
-        arrivalCity: requestingUser.arrivalCity,
-        dataTime: new Date(requestingUser.dataTime),
-        requestComment: requestingUser.requestComment,
+        username,
+        userFname,
+        userLname,
+        userEmail,
+        userRouteId: userRouteId || 0,
+        departureCity,
+        arrivalCity,
+        dataTime: parsedDate,
+        requestComment,
         status: 'pending',
       },
     });
 
-    // 3️⃣ Създаваме notification
+    // notification
     await prisma.notification.create({
       data: {
-        recipient: route.owner.username,
-        routeId: requestingUser.routeId,
-        message: `You have a new candidate for your route: ${requestingUser.departureCity}-${requestingUser.arrivalCity}`,
-        senderId: requestingUser.userID,
+        recipientId: route.owner.id,
+        routeId: routeId,
+        message: `You have a new candidate for your route: ${departureCity}-${arrivalCity}`,
+        senderId: userId,
         requester: {
-          username: requestingUser.username,
-          userFname: requestingUser.userFname,
-          userLname: requestingUser.userLname,
-          userEmail: requestingUser.userEmail,
-          comment: requestingUser.requestComment,
+          username,
+          userFname,
+          userLname,
+          userEmail,
+          comment: requestComment,
         },
         personalMessage: null,
         read: false,
@@ -85,11 +95,12 @@ exports.createRequest = async (req, res) => {
       },
     });
 
-    res
-      .status(201)
-      .json({message: 'Request created successfully', request: newRequest});
+    res.status(201).json({
+      message: 'Request created successfully',
+      request: newRequest,
+    });
   } catch (err) {
-    console.error(err);
+    console.error('Create request error:', err);
     res.status(500).json({error: 'Failed to create request.'});
   }
 };
@@ -154,16 +165,15 @@ exports.makeDecision = async (req, res) => {
 
     await prisma.notification.create({
       data: {
-        recipient: request.username,
+        recipientId: request.userID, // ← КАНДИДАТА
         routeId: request.routeId,
         message: message,
-        senderId: request.toUserId,
+        senderId: request.toUserId, // ← owner-а
 
         requester: {
           username: request.username,
         },
 
-        // 👇 НОВО – данни на одобряващия
         approver: {
           username: request.route.owner.username,
           fname: request.route.owner.fName,
