@@ -102,20 +102,16 @@ function RouteDetails({route}) {
           onPress: async () => {
             try {
               await api.post('/api/send-request-to-user', {
-                requestingUser: {
-                  routeId,
-                  userID: user.id,
-                  username: user.username,
-                  userFname: user.fName,
-                  userLname: user.lName,
-                  userEmail: user.email,
-                  userRouteId: route.params.userId || 0,
-                  departureCity,
-                  arrivalCity,
-                  dataTime: route.params.selectedDateTime, // трябва да е ISO string
-                  requestComment: tripRequestText,
-                  status: 'pending',
-                },
+                routeId,
+                username: user.username,
+                userFname: user.fName,
+                userLname: user.lName,
+                userEmail: user.email,
+                userRouteId: route.params.userId || 0,
+                departureCity,
+                arrivalCity,
+                dataTime: route.params.selectedDateTime,
+                requestComment: tripRequestText,
               });
 
               setHasRequested(true);

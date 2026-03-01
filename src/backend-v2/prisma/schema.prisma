@@ -41,7 +41,13 @@ model User {
   givenComments    Comment[] @relation("GivenComments")
   receivedComments Comment[] @relation("ReceivedComments")
 
-  sentMessages Message[] @relation("SenderMessages") // ← добавено
+  givenRatings     Rating[] @relation("GivenRatings")
+  receivedRatings  Rating[] @relation("ReceivedRatings")
+
+  receivedNotifications Notification[] @relation("UserReceivedNotifications")
+  sentNotifications     Notification[] @relation("UserSentNotifications")
+
+  sentMessages Message[] @relation("SenderMessages") 
 }
 
 // ======================
@@ -66,6 +72,26 @@ model Comment {
 }
 
 // ======================
+// Модел за рейтинг
+// ======================
+
+model Rating {
+  id        Int      @id @default(autoincrement())
+  routeId   Int
+  raterId   Int
+  ratedId   Int
+  score     Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  route Route @relation(fields: [routeId], references: [id])
+  rater User  @relation("GivenRatings", fields: [raterId], references: [id])
+  rated User  @relation("ReceivedRatings", fields: [ratedId], references: [id])
+
+  @@unique([routeId, raterId, ratedId])
+}
+
+// ======================
 // Модел за маршрути
 // ======================
 
@@ -85,6 +111,7 @@ model Route {
   status             String   @default("active")
   createdAt          DateTime @default(now())
   comments           Comment[]
+  ratings            Rating[]
 
   owner    User @relation("UserRoutes", fields: [ownerId], references: [id])
   requests Request[] @relation("RouteRequests")
@@ -148,12 +175,17 @@ model Request {
 
 model Notification {
   id              Int      @id @default(autoincrement())
-  recipient       String   // username на собственика на маршрута
+
+  recipientId     Int
+  recipient       User @relation("UserReceivedNotifications", fields: [recipientId], references: [id])
+
+  senderId        Int
+  sender          User @relation("UserSentNotifications", fields: [senderId], references: [id])
+
   routeId         Int
   message         String
-  requester       Json
-  personalMessage String?  
-  senderId        Int    
+  requester       Json?
+  personalMessage String?
   conversationId  String?
   createdAt       DateTime @default(now())
   read            Boolean  @default(false)

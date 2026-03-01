@@ -153,7 +153,7 @@ exports.completeRoute = async (req, res) => {
         // Към пътника
         await tx.notification.create({
           data: {
-            recipient: req.username,
+            recipientId: req.userID,
             routeId: routeId,
             message: `Please rate the trip`,
             senderId: userId,
@@ -165,7 +165,7 @@ exports.completeRoute = async (req, res) => {
         // Към шофьора
         await tx.notification.create({
           data: {
-            recipient: route.ownerId.toString(),
+            recipientId: route.ownerId,
             routeId: routeId,
             message: `Please rate your passenger`,
             senderId: req.userID,
@@ -179,6 +179,60 @@ exports.completeRoute = async (req, res) => {
     return res.status(200).json({message: 'Route marked as completed'});
   } catch (error) {
     console.error('Complete route error:', error);
+    return res.status(500).json({error: 'Internal server error'});
+  }
+};
+
+exports.deleteRoute = async (req, res) => {
+  try {
+    const routeId = Number(req.params.id);
+    const userId = req.user.userId;
+
+    const route = await prisma.route.findUnique({
+      where: {id: routeId},
+    });
+
+    if (!route) {
+      return res.status(404).json({error: 'Route not found'});
+    }
+
+    if (route.ownerId !== userId) {
+      return res.status(403).json({error: 'Unauthorized'});
+    }
+
+    if (route.status === 'deleted') {
+      return res.status(400).json({error: 'Route already deleted'});
+    }
+
+    await prisma.route.update({
+      where: {id: routeId},
+      data: {status: 'deleted'},
+    });
+
+    return res.status(200).json({message: 'Route deleted successfully'});
+  } catch (error) {
+    console.error('Delete route error:', error);
+    return res.status(500).json({error: 'Internal server error'});
+  }
+};
+
+exports.getMyRoutes = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    const routes = await prisma.route.findMany({
+      where: {
+        ownerId: userId,
+        status: 'active',
+      },
+      orderBy: {
+        selectedDateTime: 'desc',
+      },
+    });
+
+    return res.status(200).json(routes);
+  } catch (error) {
+    console.error('Get my routes error:', error);
     return res.status(500).json({error: 'Internal server error'});
   }
 };

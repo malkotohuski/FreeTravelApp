@@ -28,7 +28,7 @@ const ChatScreen = ({route}) => {
 
   const flatListRef = useRef(null);
 
-  const colors = {
+  /*   const colors = {
     background: darkMode ? '#f9f9f9' : '#121212',
     card: darkMode ? '#ffffff' : '#1e1e1e',
     border: darkMode ? '#e0e0e0' : '#2a2a2a',
@@ -38,7 +38,7 @@ const ChatScreen = ({route}) => {
     myMessage: '#f4511e',
     otherMessage: darkMode ? '#eeeeee' : '#2a2a2a',
   };
-
+ */
   useEffect(() => {
     if (!conversationId || !user?.id) return;
 

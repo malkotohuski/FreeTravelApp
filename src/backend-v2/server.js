@@ -30,7 +30,7 @@ app.get('/users', async (req, res) => {
 });
 
 const usersRoutes = require('./routes/usersRoutes');
-app.use('/users', usersRoutes);
+app.use('/api/users', usersRoutes);
 
 const commentRoutes = require('./routes/commentRoutes');
 app.use('/api', commentRoutes);
@@ -53,6 +53,9 @@ app.use('/api/conversations', conversationRoutes);
 
 const reportRoutes = require('./routes/reportRoutes');
 app.use('/api/report', reportRoutes);
+
+const ratingRoutes = require('./routes/ratingRoutes');
+app.use('/api/ratings', ratingRoutes);
 
 const notificationRoutes = require('./routes/notificationRoutes');
 app.use('/api', notificationRoutes);

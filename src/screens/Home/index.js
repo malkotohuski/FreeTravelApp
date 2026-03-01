@@ -104,7 +104,7 @@ function HomePage({navigation}) {
       if (!loginUser) return;
 
       try {
-        const response = await api.get(`api/notifications/${loginUser}`);
+        const response = await api.get('/api/notifications');
 
         const unreadNotifications = response.data.filter(
           notification => !notification.read,
@@ -241,7 +241,7 @@ function HomePage({navigation}) {
     try {
       if (!loginUser) return;
 
-      const response = await api.get(`/api/notifications/${loginUser}`);
+      const response = await api.get('/api/notifications');
 
       const unreadNotifications = response.data.filter(
         notification => !notification.read,
