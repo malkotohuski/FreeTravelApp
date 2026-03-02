@@ -91,8 +91,18 @@ exports.sendMessage = async (req, res) => {
       return res.status(400).json({error: 'Message too long'});
     }
 
+    // 🔥 Създаваме съобщението
     const message = await prisma.message.create({
       data: {conversationId, senderId, text},
+    });
+
+    // 🔥 Auto-restore conversation, ако някой е скрил
+    await prisma.conversation.update({
+      where: {id: conversationId},
+      data: {
+        hiddenByUser1: false,
+        hiddenByUser2: false,
+      },
     });
 
     res.json(message);
@@ -109,13 +119,15 @@ exports.getUserConversations = async (req, res) => {
   try {
     const conversations = await prisma.conversation.findMany({
       where: {
-        OR: [{user1Id: userId}, {user2Id: userId}],
+        OR: [
+          {user1Id: userId, hiddenByUser1: false},
+          {user2Id: userId, hiddenByUser2: false},
+        ],
       },
       include: {
-        messages: {
-          orderBy: {createdAt: 'asc'},
-        },
+        messages: {orderBy: {createdAt: 'asc'}},
       },
+      orderBy: {createdAt: 'desc'},
     });
 
     const conversationsWithExtras = await Promise.all(
@@ -125,13 +137,9 @@ exports.getUserConversations = async (req, res) => {
 
         const otherUser = await prisma.user.findUnique({
           where: {id: otherUserId},
-          select: {
-            id: true,
-            username: true,
-          },
+          select: {id: true, username: true},
         });
 
-        // 🔥 ТУК изчисляваме unreadCount
         const unreadCount = conv.messages.filter(
           msg => msg.senderId !== userId && msg.read === false,
         ).length;
@@ -176,6 +184,44 @@ exports.markAsRead = async (req, res) => {
   } catch (error) {
     console.error('Mark messages as read error:', error);
     res.status(500).json({error: 'Server error'});
+  }
+};
+
+exports.deleteConversation = async (req, res) => {
+  const conversationId = Number(req.params.id);
+  const userId = req.user.id; // идва от твоя JWT middleware
+
+  try {
+    const conversation = await prisma.conversation.findUnique({
+      where: {id: conversationId},
+    });
+
+    if (!conversation) {
+      return res.status(404).json({error: 'Conversation not found'});
+    }
+
+    // Проверяваме кой потребител изтрива
+    let updateData = {};
+    if (conversation.user1Id === userId) {
+      updateData.hiddenByUser1 = true;
+    } else if (conversation.user2Id === userId) {
+      updateData.hiddenByUser2 = true;
+    } else {
+      return res
+        .status(403)
+        .json({error: 'You are not part of this conversation'});
+    }
+
+    // Актуализираме soft delete флага
+    await prisma.conversation.update({
+      where: {id: conversationId},
+      data: updateData,
+    });
+
+    res.json({success: true});
+  } catch (err) {
+    console.error('Delete conversation failed:', err);
+    res.status(500).json({error: 'Failed to delete conversation'});
   }
 };
 

@@ -223,7 +223,7 @@ function ViewRoutes({navigation}) {
                     arrivalStreet: route.arrivalStreet,
                     arrivalNumber: route.arrivalNumber,
                     routeTitle: route.routeTitle,
-                    userId: route.userId,
+                    userId: route.owner.id,
                     username: route.owner.username,
                     userFname: route.owner.fName,
                     userLname: route.owner.lName,

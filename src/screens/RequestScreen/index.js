@@ -19,7 +19,7 @@ function RouteDetails({route}) {
   const {t} = useTranslation();
   const navigation = useNavigation();
   const {user} = useAuth();
-
+  console.log('Route params:', route.params);
   const {username, userFname, userLname, userEmail, routeId} = route.params;
   const loginUser = user?.username;
 
@@ -180,20 +180,8 @@ function RouteDetails({route}) {
         <TouchableOpacity
           style={styles.buttonUserInfo}
           onPress={() =>
-            navigation.navigate('UserInfo', {
-              username,
-              userFname,
-              userLname,
-              userEmail,
+            navigation.navigate('UserDetails', {
               userId: route.params.userId,
-              departureCity, // свежо
-              arrivalCity, // свежо
-              selectedVehicle: route.params.selectedVehicle,
-              registrationNumber: route.params.registrationNumber,
-              routeDetailsData: {
-                routeId,
-                selectedDateTime: route.params.selectedDateTime,
-              },
             })
           }>
           <Text style={styles.infoButtonText}>{t('viewUserInfo')}</Text>

@@ -18,4 +18,9 @@ router.post(
   requestController.createRequest,
 );
 
+router.patch(
+  '/requests/:id/read',
+  authenticateJWT,
+  requestController.markAsRead,
+);
 module.exports = router;
