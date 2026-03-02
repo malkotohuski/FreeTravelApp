@@ -159,13 +159,6 @@ function HomePage({navigation}) {
     return unsubscribe;
   }, [navigation, route.params]);
 
-  /*   useEffect(() => {
-    const interval = setInterval(() => {
-      fetchRequests();
-    }, 30000);
-    return () => clearInterval(interval);
-  }, [loginUser]); */
-
   const changeLanguage = async lng => {
     await i18next.changeLanguage(lng);
     setisBulgaria(lng === 'bg');
@@ -189,9 +182,15 @@ function HomePage({navigation}) {
 
       // Обновяваме статуса на всяка на сървъра
       for (const request of pendingRequests) {
-        await api.patch(`/requests/${request.id}`, {read: true});
+        console.log(
+          'PATCH read request ID:',
+          request.id,
+          'type:',
+          typeof request.id,
+        );
+        if (!request.id) continue; // skip ако няма id
+        await api.patch(`/api/requests/${request.id}/read`);
       }
-
       // Нулираме брояча на клиента
       setReqestsCount(0);
 

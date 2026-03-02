@@ -8,7 +8,7 @@ exports.getUserById = async (req, res) => {
     const user = await prisma.user.findFirst({
       where: {
         id: userId,
-        accountStatus: 'active', // 👈 soft delete защита
+        accountStatus: 'active',
       },
       select: {
         id: true,
@@ -17,20 +17,34 @@ exports.getUserById = async (req, res) => {
         lName: true,
         userImage: true,
         averageRating: true,
-        receivedComments: {
-          orderBy: {createdAt: 'desc'},
+
+        receivedRatings: {
+          where: {
+            comment: {
+              not: null,
+            },
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
           select: {
             id: true,
-            text: true,
-            rating: true,
+            score: true,
+            comment: true,
             createdAt: true,
-            author: {
+            rater: {
               select: {
                 id: true,
                 username: true,
                 userImage: true,
               },
             },
+          },
+        },
+
+        _count: {
+          select: {
+            receivedRatings: true,
           },
         },
       },

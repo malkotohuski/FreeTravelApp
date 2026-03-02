@@ -216,3 +216,31 @@ exports.makeDecision = async (req, res) => {
     res.status(500).json({error: 'Internal server error.'});
   }
 };
+
+exports.markAsRead = async (req, res) => {
+  const requestId = parseInt(req.params.id);
+
+  if (isNaN(requestId)) {
+    return res.status(400).json({message: 'Invalid request ID'});
+  }
+
+  try {
+    const request = await prisma.request.findUnique({
+      where: {id: requestId},
+    });
+
+    if (!request) {
+      return res.status(404).json({message: 'Request not found'});
+    }
+
+    const updated = await prisma.request.update({
+      where: {id: requestId},
+      data: {read: true},
+    });
+
+    res.json(updated);
+  } catch (error) {
+    console.error('Mark as read failed:', error);
+    res.status(500).json({message: 'Failed to mark as read'});
+  }
+};

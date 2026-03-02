@@ -46,20 +46,12 @@ function RouteRequestScreen({route, navigation}) {
   const {user} = useAuth();
   const {requests, refreshUserData} = useRouteContext();
   const [routeRequests, setRouteRequests] = useState([]);
-  const [notificationCount, setNotificationCount] = useState(0);
-  const requestUserFirstName = user?.fName;
-  const requestUserLastName = user?.lName;
-  const userNow = user?.id;
-  const loginUser = user?.username;
-  const requesterUsername = user?.username;
-  const requestUserEmail = user?.email;
-  const requestUserID = user?.userID;
   const [isProcessing, setIsProcessing] = useState(false);
   const [decisionMessage, setDecisionMessage] = useState('');
   const {darkMode} = useContext(DarkModeContext);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
-
+  console.log('???????????????', selectedRequest);
   useFocusEffect(
     useCallback(() => {
       refreshUserData();
@@ -128,36 +120,41 @@ function RouteRequestScreen({route, navigation}) {
 
   const renderRoutes = () => {
     return routeRequests.length > 0 ? (
-      routeRequests.map(request => (
-        <TouchableOpacity
-          key={request.id}
-          style={[
-            styles.requestContainer,
-            request.requestingUser
-              ? isMigrating
-                ? styles.migratingGreenBorder
-                : styles.greenBorder
-              : null,
-          ]}
-          onPress={() => handlePress(request)}>
-          <View style={styles.userContainer}>
-            <View
+      routeRequests.map(
+        request => (
+          console.log('Request item:', request),
+          (
+            <TouchableOpacity
+              key={request.id}
               style={[
-                styles.initialsContainer,
-                {backgroundColor: getAvatarColor(request.username)},
-              ]}>
-              <Text style={styles.initialsText}>
-                {request.username.slice(0, 2).toUpperCase()}
+                styles.requestContainer,
+                request.requestingUser
+                  ? isMigrating
+                    ? styles.migratingGreenBorder
+                    : styles.greenBorder
+                  : null,
+              ]}
+              onPress={() => handlePress(request)}>
+              <View style={styles.userContainer}>
+                <View
+                  style={[
+                    styles.initialsContainer,
+                    {backgroundColor: getAvatarColor(request.username)},
+                  ]}>
+                  <Text style={styles.initialsText}>
+                    {request.username.slice(0, 2).toUpperCase()}
+                  </Text>
+                </View>
+                <Text style={styles.userName}>{request.username}</Text>
+              </View>
+              <Text style={styles.text}>
+                {t('Direction')}:{' '}
+                {t(`${request.departureCity}-${request.arrivalCity}`)}
               </Text>
-            </View>
-            <Text style={styles.userName}>{request.username}</Text>
-          </View>
-          <Text style={styles.text}>
-            {t('Direction')}:{' '}
-            {t(`${request.departureCity}-${request.arrivalCity}`)}
-          </Text>
-        </TouchableOpacity>
-      ))
+            </TouchableOpacity>
+          )
+        ),
+      )
     ) : (
       <Text>{t('No new requests.')}</Text>
     );
@@ -204,6 +201,7 @@ function RouteRequestScreen({route, navigation}) {
               style={[styles.modalButton, {backgroundColor: '#007AFF'}]}
               onPress={() => {
                 setModalVisible(false);
+                console.log('Selected request:', selectedRequest);
                 navigation.navigate('UserDetails', {
                   userId: selectedRequest.userID,
                 });

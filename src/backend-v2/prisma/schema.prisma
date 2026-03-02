@@ -167,6 +167,7 @@ model Request {
   rateUser       Boolean  @default(false)
   createdAt      DateTime @default(now())
   decidedAt      DateTime? // ← тук добавяме новото поле
+  read Boolean @default(false)
 }
 
 // ======================
@@ -203,6 +204,10 @@ model Conversation {
   user1Id   Int
   user2Id   Int
   createdAt DateTime  @default(now())
+
+  // 🔥 NEW
+  hiddenByUser1 Boolean @default(false)
+  hiddenByUser2 Boolean @default(false)
 
   messages  Message[]
 

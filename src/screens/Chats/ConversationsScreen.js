@@ -1,5 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, FlatList, TouchableOpacity, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+} from 'react-native';
 import {useAuth} from '../../context/AuthContext';
 import api from '../../api/api';
 import {useTranslation} from 'react-i18next';
@@ -71,21 +78,56 @@ const ConversationsScreen = ({navigation}) => {
           return (
             <TouchableOpacity
               style={styles.conversationCard}
-              onPress={() =>
+              onPress={() => {
                 navigation.navigate('ChatScreen', {
                   conversationId: item.id,
                   otherUser: item.otherUser,
-                })
-              }>
+                });
+
+                setConversations(prev =>
+                  prev.map(conv =>
+                    conv.id === item.id ? {...conv, unreadCount: 0} : conv,
+                  ),
+                );
+              }}
+              onLongPress={() => {
+                Alert.alert(
+                  'Delete conversation',
+                  'Are you sure you want to delete this conversation?',
+                  [
+                    {text: 'Cancel', style: 'cancel'},
+                    {
+                      text: 'Delete',
+                      style: 'destructive',
+                      onPress: async () => {
+                        try {
+                          await api.delete(`/api/conversations/${item.id}`);
+
+                          // Скриваме го локално за потребителя
+                          setConversations(prev =>
+                            prev.filter(conv => conv.id !== item.id),
+                          );
+                        } catch (err) {
+                          console.error('Delete failed:', err);
+                        }
+                      },
+                    },
+                  ],
+                );
+              }}>
+              {/* Avatar */}
               <View style={styles.avatar}>
                 <Text style={styles.avatarText}>
                   {item.otherUser.username[0].toUpperCase()}
                 </Text>
               </View>
 
-              <View style={{flex: 1}}>
+              {/* Middle Section */}
+              <View style={styles.middleSection}>
                 <View style={styles.topRow}>
-                  <Text style={styles.username}>{item.otherUser.username}</Text>
+                  <Text style={styles.username} numberOfLines={1}>
+                    {item.otherUser.username}
+                  </Text>
 
                   {lastMessage && (
                     <Text style={styles.time}>
@@ -94,23 +136,24 @@ const ConversationsScreen = ({navigation}) => {
                   )}
                 </View>
 
-                <View style={styles.routeBadge}>
-                  <Text style={{color: '#f4511e', fontSize: 12}}>
-                    {item.departureCity} → {item.arrivalCity}
+                <View style={styles.bottomRow}>
+                  <Text
+                    style={[
+                      styles.lastMessage,
+                      item.unreadCount > 0 && styles.lastMessageUnread,
+                    ]}
+                    numberOfLines={1}>
+                    {lastMessage?.text ||
+                      `${item.departureCity} → ${item.arrivalCity}`}
                   </Text>
-                </View>
 
-                <Text style={styles.lastMessage} numberOfLines={1}>
-                  {lastMessage?.text || 'No messages yet'}
-                </Text>
+                  {item.unreadCount > 0 && (
+                    <View style={styles.unreadBadge}>
+                      <Text style={styles.unreadText}>{item.unreadCount}</Text>
+                    </View>
+                  )}
+                </View>
               </View>
-
-              {/* 🔥 UNREAD BADGE ABSOLUTE */}
-              {item.unreadCount > 0 && (
-                <View style={styles.unreadBadge}>
-                  <Text style={styles.unreadText}>{item.unreadCount}</Text>
-                </View>
-              )}
             </TouchableOpacity>
           );
         }}
@@ -127,12 +170,28 @@ const styles = StyleSheet.create({
   conversationCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 15,
-    borderRadius: 18,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
     backgroundColor: 'rgba(255,255,255,0.08)',
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.15)',
+    borderRadius: 14,
+    marginBottom: 10,
+  },
+
+  leftSection: {
+    flexDirection: 'row',
+    flex: 1,
+    alignItems: 'center',
+  },
+
+  textSection: {
+    flex: 1,
+  },
+
+  rightSection: {
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    gap: 6,
+    minHeight: 95,
   },
 
   avatar: {
@@ -143,6 +202,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
+  },
+
+  middleSection: {
+    flex: 1,
   },
 
   route: {
@@ -167,34 +230,58 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
 
+  deleteButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#2a2a2a',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+
   topRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+
+  bottomRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 4,
   },
 
   username: {
-    fontWeight: '600',
     fontSize: 16,
+    fontWeight: '600',
     color: '#fff',
+    flex: 1,
+    marginRight: 10,
   },
 
   lastMessage: {
     color: '#ccc',
-    marginTop: 4,
+    flex: 1,
+    marginRight: 10,
+  },
+
+  lastMessageUnread: {
+    color: '#fff',
+    fontWeight: '600',
   },
 
   time: {
     fontSize: 12,
     color: '#aaa',
   },
+
   unreadBadge: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
     backgroundColor: '#f4511e',
-    minWidth: 22,
-    height: 22,
-    borderRadius: 11,
+    minWidth: 20,
+    height: 20,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 6,

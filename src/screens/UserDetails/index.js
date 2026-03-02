@@ -18,7 +18,7 @@ function UserDetailsScreen() {
   const {t} = useTranslation();
   const route = useRoute();
   const {userId} = route.params;
-
+  console.log('USER ID RECEIVED:', userId);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -40,7 +40,7 @@ function UserDetailsScreen() {
     const fetchUser = async () => {
       try {
         console.log('Fetching user from:', `${API_BASE_URL}/users/${userId}`);
-        const res = await fetch(`${API_BASE_URL}/users/${userId}`);
+        const res = await fetch(`${API_BASE_URL}/api/users/${userId}`);
         if (!res.ok) throw new Error('Failed to fetch user');
         const data = await res.json();
         setUser(data);
@@ -55,7 +55,7 @@ function UserDetailsScreen() {
   }, [userId]);
 
   const renderStars = rating => {
-    if (!rating) return null;
+    if (rating === null || rating === undefined) return null;
     const fullStars = Math.floor(rating);
     const halfStar = rating % 1 >= 0.5;
     let stars = [];
@@ -98,10 +98,10 @@ function UserDetailsScreen() {
         ListHeaderComponent={
           <View style={styles.headerWrapper}>
             <View style={styles.avatarHaloWrapper}>
-              <LinearGradient
+              {/*   <LinearGradient
                 colors={['rgba(255,255,255,0.5)', 'transparent']}
                 style={styles.avatarHalo}
-              />
+              /> */}
             </View>
             <Image source={{uri: user.userImage}} style={styles.avatar} />
             <Text style={styles.username}>@{user.username}</Text>
@@ -117,6 +117,9 @@ function UserDetailsScreen() {
               <Text style={styles.ratingText}>
                 {user.averageRating?.toFixed(2) || '0.00'} / 5
               </Text>
+              <Text style={styles.ratingCount}>
+                {user._count?.receivedRatings || 0} ratings
+              </Text>
             </View>
 
             <Text style={[styles.sectionTitle, {marginTop: 15}]}>
@@ -124,15 +127,15 @@ function UserDetailsScreen() {
             </Text>
           </View>
         }
-        data={user.receivedComments || []}
+        data={user.receivedRatings || []}
         keyExtractor={item => item.id.toString()}
         renderItem={({item: c}) => (
           <View style={styles.commentBox}>
             <View style={styles.commentHeader}>
               <View style={styles.commentLeft}>
-                {c.author.userImage ? (
+                {c.rater.userImage ? (
                   <Image
-                    source={{uri: c.author.userImage}}
+                    source={{uri: c.rater.userImage}}
                     style={styles.commentAvatar}
                   />
                 ) : (
@@ -142,17 +145,19 @@ function UserDetailsScreen() {
                       styles.commentAvatarFallback,
                     ]}>
                     <Text style={styles.commentAvatarText}>
-                      {c.author.username.slice(0, 2).toUpperCase()}
+                      {c.rater.username.slice(0, 2).toUpperCase()}
                     </Text>
                   </View>
                 )}
-                <Text style={styles.commentUser}>{c.author.username}</Text>
+                <Text style={styles.commentUser}>{c.rater.username}</Text>
               </View>
               <Text style={styles.commentDate}>{formatDate(c.createdAt)}</Text>
             </View>
-            <Text style={styles.commentText}>{c.text}</Text>
+
+            <Text style={styles.commentText}>{c.comment}</Text>
+
             <View style={{flexDirection: 'row', marginTop: 4}}>
-              {renderStars(c.rating)}
+              {renderStars(c.score)}
             </View>
           </View>
         )}
@@ -169,7 +174,7 @@ function UserDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#145e8fff',
+    backgroundColor: '#222',
     paddingHorizontal: 16,
     paddingTop: 20,
   },
@@ -199,11 +204,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     position: 'relative',
   },
-  username: {fontSize: 18, fontWeight: 'bold', color: '#333'},
-  fullName: {fontSize: 16, color: '#020202ff', marginBottom: 10},
+  username: {fontSize: 18, fontWeight: 'bold', color: '#ffffff'},
+  fullName: {fontSize: 16, color: 'rgb(221, 221, 221)', marginBottom: 10},
   section: {
     width: '100%',
-    backgroundColor: '#fff',
+    backgroundColor: '#8d8b8b',
     borderRadius: 12,
     padding: 15,
     marginVertical: 8,
@@ -227,7 +232,7 @@ const styles = StyleSheet.create({
   },
   ratingText: {fontSize: 18, fontWeight: '600', color: '#111'},
   commentBox: {
-    backgroundColor: '#fff',
+    backgroundColor: '#8d8b8b',
     padding: 12,
     borderRadius: 10,
     marginBottom: 10,
@@ -243,7 +248,7 @@ const styles = StyleSheet.create({
     color: '#222',
     marginBottom: 2,
   },
-  commentText: {fontSize: 14, color: '#333'},
+  commentText: {fontSize: 14, color: '#1b1b1b'},
   commentHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -252,16 +257,16 @@ const styles = StyleSheet.create({
   },
   commentAvatar: {width: 32, height: 32, borderRadius: 16, marginRight: 8},
   commentAvatarFallback: {
-    backgroundColor: '#888',
+    backgroundColor: '#181818',
     justifyContent: 'center',
     alignItems: 'center',
   },
   commentAvatarText: {color: '#fff', fontWeight: 'bold'},
   commentLeft: {flexDirection: 'row', alignItems: 'center'},
-  commentDate: {fontSize: 12, color: '#666'},
+  commentDate: {fontSize: 12, color: '#0a0a0a'},
   noData: {
     fontSize: 14,
-    color: '#999',
+    color: '#080808',
     textAlign: 'center',
     marginVertical: 20,
   },
