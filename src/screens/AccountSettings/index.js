@@ -1,4 +1,4 @@
-import React, {useState, useTransition, useCallback} from 'react';
+import React, {useState, useCallback} from 'react';
 import {
   View,
   Text,
@@ -11,8 +11,6 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Keyboard,
-  ToastAndroid,
 } from 'react-native';
 import {useTranslation} from 'react-i18next';
 import api from '../../api/api';
@@ -20,28 +18,31 @@ import ImagePicker from 'react-native-image-crop-picker';
 import {useAuth} from '../../context/AuthContext';
 import {useFocusEffect} from '@react-navigation/native';
 
-const AccountSettings = ({navigation}) => {
-  const {user, updateProfilePicture, updateUserData} = useAuth();
-  const [profilePicture, setProfilePicture] = useState(user?.userImage || null);
-
+const AccountSettings = () => {
+  const {user, updateUserData} = useAuth();
   const {t} = useTranslation();
+
+  const [profilePicture, setProfilePicture] = useState(user?.userImage || null);
   const [fName, setFname] = useState(user?.fName || '');
   const [lName, setLname] = useState(user?.lName || '');
+
   const [currentPassword, setCurrentPassword] = useState('');
-  const [photoChanged, setPhotoChanged] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
   const noImage = require('../../../images/emptyUserImage.png');
 
   useFocusEffect(
     useCallback(() => {
-      // Нулираме полетата за парола при всяко влизане в екрана
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
     }, []),
   );
 
+  // ======================
+  // AVATAR
+  // ======================
   const handleImagePicker = async () => {
     try {
       const image = await ImagePicker.openPicker({
@@ -50,86 +51,98 @@ const AccountSettings = ({navigation}) => {
         cropping: true,
       });
 
-      if (image?.path) {
-        setProfilePicture(image.path);
-        setPhotoChanged(true); // вече използваме това за промяна
-      }
+      if (!image?.path) return;
+
+      const formData = new FormData();
+      formData.append('avatar', {
+        uri: image.path,
+        type: image.mime,
+        name: 'avatar.jpg',
+      });
+
+      const response = await api.patch('/api/users/avatar', formData, {
+        headers: {'Content-Type': 'multipart/form-data'},
+      });
+
+      // 🔹 Взимаме и новия public_id, ако сървърът го връща
+      const {userImage, userImagePublicId} = response.data.user;
+
+      // 🔹 Актуализираме контекста
+      updateUserData({userImage, userImagePublicId});
+
+      // 🔹 Актуализираме локалния state
+      setProfilePicture(userImage);
+
+      Alert.alert(t('Success'), t('Avatar updated successfully'));
     } catch (error) {
-      console.log('ImagePicker Error: ', error);
+      Alert.alert(
+        t('Error'),
+        error.response?.data?.error || t('Avatar update failed'),
+      );
     }
   };
 
+  // ======================
+  // PROFILE DATA
+  // ======================
   const handleSaveChanges = async () => {
     try {
       const originalFname = user?.fName || '';
       const originalLname = user?.lName || '';
-      const originalImage = user?.userImage || null;
 
-      const changes = {};
+      let somethingChanged = false;
 
-      // Имена
-      if (fName !== originalFname) changes.fName = fName;
-      if (lName !== originalLname) changes.lName = lName;
+      // 🔹 Update names
+      if (fName !== originalFname || lName !== originalLname) {
+        await api.patch('/api/users/profile', {
+          fName,
+          lName,
+        });
 
-      // Снимка
-      if (photoChanged && profilePicture !== originalImage) {
-        changes.userImage = profilePicture;
+        updateUserData({fName, lName});
+        somethingChanged = true;
       }
 
-      // Парола
+      // 🔹 Update password
       if (newPassword || confirmPassword) {
         if (!currentPassword) {
           Alert.alert(t('Error'), t('Please enter current password'));
           return;
         }
+
         if (newPassword !== confirmPassword) {
           Alert.alert(t('Error'), t('Passwords do not match'));
           return;
         }
+
         if (newPassword.length < 8) {
           Alert.alert(t('Error'), t('Password must be at least 8 characters'));
           return;
         }
-        changes.currentPassword = currentPassword;
-        changes.newPassword = newPassword;
+
+        await api.patch('/api/users/password', {
+          currentPassword,
+          newPassword,
+        });
+
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+        somethingChanged = true;
       }
 
-      // Ако няма промени
-      if (Object.keys(changes).length === 0) {
-        Platform.OS === 'android'
-          ? ToastAndroid.show(t('No changes to save'), ToastAndroid.SHORT)
-          : Alert.alert(t('Info'), t('No changes to save'));
+      if (!somethingChanged) {
+        Alert.alert(t('Info'), t('No changes to save'));
         return;
       }
 
-      // PATCH заявка
-      const response = await api.patch('/user-changes', {
-        ...changes,
-      });
-
-      // Обновяване на контекст
-      updateUserData({
-        fName: response.data.user.fName,
-        lName: response.data.user.lName,
-        userImage: response.data.user.userImage,
-      });
-
-      // Reset полета
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
-      setPhotoChanged(false);
-      Keyboard.dismiss();
-
-      Alert.alert(t('Success'), t('Changes saved successfully'), [
-        {text: 'OK', onPress: () => navigation.navigate('AccountManager')},
-      ]);
+      Alert.alert(t('Success'), t('Changes saved successfully'));
     } catch (error) {
       console.log('User changes error:', error.response?.data);
+
       Alert.alert(
         t('Error'),
-        error.response?.data?.error ||
-          t('There was an error while saving changes'),
+        error.response?.data?.error || t('Something went wrong'),
       );
     }
   };
@@ -140,33 +153,24 @@ const AccountSettings = ({navigation}) => {
         source={require('../../../images/acountSettings.png')}
         style={styles.backgroundImage}
       />
+
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={{flex: 1, width: '100%'}}>
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          {/* USER INFO */}
           <View style={styles.userInfoContainer}>
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>{t('Username')}:</Text>
-              <Text style={styles.value}>{user?.username}</Text>
-            </View>
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>{t('Full Name')}:</Text>
-              <Text style={styles.value}>
-                {user?.fName} {user?.lName}
-              </Text>
-            </View>
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>{t('Email')}:</Text>
-              <Text style={styles.value}>{user?.email}</Text>
-            </View>
+            <InfoRow label={t('Username')} value={user?.username} />
+            <InfoRow
+              label={t('Full Name')}
+              value={`${user?.fName} ${user?.lName}`}
+            />
+            <InfoRow label={t('Email')} value={user?.email} />
           </View>
+
+          {/* AVATAR */}
           <View style={styles.userInfoContainerPhoto}>
-            <TouchableOpacity
-              onPress={handleImagePicker}
-              style={styles.profilePictureContainer}>
+            <TouchableOpacity onPress={handleImagePicker}>
               <Image
                 source={profilePicture ? {uri: profilePicture} : noImage}
                 style={styles.profilePicture}
@@ -174,170 +178,137 @@ const AccountSettings = ({navigation}) => {
             </TouchableOpacity>
             <Text style={styles.photoText}>{t('Change Photo')}</Text>
           </View>
-          <View style={styles.rowInputsContainer}>
-            <View style={styles.halfInputContainer}>
-              <Text style={styles.inputLabel}>{t('First Name')}</Text>
-              <TextInput
-                style={styles.input}
-                value={fName}
-                onChangeText={setFname}
-                placeholder={t('Enter first name')}
-              />
-            </View>
-            <View style={styles.halfInputContainer}>
-              <Text style={styles.inputLabel}>{t('Last Name')}</Text>
-              <TextInput
-                style={styles.input}
-                value={lName}
-                onChangeText={setLname}
-                placeholder={t('Enter last name')}
-              />
-            </View>
-          </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>{t('Current password')}</Text>
-            <TextInput
-              style={styles.input}
-              secureTextEntry
-              value={currentPassword}
-              onChangeText={setCurrentPassword}
-            />
-          </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>{t('New password')}</Text>
-            <TextInput
-              style={styles.input}
-              secureTextEntry
-              value={newPassword}
-              onChangeText={setNewPassword}
-            />
-          </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>{t('Confirm new password')}</Text>
-            <TextInput
-              style={styles.input}
-              secureTextEntry
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-            />
-          </View>
-          <View style={styles.saveContainer}>
-            <TouchableOpacity
-              style={styles.saveButton}
-              onPress={handleSaveChanges}>
-              <Text style={styles.buttonText}>{t('Save changes')}</Text>
-            </TouchableOpacity>
-          </View>
+
+          {/* PROFILE */}
+          <TwoInputs
+            leftLabel={t('First Name')}
+            leftValue={fName}
+            leftChange={setFname}
+            rightLabel={t('Last Name')}
+            rightValue={lName}
+            rightChange={setLname}
+          />
+
+          <PrimaryButton
+            label={t('Save Profile')}
+            onPress={handleSaveChanges}
+          />
+
+          {/* PASSWORD */}
+          <PasswordInput
+            label={t('Current password')}
+            value={currentPassword}
+            onChange={setCurrentPassword}
+          />
+          <PasswordInput
+            label={t('New password')}
+            value={newPassword}
+            onChange={setNewPassword}
+          />
+          <PasswordInput
+            label={t('Confirm new password')}
+            value={confirmPassword}
+            onChange={setConfirmPassword}
+          />
+
+          <PrimaryButton
+            label={t('Change Password')}
+            onPress={handleSaveChanges}
+          />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
 
+/* ===================== COMPONENTS ===================== */
+
+const InfoRow = ({label, value}) => (
+  <View style={styles.infoRow}>
+    <Text style={styles.label}>{label}:</Text>
+    <Text style={styles.value}>{value}</Text>
+  </View>
+);
+
+const PasswordInput = ({label, value, onChange}) => (
+  <View style={styles.inputContainer}>
+    <Text style={styles.inputLabel}>{label}</Text>
+    <TextInput
+      style={styles.input}
+      secureTextEntry
+      value={value}
+      onChangeText={onChange}
+    />
+  </View>
+);
+
+const TwoInputs = ({
+  leftLabel,
+  leftValue,
+  leftChange,
+  rightLabel,
+  rightValue,
+  rightChange,
+}) => (
+  <View style={styles.rowInputsContainer}>
+    <View style={styles.halfInputContainer}>
+      <Text style={styles.inputLabel}>{leftLabel}</Text>
+      <TextInput
+        style={styles.input}
+        value={leftValue}
+        onChangeText={leftChange}
+      />
+    </View>
+    <View style={styles.halfInputContainer}>
+      <Text style={styles.inputLabel}>{rightLabel}</Text>
+      <TextInput
+        style={styles.input}
+        value={rightValue}
+        onChangeText={rightChange}
+      />
+    </View>
+  </View>
+);
+
+const PrimaryButton = ({label, onPress}) => (
+  <View style={styles.saveContainer}>
+    <TouchableOpacity style={styles.saveButton} onPress={onPress}>
+      <Text style={styles.buttonText}>{label}</Text>
+    </TouchableOpacity>
+  </View>
+);
+
+/* ===================== STYLES ===================== */
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-  },
-  backgroundImage: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-  },
-  scrollContent: {
-    alignItems: 'center',
-    paddingBottom: 40,
-  },
+  container: {flex: 1},
+  backgroundImage: {position: 'absolute', width: '100%', height: '100%'},
+  scrollContent: {alignItems: 'center', paddingBottom: 40},
   userInfoContainer: {
     width: '90%',
-    padding: 15,
     backgroundColor: '#fff',
+    padding: 15,
     borderRadius: 10,
     marginTop: 30,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
   },
-  userInfoContainerPhoto: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
+  userInfoContainerPhoto: {alignItems: 'center', marginVertical: 20},
+  profilePicture: {width: 120, height: 120, borderRadius: 60},
+  photoText: {fontSize: 16, fontWeight: 'bold'},
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginVertical: 5,
   },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  value: {
-    fontSize: 16,
-    flexShrink: 1,
-  },
-  profilePictureContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#e0e0e0',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginVertical: 20,
-  },
-  profilePicture: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 60,
-  },
-  photoText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  inputContainer: {
-    width: '90%',
-    marginBottom: 15,
-  },
-  inputLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 5,
-  },
-  input: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#ddd',
-  },
-  saveContainer: {
-    width: '90%',
-    marginTop: 30,
-    marginBottom: 20,
-    alignItems: 'center',
-  },
-  saveButton: {
-    backgroundColor: '#f4511e',
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 10,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  rowInputsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '90%', // същото като другите input контейнери
-    marginBottom: 15,
-  },
-  halfInputContainer: {
-    width: '48%', // двата input-а се побират на един ред
-  },
+  label: {fontWeight: '600'},
+  value: {flexShrink: 1},
+  inputContainer: {width: '90%', marginBottom: 15},
+  inputLabel: {fontWeight: '600', marginBottom: 5},
+  input: {backgroundColor: '#fff', padding: 12, borderRadius: 8},
+  rowInputsContainer: {flexDirection: 'row', width: '90%', gap: 10},
+  halfInputContainer: {flex: 1},
+  saveContainer: {width: '90%', marginVertical: 15},
+  saveButton: {backgroundColor: '#f4511e', padding: 15, borderRadius: 10},
+  buttonText: {color: '#fff', textAlign: 'center', fontWeight: 'bold'},
 });
 
 export default AccountSettings;

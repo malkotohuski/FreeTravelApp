@@ -5,6 +5,7 @@ const cors = require('cors');
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 const authenticateJWT = require('./middlewares/authenticateJWT');
+const multer = require('multer');
 
 const app = express();
 app.use(cors());
@@ -59,6 +60,19 @@ app.use('/api/ratings', ratingRoutes);
 
 const notificationRoutes = require('./routes/notificationRoutes');
 app.use('/api', notificationRoutes);
+
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({error: err.message});
+  }
+
+  if (err.message === 'Only image files are allowed.') {
+    return res.status(400).json({error: err.message});
+  }
+
+  console.error(err);
+  res.status(500).json({error: 'Server error'});
+});
 
 app.listen(3000, () => {
   console.log('Server running on port 3000');

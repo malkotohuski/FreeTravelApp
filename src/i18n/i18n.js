@@ -11,6 +11,8 @@ i18next.use(initReactI18next).init({
         'Register your vehicle': 'Register your vehicle',
         'Route request': 'Route request',
         'Select date:': 'Select date:',
+        areYouSureYouWantToDeleteThisConversation:
+          'Are you sure you want to delete this conversation?',
         Chat: 'Chat',
         letsStart: "Let's start!",
         LetTravel: "Let's travel",
@@ -141,6 +143,7 @@ i18next.use(initReactI18next).init({
         conversationsScreen: 'Conversations',
         'Hold to permanently delete account':
           'Hold to permanently delete account',
+        deleteConversation: 'Delete Conversation',
         'Change Photo': 'Change Photo',
         'This route was created by you, and you cannot request it!':
           'This route was created by you, and you cannot request it!',
@@ -5225,9 +5228,12 @@ i18next.use(initReactI18next).init({
         Approve: 'Одобряване',
         LetTravel: 'Нека пътуваме',
         aboutTheApp: 'За приложението',
+        areYouSureYouWantToDeleteThisConversation:
+          'Сигурни ли сте, че искате да изтриете този разговор?',
         Reject: 'Отхвърляне',
         'We travel freely': 'Пътуваме свободно',
         ourVision: 'Нашата визия',
+        deleteConversation: 'Изтрий разговора',
         detailedDescription: 'Детайлно описание',
         yesterday: 'Вчера',
         stepsReproduce: 'Стъпки за възпроизвеждане',
