@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useRef} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -7,18 +7,28 @@ import {
   TouchableOpacity,
   SafeAreaView,
   ScrollView,
+  ActivityIndicator,
+  Animated,
 } from 'react-native';
 import {useTranslation} from 'react-i18next';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {Animated} from 'react-native';
 import {useAuth} from '../../context/AuthContext';
-import StarRating from 'react-native-star-rating-widget';
 import {DarkModeContext} from '../../navigation/DarkModeContext';
+import StarRating from 'react-native-star-rating-widget';
+import api from '../../api/api';
 
-const Comments = ({navigation}) => {
+const Comments = ({navigation, route}) => {
   const {user} = useAuth();
-  const comments = user?.comments || [];
-  console.log('comments', comments);
+  const {darkMode} = useContext(DarkModeContext);
+  const {t} = useTranslation();
+
+  // 🔥 Ако в бъдеще подадеш друг userId
+  const profileUserId = route?.params?.userId || user?.id;
+
+  const [ratings, setRatings] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fadeAnims = useRef([]).current;
 
   const formatDate = isoDate => {
     if (!isoDate) return 'Unknown date';
@@ -32,54 +42,54 @@ const Comments = ({navigation}) => {
     });
   };
 
-  const validCommentObjects = comments.filter(
-    c => typeof c === 'object' && c.user && c.comment?.trim(),
-  );
-
-  // Вземи последните N рейтинга, колкото са валидните коментари
-  const relevantRatings =
-    user?.ratings?.slice(-validCommentObjects.length) || [];
-
-  // Изгради структурата
-  const structuredComments = validCommentObjects.map((c, index) => ({
-    username: c.user,
-    text: c.comment,
-    rating: relevantRatings[index] ?? undefined,
-    date: c.date ?? null,
-    image: c.image ?? null, // добавено поле
-  }));
-
-  const {t} = useTranslation();
-  const {darkMode} = useContext(DarkModeContext);
-
-  const fadeAnims = useRef(
-    structuredComments.map(() => new Animated.Value(0)),
-  ).current;
-
   useEffect(() => {
+    fetchRatings();
+  }, []);
+
+  const fetchRatings = async () => {
+    try {
+      const res = await api.get(`api/users/${profileUserId}`);
+      const receivedRatings = res.data.receivedRatings || [];
+
+      setRatings(receivedRatings);
+
+      // създаваме анимации
+      fadeAnims.length = 0;
+      receivedRatings.forEach(() => {
+        fadeAnims.push(new Animated.Value(0));
+      });
+
+      animateCards();
+    } catch (error) {
+      console.log('Fetch ratings error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const animateCards = () => {
     const animations = fadeAnims.map((fadeAnim, index) =>
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 500,
-        delay: index * 150,
+        delay: index * 120,
         useNativeDriver: true,
       }),
     );
 
     Animated.stagger(100, animations).start();
-  }, []);
+  };
 
   const renderComment = (item, index) => {
-    const {text, username, date, rating, image} = item;
     const fadeAnim = fadeAnims[index];
 
     return (
       <Animated.View
-        key={index}
+        key={item.id}
         style={[
           styles.commentCard,
           {
-            backgroundColor: darkMode ? '#444' : '#fff',
+            backgroundColor: darkMode ? '#fff' : '#444',
             opacity: fadeAnim,
             transform: [
               {
@@ -95,8 +105,11 @@ const Comments = ({navigation}) => {
         ]}>
         <View style={styles.commentHeader}>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            {image ? (
-              <Image source={{uri: image}} style={styles.avatar} />
+            {item.rater?.userImage ? (
+              <Image
+                source={{uri: item.rater.userImage}}
+                style={styles.avatar}
+              />
             ) : (
               <View
                 style={[
@@ -108,56 +121,48 @@ const Comments = ({navigation}) => {
                   },
                 ]}>
                 <Text style={{color: 'white', fontWeight: 'bold'}}>
-                  {username?.slice(0, 2).toUpperCase()}
+                  {item.rater?.username?.slice(0, 2).toUpperCase()}
                 </Text>
               </View>
             )}
+
             <Text
               style={[
                 styles.username,
-                {color: darkMode ? '#ffa726' : '#f4511e', marginLeft: 10},
+                {color: darkMode ? '#ffa726' : '#f4511e'},
               ]}>
-              {username || 'Anonymous'}
+              {item.rater?.username || 'Anonymous'}
             </Text>
           </View>
 
-          <Text style={[styles.date, {color: darkMode ? '#ccc' : '#666'}]}>
-            {formatDate(date)}
+          <Text style={[styles.date, {color: darkMode ? '#666' : '#ccc'}]}>
+            {formatDate(item.createdAt)}
           </Text>
         </View>
 
-        <Text style={[styles.commentText, {color: darkMode ? '#fff' : '#000'}]}>
-          {text}
+        <Text style={[styles.commentText, {color: darkMode ? '#000' : '#fff'}]}>
+          {item.comment}
         </Text>
 
-        {rating !== undefined && (
-          <View style={styles.starsContainer}>
-            <StarRating
-              rating={rating}
-              starSize={24}
-              enableHalfStar={true}
-              onChange={() => {}}
-              starStyle={{marginHorizontal: 1}}
-              animationConfig={{scale: 0}}
-              enableSwiping={false}
-            />
-            <Text style={{marginLeft: 6, color: darkMode ? '#ccc' : '#333'}}>
-              ({rating})
-            </Text>
-          </View>
-        )}
+        <View style={styles.starsContainer}>
+          <StarRating
+            rating={item.score}
+            starSize={22}
+            enableHalfStar={false}
+            onChange={() => {}}
+            enableSwiping={false}
+            animationConfig={{scale: 0}}
+          />
+          <Text style={{marginLeft: 6, color: darkMode ? '#333' : '#ccc'}}>
+            ({item.score})
+          </Text>
+        </View>
       </Animated.View>
     );
   };
 
   return (
-    <SafeAreaView style={styles.mainContainer}>
-      <Image
-        source={require('../../../images/register-number-background2.jpg')}
-        style={styles.backgroundImage}
-      />
-
-      {/* Header изцяло извън вътрешния контейнер */}
+    <SafeAreaView style={styles.screen}>
       <View
         style={[
           styles.header,
@@ -169,28 +174,29 @@ const Comments = ({navigation}) => {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.mainContent}>
-        <ScrollView contentContainerStyle={styles.commentsContainer}>
-          {comments.length > 0 ? (
-            structuredComments.map(renderComment)
-          ) : (
-            <Text
-              style={[
-                styles.noCommentsText,
-                {color: darkMode ? '#ccc' : '#555'},
-              ]}>
-              {t('No comments yet')}
-            </Text>
-          )}
-        </ScrollView>
-      </View>
+      <ScrollView contentContainerStyle={styles.commentsContainer}>
+        {loading ? (
+          <ActivityIndicator size="large" color="#f4511e" />
+        ) : ratings.length === 0 ? (
+          <Text
+            style={[
+              styles.noCommentsText,
+              {color: darkMode ? '#ccc' : '#555'},
+            ]}>
+            {t('No comments yet')}
+          </Text>
+        ) : (
+          ratings.map(renderComment)
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  mainContainer: {
+  screen: {
     flex: 1,
+    backgroundColor: '#1e1e1e',
   },
   backgroundImage: {
     flex: 1,
@@ -206,6 +212,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     width: '100%',
+    marginBottom: 10,
   },
   headerText: {
     color: 'white',

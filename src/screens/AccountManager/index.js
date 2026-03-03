@@ -58,12 +58,16 @@ const AccountManager = ({navigation}) => {
   const handlerHomeScreen = () => navigation.navigate('Home');
 
   return (
-    <SafeAreaView style={{flex: 1}}>
+    <SafeAreaView
+      style={{
+        flex: 1,
+        backgroundColor: '#1e1e1e',
+      }}>
       <ScrollView contentContainerStyle={{flexGrow: 1}}>
-        <Image
+        {/*  <Image
           source={require('../../../images/user-background.jpg')}
           style={styles.backgroundImage}
-        />
+        /> */}
         <View style={styles.mainContainer}>
           <View style={styles.overlay} />
           {/* Profile Picture Section */}
@@ -136,7 +140,7 @@ const AccountManager = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'grey',
+    backgroundColor: '#1e1e1e',
     alignItems: 'center',
     justifyContent: 'space-between', // Прави подравняване на секциите по вертикала
   },

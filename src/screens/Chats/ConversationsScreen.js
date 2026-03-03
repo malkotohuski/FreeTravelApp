@@ -92,12 +92,12 @@ const ConversationsScreen = ({navigation}) => {
               }}
               onLongPress={() => {
                 Alert.alert(
-                  'Delete conversation',
-                  'Are you sure you want to delete this conversation?',
+                  t('deleteConversation'),
+                  t('areYouSureYouWantToDeleteThisConversation'),
                   [
-                    {text: 'Cancel', style: 'cancel'},
+                    {text: t('Cancel'), style: 'cancel'},
                     {
-                      text: 'Delete',
+                      text: t('Delete'),
                       style: 'destructive',
                       onPress: async () => {
                         try {
