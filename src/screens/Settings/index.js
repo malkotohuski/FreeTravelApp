@@ -16,8 +16,7 @@ import {DarkModeContext} from '../../navigation/DarkModeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
 import {useAuth} from '../../context/AuthContext';
-
-const API_BASE_URL = 'http://10.0.2.2:3000';
+import api from '../../api/api';
 
 const SettingsScreen = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -59,31 +58,25 @@ const SettingsScreen = () => {
 
   const deleteAccount = async () => {
     try {
-      if (!userId) {
-        Alert.alert('Error', 'Missing userId');
-        return;
-      }
+      const response = await api.patch('/api/users/delete-account');
 
-      const response = await fetch(`${API_BASE_URL}/delete-account`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({userId}), // тук userId
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        Alert.alert('Error', data.error || 'Something went wrong.');
+      if (response.status !== 200) {
+        Alert.alert('Error', 'Something went wrong.');
         return;
       }
 
       await logout();
-      Alert.alert('Account deleted', 'Your account has been deleted.', [
+
+      Alert.alert('Account deleted', 'Your account has been deactivated.', [
         {text: 'OK', onPress: () => navigation.navigate('Login')},
       ]);
     } catch (error) {
-      console.log('Delete error:', error);
-      Alert.alert('Error', 'Unable to delete account.');
+      console.log('FULL DELETE ERROR RESPONSE:', error.response);
+      console.log('FULL DELETE ERROR:', error);
+      Alert.alert(
+        'Error',
+        error.response?.data?.error || 'Unable to delete account.',
+      );
     }
   };
 

@@ -7,7 +7,7 @@ const isAdmin = require('../middlewares/isAdmin');
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 // POST /api/report
-router.post('/', authenticateJWT, reportController.sendReport);
+router.post('/report', authenticateJWT, reportController.sendReport);
 
 // GET /api/report/all - admin only
 router.get('/admin/all', authenticateJWT, isAdmin, async (req, res) => {
