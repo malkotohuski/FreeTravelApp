@@ -11,6 +11,8 @@ i18next.use(initReactI18next).init({
         'Register your vehicle': 'Register your vehicle',
         'Route request': 'Route request',
         'Select date:': 'Select date:',
+        dailyLimitReached:
+          'You have reached the daily limit of bug reports. Please try again tomorrow.',
         areYouSureYouWantToDeleteThisConversation:
           'Are you sure you want to delete this conversation?',
         Chat: 'Chat',
@@ -5809,6 +5811,7 @@ i18next.use(initReactI18next).init({
         'Delete Route': 'Изтриване на маршрут',
         'Selected route': 'Избран маршрут',
         'No new requests.': 'Няма нови заявки.',
+        dailyLimitReached: 'Достигнат дневен лимит',
         Filter: 'Филтър',
         loading: 'зареждане',
         'Filter Options': 'Опции за филтриране',

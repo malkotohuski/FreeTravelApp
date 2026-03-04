@@ -83,12 +83,19 @@ const ReportingScreen = ({navigation}) => {
         image: profilePicture || null,
       });
 
-      Alert.alert('Success', 'Report submitted');
+      // Показваме success анимацията
+      setShowSuccessMessage(true);
 
+      // Изчистваме полетата
       setProblemDescription('');
       setReportedUsername('');
+      setProfilePicture(null);
+
+      // Скриваме success след 2 секунди
+      setTimeout(() => setShowSuccessMessage(false), 2000);
+
       setIsButtonDisabled(false);
-      navigation.navigate('Home');
+      // navigation.navigate('Home'); // можеш да го преместиш след таймера ако искаш да види успеха
     } catch (error) {
       console.log(error.response?.data);
       Alert.alert('Error', error.response?.data?.error || 'Server error');

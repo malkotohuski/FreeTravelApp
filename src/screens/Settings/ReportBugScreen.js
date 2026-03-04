@@ -12,7 +12,6 @@ import {
 } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import {launchImageLibrary} from 'react-native-image-picker';
-import {useAuth} from '../../context/AuthContext';
 import {useTranslation} from 'react-i18next';
 import {submitBugReport} from '../../api/bugReport.api';
 import {useFocusEffect} from '@react-navigation/native';
@@ -22,33 +21,45 @@ const ReportBugScreen = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [steps, setSteps] = useState('');
-  const [screenshot, setScreenshot] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [screenshots, setScreenshots] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const appVersion = DeviceInfo.getVersion();
   const systemVersion = DeviceInfo.getSystemVersion();
   const deviceModel = DeviceInfo.getModel();
 
+  // Reset полета при влизане в екрана
   useFocusEffect(
     useCallback(() => {
-      // Нулираме полетата за парола при всяко влизане в екрана
       setTitle('');
       setDescription('');
       setSteps('');
-      setScreenshot(null);
+      setScreenshots([]);
     }, []),
   );
 
   const pickImage = async () => {
     const result = await launchImageLibrary({
       mediaType: 'photo',
-      quality: 0.8,
+      quality: 0.5, // по-ниска качественост → по-малък размер
       includeBase64: true,
     });
 
     if (!result.didCancel && result.assets?.length) {
-      setScreenshots(prev => [...prev, ...result.assets]);
+      const asset = result.assets[0];
+
+      // Проверка дали Base64 не е твърде голямо
+      const base64SizeKB = (asset.base64.length * (3 / 4)) / 1024; // approx KB
+      if (base64SizeKB > 1000) {
+        // >1 MB
+        Alert.alert(
+          'Error',
+          'Image is too large. Please select a smaller one.',
+        );
+        return;
+      }
+
+      setScreenshots([asset]);
     }
   };
 
@@ -61,27 +72,35 @@ const ReportBugScreen = () => {
     setLoading(true);
 
     const payload = {
-      title,
-      description,
-      steps,
+      title: title.trim(),
+      description: description.trim(),
+      steps: steps.trim(),
+      image: screenshots.length ? screenshots[0].base64 : null, // ⚡ използваме "image"
       appVersion,
       platform: Platform.OS,
       systemVersion,
       deviceModel,
-      screenshot: screenshots.map(s => s.base64),
     };
 
     try {
       await submitBugReport(payload);
-
       Alert.alert(t('thankYou'), t('bugSent'));
       setTitle('');
       setDescription('');
       setSteps('');
-      setScreenshot(null);
-    } catch (e) {
-      console.log('Bug submit error:', e);
-      Alert.alert(t('error'), t('bugSendFailed'));
+      setScreenshots([]);
+    } catch (error) {
+      console.log('Bug submit error:', error.response || error);
+
+      // Проверка за лимит съобщение
+      if (
+        error.response?.data?.error ===
+        'You can only submit 2 bug reports per day'
+      ) {
+        Alert.alert(t('Error'), t('dailyLimitReached')); // добавяш t('dailyLimitReached') в i18n
+      } else {
+        Alert.alert(t('error'), t('bugSendFailed'));
+      }
     } finally {
       setLoading(false);
     }
@@ -108,9 +127,7 @@ const ReportBugScreen = () => {
       <Text style={styles.label}>{t('stepsReproduce')}</Text>
       <TextInput
         style={[styles.input, styles.multiline]}
-        placeholder="1. Open app
-2. Go to Settings
-3. App crashes"
+        placeholder="1. Open app\n2. Go to Settings\n3. App crashes"
         multiline
         value={steps}
         onChangeText={setSteps}
@@ -120,8 +137,8 @@ const ReportBugScreen = () => {
         <Text>{t('attachScreenshot')}</Text>
       </TouchableOpacity>
 
-      {screenshot && (
-        <Image source={{uri: screenshot.uri}} style={styles.preview} />
+      {screenshots.length > 0 && (
+        <Image source={{uri: screenshots[0].uri}} style={styles.preview} />
       )}
 
       <View style={styles.infoBox}>
@@ -133,7 +150,7 @@ const ReportBugScreen = () => {
       </View>
 
       <TouchableOpacity
-        style={styles.sendBtn}
+        style={[styles.sendBtn, loading && styles.disabledButton]}
         onPress={submitBug}
         disabled={loading}>
         <Text style={{color: '#fff'}}>
@@ -171,6 +188,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
   },
+  disabledButton: {backgroundColor: 'gray'},
 });
 
 export default ReportBugScreen;

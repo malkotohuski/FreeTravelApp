@@ -97,28 +97,28 @@ exports.sendReport = async (req, res) => {
       return res.status(400).json({error: 'You cannot report yourself.'});
     }
 
-    // Rate limit – 2 на ден
+    // Rate limit – 3 на ден per reporter
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const reportsToday = await prisma.report.count({
       where: {
-        reporterId: req.user.userId,
+        reporterId: req.user.id, // броим само докладите на този, който праща
         createdAt: {gte: today},
       },
     });
 
-    if (reportsToday >= 2) {
+    if (reportsToday >= 3) {
       return res
         .status(429)
-        .json({error: 'You can only submit 2 reports per day.'});
+        .json({error: 'You can only submit 3 reports per day.'});
     }
 
     const report = await prisma.report.create({
       data: {
         text,
         image: image || null,
-        reporterId: req.user.userId,
+        reporterId: req.user.id, // ← правилното
         reportedId: reportedUser.id,
       },
     });

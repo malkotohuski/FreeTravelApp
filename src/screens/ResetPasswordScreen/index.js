@@ -40,25 +40,50 @@ export default function ResetPassword({navigation}) {
   );
 
   const sendResetCode = async () => {
+    if (!email.trim()) {
+      Alert.alert(t('Error'), t('Please enter your email'));
+      return;
+    }
+
     try {
       setLoading(true);
-      await api.post('/forgot-password', {
-        email,
-      });
+
+      await api.post('/api/auth/forgot-password', {email});
+
+      // ✅ ВИНАГИ показваме успех
+      Alert.alert(
+        t('Success'),
+        t('If an account with this email exists, a reset code has been sent.'),
+      );
 
       setCodeSent(true);
-      Alert.alert(t('Success'), t('Reset code sent to your email'));
     } catch (err) {
-      Alert.alert(t('Error'), t('Email not found'));
+      // ❗ пак показваме същото
+      Alert.alert(
+        t('Success'),
+        t('If an account with this email exists, a reset code has been sent.'),
+      );
+
+      setCodeSent(true);
     } finally {
       setLoading(false);
     }
   };
 
   const resetPassword = async () => {
+    if (!code || code.length !== 6) {
+      Alert.alert(t('Error'), t('Invalid code'));
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      Alert.alert(t('Error'), t('Password must be at least 8 characters'));
+      return;
+    }
+
     try {
       setLoading(true);
-      await api.post('/reset-password', {
+      await api.post('/api/auth/reset-password', {
         email,
         code,
         newPassword,
@@ -102,8 +127,10 @@ export default function ResetPassword({navigation}) {
         <TouchableOpacity
           style={styles.mainButton}
           onPress={sendResetCode}
-          disabled={loading}>
-          <Text style={styles.buttonText}>{t('Send code')}</Text>
+          disabled={!email || loading}>
+          <Text style={styles.buttonText}>
+            {loading ? t('Please wait...') : t('Send code')}
+          </Text>
         </TouchableOpacity>
       ) : (
         <>

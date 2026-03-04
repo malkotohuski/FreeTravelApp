@@ -17,6 +17,7 @@ import api from '../../api/api';
 import ImagePicker from 'react-native-image-crop-picker';
 import {useAuth} from '../../context/AuthContext';
 import {useFocusEffect} from '@react-navigation/native';
+import {color} from 'react-native-elements/dist/helpers';
 
 const AccountSettings = () => {
   const {user, updateUserData} = useAuth();
@@ -149,10 +150,10 @@ const AccountSettings = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Image
+      {/*  <Image
         source={require('../../../images/acountSettings.png')}
         style={styles.backgroundImage}
-      />
+      /> */}
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -281,7 +282,7 @@ const PrimaryButton = ({label, onPress}) => (
 /* ===================== STYLES ===================== */
 
 const styles = StyleSheet.create({
-  container: {flex: 1},
+  container: {flex: 1, backgroundColor: '#1e1e1e'},
   backgroundImage: {position: 'absolute', width: '100%', height: '100%'},
   scrollContent: {alignItems: 'center', paddingBottom: 40},
   userInfoContainer: {
@@ -289,11 +290,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     padding: 15,
     borderRadius: 10,
-    marginTop: 30,
+    marginTop: 10,
   },
   userInfoContainerPhoto: {alignItems: 'center', marginVertical: 20},
-  profilePicture: {width: 120, height: 120, borderRadius: 60},
-  photoText: {fontSize: 16, fontWeight: 'bold'},
+  profilePicture: {width: 100, height: 100, borderRadius: 60},
+  photoText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#f7f7f7',
+  },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -302,7 +307,7 @@ const styles = StyleSheet.create({
   label: {fontWeight: '600'},
   value: {flexShrink: 1},
   inputContainer: {width: '90%', marginBottom: 15},
-  inputLabel: {fontWeight: '600', marginBottom: 5},
+  inputLabel: {fontWeight: '600', marginBottom: 5, color: '#f7f7f7'},
   input: {backgroundColor: '#fff', padding: 12, borderRadius: 8},
   rowInputsContainer: {flexDirection: 'row', width: '90%', gap: 10},
   halfInputContainer: {flex: 1},

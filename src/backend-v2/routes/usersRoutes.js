@@ -26,4 +26,10 @@ router.patch(
 );
 router.patch('/password', authenticateJWT, usersController.changePassword);
 
+router.patch(
+  '/delete-account',
+  authenticateJWT,
+  usersController.softDeleteAccount,
+);
+
 module.exports = router;

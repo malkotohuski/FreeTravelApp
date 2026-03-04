@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 const nodemailer = require('nodemailer');
+const crypto = require('crypto');
+const sendResetEmail = require('../utils/mailer');
 
 const SALT_ROUNDS = 12;
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_change_later';
@@ -193,23 +195,30 @@ exports.login = async (req, res) => {
     const {email, password} = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({error: 'Email and password are required.'});
+      return res.status(400).json({
+        error: 'Email and password are required.',
+      });
     }
 
     const user = await prisma.user.findFirst({
       where: {email},
     });
 
-    if (!user || !user.isActive) {
-      return res
-        .status(401)
-        .json({error: 'Invalid credentials or account not active.'});
+    if (!user) {
+      return res.status(401).json({error: 'Invalid credentials.'});
+    }
+
+    if (user.accountStatus !== 'active') {
+      return res.status(403).json({
+        error: 'Your account has been deactivated.',
+      });
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
       return res.status(401).json({error: 'Invalid credentials.'});
     }
+
     const token = jwt.sign(
       {
         userId: user.id,
@@ -231,6 +240,93 @@ exports.login = async (req, res) => {
     });
   } catch (error) {
     console.error('Login error:', error);
+    return res.status(500).json({
+      error: 'Internal server error.',
+    });
+  }
+};
+
+exports.forgotPassword = async (req, res) => {
+  console.log('✅ forgotPassword called with email:', req.body.email);
+  try {
+    const {email} = req.body;
+
+    const user = await prisma.user.findUnique({where: {email}});
+
+    // Винаги security response
+    if (!user) {
+      return res
+        .status(200)
+        .json({message: 'If account exists, reset code sent.'});
+    }
+
+    // Генериране на 6-цифрен код
+    const plainCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Hash-ване
+    const hashedCode = await bcrypt.hash(plainCode, 12);
+
+    // Запис в DB
+    await prisma.user.update({
+      where: {id: user.id},
+      data: {
+        confirmationCode: hashedCode,
+        confirmationCodeExpiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15 мин
+      },
+    });
+
+    // Изпращане на имейл чрез utils/mailer
+    try {
+      console.log('Sending reset code to:', email, 'Code:', plainCode);
+      await sendResetEmail(email, plainCode);
+      console.log('Email sent!');
+    } catch (err) {
+      console.error('Error sending reset email:', err);
+    }
+
+    return res
+      .status(200)
+      .json({message: 'If account exists, reset code sent.'});
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    return res
+      .status(200)
+      .json({message: 'If account exists, reset code sent.'});
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const {email, code, newPassword} = req.body;
+
+    const user = await prisma.user.findUnique({where: {email}});
+    if (!user || !user.confirmationCode || !user.confirmationCodeExpiresAt) {
+      return res.status(400).json({error: 'Invalid or expired code.'});
+    }
+
+    if (new Date() > user.confirmationCodeExpiresAt) {
+      return res.status(400).json({error: 'Code expired.'});
+    }
+
+    const isCodeValid = await bcrypt.compare(code, user.confirmationCode);
+    if (!isCodeValid) {
+      return res.status(400).json({error: 'Invalid code.'});
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+    await prisma.user.update({
+      where: {id: user.id},
+      data: {
+        password: hashedPassword,
+        confirmationCode: null,
+        confirmationCodeExpiresAt: null,
+      },
+    });
+
+    return res.status(200).json({message: 'Password reset successful.'});
+  } catch (error) {
+    console.error('Reset password error:', error);
     return res.status(500).json({error: 'Internal server error.'});
   }
 };

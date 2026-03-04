@@ -53,7 +53,10 @@ const conversationRoutes = require('./routes/conversationRoutes');
 app.use('/api/conversations', conversationRoutes);
 
 const reportRoutes = require('./routes/reportRoutes');
-app.use('/api/report', reportRoutes);
+app.use('/api', reportRoutes);
+
+const bugReportRoutes = require('./routes/bugReportRoutes');
+app.use('/api', bugReportRoutes);
 
 const ratingRoutes = require('./routes/ratingRoutes');
 app.use('/api/ratings', ratingRoutes);

@@ -143,6 +143,21 @@ enum ReportStatus {
   REJECTED
 }
 
+model BugReport {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  title       String
+  description String
+  steps       String?
+  image       String?
+  appVersion  String
+  platform    String
+  systemVersion String
+  deviceModel String
+  status      String   @default("open")
+  createdAt   DateTime @default(now())
+}
+
 // ======================
 // Модел за рикуести
 // ======================
