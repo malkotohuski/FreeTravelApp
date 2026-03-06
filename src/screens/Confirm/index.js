@@ -16,6 +16,7 @@ import LottieView from 'lottie-react-native';
 import {useRoute, useNavigation} from '@react-navigation/native';
 import {useRouteContext} from '../../context/RouteContext';
 import {useAuth} from '../../context/AuthContext';
+import {useTheme} from '../../theme/useTheme';
 
 function Confirm() {
   const submitLock = useRef(false); // предотвратява двойно изпращане
@@ -24,6 +25,7 @@ function Confirm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const idempotencyKeyRef = useRef(null);
+  const theme = useTheme();
 
   const routeContext = useRouteContext();
   const {addRoute} = routeContext;
@@ -61,6 +63,46 @@ function Confirm() {
   const userFname = user?.fName;
   const userLname = user?.lName;
   const userEmail = user?.email;
+
+  const getGradientColors = () => theme.gradient;
+
+  const getCardStyle = () => ({
+    width: '90%',
+    borderRadius: 16,
+    padding: 16,
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: theme.cardBorder,
+    backgroundColor: theme.cardBackground,
+  });
+
+  const getTextColor = () => theme.textPrimary;
+
+  const getSecondaryTextColor = () => theme.textSecondary;
+
+  const getPrimaryButtonStyle = () => ({
+    borderRadius: 10,
+    width: 200,
+    height: 55,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 15,
+    borderWidth: 1.5,
+    borderColor: '#fff',
+    backgroundColor: theme.primaryButton,
+  });
+
+  const getSecondaryButtonStyle = () => ({
+    borderRadius: 10,
+    width: 200,
+    height: 55,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 10,
+    borderWidth: 1.5,
+    borderColor: '#fff',
+    backgroundColor: theme.secondaryButton,
+  });
 
   const handleConfirm = async () => {
     if (submitLock.current) return;
@@ -140,69 +182,80 @@ function Confirm() {
   return (
     <View style={{flex: 1}} pointerEvents={isSubmitting ? 'none' : 'auto'}>
       <LinearGradient
-        colors={['#0d0d0d', '#1a1a1a']}
+        colors={getGradientColors()}
         style={styles.gradientBackground}>
         <SafeAreaView style={styles.mainContainer}>
           <ScrollView contentContainerStyle={styles.scrollContent}>
-            <Text style={styles.headerText}>{t('Review route')}</Text>
+            <Text style={[styles.headerText, {color: getTextColor()}]}>
+              {t('Review route')}
+            </Text>
 
-            <View style={styles.card}>
+            <View style={getCardStyle()}>
               <View style={styles.cardHeaderRow}>
                 <Icon name="account-circle" size={24} color="#f4511e" />
-                <Text style={styles.cardHeader}>{t('Driver')}</Text>
+                <Text style={[styles.cardHeader, {color: getTextColor()}]}>
+                  {t('Driver')}
+                </Text>
               </View>
-              <Text style={styles.text}>
+              <Text style={[styles.text, {color: getSecondaryTextColor()}]}>
                 {t('Username')}: {username}
               </Text>
-              <Text style={styles.text}>
+              <Text style={[styles.text, {color: getSecondaryTextColor()}]}>
                 {t('Names')}: {userFname} {userLname}
               </Text>
             </View>
 
-            <View style={styles.card}>
+            <View style={getCardStyle()}>
               <View style={styles.cardHeaderRow}>
                 <Icon name="car-arrow-right" size={24} color="#f4511e" />
-                <Text style={styles.cardHeader}>{t('Departure')}</Text>
+                <Text style={[styles.cardHeader, {color: getTextColor()}]}>
+                  {t('Departure')}
+                </Text>
               </View>
-              <Text style={styles.text}>
+              <Text style={[styles.text, {color: getSecondaryTextColor()}]}>
                 {departureCity} {departureStreet}
                 {departureNumber ? ` - ${departureNumber}` : ''}
               </Text>
             </View>
 
-            <View style={styles.card}>
+            <View style={getCardStyle()}>
               <View style={styles.cardHeaderRow}>
                 <Icon name="car-select" size={24} color="#f4511e" />
-                <Text style={styles.cardHeader}>{t('Arrival')}</Text>
+                <Text style={[styles.cardHeader, {color: getTextColor()}]}>
+                  {t('Arrival')}
+                </Text>
               </View>
-              <Text style={styles.text}>
+              <Text style={[styles.text, {color: getSecondaryTextColor()}]}>
                 {arrivalCity} {arrivalStreet}
                 {arrivalNumber ? ` - ${arrivalNumber}` : ''}
               </Text>
             </View>
 
-            <View style={styles.card}>
+            <View style={getCardStyle()}>
               <View style={styles.cardHeaderRow}>
                 <Icon name="calendar" size={24} color="#f4511e" />
-                <Text style={styles.cardHeader}>
+                <Text style={[styles.cardHeader, {color: getTextColor()}]}>
                   {t('Time and date of departure')}
                 </Text>
               </View>
-              <Text style={styles.text}>
+              <Text style={[styles.text, {color: getSecondaryTextColor()}]}>
                 {selectedDateTime?.toLocaleString()}
               </Text>
             </View>
 
             {showChangesButton && (
               <TouchableOpacity
-                style={styles.buttonSecondary}
+                style={getSecondaryButtonStyle()}
                 onPress={() => navigation.navigate('Vehicle')}>
                 <Text style={styles.buttonText}>{t('Make changes')}</Text>
               </TouchableOpacity>
             )}
             {showConfirmButton && (
               <TouchableOpacity
-                style={[styles.buttonPrimary, isSubmitting && {opacity: 0.5}]}
+                style={[
+                  getPrimaryButtonStyle(),
+                  isSubmitting && {opacity: 0.5},
+                ]}
                 disabled={isSubmitting}
                 onPress={handleConfirm}>
                 <Text style={styles.buttonText}>
@@ -212,7 +265,7 @@ function Confirm() {
             )}
             {showBackButton && (
               <TouchableOpacity
-                style={styles.buttonSecondary}
+                style={getSecondaryButtonStyle()}
                 onPress={() => navigation.navigate('View routes')}>
                 <Text style={styles.buttonText}>{t('Back')}</Text>
               </TouchableOpacity>
@@ -220,7 +273,11 @@ function Confirm() {
 
             {isSubmitting && (
               <View style={styles.loadingOverlay} pointerEvents="auto">
-                <View style={styles.loadingModal}>
+                <View
+                  style={[
+                    styles.loadingModal,
+                    {backgroundColor: theme.cardBackground},
+                  ]}>
                   <LottieView
                     source={require('../../../assets/animations/road.json')}
                     autoPlay
@@ -328,7 +385,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.6)',
   },
   loadingModal: {
-    backgroundColor: '#222',
     padding: 20,
     borderRadius: 15,
     alignItems: 'center',

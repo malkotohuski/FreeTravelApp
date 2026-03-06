@@ -1,16 +1,17 @@
-import React, {useCallback, useState} from 'react';
+import React, {useState, useCallback} from 'react';
 import {
   View,
   Text,
-  StyleSheet,
-  SafeAreaView,
-  ScrollView,
   TouchableOpacity,
+  TextInput,
+  StyleSheet,
+  Alert,
+  FlatList,
+  Modal,
   Image,
   ActivityIndicator,
-  Modal,
-  Alert,
-  TextInput,
+  SafeAreaView,
+  ScrollView,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {useTranslation} from 'react-i18next';
@@ -18,8 +19,10 @@ import {useFocusEffect} from '@react-navigation/native';
 import {useAuth} from '../../context/AuthContext';
 import api from '../../api/api';
 
-function Seekers({navigation}) {
+export default function Seekers({navigation}) {
   const {t, i18n} = useTranslation();
+  const {user} = useAuth();
+
   const [routes, setRoutes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -28,40 +31,40 @@ function Seekers({navigation}) {
   const [searchArrival, setSearchArrival] = useState('');
   const [messageInput, setMessageInput] = useState('');
 
-  const {user} = useAuth();
-
-  const loggedUser = user?.username;
-  const loggedUserName = user?.fName;
-  const loggedUserFname = user?.lName;
-
+  // 🔹 Fetch Seekers
   const fetchSeekers = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/seekers');
-      if (response.status === 200) {
-        const now = new Date();
-        const updatedRoutes = await Promise.all(
-          response.data.map(async route => {
-            const routeDate = new Date(route.selectedDateTime);
-            if (routeDate < now) {
-              try {
-                await api.delete(`/seekers/${route.id}`);
-                return null;
-              } catch (deleteErr) {
-                console.error(
-                  'Неуспешно изтриване на стар маршрут:',
-                  deleteErr,
-                );
-                return route;
-              }
+      console.log(
+        'Fetching seekers from:',
+        api.defaults.baseURL + '/api/seekers',
+      );
+
+      const response = await api.get('/api/seekers');
+      console.log('Response data:', response.data);
+
+      const seekers = Array.isArray(response.data.seekers)
+        ? response.data.seekers
+        : [];
+      const now = new Date();
+
+      const updatedRoutes = await Promise.all(
+        seekers.map(async route => {
+          const routeDate = new Date(route.selectedDateTime);
+          if (routeDate < now) {
+            try {
+              await api.delete(`/api/seekers/${route.id}`);
+              return null;
+            } catch (deleteErr) {
+              console.error('Неуспешно изтриване на стар маршрут:', deleteErr);
+              return route;
             }
-            return route;
-          }),
-        );
-        setRoutes(updatedRoutes.filter(route => route !== null));
-      } else {
-        setError(t('Failed to fetch routes.'));
-      }
+          }
+          return route;
+        }),
+      );
+
+      setRoutes(updatedRoutes.filter(route => route !== null));
     } catch (err) {
       console.error('Error fetching seekers:', err);
       setError(t('Error fetching route data.'));
@@ -70,20 +73,38 @@ function Seekers({navigation}) {
     }
   };
 
-  const handlerBackHome = () => {
-    navigation.navigate('Home');
-  };
+  useFocusEffect(
+    useCallback(() => {
+      fetchSeekers();
+    }, []),
+  );
 
+  // 🔹 Филтриране
+  const filteredRoutes = routes.filter(route => {
+    const isActive = !route.status || route.status === 'active';
+    const routeDate = new Date(route.selectedDateTime);
+    const isFuture = routeDate >= new Date();
+    const depMatch = route.departureCity
+      ?.toLowerCase()
+      .includes(searchDeparture.toLowerCase());
+    const arrMatch = route.arrivalCity
+      ?.toLowerCase()
+      .includes(searchArrival.toLowerCase());
+    return isActive && isFuture && depMatch && arrMatch;
+  });
+
+  // 🔹 Изпращане на покана
   const sendInvite = async () => {
-    const recipient = selectedRoute.username;
+    if (!selectedRoute) return;
 
+    const recipient = selectedRoute.username;
     if (recipient === user?.username) {
       Alert.alert(t('Грешка'), t('Не можете да изпращате покана на себе си.'));
       return;
     }
 
     try {
-      const res = await api.get('/notifications');
+      const res = await api.get('/api/notifications');
       const alreadyInvited = res.data.some(
         n =>
           n.recipient === recipient &&
@@ -99,17 +120,17 @@ function Seekers({navigation}) {
         return;
       }
 
-      const notificationMessage = `Имате нова покана от ${loggedUserName} ${loggedUserFname}`;
+      const notificationMessage = `Имате нова покана от ${user.fName} ${user.lName}`;
 
-      await api.post('/notifications', {
+      await api.post('/api/notifications', {
         recipient,
         message: notificationMessage,
         routeChecker: true,
         status: 'active',
         requester: {
           username: user?.username,
-          userFname: user?.userFname,
-          userLname: user?.userLname,
+          userFname: user?.fName,
+          userLname: user?.lName,
           email: user?.email,
         },
         routeTitle: selectedRoute.routeTitle,
@@ -126,24 +147,40 @@ function Seekers({navigation}) {
     }
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchSeekers();
-    }, []),
-  );
+  const renderRoute = ({item: route}) => {
+    const formattedDate = new Date(route.selectedDateTime).toLocaleDateString(
+      i18n.language,
+      {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      },
+    );
 
-  const filteredRoutes = routes.filter(route => {
-    const isActive = !route.status || route.status === 'active';
-    const routeDate = new Date(route.selectedDateTime);
-    const isFuture = routeDate >= new Date();
-    const depMatch = route.departureCity
-      ?.toLowerCase()
-      .includes(searchDeparture.toLowerCase());
-    const arrMatch = route.arrivalCity
-      ?.toLowerCase()
-      .includes(searchArrival.toLowerCase());
-    return isActive && isFuture && depMatch && arrMatch;
-  });
+    return (
+      <TouchableOpacity
+        style={styles.routeCard}
+        onPress={() => setSelectedRoute(route)}>
+        <Text style={styles.routeTitle}>{route.routeTitle}</Text>
+        <Text style={styles.dateText}>{formattedDate}</Text>
+        <Text style={styles.routeInfo}>
+          {route.departureCity} ➝ {route.arrivalCity}
+        </Text>
+        <View style={styles.creatorContainer}>
+          {route.userImage ? (
+            <Image source={{uri: route.userImage}} style={styles.userImage} />
+          ) : (
+            <View style={styles.placeholderImage} />
+          )}
+          <Text style={styles.creatorText}>
+            {t('Created by')}: {route.userFname} {route.userLname} (@
+            {route.username})
+          </Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <LinearGradient
@@ -175,52 +212,18 @@ function Seekers({navigation}) {
           />
         ) : error ? (
           <Text style={styles.errorText}>{error}</Text>
+        ) : filteredRoutes.length === 0 ? (
+          <Text style={styles.errorText}>{t('No routes available.')}</Text>
         ) : (
-          <ScrollView contentContainerStyle={styles.scrollContainer}>
-            {filteredRoutes.length === 0 ? (
-              <Text style={styles.errorText}>{t('No routes available.')}</Text>
-            ) : (
-              filteredRoutes.map((route, index) => {
-                const formattedDate = new Date(
-                  route.selectedDateTime,
-                ).toLocaleDateString(i18n.language, {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                });
-
-                return (
-                  <TouchableOpacity
-                    key={index}
-                    style={styles.routeCard}
-                    onPress={() => setSelectedRoute(route)}>
-                    <Text style={styles.routeTitle}>{route.routeTitle}</Text>
-                    <Text style={styles.dateText}>{formattedDate}</Text>
-                    <Text style={styles.routeInfo}>
-                      {route.departureCity} ➝ {route.arrivalCity}
-                    </Text>
-                    <View style={styles.creatorContainer}>
-                      {route.userImage ? (
-                        <Image
-                          source={{uri: route.userImage}}
-                          style={styles.userImage}
-                        />
-                      ) : (
-                        <View style={styles.placeholderImage} />
-                      )}
-                      <Text style={styles.creatorText}>
-                        {t('Created by')}: {route.userFname} {route.userLname}{' '}
-                        (@{route.username})
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                );
-              })
-            )}
-          </ScrollView>
+          <FlatList
+            data={filteredRoutes}
+            renderItem={renderRoute}
+            keyExtractor={route => route.id.toString()}
+            contentContainerStyle={{paddingBottom: 50}}
+          />
         )}
 
+        {/* 🔹 Modal */}
         <Modal visible={!!selectedRoute} transparent animationType="slide">
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
@@ -277,7 +280,9 @@ function Seekers({navigation}) {
           </View>
         </Modal>
 
-        <TouchableOpacity style={styles.backButton} onPress={handlerBackHome}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.navigate('Home')}>
           <Text style={styles.backButtonText}>{t('Back')}</Text>
         </TouchableOpacity>
       </SafeAreaView>
@@ -285,102 +290,93 @@ function Seekers({navigation}) {
   );
 }
 
-export default Seekers;
-
+// 🔹 Добави стилове тук
 const styles = StyleSheet.create({
   gradientBackground: {flex: 1},
-  container: {flex: 1},
-  scrollContainer: {padding: 16, paddingBottom: 100},
-  searchContainer: {paddingHorizontal: 20, paddingTop: 20, gap: 12},
+  container: {flex: 1, padding: 16},
+  searchContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
   searchInput: {
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    flex: 1,
+    backgroundColor: '#222',
     color: '#fff',
-    borderRadius: 10,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
+    padding: 10,
+    marginHorizontal: 5,
+    borderRadius: 8,
   },
   routeCard: {
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: '#333',
+    padding: 12,
+    marginBottom: 12,
+    borderRadius: 10,
   },
-  routeTitle: {fontSize: 20, fontWeight: '700', color: '#fff', marginBottom: 8},
-  routeInfo: {fontSize: 18, color: '#ccc', marginBottom: 6},
-  dateText: {fontSize: 16, color: '#f4511e', marginBottom: 6},
-  creatorContainer: {flexDirection: 'row', alignItems: 'center', marginTop: 10},
-  creatorText: {fontSize: 15, color: '#bbb', marginLeft: 10, flexShrink: 1},
-  userImage: {width: 40, height: 40, borderRadius: 20},
+  routeTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 4,
+  },
+  dateText: {fontSize: 14, color: '#ccc', marginBottom: 4},
+  routeInfo: {fontSize: 14, color: '#fff', marginBottom: 6},
+  creatorContainer: {flexDirection: 'row', alignItems: 'center'},
+  creatorText: {color: '#fff', marginLeft: 8},
+  userImage: {width: 36, height: 36, borderRadius: 18},
   placeholderImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#444',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#666',
   },
-  errorText: {fontSize: 18, color: '#ccc', textAlign: 'center', marginTop: 20},
+  errorText: {color: 'red', textAlign: 'center', marginTop: 20},
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.8)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
     justifyContent: 'center',
     padding: 20,
   },
-  modalContent: {
-    backgroundColor: 'rgba(30,30,30,0.95)',
-    borderRadius: 16,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.15)',
-  },
+  modalContent: {backgroundColor: '#222', borderRadius: 12, padding: 16},
   messageInput: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 10,
-    padding: 10,
+    backgroundColor: '#333',
     color: '#fff',
-    height: 100,
-    textAlignVertical: 'top',
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 12,
   },
   modalRouteTitle: {
-    fontSize: 20,
-    fontWeight: '700',
+    fontSize: 18,
+    fontWeight: 'bold',
     color: '#fff',
-    marginTop: 15,
+    marginBottom: 4,
   },
-  modalRouteText: {fontSize: 17, color: '#ccc', marginBottom: 8},
-  modalDate: {fontSize: 16, color: '#f4511e', marginBottom: 10},
-  modalButtons: {marginTop: 20, alignItems: 'center', gap: 12},
+  modalDate: {color: '#ccc', marginBottom: 4},
+  modalRouteText: {color: '#fff', marginBottom: 12},
+  modalButtons: {flexDirection: 'row', justifyContent: 'space-between'},
   mainButton: {
     backgroundColor: '#f4511e',
-    borderRadius: 10,
-    paddingVertical: 14,
-    width: 180,
+    padding: 10,
+    borderRadius: 8,
+    flex: 1,
+    marginRight: 8,
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#fff',
   },
   secondaryButton: {
-    backgroundColor: '#777',
-    borderRadius: 10,
-    paddingVertical: 14,
-    width: 180,
+    backgroundColor: '#555',
+    padding: 10,
+    borderRadius: 8,
+    flex: 1,
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#fff',
   },
-  buttonText: {color: '#fff', fontSize: 17, fontWeight: '600'},
-  infoText: {color: '#aaa', textAlign: 'center', marginTop: 10},
+  buttonText: {color: '#fff', fontWeight: 'bold'},
+  infoText: {color: '#ccc', flex: 1, textAlign: 'center'},
   backButton: {
-    margin: 20,
-    backgroundColor: '#f4511e',
-    paddingVertical: 14,
-    borderRadius: 10,
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#fff',
+    bottom: 20,
+    padding: 12,
+    backgroundColor: '#f4511e',
+    borderRadius: 8,
   },
-  backButtonText: {color: '#fff', fontSize: 18, fontWeight: '600'},
+  backButtonText: {color: '#fff', fontWeight: 'bold'},
 });

@@ -1,14 +1,12 @@
-import React, {useEffect, useState, useContext, useCallback} from 'react';
+import React, {useState, useContext, useCallback} from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   SafeAreaView,
-  Image,
   StyleSheet,
   FlatList,
   Modal,
-  TextInput,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
@@ -17,66 +15,71 @@ import api from '../../api/api';
 import {useAuth} from '../../context/AuthContext';
 import {DarkModeContext} from '../../navigation/DarkModeContext';
 
-const Notifications = ({navigation, route}) => {
+const Notifications = ({navigation}) => {
   const {user} = useAuth();
-  const [requests, setRequests] = useState([]);
   const {darkMode} = useContext(DarkModeContext);
   const {t} = useTranslation();
-  const {mainRouteUser} = route.params || {};
 
   const [notifications, setNotifications] = useState([]);
   const [visibleModalId, setVisibleModalId] = useState(null);
   const [respondModalVisible, setRespondModalVisible] = useState(false);
   const [respondingTo, setRespondingTo] = useState(null);
 
-  const handlePersonalMessagePress = notification => {
-    setRespondingTo(notification);
-    setTimeout(() => {
-      setRespondModalVisible(true);
-    }, 100);
-  };
-
-  useFocusEffect(
-    useCallback(() => {
-      const fetchRequests = async () => {
-        try {
-          const resp = await api.get('/api/requests');
-          setRequests(resp.data);
-        } catch (error) {
-          console.error('Failed to fetch requests:', error);
-        }
-      };
-
-      fetchRequests();
-    }, []),
-  );
-
+  // fetch notifications и reset на state за да няма дубли
   const fetchNotifications = async () => {
     try {
-      // ✅ използваме правилния API път
+      // 1️⃣ Вземаме notifications от API
       const response = await api.get('/api/notifications');
-      const activeNotifications = response.data.filter(
-        n => n.status === 'active',
+
+      // 2️⃣ Филтрираме само активните
+      const activeNotifications = response.data
+        .filter(n => n.status === 'active')
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      // 3️⃣ Филтрираме дубликатите по routeId + message
+      const uniqueNotifications = activeNotifications.filter(
+        (v, i, a) =>
+          a.findIndex(
+            n => n.routeId === v.routeId && n.message === v.message,
+          ) === i,
       );
-      const sorted = activeNotifications.sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
-      );
-      setNotifications(sorted);
+
+      // 4️⃣ Обновяваме state
+      setNotifications(uniqueNotifications);
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
     }
   };
 
+  // useFocusEffect с празен dependency → fetch само при фокус на screen
   useFocusEffect(
     useCallback(() => {
       fetchNotifications();
-    }, [user]),
+    }, []),
   );
 
+  const formatDate = dateString => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffMin = Math.floor((now - date) / (1000 * 60));
+    const diffHr = Math.floor(diffMin / 60);
+    const diffDay = Math.floor(diffHr / 24);
+    return diffDay >= 1
+      ? `${diffDay}d`
+      : diffHr >= 1
+      ? `${diffHr}h`
+      : `${diffMin}min`;
+  };
+
+  const isNewNotification = createdAt => {
+    const now = new Date();
+    const date = new Date(createdAt);
+    const diffHr = (now - date) / (1000 * 60 * 60);
+    return diffHr < 12;
+  };
+
   const handleNotificationPress = async notification => {
-    console.log('NOTIFICATION OBJECT:', notification);
     try {
-      // Маркираме като прочетена
       if (!notification.read) {
         await api.put(`/api/notifications/read/${notification.id}`);
         setNotifications(prev =>
@@ -85,7 +88,8 @@ const Notifications = ({navigation, route}) => {
       }
 
       const message = notification.message.toLowerCase();
-      // ⭐ RATE
+
+      // RATE
       if (
         message.includes('оцени пътуването') ||
         message.includes('rate the trip') ||
@@ -98,18 +102,20 @@ const Notifications = ({navigation, route}) => {
         });
       }
 
-      // ⭐ ROUTE REQUEST
+      // ROUTE REQUEST
       else if (
         message.includes('your route') &&
-        (message.includes('candidate') || message.includes('new request'))
+        message.includes('candidate') &&
+        notification.recipientId === user.id
       ) {
-        navigation.navigate('Route request', {
-          fromNotification: true,
-        });
+        navigation.navigate('Route request', {fromNotification: true});
       }
 
-      // ⭐ APPROVED → CHAT
-      else if (message.includes('approved')) {
+      // APPROVED → CHAT
+      else if (
+        message.includes('approved') &&
+        notification.recipientId === user.id
+      ) {
         const response = await api.post('/api/conversations/start', {
           routeId: notification.routeId,
           user1Id: user.id,
@@ -117,8 +123,6 @@ const Notifications = ({navigation, route}) => {
         });
 
         const conversation = response.data;
-
-        // 🔥 намираме кой е другия човек
         const otherUser =
           conversation.user1.id === user.id
             ? conversation.user2
@@ -126,7 +130,7 @@ const Notifications = ({navigation, route}) => {
 
         navigation.navigate('ChatScreen', {
           conversationId: conversation.id,
-          otherUser: otherUser,
+          otherUser,
           routeInfo: {
             departureCity: notification.departureCity,
             arrivalCity: notification.arrivalCity,
@@ -135,21 +139,6 @@ const Notifications = ({navigation, route}) => {
       }
     } catch (error) {
       console.error('Navigation or mark-as-read error:', error);
-    }
-  };
-
-  const handleNotificationRequestPress = notification => {
-    try {
-      console.log('➡️ Навигация към Route request:', notification);
-      const message = notification.message.toLowerCase();
-      if (
-        message.includes('your route') &&
-        (message.includes('candidate') || message.includes('new request'))
-      ) {
-        navigation.navigate('Route request');
-      }
-    } catch (e) {
-      console.error('Navigation error:', e);
     }
   };
 
@@ -172,33 +161,9 @@ const Notifications = ({navigation, route}) => {
     backgroundColor: darkMode ? '#333232FF' : '#f4511e',
   });
 
-  const formatDate = dateString => {
-    const now = new Date();
-    const date = new Date(dateString);
-    const diffMin = Math.floor((now - date) / (1000 * 60));
-    const diffHr = Math.floor(diffMin / 60);
-    const diffDay = Math.floor(diffHr / 24);
-    return diffDay >= 1
-      ? `${diffDay}d`
-      : diffHr >= 1
-      ? `${diffHr}h`
-      : `${diffMin}min`;
-  };
-
-  const isNewNotification = createdAt => {
-    const now = new Date();
-    const date = new Date(createdAt);
-    const diffHr = (now - date) / (1000 * 30 * 30);
-    return diffHr < 12;
-  };
-
   return (
     <SafeAreaView
       style={{flex: 1, backgroundColor: darkMode ? '#fff' : '#222'}}>
-      {/*  <Image
-        source={require('../../../images/user-background.jpg')}
-        style={styles.backgroundImage}
-      /> */}
       <View
         style={{flex: 1, justifyContent: 'flex-start', alignItems: 'center'}}>
         <View style={getHeaderStyles()}>
@@ -239,68 +204,6 @@ const Notifications = ({navigation, route}) => {
                 <Text style={styles.message}>{item.message}</Text>
               </TouchableOpacity>
 
-              {item.message &&
-                item.message
-                  .toLowerCase()
-                  .includes('you have a candidate for your route') && (
-                  <TouchableOpacity
-                    onPress={() => handleNotificationRequestPress(item)}
-                    style={{
-                      marginTop: 10,
-                      padding: 10,
-                      backgroundColor: '#e6f7ff',
-                      borderRadius: 8,
-                    }}>
-                    <View>
-                      <Text style={{color: '#005fcb', fontWeight: 'bold'}}>
-                        {t('View candidate request')}
-                      </Text>
-                      {item.requester?.comment ? (
-                        <TouchableOpacity
-                          onPress={() => handlePersonalMessagePress(item)}
-                          style={{
-                            marginTop: 8,
-                            padding: 10,
-                            backgroundColor: '#f2f2f2',
-                            borderRadius: 8,
-                          }}>
-                          <Text
-                            style={{
-                              color: '#333',
-                              fontSize: 14,
-                              fontStyle: 'italic',
-                            }}>
-                            "{item.requester?.comment}"
-                          </Text>
-                        </TouchableOpacity>
-                      ) : null}
-                    </View>
-                  </TouchableOpacity>
-                )}
-
-              {item.personalMessage && (
-                <TouchableOpacity
-                  onPress={() => {
-                    setRespondingTo(item);
-                    setRespondModalVisible(true);
-                  }}
-                  style={{
-                    marginTop: 8,
-                    alignSelf: 'flex-start',
-                    backgroundColor: '#e6f7ff',
-                    padding: 10,
-                    borderRadius: 12,
-                    maxWidth: '85%',
-                  }}>
-                  <Text
-                    style={{
-                      color: '#005fcb',
-                      fontSize: 14,
-                    }}>
-                    💬 {item.personalMessage}
-                  </Text>
-                </TouchableOpacity>
-              )}
               <Text style={styles.date}>{formatDate(item.createdAt)}</Text>
 
               <Modal
@@ -315,8 +218,7 @@ const Notifications = ({navigation, route}) => {
                     </Text>
                     <Text style={styles.modalMessage}>
                       {t('Do you want to delete this notification:')}
-                      {'\n'}
-                      {'\n'}
+                      {'\n\n'}
                       {item.message}
                     </Text>
                     <TouchableOpacity
@@ -341,14 +243,6 @@ const Notifications = ({navigation, route}) => {
 };
 
 const styles = StyleSheet.create({
-  mainContainer: {flex: 1, backgroundColor: '#f9f9f9'},
-  backgroundImage: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-    position: 'absolute',
-  },
   headerTitle: {color: 'white', fontSize: 20, fontWeight: 'bold'},
   notificationList: {padding: 16},
   notification: {
@@ -363,11 +257,6 @@ const styles = StyleSheet.create({
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
-  },
-  personalMessage: {
-    marginTop: 5,
-    fontStyle: 'italic',
-    color: '#555',
   },
   message: {fontSize: 16, color: '#010101', marginBottom: 8},
   date: {fontSize: 12, color: 'rgb(0, 0, 0)'},
@@ -395,19 +284,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   newNotification: {backgroundColor: '#cce7ff'},
-  dotsButton: {
-    position: 'absolute',
-    top: 10,
-    right: -5,
-    zIndex: 1,
-    padding: 5,
-  },
+  dotsButton: {position: 'absolute', top: 10, right: -5, zIndex: 1, padding: 5},
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 9999,
   },
   modalContent: {
     width: '80%',
@@ -439,22 +321,6 @@ const styles = StyleSheet.create({
   },
   cancelButton: {backgroundColor: '#ccc'},
   modalButtonText: {color: 'white', fontSize: 16, fontWeight: 'bold'},
-
-  simpleModalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#010101', // Без прозрачност, за да няма конфликт с фон
-    padding: 20,
-  },
-  responseInput: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    width: '100%',
-    marginVertical: 10,
-    padding: 10,
-  },
 });
 
 export default Notifications;

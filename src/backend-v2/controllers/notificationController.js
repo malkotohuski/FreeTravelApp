@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 // Вземане на notifications по username
 exports.getNotifications = async (req, res) => {
   try {
-    const userId = req.user.userId;
+    const userId = req.user.id;
 
     const notifications = await prisma.notification.findMany({
       where: {
@@ -107,6 +107,21 @@ exports.createNotification = async (req, res) => {
       senderId,
     } = req.body;
 
+    // 1️⃣ Проверка за вече съществуваща активна notification
+    const existing = await prisma.notification.findFirst({
+      where: {
+        recipientId: Number(recipientId),
+        routeId,
+        message,
+        status: 'active',
+      },
+    });
+
+    if (existing) {
+      return res.status(200).json(existing); // Вече има такава → не правим нова
+    }
+
+    // 2️⃣ Създаване на нова notification
     const notification = await prisma.notification.create({
       data: {
         recipientId: Number(recipientId),

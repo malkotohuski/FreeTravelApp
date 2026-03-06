@@ -49,6 +49,8 @@ model User {
   sentNotifications     Notification[] @relation("UserSentNotifications")
 
   sentMessages Message[] @relation("SenderMessages") 
+
+  seekerRequests SeekerRequest[]
 }
 
 // ======================
@@ -116,6 +118,32 @@ model Route {
 
   owner    User @relation("UserRoutes", fields: [ownerId], references: [id])
   requests Request[] @relation("RouteRequests")
+}
+
+// ======================
+// Модел за търсещи
+// ======================
+
+model SeekerRequest {
+  id               Int      @id @default(autoincrement())
+
+  userId           Int
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  username         String
+  userFname        String
+  userLname        String
+  userEmail        String
+  userImage        String?
+
+  routeTitle       String
+  departureCity    String
+  arrivalCity      String
+  selectedDateTime DateTime
+
+  status           String   @default("active")
+
+  createdAt        DateTime @default(now())
 }
 
 // ======================
@@ -208,6 +236,8 @@ model Notification {
   read            Boolean  @default(false)
   status          String   @default("active")
   approver        Json?
+
+  @@unique([recipientId, routeId, message, status])
 }
 
 // ======================

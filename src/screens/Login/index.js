@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import {useTranslation} from 'react-i18next';
 import {useFocusEffect} from '@react-navigation/native';
+import Toast from 'react-native-toast-message';
 import styles from './styles';
 import i18next from 'i18next';
 import {useAuth} from '../../context/AuthContext';
@@ -58,31 +59,37 @@ export default function Login({navigation, route}) {
   }, []);
 
   const handleLogin = async () => {
+    if (!email || !password) {
+      Toast.show({
+        type: 'error',
+        text1: t('Please enter email and password.'),
+      });
+      return;
+    }
+
     try {
       setIsLoading(true);
 
-      const response = await api.post('/api/auth/login', {
-        email: email, // ⚡ преди: useremail
-        password: password, // ⚡ преди: userpassword
-      });
+      const response = await api.post('/api/auth/login', {email, password});
 
-      const {user, token} = response.data;
-
-      // ✅ само това
-      login(user, token);
-
-      console.log('Logged in user:', user);
-      console.log('Token:', token);
-
-      // ❌ НЕ navigation.navigate('Home')
-    } catch (error) {
-      if (error.response?.status === 401) {
-        alert(t('Invalid email or password'));
-      } else if (error.response?.status === 403) {
-        alert(t(error.response.data.error));
+      // Успешен login
+      if (response.status === 200) {
+        const user = response.data.user;
+        const token = response.data.token;
+        login(user, token); // ⚡ успешен login
       } else {
-        alert(t('Server error'));
+        // Рядък случай, статус различен от 200 (редуцирано)
+        Toast.show({
+          type: 'error',
+          text1: t('Email or password is incorrect. Please try again.'),
+        });
       }
+    } catch (error) {
+      // Всички грешки (401, 403, мрежа, бекенд) → показваме само user-friendly съобщение
+      Toast.show({
+        type: 'error',
+        text1: t('Email or password is incorrect. Please try again.'),
+      });
     } finally {
       setIsLoading(false);
     }

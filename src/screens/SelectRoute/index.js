@@ -18,12 +18,15 @@ import DatePicker from 'react-native-date-picker';
 import {useTranslation} from 'react-i18next';
 import CitySelector from '../../server/Cities/cities';
 import LinearGradient from 'react-native-linear-gradient';
+import {useTheme} from '../../theme/useTheme';
 
 function SelectRouteScreen({route, navigation}) {
   const {t, i18n} = useTranslation();
   const {selectedVehicle, registrationNumber} = route.params;
+  const theme = useTheme();
 
   const cities = CitySelector();
+
   const [filteredCities, setFilteredCities] = useState(cities.slice(0, 7));
   const [arrivalFilteredCities, setArrivalFilteredCities] = useState(
     cities.slice(0, 7),
@@ -61,12 +64,18 @@ function SelectRouteScreen({route, navigation}) {
               registrationNumber,
             })
           }>
-          <Text style={styles.headerText}>{t('Step 3 of 4')}</Text>
-          <Icons name="keyboard-backspace" size={22} color="white" />
+          <Text style={[styles.headerText, {color: theme.textPrimary}]}>
+            {t('Step 3 of 4')}
+          </Text>
+          <Icons
+            name="keyboard-backspace"
+            size={22}
+            color={theme.textPrimary}
+          />
         </TouchableOpacity>
       ),
     });
-  }, [navigation, selectedVehicle, registrationNumber]);
+  }, [navigation, selectedVehicle, registrationNumber, theme]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -95,6 +104,7 @@ function SelectRouteScreen({route, navigation}) {
       return Alert.alert(t('Error'), t('Please select a date and time!'));
 
     const formattedDateTime = selectedDateTime.toISOString();
+
     navigation.navigate('Confirm', {
       selectedVehicle,
       registrationNumber,
@@ -133,195 +143,380 @@ function SelectRouteScreen({route, navigation}) {
 
   const renderCityItem = ({item, onSelect}) => (
     <TouchableOpacity
-      style={styles.cityItem}
+      style={[styles.cityItem, {borderBottomColor: theme.inputBorder}]}
       onPress={() => onSelect(item.label)}>
-      <Text style={styles.cityItemText}>{item.label}</Text>
+      <Text style={[styles.cityItemText, {color: theme.textPrimary}]}>
+        {item.label}
+      </Text>
     </TouchableOpacity>
   );
 
   return (
-    <LinearGradient
-      colors={['#1b1b1b', '#2b2b2b', '#3b3b3b']}
-      style={{flex: 1}}>
+    <LinearGradient colors={theme.gradient} style={{flex: 1}}>
       <SafeAreaView style={{flex: 1}}>
-        {/* ScrollView за основното съдържание */}
         <ScrollView
-          contentContainerStyle={styles.container}
+          contentContainerStyle={styles.wrapper}
           keyboardShouldPersistTaps="handled">
-          {/* DEPARTURE */}
-          <Text style={styles.sectionTitle}>{t('Departure')}</Text>
-          <View style={styles.row}>
+          <View
+            style={[
+              styles.card,
+              {
+                backgroundColor: theme.cardBackground,
+                borderColor: theme.inputBorder,
+              },
+            ]}>
+            {/* HEADER */}
+            <Text style={[styles.mainTitle, {color: theme.textPrimary}]}>
+              {t('Create Route')}
+            </Text>
+
+            {/* DEPARTURE */}
+            <Text style={[styles.label, {color: theme.textSecondary}]}>
+              {t('Departure')}
+            </Text>
+
             <TouchableOpacity
-              style={styles.citySelect}
+              style={[
+                styles.selectBox,
+                {
+                  backgroundColor: theme.inputBackground,
+                  borderColor: theme.inputBorder,
+                },
+              ]}
               onPress={() => setModalVisibleDeparture(true)}>
-              <Text style={styles.citySelectText}>
+              <Text style={{color: theme.textPrimary}}>
                 {departureCity || t('Select City')}
               </Text>
             </TouchableOpacity>
-            <TextInput
-              placeholder={t('Street')}
-              placeholderTextColor="#888"
-              value={departureStreet}
-              onChangeText={setDepartureStreet}
-              style={styles.input}
-            />
-            <TextInput
-              placeholder={t('No.')}
-              placeholderTextColor="#888"
-              value={departureNumber}
-              onChangeText={setDepartureNumber}
-              style={[styles.input, {width: 55}]}
-            />
-          </View>
 
-          {/* ARRIVAL */}
-          <Text style={styles.sectionTitle}>{t('Arrival')}</Text>
-          <View style={styles.row}>
+            <View style={styles.inlineRow}>
+              <TextInput
+                placeholder={t('Street')}
+                placeholderTextColor={theme.placeholder}
+                value={departureStreet}
+                onChangeText={setDepartureStreet}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: theme.inputBackground,
+                    borderColor: theme.inputBorder,
+                    color: theme.textPrimary,
+                  },
+                ]}
+              />
+
+              <TextInput
+                placeholder={t('No.')}
+                placeholderTextColor={theme.placeholder}
+                value={departureNumber}
+                onChangeText={setDepartureNumber}
+                style={[
+                  styles.inputSmall,
+                  {
+                    backgroundColor: theme.inputBackground,
+                    borderColor: theme.inputBorder,
+                    color: theme.textPrimary,
+                  },
+                ]}
+              />
+            </View>
+
+            {/* ARRIVAL */}
+            <Text style={[styles.label, {color: theme.textSecondary}]}>
+              {t('Arrival')}
+            </Text>
+
             <TouchableOpacity
-              style={styles.citySelect}
+              style={[
+                styles.selectBox,
+                {
+                  backgroundColor: theme.inputBackground,
+                  borderColor: theme.inputBorder,
+                },
+              ]}
               onPress={() => setModalVisibleArrival(true)}>
-              <Text style={styles.citySelectText}>
+              <Text style={{color: theme.textPrimary}}>
                 {arrivalCity || t('Select City')}
               </Text>
             </TouchableOpacity>
-            <TextInput
-              placeholder={t('Street')}
-              placeholderTextColor="#888"
-              value={arrivalStreet}
-              onChangeText={setArrivalStreet}
-              style={styles.input}
-            />
-            <TextInput
-              placeholder={t('No.')}
-              placeholderTextColor="#888"
-              value={arrivalNumber}
-              onChangeText={setArrivalNumber}
-              style={[styles.input, {width: 55}]}
-            />
-          </View>
 
-          {/* ROUTE TITLE */}
-          <Text style={styles.sectionTitle}>{t('Route Title')}</Text>
-          <TextInput
-            style={styles.titleInput}
-            placeholder={t('Enter route title')}
-            placeholderTextColor="#888"
-            value={routeTitle}
-            onChangeText={setRouteTitle}
-            maxLength={40}
-          />
+            <View style={styles.inlineRow}>
+              <TextInput
+                placeholder={t('Street')}
+                placeholderTextColor={theme.placeholder}
+                value={arrivalStreet}
+                onChangeText={setArrivalStreet}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: theme.inputBackground,
+                    borderColor: theme.inputBorder,
+                    color: theme.textPrimary,
+                  },
+                ]}
+              />
 
-          {/* DATE BUTTON */}
-          <TouchableOpacity
-            style={styles.dateButton}
-            onPress={() => setOpen(true)}>
-            <Text style={styles.dateButtonText}>
-              {t('Select date and time of departure')}
+              <TextInput
+                placeholder={t('No.')}
+                placeholderTextColor={theme.placeholder}
+                value={arrivalNumber}
+                onChangeText={setArrivalNumber}
+                style={[
+                  styles.inputSmall,
+                  {
+                    backgroundColor: theme.inputBackground,
+                    borderColor: theme.inputBorder,
+                    color: theme.textPrimary,
+                  },
+                ]}
+              />
+            </View>
+
+            {/* ROUTE TITLE */}
+            <Text style={[styles.label, {color: theme.textSecondary}]}>
+              {t('Route Title')}
             </Text>
-          </TouchableOpacity>
 
-          {selectedDateTime && (
-            <View style={styles.dateDisplay}>
-              <Text style={styles.dateText}>
-                {selectedDateTime.toLocaleDateString(locale, {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
+            <TextInput
+              placeholder={t('Enter route title')}
+              placeholderTextColor={theme.placeholder}
+              value={routeTitle}
+              onChangeText={setRouteTitle}
+              style={[
+                styles.inputFull,
+                {
+                  backgroundColor: theme.inputBackground,
+                  borderColor: theme.inputBorder,
+                  color: theme.textPrimary,
+                },
+              ]}
+            />
+
+            {/* DATE BUTTON */}
+            <TouchableOpacity
+              style={[
+                styles.primaryButton,
+                {backgroundColor: theme.primaryButton},
+              ]}
+              onPress={() => setOpen(true)}>
+              <Text style={styles.primaryButtonText}>
+                {t('Select Date & Time')}
               </Text>
-              <Text style={styles.dateText}>
-                {selectedDateTime.toLocaleTimeString(locale, {
+            </TouchableOpacity>
+
+            {selectedDateTime && (
+              <Text style={[styles.datePreview, {color: theme.textPrimary}]}>
+                {selectedDateTime.toLocaleString('bg-BG', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric',
                   hour: '2-digit',
                   minute: '2-digit',
-                  hour12: false,
+                  hour12: false, // 24-часов формат
                 })}
               </Text>
-            </View>
-          )}
+            )}
 
-          {/* CONTINUE BUTTON */}
-          <TouchableOpacity style={styles.continueBtn} onPress={handleContinue}>
-            <Text style={styles.continueText}>{t('Continue')}</Text>
-          </TouchableOpacity>
+            {/* CONTINUE */}
+            <TouchableOpacity
+              style={[
+                styles.continueButton,
+                {backgroundColor: theme.primaryButton},
+              ]}
+              onPress={handleContinue}>
+              <Text style={styles.continueText}>{t('Continue')}</Text>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
-
         {/* DEPARTURE CITY MODAL */}
-        <Modal transparent visible={modalVisibleDeparture}>
-          <TouchableOpacity
-            style={styles.modalOverlay}
-            onPressOut={() => setModalVisibleDeparture(false)}>
-            <TouchableWithoutFeedback>
-              <View style={styles.modalContainer}>
+        <Modal
+          transparent
+          visible={modalVisibleDeparture}
+          animationType="slide">
+          <TouchableWithoutFeedback
+            onPress={() => setModalVisibleDeparture(false)}>
+            <View style={styles.modalOverlay}>
+              <View
+                style={[
+                  styles.modalContainer,
+                  {backgroundColor: theme.cardBackground},
+                ]}>
+                {/* Search bar */}
                 <TextInput
                   placeholder={t('Search City')}
-                  placeholderTextColor="#888"
+                  placeholderTextColor={theme.isDark ? '#aaa' : '#888'}
                   value={departureSearchText}
                   onChangeText={filterDepartureCities}
-                  style={styles.modalInput}
+                  style={[
+                    styles.modalInput,
+                    {
+                      backgroundColor: theme.isDark ? '#333' : '#fff', // тъмна за dark, бяла за light
+                      borderColor: theme.isDark ? '#555' : '#ccc',
+                      color: theme.isDark ? '#fff' : '#000',
+                    },
+                  ]}
                 />
+
+                {/* Cities List */}
                 <FlatList
                   data={filteredCities}
-                  renderItem={({item}) =>
-                    renderCityItem({
-                      item,
-                      onSelect: city => {
-                        setDepartureCity(city);
-                        setModalVisibleDeparture(false);
-                      },
-                    })
-                  }
                   keyExtractor={item => item.value}
+                  keyboardShouldPersistTaps="handled"
+                  showsVerticalScrollIndicator={false}
+                  renderItem={({item}) => {
+                    const isMatch = departureSearchText
+                      ? item.label
+                          .toLowerCase()
+                          .includes(departureSearchText.toLowerCase())
+                      : false;
+
+                    return (
+                      <TouchableOpacity
+                        style={{
+                          paddingVertical: 14,
+                          paddingHorizontal: 12,
+                          borderBottomWidth: 1,
+                          borderBottomColor: theme.isDark ? '#444' : '#ccc',
+                          backgroundColor: theme.isDark ? '#222' : '#fff',
+                        }}
+                        activeOpacity={0.6}
+                        onPress={() => {
+                          setDepartureCity(item.label);
+                          setModalVisibleDeparture(false);
+                        }}>
+                        <Text
+                          style={{
+                            color: theme.isDark ? '#fff' : '#000',
+                            fontSize: 16,
+                          }}>
+                          {isMatch
+                            ? item.label
+                                .split(
+                                  new RegExp(`(${departureSearchText})`, 'i'),
+                                )
+                                .map((part, i) =>
+                                  part.toLowerCase() ===
+                                  departureSearchText.toLowerCase() ? (
+                                    <Text
+                                      key={i}
+                                      style={{
+                                        fontWeight: 'bold',
+                                        color: theme.primaryButton,
+                                      }}>
+                                      {part}
+                                    </Text>
+                                  ) : (
+                                    part
+                                  ),
+                                )
+                            : item.label}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  }}
                 />
               </View>
-            </TouchableWithoutFeedback>
-          </TouchableOpacity>
+            </View>
+          </TouchableWithoutFeedback>
         </Modal>
 
         {/* ARRIVAL CITY MODAL */}
-        <Modal transparent visible={modalVisibleArrival}>
-          <TouchableOpacity
-            style={styles.modalOverlay}
-            onPressOut={() => setModalVisibleArrival(false)}>
-            <TouchableWithoutFeedback>
-              <View style={styles.modalContainer}>
+        <Modal transparent visible={modalVisibleArrival} animationType="slide">
+          <TouchableWithoutFeedback
+            onPress={() => setModalVisibleArrival(false)}>
+            <View style={styles.modalOverlay}>
+              <View
+                style={[
+                  styles.modalContainer,
+                  {backgroundColor: theme.cardBackground},
+                ]}>
+                {/* Search bar */}
                 <TextInput
                   placeholder={t('Search City')}
-                  placeholderTextColor="#888"
+                  placeholderTextColor={theme.isDark ? '#aaa' : '#888'}
                   value={arrivalSearchText}
                   onChangeText={filterArrivalCities}
-                  style={styles.modalInput}
+                  style={[
+                    styles.modalInput,
+                    {
+                      backgroundColor: theme.isDark ? '#333' : '#fff', // тъмна за dark, бяла за light
+                      borderColor: theme.isDark ? '#555' : '#ccc',
+                      color: theme.isDark ? '#fff' : '#000',
+                    },
+                  ]}
                 />
+
+                {/* Cities List */}
                 <FlatList
                   data={arrivalFilteredCities}
-                  renderItem={({item}) =>
-                    renderCityItem({
-                      item,
-                      onSelect: city => {
-                        setArrivalCity(city);
-                        setModalVisibleArrival(false);
-                      },
-                    })
-                  }
                   keyExtractor={item => item.value}
+                  keyboardShouldPersistTaps="handled"
+                  showsVerticalScrollIndicator={false}
+                  renderItem={({item}) => {
+                    const isMatch = arrivalSearchText
+                      ? item.label
+                          .toLowerCase()
+                          .includes(arrivalSearchText.toLowerCase())
+                      : false;
+
+                    return (
+                      <TouchableOpacity
+                        style={{
+                          paddingVertical: 14,
+                          paddingHorizontal: 12,
+                          borderBottomWidth: 1,
+                          borderBottomColor: theme.isDark ? '#444' : '#ccc',
+                          backgroundColor: theme.isDark ? '#222' : '#fff',
+                        }}
+                        activeOpacity={0.6}
+                        onPress={() => {
+                          setArrivalCity(item.label);
+                          setModalVisibleArrival(false);
+                        }}>
+                        <Text
+                          style={{
+                            color: theme.isDark ? '#fff' : '#000',
+                            fontSize: 16,
+                          }}>
+                          {isMatch
+                            ? item.label
+                                .split(
+                                  new RegExp(`(${arrivalSearchText})`, 'i'),
+                                )
+                                .map((part, i) =>
+                                  part.toLowerCase() ===
+                                  arrivalSearchText.toLowerCase() ? (
+                                    <Text
+                                      key={i}
+                                      style={{
+                                        fontWeight: 'bold',
+                                        color: theme.primaryButton,
+                                      }}>
+                                      {part}
+                                    </Text>
+                                  ) : (
+                                    part
+                                  ),
+                                )
+                            : item.label}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  }}
                 />
               </View>
-            </TouchableWithoutFeedback>
-          </TouchableOpacity>
+            </View>
+          </TouchableWithoutFeedback>
         </Modal>
-
-        {/* DATE PICKER извън ScrollView */}
         <DatePicker
           modal
           open={open}
           date={date}
           mode="datetime"
-          theme="dark"
+          locale="bg-BG" // Български език
+          is24hour={true} // 24-часов формат, няма AM/PM
           minimumDate={new Date()}
-          locale={locale}
-          title={t('selectDate')}
-          cancelText={t('Cancel')}
-          confirmText={t('Confirm')}
+          theme={theme.isDark ? 'dark' : 'light'}
           onConfirm={selected => {
             setOpen(false);
             setDate(selected);
@@ -336,110 +531,131 @@ function SelectRouteScreen({route, navigation}) {
 
 export default SelectRouteScreen;
 
-// Твоите стилове остават същите
 const styles = StyleSheet.create({
-  container: {padding: 16, alignItems: 'center'},
-  sectionTitle: {
-    fontWeight: '700',
-    fontSize: 18,
-    marginVertical: 12,
-    color: '#fff',
-    alignSelf: 'flex-start',
+  wrapper: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    padding: 20,
   },
-  row: {
+
+  card: {
+    borderRadius: 20,
+    padding: 22,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 15,
+    elevation: 8,
+  },
+
+  mainTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    marginBottom: 25,
+    textAlign: 'center',
+  },
+
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 6,
+    marginTop: 12,
+  },
+
+  selectBox: {
+    height: 50,
+    borderRadius: 12,
+    borderWidth: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 15,
+    marginBottom: 10,
+  },
+
+  inlineRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-    width: '100%',
     justifyContent: 'space-between',
   },
-  citySelect: {
-    flex: 1,
-    height: 50,
-    borderWidth: 1,
-    borderColor: '#555',
-    borderRadius: 8,
-    justifyContent: 'center',
-    paddingHorizontal: 10,
-    backgroundColor: 'rgba(255,255,255,0.07)',
-    marginRight: 8,
-  },
-  citySelectText: {color: '#fff', fontWeight: '600'},
+
   input: {
     flex: 1,
     height: 50,
     borderWidth: 1,
-    borderColor: '#555',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    backgroundColor: 'rgba(255,255,255,0.07)',
-    color: '#fff',
-    fontWeight: '600',
-    marginHorizontal: 4,
+    borderRadius: 12,
+    paddingHorizontal: 15,
+    marginRight: 8,
   },
-  titleInput: {
-    width: '100%',
-    height: 55,
+
+  inputSmall: {
+    width: 70,
+    height: 50,
     borderWidth: 1,
-    borderColor: '#555',
-    borderRadius: 8,
+    borderRadius: 12,
     paddingHorizontal: 10,
-    backgroundColor: 'rgba(255,255,255,0.07)',
+  },
+
+  inputFull: {
+    height: 50,
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 15,
+  },
+
+  primaryButton: {
+    marginTop: 20,
+    paddingVertical: 14,
+    borderRadius: 14,
+    alignItems: 'center',
+  },
+
+  primaryButtonText: {
     color: '#fff',
+    fontWeight: '700',
+    fontSize: 16,
+  },
+
+  continueButton: {
+    marginTop: 20,
+    paddingVertical: 16,
+    borderRadius: 16,
+    alignItems: 'center',
+  },
+
+  continueText: {
+    color: '#fff',
+    fontWeight: '800',
+    fontSize: 17,
+  },
+
+  datePreview: {
+    textAlign: 'center',
+    marginTop: 12,
     fontWeight: '600',
   },
-  dateButton: {
-    marginTop: 25,
-    backgroundColor: '#f4511e',
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    borderWidth: 1.3,
-    borderColor: '#fff',
-  },
-  dateButtonText: {color: '#fff', fontWeight: 'bold', fontSize: 15},
-  dateDisplay: {marginTop: 15, alignItems: 'center'},
-  dateText: {fontSize: 16, fontWeight: '600', color: '#fff'},
-  continueBtn: {
-    marginTop: 35,
-    backgroundColor: '#f4511e',
-    paddingVertical: 16,
-    paddingHorizontal: 40,
-    borderRadius: 10,
-    borderWidth: 1.3,
-    borderColor: '#fff',
-  },
-  continueText: {color: '#fff', fontWeight: 'bold', fontSize: 17},
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   modalContainer: {
-    backgroundColor: '#2c2c2c',
-    borderRadius: 10,
-    padding: 15,
-    width: '90%',
+    width: '85%',
     maxHeight: '70%',
+    borderRadius: 16,
+    padding: 16,
   },
+
   modalInput: {
     height: 45,
     borderWidth: 1,
-    borderColor: '#555',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    marginBottom: 10,
-    backgroundColor: 'rgba(255,255,255,0.07)',
-    color: '#fff',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    marginBottom: 12,
     fontWeight: '600',
   },
+
   cityItem: {
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#444',
   },
-  cityItemText: {fontSize: 16, color: '#fff'},
-  headerButton: {marginRight: 16, flexDirection: 'row', alignItems: 'center'},
-  headerText: {color: 'white', marginRight: 6, fontSize: 16},
 });

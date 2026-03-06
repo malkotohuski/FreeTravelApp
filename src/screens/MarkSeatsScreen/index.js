@@ -1,4 +1,4 @@
-import React, {useState, useCallback, useMemo} from 'react';
+import React, {useState, useCallback} from 'react';
 import {
   View,
   Text,
@@ -7,9 +7,9 @@ import {
   Alert,
   ScrollView,
   SafeAreaView,
-  StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  StyleSheet,
 } from 'react-native';
 import {
   useNavigation,
@@ -18,20 +18,28 @@ import {
 } from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
 import LinearGradient from 'react-native-linear-gradient';
+import {useTheme} from '../../theme/useTheme';
 
 const MarkSeatsScreen = () => {
   const {t} = useTranslation();
   const navigation = useNavigation();
   const route = useRoute();
-  const selectedVehicle = route.params?.selectedVehicle;
+  const theme = useTheme();
 
+  const selectedVehicle = route.params?.selectedVehicle;
   const [registrationNumber, setRegistrationNumber] = useState('');
 
   const regex = /^[А-ЯA-Z]{1,2}\d{4}[А-ЯA-Z]{2}$/;
 
   const isValidRegistrationNumber = useCallback(
     () => regex.test(registrationNumber.trim()),
-    [registrationNumber, regex],
+    [registrationNumber],
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      setRegistrationNumber('');
+    }, []),
   );
 
   const handleContinue = useCallback(() => {
@@ -42,6 +50,7 @@ const MarkSeatsScreen = () => {
       );
       return;
     }
+
     navigation.navigate('SelectRoute', {
       selectedVehicle,
       registrationNumber,
@@ -54,52 +63,63 @@ const MarkSeatsScreen = () => {
     t,
   ]);
 
-  const handleBack = useCallback(() => {
-    navigation.navigate('Vehicle');
-  }, [navigation]);
-
-  // Нулиране при връщане към екрана
-  useFocusEffect(
-    useCallback(() => {
-      setRegistrationNumber('');
-    }, []),
-  );
+  const handleBack = () => navigation.navigate('Vehicle');
 
   return (
-    <LinearGradient colors={['#2b2b2b', '#444']} style={{flex: 1}}>
+    <LinearGradient colors={theme.gradient} style={{flex: 1}}>
       <SafeAreaView style={{flex: 1}}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={{flex: 1}}>
           <ScrollView contentContainerStyle={styles.scrollContainer}>
-            <View style={styles.card}>
-              <Text style={styles.title}>
+            <View
+              style={[
+                styles.card,
+                {
+                  backgroundColor: theme.cardBackground,
+                  borderColor: theme.cardBorder,
+                },
+              ]}>
+              <Text style={[styles.title, {color: theme.textPrimary}]}>
                 {t('vehicleТype')}:{' '}
-                <Text style={styles.highlight}>{t(selectedVehicle)}</Text>
+                <Text
+                  style={{
+                    color: theme.highlight,
+                    fontWeight: '700',
+                  }}>
+                  {t(selectedVehicle)}
+                </Text>
               </Text>
 
               <TextInput
                 placeholder={t('enterRegistrationNumber')}
-                placeholderTextColor="rgba(255,255,255,0.6)"
+                placeholderTextColor={theme.placeholder}
                 value={registrationNumber}
                 onChangeText={setRegistrationNumber}
                 style={[
                   styles.input,
                   {
+                    backgroundColor: theme.inputBackground,
                     borderColor: isValidRegistrationNumber()
                       ? '#4CAF50'
-                      : 'rgba(255,255,255,0.3)',
+                      : theme.inputBorder,
+                    color: theme.textPrimary,
                   },
                 ]}
                 maxLength={10}
                 autoCapitalize="characters"
-                keyboardType="default"
                 returnKeyType="done"
               />
 
               {registrationNumber.length > 0 &&
                 !isValidRegistrationNumber() && (
-                  <Text style={styles.warningText}>
+                  <Text
+                    style={{
+                      color: theme.warning,
+                      fontSize: 15,
+                      marginBottom: 10,
+                      textAlign: 'center',
+                    }}>
                     {t('invalidFormatExample')}
                   </Text>
                 )}
@@ -111,7 +131,7 @@ const MarkSeatsScreen = () => {
                     styles.button,
                     {
                       backgroundColor: isValidRegistrationNumber()
-                        ? '#f4511e'
+                        ? theme.primaryButton
                         : '#777',
                     },
                   ]}>
@@ -120,8 +140,13 @@ const MarkSeatsScreen = () => {
 
                 <TouchableOpacity
                   onPress={handleBack}
-                  style={styles.secondaryButton}>
-                  <Text style={styles.buttonText}>{t('Back to Vehicle')}</Text>
+                  style={[
+                    styles.secondaryButton,
+                    {backgroundColor: theme.secondaryButton},
+                  ]}>
+                  <Text style={[styles.buttonText, {color: theme.textPrimary}]}>
+                    {t('Back to Vehicle')}
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -142,24 +167,17 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
   },
   card: {
-    backgroundColor: 'rgba(255,255,255,0.08)',
     width: '85%',
     borderRadius: 16,
     padding: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
     alignItems: 'center',
   },
   title: {
     fontSize: 20,
-    color: '#fff',
     fontWeight: '600',
     marginBottom: 20,
     textAlign: 'center',
-  },
-  highlight: {
-    color: '#f4511e',
-    fontWeight: '700',
   },
   input: {
     height: 55,
@@ -169,15 +187,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#fff',
-    backgroundColor: 'rgba(0,0,0,0.5)',
     marginVertical: 15,
-  },
-  warningText: {
-    color: '#FF6347',
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 10,
   },
   buttonsContainer: {
     marginTop: 30,
@@ -201,14 +211,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1.5,
     borderColor: '#fff',
-    backgroundColor: '#555',
     paddingHorizontal: 10,
   },
   buttonText: {
     fontSize: 18,
-    color: '#fff',
     fontWeight: '600',
-    textAlign: 'center', // ✅ центрира текста
-    flexWrap: 'wrap',
+    textAlign: 'center',
   },
 });
