@@ -71,6 +71,7 @@ function RouteDetails({route}) {
   }, [routeId, user?.id]);
 
   const handlerTripRequest = async () => {
+    // 1️⃣ Проверки преди изпращане
     if (isOwnRoute) {
       Alert.alert(
         t('Error'),
@@ -92,6 +93,7 @@ function RouteDetails({route}) {
       return;
     }
 
+    // 2️⃣ Потвърждение
     Alert.alert(
       t('Confirm'),
       t('Would you like to submit a request for this route?'),
@@ -101,21 +103,25 @@ function RouteDetails({route}) {
           text: 'OK',
           onPress: async () => {
             try {
-              await api.post('/api/send-request-to-user', {
+              // 3️⃣ Изпращаме заявката към бекенда
+              const payload = {
                 routeId,
                 username: user.username,
                 userFname: user.fName,
                 userLname: user.lName,
                 userEmail: user.email,
-                userRouteId: route.params.userId || 0,
-                departureCity,
-                arrivalCity,
-                dataTime: route.params.selectedDateTime,
+                userRouteId: route.params?.userId || 0,
+                departureCity: departureCity || '',
+                arrivalCity: arrivalCity || '',
+                dataTime: route.params?.selectedDateTime,
                 requestComment: tripRequestText,
-              });
+              };
+
+              await api.post('/api/send-request-to-user', payload);
 
               setHasRequested(true);
 
+              // 4️⃣ Успешно уведомление
               Alert.alert(
                 t('Success'),
                 t('You have successfully applied for this route!'),

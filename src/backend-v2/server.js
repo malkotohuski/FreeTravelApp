@@ -58,6 +58,9 @@ app.use('/api', reportRoutes);
 const bugReportRoutes = require('./routes/bugReportRoutes');
 app.use('/api', bugReportRoutes);
 
+const seekerRoutes = require('./routes/seekerRoutes');
+app.use('/api', seekerRoutes);
+
 const ratingRoutes = require('./routes/ratingRoutes');
 app.use('/api/ratings', ratingRoutes);
 

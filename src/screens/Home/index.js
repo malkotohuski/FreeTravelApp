@@ -106,10 +106,18 @@ function HomePage({navigation}) {
       try {
         const response = await api.get('/api/notifications');
 
-        const unreadNotifications = response.data.filter(
-          notification => !notification.read,
+        // 1️⃣ Вземаме само непрочетените
+        let unreadNotifications = response.data.filter(n => !n.read);
+
+        // 2️⃣ Филтрираме дубликатите по routeId + message
+        unreadNotifications = unreadNotifications.filter(
+          (v, i, a) =>
+            a.findIndex(
+              n => n.routeId === v.routeId && n.message === v.message,
+            ) === i,
         );
 
+        // 3️⃣ Сетваме брояча
         setNotificationCount(
           unreadNotifications.length > 9 ? '9+' : unreadNotifications.length,
         );
@@ -242,16 +250,26 @@ function HomePage({navigation}) {
 
       const response = await api.get('/api/notifications');
 
-      const unreadNotifications = response.data.filter(
-        notification => !notification.read,
+      // 1️⃣ Вземаме само непрочетените
+      let unreadNotifications = response.data.filter(n => !n.read);
+
+      // 2️⃣ Филтрираме дубликатите
+      unreadNotifications = unreadNotifications.filter(
+        (v, i, a) =>
+          a.findIndex(
+            n => n.routeId === v.routeId && n.message === v.message,
+          ) === i,
       );
 
+      // 3️⃣ Маркираме всяка като прочетена
       for (const notification of unreadNotifications) {
         await api.put(`/api/notifications/read/${notification.id}`);
       }
 
+      // 4️⃣ Нулираме брояча
       setNotificationCount(0);
 
+      // 5️⃣ Навигираме
       navigation.navigate('Notifications', {
         resetNotificationCount: true,
       });

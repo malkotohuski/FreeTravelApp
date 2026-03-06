@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 exports.createRating = async (req, res) => {
   try {
     const {routeId, ratedId, score, comment} = req.body;
-    const raterId = req.user.userId;
+    const raterId = req.user.id; // взимаме от JWT
 
     // 1️⃣ Basic validation
     if (!routeId || !ratedId || !score) {
@@ -22,14 +22,14 @@ exports.createRating = async (req, res) => {
     // 2️⃣ Проверяваме дали route съществува
     const route = await prisma.route.findUnique({
       where: {id: routeId},
-      select: {id: true, userId: true},
+      select: {id: true, ownerId: true}, // коригирано
     });
 
     if (!route) {
       return res.status(404).json({message: 'Route not found.'});
     }
 
-    // 3️⃣ Проверка за approved request между тези users (по-ясна логика)
+    // 3️⃣ Проверка за approved request между тези users
     const approvedRequest = await prisma.request.findFirst({
       where: {
         routeId: routeId,
@@ -37,11 +37,11 @@ exports.createRating = async (req, res) => {
         OR: [
           {
             userID: ratedId,
-            route: {userId: raterId},
+            route: {ownerId: raterId},
           },
           {
             userID: raterId,
-            route: {userId: ratedId},
+            route: {ownerId: ratedId},
           },
         ],
       },
@@ -68,7 +68,7 @@ exports.createRating = async (req, res) => {
       });
     }
 
-    // 🔥 5️⃣ Transaction (сигурност + консистентност)
+    // 5️⃣ Transaction (сигурност + консистентност)
     const result = await prisma.$transaction(async tx => {
       // Създаваме rating
       const newRating = await tx.rating.create({
@@ -95,7 +95,7 @@ exports.createRating = async (req, res) => {
       });
 
       // Update rate flags
-      if (route.userId === raterId) {
+      if (route.ownerId === raterId) {
         await tx.request.updateMany({
           where: {
             routeId,
@@ -123,7 +123,6 @@ exports.createRating = async (req, res) => {
     });
   } catch (error) {
     console.error('Create rating error:', error);
-
     return res.status(500).json({
       message: 'Server error.',
     });

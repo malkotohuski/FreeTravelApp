@@ -2,102 +2,117 @@ import React, {useRef, useEffect} from 'react';
 import {
   View,
   Text,
-  Image,
   StyleSheet,
   Animated,
   TouchableOpacity,
   Dimensions,
+  ImageBackground,
 } from 'react-native';
 import {useTranslation} from 'react-i18next';
-import {useRoute} from '@react-navigation/native';
 import {useAuth} from '../../context/AuthContext';
 
-const {width} = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 const WelcomeScreen = ({navigation}) => {
-  const route = useRoute(); // Define route here
-  const captionAnim = useRef(new Animated.Value(-width)).current;
   const {user} = useAuth();
   const userNickName = user ? user.username : 'Guest';
-
-  const animateCaption = () => {
-    Animated.timing(captionAnim, {
-      toValue: width / 2 - 120, // Adjust the final position as needed
-      duration: 300, // Adjust the duration as needed
-      useNativeDriver: false,
-    }).start();
-  };
-
-  useEffect(() => {
-    animateCaption();
-  }, []);
-
-  const handlerButtonCont = () => {
-    navigation.navigate('Home');
-    console.log('go next clicked');
-  };
-
+  const captionAnim = useRef(new Animated.Value(-width)).current;
   const {t} = useTranslation();
 
-  return (
-    <View style={styles.container}>
-      {/* Background Image */}
-      <Image
-        source={require('../../../images/welocme-background.jpg')}
-        style={styles.backgroundImage}
-      />
+  // Анимация на текста
+  useEffect(() => {
+    Animated.timing(captionAnim, {
+      toValue: 0,
+      duration: 800,
+      useNativeDriver: true,
+    }).start();
+  }, []);
 
-      {/* Caption */}
-      <Animated.View
-        style={[styles.captionContainer, {left: captionAnim}]}
-        onLayout={animateCaption}>
-        <Text style={styles.captionText}>
-          {t('Welcome')}, {userNickName} !
-        </Text>
-      </Animated.View>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={handlerButtonCont}>
-          <Text style={styles.text}>{t('LetTravel')}</Text>
+  const handleContinue = () => {
+    navigation.navigate('Home');
+  };
+
+  // За бъдещи празници можеш да сменяш тази променлива
+  const isHoliday = false; // примерно Великден, Коледа и т.н.
+  const holidayImage = require('../../../images/cats.png');
+
+  return (
+    <ImageBackground
+      source={isHoliday ? holidayImage : null}
+      style={styles.container}
+      imageStyle={{resizeMode: 'cover'}}>
+      <View style={styles.overlay}>
+        {/* Welcome Caption */}
+        <Animated.View
+          style={[
+            styles.captionContainer,
+            {transform: [{translateX: captionAnim}]},
+          ]}>
+          <Text style={styles.captionText}>
+            {t('Welcome')}, {userNickName}!
+          </Text>
+          <Text style={styles.subText}>
+            {t('Ready to explore your next adventure?')}
+          </Text>
+        </Animated.View>
+
+        {/* Continue Button */}
+        <TouchableOpacity style={styles.button} onPress={handleContinue}>
+          <Text style={styles.buttonText}>{t('LetTravel')}</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width,
+    height,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#f2f7ff', // светъл фон по default
   },
-  backgroundImage: {
+  overlay: {
     flex: 1,
     width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(242,247,255,0.9)', // лек overlay за текст видимост
+    paddingHorizontal: 20,
   },
   captionContainer: {
-    position: 'absolute',
-    backgroundColor: '#f1f1f1', // Adjust the background color and opacity
-    padding: 20,
-    borderRadius: 10,
-    top: 100,
+    alignItems: 'center',
+    marginBottom: 50,
   },
   captionText: {
-    color: 'black',
-    fontSize: 24,
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#1a1a1a',
+    marginBottom: 10,
   },
-  buttonContainer: {
-    top: 150,
+  subText: {
+    fontSize: 16,
+    color: '#555',
+    textAlign: 'center',
+    lineHeight: 22,
   },
   button: {
-    backgroundColor: '#f4511e',
-    padding: 20,
+    backgroundColor: '#4da6ff',
+    paddingVertical: 15,
+    paddingHorizontal: 50,
+    borderRadius: 30,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 3},
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
   },
-  text: {
+  buttonText: {
     fontSize: 20,
-    fontWeight: 'bold',
+    color: '#fff',
+    fontWeight: '600',
   },
 });
 

@@ -3,7 +3,7 @@ const prisma = new PrismaClient();
 
 exports.createRoute = async (req, res) => {
   try {
-    const userId = req.user.userId; // идва от JWT
+    const userId = req.user.id;
     const route = req.body;
 
     if (!route) {
@@ -107,7 +107,7 @@ exports.getActiveRoutes = async (req, res) => {
 exports.completeRoute = async (req, res) => {
   try {
     const routeId = Number(req.params.id);
-    const userId = req.user.userId;
+    const userId = req.user.id;
 
     // 1️⃣ Проверка дали маршрутът съществува
     const route = await prisma.route.findUnique({
@@ -186,7 +186,7 @@ exports.completeRoute = async (req, res) => {
 exports.deleteRoute = async (req, res) => {
   try {
     const routeId = Number(req.params.id);
-    const userId = req.user.userId;
+    const userId = req.user.id;
 
     const route = await prisma.route.findUnique({
       where: {id: routeId},
@@ -218,7 +218,7 @@ exports.deleteRoute = async (req, res) => {
 
 exports.getMyRoutes = async (req, res) => {
   try {
-    const userId = req.user.userId;
+    const userId = req.user.id;
 
     const routes = await prisma.route.findMany({
       where: {

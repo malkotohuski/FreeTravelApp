@@ -4,10 +4,7 @@ const prisma = new PrismaClient();
 // Създаване на нова заявка
 exports.createRequest = async (req, res) => {
   try {
-    console.log('REQ BODY:', req.body);
-
-    const userId = req.user.userId;
-
+    const userId = req.user.id;
     const {
       routeId,
       username,
@@ -21,45 +18,39 @@ exports.createRequest = async (req, res) => {
       requestComment,
     } = req.body;
 
-    if (!routeId) {
-      return res.status(400).json({error: 'Route ID is required.'});
-    }
+    if (!routeId) return res.status(400).json({error: 'Route ID is required.'});
 
-    // Проверка за съществуваща заявка
+    // Проверка за вече съществуваща заявка
     const existing = await prisma.request.findFirst({
       where: {
-        routeId: routeId,
+        routeId,
         userID: userId,
         status: {not: 'rejected'},
       },
     });
 
-    if (existing) {
+    if (existing)
       return res.status(400).json({
         error: 'You already submitted a request for this route.',
       });
-    }
 
     // Проверка на дата
     const parsedDate = new Date(dataTime);
-    if (isNaN(parsedDate.getTime())) {
+    if (isNaN(parsedDate.getTime()))
       return res.status(400).json({error: 'Invalid date format'});
-    }
 
-    // намираме маршрута
+    // Намираме маршрута
     const route = await prisma.route.findUnique({
       where: {id: routeId},
       include: {owner: true},
     });
 
-    if (!route) {
-      return res.status(404).json({error: 'Route not found'});
-    }
+    if (!route) return res.status(404).json({error: 'Route not found'});
 
-    // създаваме заявката
+    // Създаваме заявката
     const newRequest = await prisma.request.create({
       data: {
-        routeId: routeId,
+        routeId: route.id,
         userID: userId,
         toUserId: route.owner.id,
         username,
@@ -75,30 +66,38 @@ exports.createRequest = async (req, res) => {
       },
     });
 
-    // notification
-    await prisma.notification.create({
-      data: {
+    await prisma.notification.upsert({
+      where: {
+        recipientId_routeId_message_status: {
+          recipientId: route.owner.id,
+          routeId: route.id,
+          message: `${username} is a new candidate for your route`,
+          status: 'active',
+        },
+      },
+      update: {},
+      create: {
         recipientId: route.owner.id,
-        routeId: routeId,
-        message: `You have a new candidate for your route: ${departureCity}-${arrivalCity}`,
         senderId: userId,
+        routeId: route.id,
+        message: `${username} is a new candidate for your route`,
         requester: {
           username,
-          userFname,
-          userLname,
-          userEmail,
+          fName: userFname,
+          lName: userLname,
+          email: userEmail,
           comment: requestComment,
         },
-        personalMessage: null,
         read: false,
         status: 'active',
       },
     });
 
-    res.status(201).json({
-      message: 'Request created successfully',
-      request: newRequest,
-    });
+    // Уведомление към owner-а
+
+    res
+      .status(201)
+      .json({message: 'Request created successfully', request: newRequest});
   } catch (err) {
     console.error('Create request error:', err);
     res.status(500).json({error: 'Failed to create request.'});
@@ -121,26 +120,14 @@ exports.makeDecision = async (req, res) => {
     const requestId = parseInt(req.params.id, 10);
     const {decision, personalMessage} = req.body;
 
-    if (!['approved', 'rejected'].includes(decision)) {
+    if (!['approved', 'rejected'].includes(decision))
       return res.status(400).json({error: 'Invalid decision value.'});
-    }
 
+    // Взимаме заявката
     const request = await prisma.request.findUnique({
       where: {id: requestId},
-      select: {
-        id: true,
-        routeId: true,
-        userID: true, // 👈 ВАЖНО
-        toUserId: true, // 👈 ВАЖНО
-        departureCity: true,
-        arrivalCity: true,
-        username: true,
-        status: true,
-        route: {
-          include: {
-            owner: true,
-          },
-        },
+      include: {
+        route: {include: {owner: true}},
       },
     });
 
@@ -151,42 +138,49 @@ exports.makeDecision = async (req, res) => {
         .status(400)
         .json({error: 'Request has already been processed.'});
 
-    // 1️⃣ update request
+    // Update status на заявката
     const updatedRequest = await prisma.request.update({
       where: {id: requestId},
-      data: {status: decision},
+      data: {status: decision, decidedAt: new Date()},
     });
 
-    // 2️⃣ създаваме notification към кандидата
+    // Уведомление към кандидата
     const message =
       decision === 'approved'
         ? `Your request for ${request.departureCity}-${request.arrivalCity} was approved.`
         : `Your request for ${request.departureCity}-${request.arrivalCity} was rejected.`;
 
-    await prisma.notification.create({
-      data: {
-        recipientId: request.userID, // ← КАНДИДАТА
+    const existingDecisionNotification = await prisma.notification.findFirst({
+      where: {
+        recipientId: request.userID,
         routeId: request.routeId,
-        message: message,
-        senderId: request.toUserId, // ← owner-а
-
-        requester: {
-          username: request.username,
-        },
-
-        approver: {
-          username: request.route.owner.username,
-          fname: request.route.owner.fName,
-          lname: request.route.owner.lName,
-          email: request.route.owner.email,
-        },
-
-        personalMessage: personalMessage || null,
-        read: false,
+        message: {contains: decision === 'approved' ? 'approved' : 'rejected'},
         status: 'active',
       },
     });
 
+    if (!existingDecisionNotification) {
+      await prisma.notification.create({
+        data: {
+          recipientId: request.userID, // ← кандидатът
+          routeId: request.routeId,
+          message,
+          senderId: request.toUserId, // owner-а
+          requester: {username: request.username},
+          approver: {
+            username: request.route.owner.username,
+            fname: request.route.owner.fName,
+            lname: request.route.owner.lName,
+            email: request.route.owner.email,
+          },
+          personalMessage: personalMessage || null,
+          read: false,
+          status: 'active',
+        },
+      });
+    }
+
+    // Ако е одобрено, създаваме/надграждаме разговор
     if (decision === 'approved') {
       await prisma.conversation.upsert({
         where: {

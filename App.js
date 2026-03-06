@@ -8,6 +8,7 @@ import {Navigator} from './src/navigation/drawerContent';
 import {RouteProvider} from './src/context/RouteContext';
 import {AuthProvider} from './src/context/AuthContext';
 import {DarkModeProvider} from './src/navigation/DarkModeContext';
+import Toast from 'react-native-toast-message';
 
 const Drawer = createDrawerNavigator();
 
@@ -25,6 +26,7 @@ function App() {
           </AuthProvider>
         </NavigationContainer>
       </DarkModeProvider>
+      <Toast />
     </SafeAreaView>
   );
 }

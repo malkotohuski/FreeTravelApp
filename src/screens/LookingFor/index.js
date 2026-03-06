@@ -35,13 +35,6 @@ function Looking({navigation}) {
   const [modalArrival, setModalArrival] = useState(false);
   const [routeTitle, setRouteTitle] = useState('');
 
-  const userId = user?.id;
-  const username = user?.username;
-  const userFname = user?.fName;
-  const userLname = user?.lName;
-  const userEmail = user?.email;
-  const userImage = user?.userImage;
-
   const [filteredDepartureCities, setFilteredDepartureCities] = useState(
     cities.slice(0, 7),
   );
@@ -83,30 +76,21 @@ function Looking({navigation}) {
       Alert.alert(t('Error'), t('User is not logged in.'));
       return;
     }
-
-    const newRoute = {
-      departureCity,
-      arrivalCity,
-      selectedDateTime,
-      routeTitle,
-      userId,
-      username,
-      userFname,
-      userLname,
-      userEmail,
-      userImage,
-    };
-
     setIsGenerating(true);
 
     try {
-      const response = await fetch('http://10.0.2.2:3000/seekers-route', {
+      const response = await fetch('http://10.0.2.2:3000/api/seekers', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`, // ✅ използваме реалния token
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({seeker: newRoute}),
+        body: JSON.stringify({
+          departureCity,
+          arrivalCity,
+          selectedDateTime,
+          routeTitle,
+        }),
       });
 
       setIsGenerating(false);
