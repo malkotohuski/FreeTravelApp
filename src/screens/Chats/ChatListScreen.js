@@ -11,18 +11,19 @@ import {
   StyleSheet,
 } from 'react-native';
 import {useAuth} from '../../context/AuthContext';
-import {DarkModeContext} from '../../navigation/DarkModeContext';
 import {useTranslation} from 'react-i18next';
 import api from '../../api/api';
+import {useTheme} from '../../theme/useTheme';
 
 const ChatScreen = ({route}) => {
   const {t} = useTranslation();
 
   const {conversationId, otherUser} = route.params;
   const {user} = useAuth();
-  const {darkMode} = useContext(DarkModeContext);
+
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState('');
+  const theme = useTheme();
 
   const [conversationInfo, setConversationInfo] = useState(null);
 
@@ -132,8 +133,7 @@ const ChatScreen = ({route}) => {
   };
 
   return (
-    <SafeAreaView
-      style={{flex: 1, backgroundColor: darkMode ? '#fff' : '#222'}}>
+    <SafeAreaView style={{flex: 1, backgroundColor: theme.gradient[0]}}>
       <KeyboardAvoidingView
         style={{flex: 1}}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -142,23 +142,22 @@ const ChatScreen = ({route}) => {
           style={[
             styles.header,
             {
-              backgroundColor: darkMode ? '#ffffff' : '#1c1c1e',
-              borderBottomColor: darkMode ? '#e5e5e5' : '#070707',
+              backgroundColor: theme.cardBackground,
+              borderBottomColor: theme.cardBorder,
             },
           ]}>
-          <View style={[styles.avatar, {backgroundColor: '#f4511e'}]}>
+          <View style={[styles.avatar, {backgroundColor: theme.highlight}]}>
             <Text style={{color: '#fff', fontWeight: '700', fontSize: 18}}>
               {otherUser?.username?.[0]?.toUpperCase()}
             </Text>
           </View>
 
           <View style={{flex: 1}}>
-            <Text
-              style={[styles.username, {color: darkMode ? '#0f0f0f' : '#fff'}]}>
+            <Text style={[styles.username, {color: theme.textPrimary}]}>
               {otherUser?.username}
             </Text>
 
-            <Text style={[styles.routeText, {color: '#f4511e'}]}>
+            <Text style={[styles.routeText, {color: theme.highlight}]}>
               {conversationInfo
                 ? `${conversationInfo.departureCity} → ${conversationInfo.arrivalCity}`
                 : ''}
@@ -199,16 +198,14 @@ const ChatScreen = ({route}) => {
                     isMe ? styles.myBubble : styles.otherBubble,
                     {
                       backgroundColor: isMe
-                        ? '#f4511e'
-                        : darkMode
-                        ? '#f2f2f7'
-                        : '#57575e',
+                        ? theme.primaryButton
+                        : theme.inputBackground,
                     },
                   ]}>
                   <Text
                     style={[
                       styles.messageText,
-                      {color: isMe ? '#fff' : darkMode ? '#000' : '#fff'},
+                      {color: isMe ? '#fff' : theme.textPrimary},
                     ]}>
                     {item.text}
                   </Text>
@@ -216,7 +213,11 @@ const ChatScreen = ({route}) => {
                   <Text
                     style={[
                       styles.timeText,
-                      {color: isMe ? '#373738' : '#ffffff'},
+                      {
+                        color: isMe
+                          ? 'rgba(255,255,255,0.7)'
+                          : theme.placeholder,
+                      },
                     ]}>
                     {formatDate(item.createdAt)}
                   </Text>
@@ -230,16 +231,16 @@ const ChatScreen = ({route}) => {
           style={[
             styles.inputContainer,
             {
-              backgroundColor: darkMode ? '#ffffff' : '#1c1c1e',
-              borderTopColor: darkMode ? '#e5e5e5' : '#070707',
+              backgroundColor: theme.cardBackground,
+              borderTopColor: theme.cardBorder,
             },
           ]}>
           <TextInput
             style={[
               styles.input,
               {
-                backgroundColor: darkMode ? '#f2f2f7' : '#373738',
-                color: darkMode ? '#000' : '#fff',
+                backgroundColor: theme.inputBackground,
+                color: theme.textPrimary,
               },
             ]}
             value={text}
@@ -250,7 +251,7 @@ const ChatScreen = ({route}) => {
 
           <TouchableOpacity
             onPress={sendMessage}
-            style={[styles.sendButton, {backgroundColor: '#f4511e'}]}>
+            style={[styles.sendButton, {backgroundColor: theme.primaryButton}]}>
             <Text style={[styles.sendText, {color: '#fff'}]}>{t('Send')}</Text>
           </TouchableOpacity>
         </View>

@@ -10,11 +10,13 @@ import {
 import {useAuth} from '../../context/AuthContext';
 import api from '../../api/api';
 import {useTranslation} from 'react-i18next';
+import {useTheme} from '../../theme/useTheme';
 
 const ConversationsScreen = ({navigation}) => {
   const {t} = useTranslation();
   const {user} = useAuth();
   const [conversations, setConversations] = useState([]);
+  const theme = useTheme();
 
   const formatDate = date => {
     const messageDate = new Date(date);
@@ -65,7 +67,7 @@ const ConversationsScreen = ({navigation}) => {
   }, []);
 
   return (
-    <View style={styles.screen}>
+    <View style={[styles.screen, {backgroundColor: theme.gradient[0]}]}>
       <FlatList
         data={conversations}
         keyExtractor={item => item.id.toString()}
@@ -77,7 +79,13 @@ const ConversationsScreen = ({navigation}) => {
 
           return (
             <TouchableOpacity
-              style={styles.conversationCard}
+              style={[
+                styles.conversationCard,
+                {
+                  backgroundColor: theme.cardBackground,
+                  borderColor: theme.cardBorder,
+                },
+              ]}
               onPress={() => {
                 navigation.navigate('ChatScreen', {
                   conversationId: item.id,
@@ -116,7 +124,7 @@ const ConversationsScreen = ({navigation}) => {
                 );
               }}>
               {/* Avatar */}
-              <View style={styles.avatar}>
+              <View style={[styles.avatar, {backgroundColor: theme.highlight}]}>
                 <Text style={styles.avatarText}>
                   {item.otherUser.username[0].toUpperCase()}
                 </Text>
@@ -125,12 +133,12 @@ const ConversationsScreen = ({navigation}) => {
               {/* Middle Section */}
               <View style={styles.middleSection}>
                 <View style={styles.topRow}>
-                  <Text style={styles.username} numberOfLines={1}>
+                  <Text style={[styles.username, {color: theme.textPrimary}]}>
                     {item.otherUser.username}
                   </Text>
 
                   {lastMessage && (
-                    <Text style={styles.time}>
+                    <Text style={[styles.time, {color: theme.placeholder}]}>
                       {formatDate(lastMessage.createdAt)}
                     </Text>
                   )}
@@ -140,15 +148,22 @@ const ConversationsScreen = ({navigation}) => {
                   <Text
                     style={[
                       styles.lastMessage,
-                      item.unreadCount > 0 && styles.lastMessageUnread,
-                    ]}
-                    numberOfLines={1}>
+                      {color: theme.textSecondary},
+                      item.unreadCount > 0 && {
+                        color: theme.textPrimary,
+                        fontWeight: '600',
+                      },
+                    ]}>
                     {lastMessage?.text ||
                       `${item.departureCity} → ${item.arrivalCity}`}
                   </Text>
 
                   {item.unreadCount > 0 && (
-                    <View style={styles.unreadBadge}>
+                    <View
+                      style={[
+                        styles.unreadBadge,
+                        {backgroundColor: theme.primaryButton},
+                      ]}>
                       <Text style={styles.unreadText}>{item.unreadCount}</Text>
                     </View>
                   )}
@@ -172,9 +187,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     paddingHorizontal: 14,
-    backgroundColor: 'rgba(255,255,255,0.08)',
     borderRadius: 14,
     marginBottom: 10,
+    borderWidth: 1,
   },
 
   leftSection: {
@@ -198,7 +213,6 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: '#f4511e',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -278,7 +292,6 @@ const styles = StyleSheet.create({
   },
 
   unreadBadge: {
-    backgroundColor: '#f4511e',
     minWidth: 20,
     height: 20,
     borderRadius: 10,

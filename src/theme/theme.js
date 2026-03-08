@@ -13,6 +13,10 @@ export const lightTheme = {
 
   primaryButton: '#4da6ff',
   secondaryButton: '#ccc',
+  textPrimary: 'rgba(10, 10, 10, 0.85)',
+
+  firstButton: '#f4511e',
+  secondaryButton: '#ccc',
 
   warning: '#d32f2f',
 };
@@ -32,6 +36,10 @@ export const darkTheme = {
 
   primaryButton: '#f4511e',
   secondaryButton: '#555',
+  textPrimary: 'rgba(255, 254, 254, 0.85)',
+
+  firstButton: '#333232FF',
+  secondaryButton: '#ccc',
 
   warning: '#FF6347',
 };

@@ -13,11 +13,11 @@ import {useTranslation} from 'react-i18next';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import api from '../../api/api';
 import {useAuth} from '../../context/AuthContext';
-import {DarkModeContext} from '../../navigation/DarkModeContext';
+import {useTheme} from '../../theme/useTheme';
 
 const Notifications = ({navigation}) => {
   const {user} = useAuth();
-  const {darkMode} = useContext(DarkModeContext);
+  const theme = useTheme();
   const {t} = useTranslation();
 
   const [notifications, setNotifications] = useState([]);
@@ -157,13 +157,12 @@ const Notifications = ({navigation}) => {
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
-    padding: 16,
-    backgroundColor: darkMode ? '#333232FF' : '#f4511e',
+    padding: 20,
+    backgroundColor: theme.firstButton,
   });
 
   return (
-    <SafeAreaView
-      style={{flex: 1, backgroundColor: darkMode ? '#fff' : '#222'}}>
+    <SafeAreaView style={{flex: 1, backgroundColor: theme.gradient[0]}}>
       <View
         style={{flex: 1, justifyContent: 'flex-start', alignItems: 'center'}}>
         <View style={getHeaderStyles()}>
@@ -179,8 +178,12 @@ const Notifications = ({navigation}) => {
           contentContainerStyle={styles.notificationList}
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Icons name="bell-off-outline" size={80} color="#010101" />
-              <Text style={styles.emptyMessage}>
+              <Icons
+                name="bell-off-outline"
+                size={80}
+                color={theme.textSecondary}
+              />
+              <Text style={[styles.emptyMessage, {color: theme.textSecondary}]}>
                 {t('No new notifications')}
               </Text>
             </View>
@@ -189,7 +192,14 @@ const Notifications = ({navigation}) => {
             <View
               style={[
                 styles.notification,
-                isNewNotification(item.createdAt) && styles.newNotification,
+                {
+                  backgroundColor: theme.cardBackground,
+                  borderColor: theme.cardBorder,
+                  borderWidth: 1,
+                },
+                isNewNotification(item.createdAt) && {
+                  backgroundColor: theme.highlight + '22',
+                },
               ]}>
               <Text style={styles.newLabel}>
                 {isNewNotification(item.createdAt) ? t('New') : t('Earlier')}
@@ -201,10 +211,14 @@ const Notifications = ({navigation}) => {
               </TouchableOpacity>
 
               <TouchableOpacity onPress={() => handleNotificationPress(item)}>
-                <Text style={styles.message}>{item.message}</Text>
+                <Text style={[styles.message, {color: theme.textPrimary}]}>
+                  {item.message}
+                </Text>
               </TouchableOpacity>
 
-              <Text style={styles.date}>{formatDate(item.createdAt)}</Text>
+              <Text style={[styles.date, {color: theme.placeholder}]}>
+                {formatDate(item.createdAt)}
+              </Text>
 
               <Modal
                 transparent
@@ -212,22 +226,37 @@ const Notifications = ({navigation}) => {
                 animationType="fade"
                 onRequestClose={() => setVisibleModalId(null)}>
                 <View style={styles.modalOverlay}>
-                  <View style={styles.modalContent}>
-                    <Text style={styles.modalTitle}>
+                  <View
+                    style={[
+                      styles.modalContent,
+                      {backgroundColor: theme.cardBackground},
+                    ]}>
+                    <Text
+                      style={[styles.modalTitle, {color: theme.textPrimary}]}>
                       {t('Notification Options')}
                     </Text>
-                    <Text style={styles.modalMessage}>
+                    <Text
+                      style={[
+                        styles.modalMessage,
+                        {color: theme.textSecondary},
+                      ]}>
                       {t('Do you want to delete this notification:')}
                       {'\n\n'}
                       {item.message}
                     </Text>
                     <TouchableOpacity
-                      style={styles.modalButton}
+                      style={[
+                        styles.modalButton,
+                        {backgroundColor: theme.warning},
+                      ]}
                       onPress={() => deleteNotification(item.id)}>
                       <Text style={styles.modalButtonText}>{t('Delete')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      style={[styles.modalButton, styles.cancelButton]}
+                      style={[
+                        styles.modalButton,
+                        {backgroundColor: theme.secondaryButton},
+                      ]}
                       onPress={() => setVisibleModalId(null)}>
                       <Text style={styles.modalButtonText}>{t('Cancel')}</Text>
                     </TouchableOpacity>
@@ -247,7 +276,9 @@ const styles = StyleSheet.create({
   notificationList: {padding: 16},
   notification: {
     padding: 15,
-    backgroundColor: '#9b9999',
+    borderRadius: 10,
+    marginBottom: 20,
+    elevation: 2,
     borderRadius: 10,
     marginBottom: 20,
     elevation: 2,
@@ -259,7 +290,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   message: {fontSize: 16, color: '#010101', marginBottom: 8},
-  date: {fontSize: 12, color: 'rgb(0, 0, 0)'},
+  date: {fontSize: 12},
   emptyState: {
     flex: 1,
     justifyContent: 'center',
@@ -293,7 +324,9 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: '80%',
-    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
     borderRadius: 10,
     padding: 20,
     alignItems: 'center',
