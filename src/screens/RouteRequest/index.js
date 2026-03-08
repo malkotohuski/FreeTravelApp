@@ -17,6 +17,7 @@ import {useAuth} from '../../context/AuthContext';
 import {useRouteContext} from '../../context/RouteContext';
 import api from '../../api/api';
 import {DarkModeContext} from '../../navigation/DarkModeContext';
+import {useTheme} from '../../theme/useTheme';
 
 const colors = [
   '#f44336',
@@ -51,6 +52,7 @@ function RouteRequestScreen({route, navigation}) {
   const {darkMode} = useContext(DarkModeContext);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const theme = useTheme();
   console.log('???????????????', selectedRequest);
   useFocusEffect(
     useCallback(() => {
@@ -128,11 +130,10 @@ function RouteRequestScreen({route, navigation}) {
               key={request.id}
               style={[
                 styles.requestContainer,
-                request.requestingUser
-                  ? isMigrating
-                    ? styles.migratingGreenBorder
-                    : styles.greenBorder
-                  : null,
+                {
+                  backgroundColor: theme.cardBackground,
+                  borderColor: theme.cardBorder,
+                },
               ]}
               onPress={() => handlePress(request)}>
               <View style={styles.userContainer}>
@@ -145,9 +146,11 @@ function RouteRequestScreen({route, navigation}) {
                     {request.username.slice(0, 2).toUpperCase()}
                   </Text>
                 </View>
-                <Text style={styles.userName}>{request.username}</Text>
+                <Text style={[styles.userName, {color: theme.textPrimary}]}>
+                  {request.username}
+                </Text>
               </View>
-              <Text style={styles.text}>
+              <Text style={[styles.text, {color: theme.textSecondary}]}>
                 {t('Direction')}:{' '}
                 {t(`${request.departureCity}-${request.arrivalCity}`)}
               </Text>
@@ -161,27 +164,37 @@ function RouteRequestScreen({route, navigation}) {
   };
 
   return (
-    <SafeAreaView
-      style={{flex: 1, backgroundColor: darkMode ? '#fff' : '#222'}}>
+    <SafeAreaView style={{flex: 1, backgroundColor: theme.gradient[0]}}>
       {modalVisible && selectedRequest && (
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>
+          <View
+            style={[
+              styles.modalContainer,
+              {
+                backgroundColor: theme.cardBackground,
+                borderColor: theme.cardBorder,
+              },
+            ]}>
+            <Text style={[styles.modalTitle, {color: theme.textPrimary}]}>
               {t('Request from')}: {selectedRequest.userFname}{' '}
               {selectedRequest.userLname}
             </Text>
-            <Text style={styles.modalText}>
+            <Text style={[styles.modalText, {color: theme.textSecondary}]}>
               {t('Direction')}: {selectedRequest.departureCity} →{' '}
               {selectedRequest.arrivalCity}
             </Text>
-            <Text style={styles.modalText}>
+            <Text style={[styles.modalText, {color: theme.textSecondary}]}>
               {t('Date/Time')}:{' '}
               {new Date(selectedRequest.dataTime).toLocaleString('bg-BG')}
             </Text>
             <Text style={[styles.modalText, {marginTop: 10}]}>
               {t('Comment')}:
             </Text>
-            <Text style={styles.modalComment}>
+            <Text
+              style={[
+                styles.modalComment,
+                {color: theme.textSecondary, borderLeftColor: theme.cardBorder},
+              ]}>
               "{selectedRequest.requestComment || t('No comment provided.')}"
             </Text>
 
@@ -190,7 +203,14 @@ function RouteRequestScreen({route, navigation}) {
             </Text>
 
             <TextInput
-              style={styles.messageInput}
+              style={[
+                styles.messageInput,
+                {
+                  backgroundColor: theme.inputBackground,
+                  borderColor: theme.inputBorder,
+                  color: theme.textPrimary,
+                },
+              ]}
               placeholder={t('Write a message...')}
               value={decisionMessage}
               onChangeText={setDecisionMessage}
@@ -261,7 +281,15 @@ function RouteRequestScreen({route, navigation}) {
           style={styles.backgroundImage}
         /> */}
         <View style={styles.container}>
-          <Text style={styles.headerText}>{t('Inquiries')}:</Text>
+          <Text
+            style={[
+              styles.headerText,
+              {
+                color: theme.textPrimary,
+              },
+            ]}>
+            {t('Inquiries')}:
+          </Text>
           <Button title="🔄 Refresh" onPress={refreshUserData} />
           {renderRoutes()}
         </View>
@@ -282,7 +310,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 24,
     marginBottom: 15,
-    color: 'rgba(255,255,255,0.85)',
     textShadowColor: 'rgba(0,0,0,0.4)',
     textShadowOffset: {width: 1, height: 1},
     textShadowRadius: 3,
@@ -293,7 +320,7 @@ const styles = StyleSheet.create({
     padding: 15,
     backgroundColor: 'rgba(255,255,255,0.85)',
     borderRadius: 12,
-    shadowColor: '#000',
+    shadowColor: '#070707',
     shadowOpacity: 0.15,
     shadowOffset: {width: 0, height: 2},
     shadowRadius: 4,
