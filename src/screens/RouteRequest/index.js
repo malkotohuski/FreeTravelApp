@@ -53,7 +53,7 @@ function RouteRequestScreen({route, navigation}) {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const theme = useTheme();
-  console.log('???????????????', selectedRequest);
+
   useFocusEffect(
     useCallback(() => {
       refreshUserData();

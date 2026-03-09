@@ -13,6 +13,7 @@ import {useTranslation} from 'react-i18next';
 import StarRating from 'react-native-star-rating-widget';
 import {useAuth} from '../../context/AuthContext';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {useTheme} from '../../theme/useTheme';
 
 const {width, height} = Dimensions.get('window'); // За адаптивност на различни екрани
 
@@ -46,7 +47,8 @@ const StarRatingDisplay = ({rating, size = 50}) => {
 const AccountManager = ({navigation}) => {
   const {user} = useAuth();
   const userNAME = user?.username;
-  console.log('USERINFO', userNAME);
+  const theme = useTheme();
+  const styles = createStyles(theme);
 
   const {profilePicture} = useAuth();
   const defaultProfilePicture = require('../../../images/emptyUserImage.png');
@@ -61,7 +63,7 @@ const AccountManager = ({navigation}) => {
     <SafeAreaView
       style={{
         flex: 1,
-        backgroundColor: '#1e1e1e',
+        backgroundColor: theme.gradient[0],
       }}>
       <ScrollView contentContainerStyle={{flexGrow: 1}}>
         {/*  <Image
@@ -108,7 +110,7 @@ const AccountManager = ({navigation}) => {
           </View>
           <Text
             style={{
-              color: 'white',
+              color: theme.textPrimary,
               marginBottom: 5,
               fontSize: 20,
               fontWeight: 'bold',
@@ -137,103 +139,104 @@ const AccountManager = ({navigation}) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#1e1e1e',
-    alignItems: 'center',
-    justifyContent: 'space-between', // Прави подравняване на секциите по вертикала
-  },
-  mainContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  backgroundImage: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.1)', // Добавя лек тъмен слой върху изображението
-  },
-  profilePictureContainer: {
-    marginTop: height * 0.05,
-    marginBottom: 20,
-    alignItems: 'center',
-  },
-  profilePicture: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 2,
-    borderColor: '#fff',
-  },
-  userInfoSection: {
-    width: '90%',
-    padding: 15,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
-    marginVertical: 10,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 5,
-  },
-  infoLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#010101',
-  },
-  infoText: {
-    fontSize: 16,
-    color: '#010101',
-  },
-  userInfoText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginVertical: 4,
-  },
-  ratingSection: {
-    alignItems: 'center',
-  },
-  ratingTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 10,
-  },
-  ratingStars: {
-    flexDirection: 'row',
-  },
-  buttonsContainer: {
-    width: '100%',
-    paddingHorizontal: 20,
-    marginBottom: height * 0.05,
-  },
-  button: {
-    backgroundColor: '#f4511e',
-    borderRadius: 14,
-    paddingVertical: 15,
-    alignItems: 'center',
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#000',
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-});
+const createStyles = theme =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: '#1e1e1e',
+      alignItems: 'center',
+      justifyContent: 'space-between', // Прави подравняване на секциите по вертикала
+    },
+    mainContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    backgroundImage: {
+      position: 'absolute',
+      width: '100%',
+      height: '100%',
+      resizeMode: 'cover',
+    },
+    overlay: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: 'rgba(0,0,0,0.05)',
+    },
+    profilePictureContainer: {
+      marginTop: height * 0.05,
+      marginBottom: 20,
+      alignItems: 'center',
+    },
+    profilePicture: {
+      width: 100,
+      height: 100,
+      borderRadius: 50,
+      borderWidth: 2,
+      borderColor: theme.cardBorder,
+    },
+    userInfoSection: {
+      width: '90%',
+      padding: 15,
+      backgroundColor: theme.cardBackground,
+      borderRadius: 10,
+      shadowColor: '#000',
+      shadowOffset: {width: 0, height: 2},
+      shadowOpacity: 0.3,
+      shadowRadius: 4,
+      elevation: 5,
+      marginVertical: 10,
+    },
+    infoRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      paddingVertical: 5,
+    },
+    infoLabel: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: theme.textPrimary,
+    },
+    infoText: {
+      fontSize: 16,
+      color: '#ffffff',
+    },
+    userInfoText: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: '#fff',
+      marginVertical: 4,
+    },
+    ratingSection: {
+      alignItems: 'center',
+    },
+    ratingTitle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: theme.textPrimary,
+      marginBottom: 10,
+    },
+    ratingStars: {
+      flexDirection: 'row',
+    },
+    buttonsContainer: {
+      width: '100%',
+      paddingHorizontal: 20,
+      marginBottom: height * 0.05,
+    },
+    button: {
+      backgroundColor: theme.primaryButton,
+      borderRadius: 14,
+      paddingVertical: 15,
+      alignItems: 'center',
+      marginBottom: 20,
+      borderWidth: 1,
+      borderColor: theme.cardBorder,
+    },
+    buttonText: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: '#fff',
+    },
+  });
 
 export default AccountManager;

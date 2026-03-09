@@ -14,6 +14,7 @@ export const lightTheme = {
   primaryButton: '#4da6ff',
   secondaryButton: '#ccc',
   textPrimary: 'rgba(10, 10, 10, 0.85)',
+  headerBackground: '#f4511e',
 
   firstButton: '#f4511e',
   secondaryButton: '#ccc',
@@ -37,6 +38,7 @@ export const darkTheme = {
   primaryButton: '#f4511e',
   secondaryButton: '#555',
   textPrimary: 'rgba(255, 254, 254, 0.85)',
+  headerBackground: '#333232FF',
 
   firstButton: '#333232FF',
   secondaryButton: '#ccc',

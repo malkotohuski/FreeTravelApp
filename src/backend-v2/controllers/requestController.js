@@ -7,6 +7,7 @@ exports.createRequest = async (req, res) => {
     const userId = req.user.id;
     const {
       routeId,
+      seekerRequestId,
       username,
       userFname,
       userLname,
@@ -18,41 +19,64 @@ exports.createRequest = async (req, res) => {
       requestComment,
     } = req.body;
 
-    if (!routeId) return res.status(400).json({error: 'Route ID is required.'});
+    if (!routeId && !seekerRequestId)
+      return res
+        .status(400)
+        .json({error: 'Route ID or SeekerRequest ID is required.'});
 
     // Проверка за вече съществуваща заявка
     const existing = await prisma.request.findFirst({
       where: {
-        routeId,
         userID: userId,
         status: {not: 'rejected'},
+        OR: [
+          {routeId: routeId || undefined},
+          {seekerRequestId: seekerRequestId || undefined},
+        ],
       },
     });
 
     if (existing)
-      return res.status(400).json({
-        error: 'You already submitted a request for this route.',
-      });
+      return res
+        .status(400)
+        .json({error: 'You already submitted a request for this route.'});
 
     // Проверка на дата
     const parsedDate = new Date(dataTime);
     if (isNaN(parsedDate.getTime()))
       return res.status(400).json({error: 'Invalid date format'});
 
-    // Намираме маршрута
-    const route = await prisma.route.findUnique({
-      where: {id: routeId},
-      include: {owner: true},
-    });
+    // Намираме маршрута или SeekerRequest
+    let route = null;
+    let seeker = null;
+    let ownerId = null;
 
-    if (!route) return res.status(404).json({error: 'Route not found'});
+    if (routeId) {
+      route = await prisma.route.findUnique({
+        where: {id: routeId},
+        include: {owner: true},
+      });
+      if (!route) return res.status(404).json({error: 'Route not found'});
+      ownerId = route.owner.id;
+    }
+
+    if (seekerRequestId) {
+      seeker = await prisma.seekerRequest.findUnique({
+        where: {id: seekerRequestId},
+        include: {user: true},
+      });
+      if (!seeker)
+        return res.status(404).json({error: 'Seeker request not found'});
+      ownerId = seeker.user.id;
+    }
 
     // Създаваме заявката
     const newRequest = await prisma.request.create({
       data: {
-        routeId: route.id,
+        routeId: route ? route.id : null,
+        seekerRequestId: seeker ? seeker.id : null,
         userID: userId,
-        toUserId: route.owner.id,
+        toUserId: ownerId,
         username,
         userFname,
         userLname,
@@ -66,20 +90,22 @@ exports.createRequest = async (req, res) => {
       },
     });
 
+    // Upsert notification
+    const notificationRouteId = route ? route.id : 0; // <- винаги валидно число
     await prisma.notification.upsert({
       where: {
         recipientId_routeId_message_status: {
-          recipientId: route.owner.id,
-          routeId: route.id,
+          recipientId: ownerId,
+          routeId: notificationRouteId,
           message: `${username} is a new candidate for your route`,
           status: 'active',
         },
       },
       update: {},
       create: {
-        recipientId: route.owner.id,
+        recipientId: ownerId,
         senderId: userId,
-        routeId: route.id,
+        routeId: notificationRouteId,
         message: `${username} is a new candidate for your route`,
         requester: {
           username,
@@ -92,8 +118,6 @@ exports.createRequest = async (req, res) => {
         status: 'active',
       },
     });
-
-    // Уведомление към owner-а
 
     res
       .status(201)
@@ -128,6 +152,7 @@ exports.makeDecision = async (req, res) => {
       where: {id: requestId},
       include: {
         route: {include: {owner: true}},
+        seekerRequest: {include: {user: true}},
       },
     });
 
@@ -159,6 +184,8 @@ exports.makeDecision = async (req, res) => {
       },
     });
 
+    const approver = request.route?.owner || request.seekerRequest?.user;
+
     if (!existingDecisionNotification) {
       await prisma.notification.create({
         data: {
@@ -168,10 +195,10 @@ exports.makeDecision = async (req, res) => {
           senderId: request.toUserId, // owner-а
           requester: {username: request.username},
           approver: {
-            username: request.route.owner.username,
-            fname: request.route.owner.fName,
-            lname: request.route.owner.lName,
-            email: request.route.owner.email,
+            username: approver.username,
+            fname: approver.fName,
+            lname: approver.lName,
+            email: approver.email,
           },
           personalMessage: personalMessage || null,
           read: false,
@@ -182,23 +209,54 @@ exports.makeDecision = async (req, res) => {
 
     // Ако е одобрено, създаваме/надграждаме разговор
     if (decision === 'approved') {
-      await prisma.conversation.upsert({
-        where: {
-          routeId_user1Id_user2Id: {
-            routeId: request.routeId,
-            user1Id: request.toUserId, // owner
-            user2Id: request.userID, // кандидат
+      const departureCity =
+        request.departureCity ||
+        request.seekerRequest?.departureCity ||
+        'Unknown';
+      const arrivalCity =
+        request.arrivalCity || request.seekerRequest?.arrivalCity || 'Unknown';
+
+      if (request.routeId) {
+        // Upsert за реален route
+        await prisma.conversation.upsert({
+          where: {
+            routeId_user1Id_user2Id: {
+              routeId: request.routeId,
+              user1Id: request.toUserId,
+              user2Id: request.userID,
+            },
           },
-        },
-        update: {},
-        create: {
-          routeId: request.routeId,
-          user1Id: request.toUserId,
-          user2Id: request.userID,
-          departureCity: request.departureCity,
-          arrivalCity: request.arrivalCity,
-        },
-      });
+          update: {},
+          create: {
+            routeId: request.routeId,
+            user1Id: request.toUserId,
+            user2Id: request.userID,
+            departureCity,
+            arrivalCity,
+          },
+        });
+      } else {
+        // Просто findFirst + create за seekerRequest
+        const existingConv = await prisma.conversation.findFirst({
+          where: {
+            routeId: null,
+            user1Id: request.toUserId,
+            user2Id: request.userID,
+          },
+        });
+
+        if (!existingConv) {
+          await prisma.conversation.create({
+            data: {
+              routeId: null,
+              user1Id: request.toUserId,
+              user2Id: request.userID,
+              departureCity,
+              arrivalCity,
+            },
+          });
+        }
+      }
     }
 
     res.status(200).json({

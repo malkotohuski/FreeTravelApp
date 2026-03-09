@@ -1,7 +1,9 @@
 const {PrismaClient} = require('@prisma/client');
+const {t} = require('i18next');
 const prisma = new PrismaClient();
 
 // CREATE Seeker Request
+// CREATE Seeker Request с лимит 3 на ден
 exports.createSeekerRequest = async (req, res) => {
   try {
     const {departureCity, arrivalCity, selectedDateTime, routeTitle} = req.body;
@@ -10,16 +12,31 @@ exports.createSeekerRequest = async (req, res) => {
       return res.status(400).json({error: 'Missing required fields'});
     }
 
-    // Взимаме userId от JWT
     const userId = req.user.id;
 
-    // Взимаме реалния user от базата
-    const user = await prisma.user.findUnique({
-      where: {id: userId},
+    const user = await prisma.user.findUnique({where: {id: userId}});
+    if (!user) return res.status(404).json({error: 'User not found'});
+
+    // 🔹 Ограничение: максимум 3 заявки на ден
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const todaySeekerCount = await prisma.seekerRequest.count({
+      where: {
+        userId,
+        createdAt: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+      },
     });
 
-    if (!user) {
-      return res.status(404).json({error: 'User not found'});
+    if (todaySeekerCount >= 3) {
+      return res.status(429).json({
+        error: t('youHaveReachedMaximum'),
+      });
     }
 
     const seeker = await prisma.seekerRequest.create({
@@ -28,7 +45,6 @@ exports.createSeekerRequest = async (req, res) => {
         arrivalCity,
         selectedDateTime: new Date(selectedDateTime),
         routeTitle,
-
         userId: user.id,
         username: user.username,
         userFname: user.fName || '',

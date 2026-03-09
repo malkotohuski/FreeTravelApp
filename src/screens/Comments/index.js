@@ -13,13 +13,14 @@ import {
 import {useTranslation} from 'react-i18next';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useAuth} from '../../context/AuthContext';
-import {DarkModeContext} from '../../navigation/DarkModeContext';
+import {useTheme} from '../../theme/useTheme';
 import StarRating from 'react-native-star-rating-widget';
 import api from '../../api/api';
 
 const Comments = ({navigation, route}) => {
   const {user} = useAuth();
-  const {darkMode} = useContext(DarkModeContext);
+  const theme = useTheme();
+  const styles = createStyles(theme);
   const {t} = useTranslation();
 
   // 🔥 Ако в бъдеще подадеш друг userId
@@ -89,7 +90,7 @@ const Comments = ({navigation, route}) => {
         style={[
           styles.commentCard,
           {
-            backgroundColor: darkMode ? '#fff' : '#444',
+            backgroundColor: theme.cardBackground,
             opacity: fadeAnim,
             transform: [
               {
@@ -126,21 +127,17 @@ const Comments = ({navigation, route}) => {
               </View>
             )}
 
-            <Text
-              style={[
-                styles.username,
-                {color: darkMode ? '#ffa726' : '#f4511e'},
-              ]}>
+            <Text style={[styles.username, {color: theme.highlight}]}>
               {item.rater?.username || 'Anonymous'}
             </Text>
           </View>
 
-          <Text style={[styles.date, {color: darkMode ? '#666' : '#ccc'}]}>
+          <Text style={[styles.date, {color: theme.placeholder}]}>
             {formatDate(item.createdAt)}
           </Text>
         </View>
 
-        <Text style={[styles.commentText, {color: darkMode ? '#000' : '#fff'}]}>
+        <Text style={[styles.commentText, {color: theme.textPrimary}]}>
           {item.comment}
         </Text>
 
@@ -153,7 +150,7 @@ const Comments = ({navigation, route}) => {
             enableSwiping={false}
             animationConfig={{scale: 0}}
           />
-          <Text style={{marginLeft: 6, color: darkMode ? '#333' : '#ccc'}}>
+          <Text style={{marginLeft: 6, color: theme.placeholder}}>
             ({item.score})
           </Text>
         </View>
@@ -162,12 +159,8 @@ const Comments = ({navigation, route}) => {
   };
 
   return (
-    <SafeAreaView style={styles.screen}>
-      <View
-        style={[
-          styles.header,
-          {backgroundColor: darkMode ? '#333232FF' : '#f4511e'},
-        ]}>
+    <SafeAreaView style={[styles.screen, {backgroundColor: theme.gradient[0]}]}>
+      <View style={[styles.header, {backgroundColor: theme.headerBackground}]}>
         <Text style={styles.headerText}>{t('Comments')}</Text>
         <TouchableOpacity onPress={() => navigation.navigate('AccountManager')}>
           <Icons name="keyboard-backspace" size={24} color="white" />
@@ -176,13 +169,9 @@ const Comments = ({navigation, route}) => {
 
       <ScrollView contentContainerStyle={styles.commentsContainer}>
         {loading ? (
-          <ActivityIndicator size="large" color="#f4511e" />
+          <ActivityIndicator size="large" color={theme.primaryButton} />
         ) : ratings.length === 0 ? (
-          <Text
-            style={[
-              styles.noCommentsText,
-              {color: darkMode ? '#ccc' : '#555'},
-            ]}>
+          <Text style={[styles.noCommentsText, {color: theme.textSecondary}]}>
             {t('No comments yet')}
           </Text>
         ) : (
@@ -193,89 +182,89 @@ const Comments = ({navigation, route}) => {
   );
 };
 
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: '#1e1e1e',
-  },
-  backgroundImage: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-    position: 'absolute',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    width: '100%',
-    marginBottom: 10,
-  },
-  headerText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  mainContent: {
-    flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 10,
-  },
-  commentsContainer: {
-    paddingBottom: 40,
-  },
-  commentCard: {
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  commentHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 4,
-  },
-  username: {
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  date: {
-    fontSize: 12,
-  },
-  commentText: {
-    fontSize: 15,
-    marginVertical: 6,
-  },
-  starsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  noCommentsText: {
-    textAlign: 'center',
-    fontSize: 16,
-    marginTop: 40,
-  },
-  userInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10, // ако имаш поддръжка за gap
-    marginBottom: 4,
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: '#f4511e',
-    marginRight: 8,
-  },
-});
+const createStyles = theme =>
+  StyleSheet.create({
+    screen: {
+      flex: 1,
+    },
+    backgroundImage: {
+      flex: 1,
+      width: '100%',
+      height: '100%',
+      resizeMode: 'cover',
+      position: 'absolute',
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+      width: '100%',
+      marginBottom: 10,
+    },
+    headerText: {
+      color: 'white',
+      fontSize: 18,
+      fontWeight: 'bold',
+    },
+    mainContent: {
+      flex: 1,
+      paddingHorizontal: 16,
+      paddingTop: 10,
+    },
+    commentsContainer: {
+      paddingBottom: 40,
+    },
+    commentCard: {
+      borderRadius: 12,
+      padding: 14,
+      marginBottom: 12,
+      shadowColor: '#000',
+      shadowOffset: {width: 0, height: 2},
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 4,
+    },
+    commentHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: 4,
+    },
+    username: {
+      fontSize: 14,
+      fontWeight: 'bold',
+    },
+    date: {
+      fontSize: 12,
+    },
+    commentText: {
+      fontSize: 15,
+      marginVertical: 6,
+    },
+    starsContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    noCommentsText: {
+      textAlign: 'center',
+      fontSize: 16,
+      marginTop: 40,
+    },
+    userInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10, // ако имаш поддръжка за gap
+      marginBottom: 4,
+    },
+    avatar: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      borderWidth: 2,
+      borderColor: theme.primaryButton,
+      marginRight: 8,
+    },
+  });
 
 export default Comments;

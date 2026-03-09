@@ -4,22 +4,25 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Image,
   ScrollView,
   SafeAreaView,
   TextInput,
   Modal,
   Pressable,
   RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import {useTranslation} from 'react-i18next';
 import {useAuth} from '../../context/AuthContext';
 import api from '../../api/api';
 import LinearGradient from 'react-native-linear-gradient';
-import {ActivityIndicator} from 'react-native';
+import {useTheme} from '../../theme/useTheme';
 
 function ViewRoutes({navigation}) {
   const {t, i18n} = useTranslation();
+  const theme = useTheme();
+  const styles = createStyles(theme);
+
   const [enteredDepartureCity, setEnteredDepartureCity] = useState('');
   const [enteredArrivalCity, setEnteredArrivalCity] = useState('');
   const {user} = useAuth();
@@ -35,9 +38,7 @@ function ViewRoutes({navigation}) {
   const userLnameRequest = user?.lName;
   const fullUserInfo = {usernameRequest, userFnameRequest, userLnameRequest};
 
-  const toggleFilterModal = () => {
-    setShowFilterModal(!showFilterModal);
-  };
+  const toggleFilterModal = () => setShowFilterModal(!showFilterModal);
 
   const clearFilters = () => {
     setEnteredDepartureCity('');
@@ -109,10 +110,7 @@ function ViewRoutes({navigation}) {
 
   useEffect(() => {
     if (navigation?.addListener) {
-      const unsubscribe = navigation.addListener('focus', () => {
-        fetchRoutes();
-      });
-
+      const unsubscribe = navigation.addListener('focus', fetchRoutes);
       return unsubscribe;
     }
   }, [navigation]);
@@ -120,27 +118,17 @@ function ViewRoutes({navigation}) {
   if (loading) {
     return (
       <View
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: '#1b1b1b',
-        }}>
-        <ActivityIndicator size="large" color="#fff" />
+        style={[styles.loadingContainer, {backgroundColor: theme.background}]}>
+        <ActivityIndicator size="large" color={theme.primaryButton} />
       </View>
     );
   }
 
   return (
-    <LinearGradient
-      colors={['#1b1b1b', '#2a2a2a']}
-      style={styles.mainContainer}>
-      {/*   <Image
-        source={require('../../../images/d7.png')}
-        style={styles.backgroundImage}
-      /> */}
-
-      <TouchableOpacity style={styles.filterButton} onPress={toggleFilterModal}>
+    <LinearGradient colors={theme.gradient} style={styles.mainContainer}>
+      <TouchableOpacity
+        style={[styles.filterButton, {backgroundColor: theme.primaryButton}]}
+        onPress={toggleFilterModal}>
         <Text style={styles.filterButtonText}>{t('Filter')}</Text>
       </TouchableOpacity>
 
@@ -150,40 +138,86 @@ function ViewRoutes({navigation}) {
         transparent={true}
         visible={showFilterModal}
         onRequestClose={toggleFilterModal}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalHeader}>{t('Filter Options')}</Text>
-
+        <View
+          style={[
+            styles.modalContainer,
+            {backgroundColor: theme.modalOverlay},
+          ]}>
+          <View
+            style={[
+              styles.modalContent,
+              {backgroundColor: theme.cardBackground},
+            ]}>
+            <Text style={[styles.modalHeader, {color: theme.textPrimary}]}>
+              {t('Filter Options')}
+            </Text>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor:
+                    theme.mode === 'dark' ? theme.inputBackground : '#ddd', // светъл режим – сиво, не бяло
+                  color: theme.textPrimary,
+                  textAlign: 'center',
+                },
+              ]}
               placeholder={t('Departure City')}
-              placeholderTextColor="#aaa"
+              placeholderTextColor={
+                theme.mode === 'dark' ? theme.textSecondary : '#555'
+              }
               value={enteredDepartureCity}
               onChangeText={setEnteredDepartureCity}
             />
+
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor:
+                    theme.mode === 'dark' ? theme.inputBackground : '#ddd',
+                  color: theme.textPrimary,
+                  textAlign: 'center',
+                },
+              ]}
               placeholder={t('Arrival City')}
-              placeholderTextColor="#aaa"
+              placeholderTextColor={
+                theme.mode === 'dark' ? theme.textSecondary : '#555'
+              }
               value={enteredArrivalCity}
               onChangeText={setEnteredArrivalCity}
             />
 
-            <Pressable style={styles.applyFiltersButton} onPress={applyFilters}>
+            <Pressable
+              style={[
+                styles.applyFiltersButton,
+                {backgroundColor: theme.primaryButton},
+              ]}
+              onPress={applyFilters}>
               <Text style={styles.buttonText}>{t('Apply Filters')}</Text>
             </Pressable>
             <Pressable
-              style={styles.sortByDateButton}
+              style={[
+                styles.sortByDateButton,
+                {backgroundColor: theme.secondaryButton},
+              ]}
               onPress={() => setSortByDate(!sortByDate)}>
               <Text style={styles.buttonText}>
                 {sortByDate ? t('Sort by Oldest') : t('Sort by Newest')}
               </Text>
             </Pressable>
-            <Pressable style={styles.clearFiltersButton} onPress={clearFilters}>
+            <Pressable
+              style={[
+                styles.clearFiltersButton,
+                {backgroundColor: theme.errorButton},
+              ]}
+              onPress={clearFilters}>
               <Text style={styles.buttonText}>{t('Clear Filters')}</Text>
             </Pressable>
             <Pressable
-              style={styles.closeModalButton}
+              style={[
+                styles.closeModalButton,
+                {backgroundColor: theme.secondaryButton},
+              ]}
               onPress={toggleFilterModal}>
               <Text style={styles.buttonText}>{t('Close')}</Text>
             </Pressable>
@@ -200,7 +234,7 @@ function ViewRoutes({navigation}) {
               setRefreshing(true);
               fetchRoutes();
             }}
-            tintColor="#fff"
+            tintColor={theme.primaryButton}
           />
         }>
         <View style={styles.routesContainer}>
@@ -209,7 +243,14 @@ function ViewRoutes({navigation}) {
             return (
               <TouchableOpacity
                 key={index}
-                style={[styles.routeCard, isOwnRoute && styles.ownRouteCard]}
+                style={[
+                  styles.routeCard,
+                  {backgroundColor: theme.cardBackground},
+                  isOwnRoute && {
+                    borderColor: theme.primaryButton,
+                    borderWidth: 2,
+                  },
+                ]}
                 onPress={() =>
                   handlerSeeView({
                     selectedVehicle: route.selectedVehicle,
@@ -232,8 +273,10 @@ function ViewRoutes({navigation}) {
                     user_id: route.userId,
                   })
                 }>
-                <Text style={styles.routeTitle}>{route.routeTitle}</Text>
-                <Text style={styles.routeDate}>
+                <Text style={[styles.routeTitle, {color: theme.textPrimary}]}>
+                  {route.routeTitle}
+                </Text>
+                <Text style={[styles.routeDate, {color: theme.textSecondary}]}>
                   {route.selectedDateTime
                     ? new Date(route.selectedDateTime).toLocaleString(
                         i18n.language,
@@ -248,7 +291,7 @@ function ViewRoutes({navigation}) {
                       )
                     : ''}
                 </Text>
-                <Text style={styles.routeInfo}>
+                <Text style={[styles.routeInfo, {color: theme.textPrimary}]}>
                   {route.departureCity} → {route.arrivalCity}
                 </Text>
               </TouchableOpacity>
@@ -260,119 +303,66 @@ function ViewRoutes({navigation}) {
   );
 }
 
-const styles = StyleSheet.create({
-  mainContainer: {
-    flex: 1,
-  },
-  backgroundImage: {
-    ...StyleSheet.absoluteFillObject,
-    opacity: 0.2,
-  },
-  filterButton: {
-    backgroundColor: '#f4511e',
-    padding: 12,
-    borderRadius: 12,
-    margin: 12,
-    alignSelf: 'center',
-    width: '75%',
-    alignItems: 'center',
-  },
-  filterButtonText: {
-    color: '#fff',
-    fontWeight: '700',
-    fontSize: 18,
-  },
-  routesContainer: {
-    alignItems: 'center',
-    paddingVertical: 10,
-  },
-  routeCard: {
-    width: '90%',
-    backgroundColor: 'rgba(40,40,40,0.9)',
-    borderRadius: 16,
-    padding: 16,
-    marginVertical: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-  },
-  ownRouteCard: {
-    borderColor: '#f4511e',
-    borderWidth: 2,
-  },
-  routeTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#fff',
-  },
-  routeDate: {
-    fontSize: 16,
-    color: '#bbb',
-    marginTop: 4,
-  },
-  routeInfo: {
-    fontSize: 17,
-    color: '#eee',
-    marginTop: 4,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    paddingHorizontal: 20,
-  },
-  modalContent: {
-    backgroundColor: '#2b2b2b',
-    padding: 25,
-    borderRadius: 15,
-  },
-  modalHeader: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: 15,
-  },
-  input: {
-    backgroundColor: '#3a3a3a',
-    color: '#fff',
-    borderRadius: 10,
-    padding: 12,
-    marginVertical: 8,
-    fontSize: 16,
-  },
-  applyFiltersButton: {
-    backgroundColor: '#ff7b00',
-    borderRadius: 10,
-    padding: 12,
-    marginVertical: 6,
-    alignItems: 'center',
-  },
-  sortByDateButton: {
-    backgroundColor: '#3498db',
-    borderRadius: 10,
-    padding: 12,
-    marginVertical: 6,
-    alignItems: 'center',
-  },
-  clearFiltersButton: {
-    backgroundColor: '#e74c3c',
-    borderRadius: 10,
-    padding: 12,
-    marginVertical: 6,
-    alignItems: 'center',
-  },
-  closeModalButton: {
-    backgroundColor: '#777',
-    borderRadius: 10,
-    padding: 12,
-    marginVertical: 6,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: '600',
-    fontSize: 16,
-  },
-});
+const createStyles = theme =>
+  StyleSheet.create({
+    mainContainer: {flex: 1},
+    loadingContainer: {flex: 1, justifyContent: 'center', alignItems: 'center'},
+    filterButton: {
+      padding: 12,
+      borderRadius: 12,
+      margin: 12,
+      alignSelf: 'center',
+      width: '75%',
+      alignItems: 'center',
+    },
+    filterButtonText: {color: '#fff', fontWeight: '700', fontSize: 18},
+    routesContainer: {alignItems: 'center', paddingVertical: 10},
+    routeCard: {
+      width: '90%',
+      borderRadius: 16,
+      padding: 16,
+      marginVertical: 8,
+      borderWidth: 1,
+      borderColor: 'rgba(255,255,255,0.1)',
+    },
+    routeTitle: {fontSize: 20, fontWeight: '700'},
+    routeDate: {fontSize: 16, marginTop: 4},
+    routeInfo: {fontSize: 17, marginTop: 4},
+    scrollView: {flex: 1},
+    modalContainer: {flex: 1, justifyContent: 'center', paddingHorizontal: 20},
+    modalContent: {padding: 25, borderRadius: 15},
+    modalHeader: {
+      fontSize: 20,
+      fontWeight: '700',
+      textAlign: 'center',
+      marginBottom: 15,
+    },
+    input: {borderRadius: 10, padding: 12, marginVertical: 8, fontSize: 16},
+    applyFiltersButton: {
+      borderRadius: 10,
+      padding: 12,
+      marginVertical: 6,
+      alignItems: 'center',
+    },
+    sortByDateButton: {
+      borderRadius: 10,
+      padding: 12,
+      marginVertical: 6,
+      alignItems: 'center',
+    },
+    clearFiltersButton: {
+      borderRadius: 10,
+      padding: 12,
+      marginVertical: 6,
+      alignItems: 'center',
+    },
+    closeModalButton: {
+      borderRadius: 10,
+      padding: 12,
+      marginVertical: 6,
+      alignItems: 'center',
+    },
+    buttonText: {color: '#fff', fontWeight: '600', fontSize: 16},
+  });
 
 export default ViewRoutes;

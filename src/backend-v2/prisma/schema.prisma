@@ -144,6 +144,8 @@ model SeekerRequest {
   status           String   @default("active")
 
   createdAt        DateTime @default(now())
+
+    requests        Request[]
 }
 
 // ======================
@@ -191,26 +193,36 @@ model BugReport {
 // ======================
 
 model Request {
-  id             Int      @id @default(autoincrement())
-  route          Route    @relation("RouteRequests", fields: [routeId], references: [id])
-  routeId        Int
-  user           User     @relation("UserRequests", fields: [userID], references: [id])
-  userID         Int
-  toUserId       Int 
-  username       String
-  userFname      String
-  userLname      String
-  userEmail      String
-  userRouteId    Int
-  departureCity  String
-  arrivalCity    String
-  dataTime       DateTime
-  requestComment String
-  status         String   @default("pending")
-  rateCreator    Boolean  @default(false)
-  rateUser       Boolean  @default(false)
-  createdAt      DateTime @default(now())
-  decidedAt      DateTime? // ← тук добавяме новото поле
+ id              Int      @id @default(autoincrement())
+
+  routeId         Int?
+  route           Route?   @relation("RouteRequests", fields: [routeId], references: [id])
+
+  seekerRequestId Int?
+  seekerRequest   SeekerRequest? @relation(fields: [seekerRequestId], references: [id])
+
+  userID          Int
+  user            User     @relation("UserRequests", fields: [userID], references: [id])
+
+  toUserId        Int
+
+  username        String
+  userFname       String
+  userLname       String
+  userEmail       String
+  userRouteId     Int
+
+  departureCity   String
+  arrivalCity     String
+  dataTime        DateTime
+  requestComment  String
+
+  status          String   @default("pending")
+  rateCreator     Boolean  @default(false)
+  rateUser        Boolean  @default(false)
+
+  createdAt       DateTime @default(now())
+  decidedAt       DateTime?
   read Boolean @default(false)
 }
 
@@ -227,7 +239,7 @@ model Notification {
   senderId        Int
   sender          User @relation("UserSentNotifications", fields: [senderId], references: [id])
 
-  routeId         Int
+  routeId         Int?
   message         String
   requester       Json?
   personalMessage String?
