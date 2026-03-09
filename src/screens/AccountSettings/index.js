@@ -11,22 +11,24 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
 } from 'react-native';
 import {useTranslation} from 'react-i18next';
 import api from '../../api/api';
 import ImagePicker from 'react-native-image-crop-picker';
 import {useAuth} from '../../context/AuthContext';
 import {useFocusEffect} from '@react-navigation/native';
-import {color} from 'react-native-elements/dist/helpers';
+import {useTheme} from '../../theme/useTheme';
 
 const AccountSettings = () => {
   const {user, updateUserData} = useAuth();
   const {t} = useTranslation();
+  const theme = useTheme();
+  const styles = createStyles(theme);
 
   const [profilePicture, setProfilePicture] = useState(user?.userImage || null);
   const [fName, setFname] = useState(user?.fName || '');
   const [lName, setLname] = useState(user?.lName || '');
-
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -41,9 +43,7 @@ const AccountSettings = () => {
     }, []),
   );
 
-  // ======================
-  // AVATAR
-  // ======================
+  // ====== AVATAR ======
   const handleImagePicker = async () => {
     try {
       const image = await ImagePicker.openPicker({
@@ -65,15 +65,9 @@ const AccountSettings = () => {
         headers: {'Content-Type': 'multipart/form-data'},
       });
 
-      // 🔹 Взимаме и новия public_id, ако сървърът го връща
       const {userImage, userImagePublicId} = response.data.user;
-
-      // 🔹 Актуализираме контекста
       updateUserData({userImage, userImagePublicId});
-
-      // 🔹 Актуализираме локалния state
       setProfilePicture(userImage);
-
       Alert.alert(t('Success'), t('Avatar updated successfully'));
     } catch (error) {
       Alert.alert(
@@ -83,39 +77,30 @@ const AccountSettings = () => {
     }
   };
 
-  // ======================
-  // PROFILE DATA
-  // ======================
+  // ====== PROFILE SAVE ======
   const handleSaveChanges = async () => {
     try {
       const originalFname = user?.fName || '';
       const originalLname = user?.lName || '';
-
       let somethingChanged = false;
 
-      // 🔹 Update names
+      // Update names
       if (fName !== originalFname || lName !== originalLname) {
-        await api.patch('/api/users/profile', {
-          fName,
-          lName,
-        });
-
+        await api.patch('/api/users/profile', {fName, lName});
         updateUserData({fName, lName});
         somethingChanged = true;
       }
 
-      // 🔹 Update password
+      // Update password
       if (newPassword || confirmPassword) {
         if (!currentPassword) {
           Alert.alert(t('Error'), t('Please enter current password'));
           return;
         }
-
         if (newPassword !== confirmPassword) {
           Alert.alert(t('Error'), t('Passwords do not match'));
           return;
         }
-
         if (newPassword.length < 8) {
           Alert.alert(t('Error'), t('Password must be at least 8 characters'));
           return;
@@ -140,7 +125,6 @@ const AccountSettings = () => {
       Alert.alert(t('Success'), t('Changes saved successfully'));
     } catch (error) {
       console.log('User changes error:', error.response?.data);
-
       Alert.alert(
         t('Error'),
         error.response?.data?.error || t('Something went wrong'),
@@ -149,24 +133,25 @@ const AccountSettings = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/*  <Image
-        source={require('../../../images/acountSettings.png')}
-        style={styles.backgroundImage}
-      /> */}
-
+    <SafeAreaView
+      style={[styles.container, {backgroundColor: theme.gradient[0]}]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={{flex: 1, width: '100%'}}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {/* USER INFO */}
           <View style={styles.userInfoContainer}>
-            <InfoRow label={t('Username')} value={user?.username} />
+            <InfoRow
+              label={t('Username')}
+              value={user?.username}
+              styles={styles}
+            />
             <InfoRow
               label={t('Full Name')}
               value={`${user?.fName} ${user?.lName}`}
+              styles={styles}
             />
-            <InfoRow label={t('Email')} value={user?.email} />
+            <InfoRow label={t('Email')} value={user?.email} styles={styles} />
           </View>
 
           {/* AVATAR */}
@@ -180,7 +165,7 @@ const AccountSettings = () => {
             <Text style={styles.photoText}>{t('Change Photo')}</Text>
           </View>
 
-          {/* PROFILE */}
+          {/* PROFILE NAMES */}
           <TwoInputs
             leftLabel={t('First Name')}
             leftValue={fName}
@@ -188,11 +173,13 @@ const AccountSettings = () => {
             rightLabel={t('Last Name')}
             rightValue={lName}
             rightChange={setLname}
+            styles={styles}
           />
 
           <PrimaryButton
             label={t('Save Profile')}
             onPress={handleSaveChanges}
+            styles={styles}
           />
 
           {/* PASSWORD */}
@@ -200,21 +187,25 @@ const AccountSettings = () => {
             label={t('Current password')}
             value={currentPassword}
             onChange={setCurrentPassword}
+            styles={styles}
           />
           <PasswordInput
             label={t('New password')}
             value={newPassword}
             onChange={setNewPassword}
+            styles={styles}
           />
           <PasswordInput
             label={t('Confirm new password')}
             value={confirmPassword}
             onChange={setConfirmPassword}
+            styles={styles}
           />
 
           <PrimaryButton
             label={t('Change Password')}
             onPress={handleSaveChanges}
+            styles={styles}
           />
         </ScrollView>
       </KeyboardAvoidingView>
@@ -224,22 +215,10 @@ const AccountSettings = () => {
 
 /* ===================== COMPONENTS ===================== */
 
-const InfoRow = ({label, value}) => (
+const InfoRow = ({label, value, styles}) => (
   <View style={styles.infoRow}>
     <Text style={styles.label}>{label}:</Text>
     <Text style={styles.value}>{value}</Text>
-  </View>
-);
-
-const PasswordInput = ({label, value, onChange}) => (
-  <View style={styles.inputContainer}>
-    <Text style={styles.inputLabel}>{label}</Text>
-    <TextInput
-      style={styles.input}
-      secureTextEntry
-      value={value}
-      onChangeText={onChange}
-    />
   </View>
 );
 
@@ -250,6 +229,7 @@ const TwoInputs = ({
   rightLabel,
   rightValue,
   rightChange,
+  styles,
 }) => (
   <View style={styles.rowInputsContainer}>
     <View style={styles.halfInputContainer}>
@@ -271,49 +251,73 @@ const TwoInputs = ({
   </View>
 );
 
-const PrimaryButton = ({label, onPress}) => (
+const PasswordInput = ({label, value, onChange, styles}) => (
+  <View style={styles.inputContainer}>
+    <Text style={styles.inputLabel}>{label}</Text>
+    <TextInput
+      style={styles.input}
+      value={value}
+      onChangeText={onChange}
+      secureTextEntry={true}
+    />
+  </View>
+);
+
+const PrimaryButton = ({label, onPress, styles}) => (
   <View style={styles.saveContainer}>
-    <TouchableOpacity style={styles.saveButton} onPress={onPress}>
+    <Pressable style={styles.saveButton} onPress={onPress}>
       <Text style={styles.buttonText}>{label}</Text>
-    </TouchableOpacity>
+    </Pressable>
   </View>
 );
 
 /* ===================== STYLES ===================== */
 
-const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: '#1e1e1e'},
-  backgroundImage: {position: 'absolute', width: '100%', height: '100%'},
-  scrollContent: {alignItems: 'center', paddingBottom: 40},
-  userInfoContainer: {
-    width: '90%',
-    backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 10,
-    marginTop: 10,
-  },
-  userInfoContainerPhoto: {alignItems: 'center', marginVertical: 20},
-  profilePicture: {width: 100, height: 100, borderRadius: 60},
-  photoText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#f7f7f7',
-  },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginVertical: 5,
-  },
-  label: {fontWeight: '600'},
-  value: {flexShrink: 1},
-  inputContainer: {width: '90%', marginBottom: 15},
-  inputLabel: {fontWeight: '600', marginBottom: 5, color: '#f7f7f7'},
-  input: {backgroundColor: '#fff', padding: 12, borderRadius: 8},
-  rowInputsContainer: {flexDirection: 'row', width: '90%', gap: 10},
-  halfInputContainer: {flex: 1},
-  saveContainer: {width: '90%', marginVertical: 15},
-  saveButton: {backgroundColor: '#f4511e', padding: 15, borderRadius: 10},
-  buttonText: {color: '#fff', textAlign: 'center', fontWeight: 'bold'},
-});
+const createStyles = theme =>
+  StyleSheet.create({
+    container: {flex: 1},
+    scrollContent: {alignItems: 'center', paddingBottom: 40},
+    userInfoContainer: {
+      width: '90%',
+      backgroundColor: theme.cardBackground,
+      padding: 15,
+      borderRadius: 10,
+      marginTop: 10,
+    },
+    userInfoContainerPhoto: {alignItems: 'center', marginVertical: 20},
+    profilePicture: {width: 100, height: 100, borderRadius: 60},
+    photoText: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: theme.textPrimary,
+      textAlign: 'center',
+    },
+    infoRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginVertical: 5,
+    },
+    label: {fontWeight: '600'},
+    value: {flexShrink: 1},
+    inputContainer: {width: '90%', marginBottom: 15},
+    inputLabel: {fontWeight: '600', marginBottom: 5, color: theme.textPrimary},
+    input: {
+      backgroundColor: theme.inputBackground,
+      color: theme.textPrimary,
+      padding: 12,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: theme.cardBorder,
+    },
+    rowInputsContainer: {flexDirection: 'row', width: '90%', gap: 10},
+    halfInputContainer: {flex: 1},
+    saveContainer: {width: '100%', marginVertical: 15}, // бутон на пълна ширина
+    saveButton: {
+      backgroundColor: theme.primaryButton,
+      padding: 15,
+      borderRadius: 10,
+    },
+    buttonText: {color: '#fff', textAlign: 'center', fontWeight: 'bold'},
+  });
 
 export default AccountSettings;

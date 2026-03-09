@@ -11,8 +11,12 @@ i18next.use(initReactI18next).init({
         'Register your vehicle': 'Register your vehicle',
         'Route request': 'Route request',
         'Select date:': 'Select date:',
+        limitReached: 'Limit Reached',
+        writePersonalMessage: 'Write a personal message (optional)',
         dailyLimitReached:
           'You have reached the daily limit of bug reports. Please try again tomorrow.',
+        youHaveReachedMaximum:
+          'You have reached the maximum of 3 routes per day.',
         areYouSureYouWantToDeleteThisConversation:
           'Are you sure you want to delete this conversation?',
         Chat: 'Chat',
@@ -5774,6 +5778,7 @@ i18next.use(initReactI18next).init({
           'Не може да изпратите покана отново.',
         Back: 'Обратно',
         'Enter Departure City': 'Въведете град на заминаване',
+        youHaveReachedMaximum: 'Достигнахте максимума от 3 маршрута на ден.',
         'Enter Arrival City': 'Въведете град на пристигане',
         Settings: 'Настройки',
         Preferences: 'Предпочитания',
@@ -5799,6 +5804,7 @@ i18next.use(initReactI18next).init({
         'Trip request': 'Заявка за пътуване',
         'You have a new request for your route.':
           'Имате нова заявка за ваш маршрут .',
+        limitReached: 'Достигнат лимит',
         'Are you sure you want to delete this route?':
           'Сигурни ли сте, че искате да изтриете този маршрут?',
         Requests: 'Заявки',
@@ -5810,6 +5816,7 @@ i18next.use(initReactI18next).init({
         Direction: 'Посока',
         'Delete Route': 'Изтриване на маршрут',
         'Selected route': 'Избран маршрут',
+        writePersonalMessage: 'Напишете лично съобщение (по избор):',
         'No new requests.': 'Няма нови заявки.',
         dailyLimitReached: 'Достигнат дневен лимит',
         Filter: 'Филтър',

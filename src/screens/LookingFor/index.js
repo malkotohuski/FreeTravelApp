@@ -17,11 +17,13 @@ import {useTranslation} from 'react-i18next';
 import CitySelector from '../../server/Cities/cities';
 import {useFocusEffect} from '@react-navigation/native';
 import {useAuth} from '../../context/AuthContext';
+import {useTheme} from '../../theme/useTheme'; // <- добавяме темата
 
 function Looking({navigation}) {
   const {t, i18n} = useTranslation();
   const cities = CitySelector();
-  const {user, token} = useAuth(); // ✅ взимаме токена директно от context
+  const {user, token} = useAuth();
+  const theme = useTheme(); // <- взимаме theme
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -60,7 +62,7 @@ function Looking({navigation}) {
   );
 
   const handleSearch = async () => {
-    if (isSubmitting || isGenerating) return;
+    if (isGenerating || isSubmitting) return;
 
     if (!departureCity || !arrivalCity) {
       Alert.alert(t('Error'), t('pleaseSelectBothDepartureArrivalCities'));
@@ -76,7 +78,9 @@ function Looking({navigation}) {
       Alert.alert(t('Error'), t('User is not logged in.'));
       return;
     }
+
     setIsGenerating(true);
+    setIsSubmitting(true);
 
     try {
       const response = await fetch('http://10.0.2.2:3000/api/seekers', {
@@ -93,24 +97,42 @@ function Looking({navigation}) {
         }),
       });
 
-      setIsGenerating(false);
-      setIsSubmitting(true);
-
       if (response.ok) {
         const responseData = await response.json();
         setSuccessMessage(t('The route has been created!'));
-        setTimeout(() => {
-          setSuccessMessage('');
-          navigation.navigate('Seekers', {seeker: responseData.seeker});
-        }, 2000);
+
+        Alert.alert(
+          t('Success'),
+          t('The route has been created!'),
+          [
+            {
+              text: t('OK'),
+              onPress: () => {
+                setSuccessMessage('');
+                setIsGenerating(false);
+                setIsSubmitting(false);
+                navigation.navigate('Seekers', {seeker: responseData});
+              },
+            },
+          ],
+          {cancelable: false},
+        );
+      } else if (response.status === 429) {
+        // 🔹 Ново: лимит от 3 маршрута на ден
+        const errorData = await response.json();
+        Alert.alert(t('limitReached'), t('youHaveReachedMaximum'));
+        setIsGenerating(false);
+        setIsSubmitting(false);
       } else {
         const errorData = await response.json();
         Alert.alert(t('Error'), errorData.error || 'Failed to create route.');
+        setIsGenerating(false);
+        setIsSubmitting(false);
       }
     } catch (error) {
       Alert.alert(t('Error'), 'An error occurred while creating the route.');
       console.error('Route creation error:', error);
-    } finally {
+      setIsGenerating(false);
       setIsSubmitting(false);
     }
   };
@@ -125,37 +147,63 @@ function Looking({navigation}) {
 
   const renderCityItem = (item, setCity, closeModal, setSearch) => (
     <TouchableOpacity
-      style={styles.cityItem}
+      style={[styles.cityItem, {borderColor: theme.cardBorder}]}
       onPress={() => {
         setCity(item.label);
         closeModal(false);
         setSearch('');
       }}>
-      <Text style={styles.cityItemText}>{item.label}</Text>
+      <Text style={[styles.cityItemText, {color: theme.textPrimary}]}>
+        {item.label}
+      </Text>
     </TouchableOpacity>
   );
 
   return (
-    <LinearGradient colors={['#0d0d0d', '#1a1a1a']} style={styles.gradient}>
+    <LinearGradient colors={theme.gradient} style={styles.gradient}>
       <SafeAreaView style={{flex: 1}}>
         <ScrollView contentContainerStyle={styles.scroll}>
-          <Text style={styles.title}>{t('lookingRorARoute')}</Text>
+          <Text style={[styles.title, {color: theme.textPrimary}]}>
+            {t('lookingRorARoute')}
+          </Text>
 
-          <Text style={styles.label}>{t('Departure')}</Text>
+          <Text style={[styles.label, {color: theme.textSecondary}]}>
+            {t('Departure')}
+          </Text>
           <TouchableOpacity
-            style={styles.selectButton}
+            style={[
+              styles.selectButton,
+              {
+                backgroundColor: theme.inputBackground,
+                borderColor: theme.cardBorder,
+              },
+            ]}
             onPress={() => setModalDeparture(true)}>
-            <Text style={styles.selectButtonText}>
+            <Text style={[styles.selectButtonText, {color: theme.textPrimary}]}>
               {departureCity || t('Select City')}
             </Text>
           </TouchableOpacity>
 
           <Modal visible={modalDeparture} transparent animationType="slide">
-            <View style={styles.modalContainer}>
+            <View
+              style={[
+                styles.modalContainer,
+                {
+                  backgroundColor: theme.cardBackground,
+                  borderColor: theme.cardBorder,
+                },
+              ]}>
               <TextInput
                 placeholder={t('Search City')}
-                placeholderTextColor="#999"
-                style={styles.input}
+                placeholderTextColor={theme.textSecondary}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: theme.inputBackground,
+                    color: theme.textPrimary,
+                    borderColor: theme.cardBorder,
+                  },
+                ]}
                 value={departureSearch}
                 onChangeText={text =>
                   filterCities(
@@ -180,21 +228,43 @@ function Looking({navigation}) {
             </View>
           </Modal>
 
-          <Text style={styles.label}>{t('Arrival')}</Text>
+          <Text style={[styles.label, {color: theme.textSecondary}]}>
+            {t('Arrival')}
+          </Text>
           <TouchableOpacity
-            style={styles.selectButton}
+            style={[
+              styles.selectButton,
+              {
+                backgroundColor: theme.inputBackground,
+                borderColor: theme.cardBorder,
+              },
+            ]}
             onPress={() => setModalArrival(true)}>
-            <Text style={styles.selectButtonText}>
+            <Text style={[styles.selectButtonText, {color: theme.textPrimary}]}>
               {arrivalCity || t('Select City')}
             </Text>
           </TouchableOpacity>
 
           <Modal visible={modalArrival} transparent animationType="slide">
-            <View style={styles.modalContainer}>
+            <View
+              style={[
+                styles.modalContainer,
+                {
+                  backgroundColor: theme.cardBackground,
+                  borderColor: theme.cardBorder,
+                },
+              ]}>
               <TextInput
                 placeholder={t('Search City')}
-                placeholderTextColor="#999"
-                style={styles.input}
+                placeholderTextColor={theme.textSecondary}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: theme.inputBackground,
+                    color: theme.textPrimary,
+                    borderColor: theme.cardBorder,
+                  },
+                ]}
                 value={arrivalSearch}
                 onChangeText={text =>
                   filterCities(text, setFilteredArrivalCities, setArrivalSearch)
@@ -215,19 +285,43 @@ function Looking({navigation}) {
             </View>
           </Modal>
 
-          <Text style={styles.label}>{t('Route Information')}</Text>
+          <Text style={[styles.label, {color: theme.textSecondary}]}>
+            {t('Route Information')}
+          </Text>
           <TextInput
-            style={styles.routeInput}
+            style={[
+              styles.routeInput,
+              {
+                backgroundColor: theme.inputBackground,
+                color: theme.textPrimary,
+                borderColor: theme.cardBorder,
+                textAlign: 'center',
+              },
+            ]}
             placeholder={t('Enter route title')}
-            placeholderTextColor="#888"
+            placeholderTextColor={theme.textSecondary}
             value={routeTitle}
             onChangeText={setRouteTitle}
           />
 
           {selectedDateTime && (
-            <View style={styles.selectedDateContainer}>
-              <Text style={styles.selectedDateLabel}>{t('selectedDate')}</Text>
-              <Text style={styles.selectedDateText}>
+            <View
+              style={[
+                styles.selectedDateContainer,
+                {
+                  backgroundColor: theme.inputBackground,
+                  borderColor: theme.cardBorder,
+                },
+              ]}>
+              <Text
+                style={[
+                  styles.selectedDateLabel,
+                  {color: theme.textSecondary},
+                ]}>
+                {t('selectedDate')}
+              </Text>
+              <Text
+                style={[styles.selectedDateText, {color: theme.primaryButton}]}>
                 {selectedDateTime.toLocaleDateString(i18n.language, {
                   weekday: 'long',
                   year: 'numeric',
@@ -247,12 +341,20 @@ function Looking({navigation}) {
             <Text style={styles.buttonText}>{t('selectDate')}</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
+          {/*  <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
             <Text style={styles.searchButtonText}>{t('Continue')}</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
-          {isGenerating && (
-            <Text style={styles.loadingText}>{t('Generating route...')}</Text>
+          {isGenerating ? (
+            <Text style={[styles.loadingText, {color: theme.primaryButton}]}>
+              {t('Generating route...')}
+            </Text>
+          ) : (
+            <TouchableOpacity
+              style={styles.searchButton}
+              onPress={handleSearch}>
+              <Text style={styles.searchButtonText}>{t('Continue')}</Text>
+            </TouchableOpacity>
           )}
 
           <DatePicker
@@ -282,64 +384,55 @@ function Looking({navigation}) {
 const styles = StyleSheet.create({
   gradient: {flex: 1, justifyContent: 'center', alignItems: 'center'},
   scroll: {alignItems: 'center', paddingVertical: 30, gap: 15},
-  title: {fontSize: 24, fontWeight: '700', color: '#fff', marginBottom: 10},
-  label: {fontSize: 18, color: '#ddd', fontWeight: '600', marginTop: 10},
+  title: {fontSize: 24, fontWeight: '700', marginBottom: 10},
+  label: {fontSize: 18, fontWeight: '600', marginTop: 10},
 
   selectButton: {
     height: 55,
-    width: 320,
+    width: '90%',
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.1)',
     borderWidth: 1,
-    borderColor: '#777',
+    marginTop: 5,
   },
-  selectButtonText: {color: '#fff', fontSize: 17, fontWeight: '600'},
+  selectButtonText: {fontSize: 17, fontWeight: '600'},
 
   input: {
-    backgroundColor: '#222',
-    color: '#fff',
     padding: 10,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#555',
     marginBottom: 10,
   },
+
   modalContainer: {
     marginTop: 100,
-    backgroundColor: '#111',
     padding: 20,
     marginHorizontal: 20,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#444',
   },
-  cityItem: {padding: 12, borderBottomWidth: 1, borderColor: '#333'},
-  cityItemText: {color: '#fff', fontSize: 16, fontWeight: '500'},
+  cityItem: {padding: 12, borderBottomWidth: 1},
+  cityItemText: {fontSize: 16, fontWeight: '500'},
 
   routeInput: {
-    width: 320,
+    width: '90%',
     height: 60,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    color: '#fff',
     paddingHorizontal: 15,
     fontSize: 17,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#777',
+    marginTop: 5,
   },
   selectedDateContainer: {
     marginTop: 15,
-    backgroundColor: 'rgba(255,255,255,0.1)',
     padding: 10,
     borderRadius: 10,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#777',
   },
-  selectedDateLabel: {color: '#bbb', fontSize: 16},
-  selectedDateText: {color: '#f4511e', fontSize: 18, fontWeight: '700'},
+  selectedDateLabel: {fontSize: 16},
+  selectedDateText: {fontSize: 18, fontWeight: '700'},
 
   button: {
     backgroundColor: '#f4511e',
@@ -350,7 +443,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
   },
-  buttonText: {fontSize: 18, fontWeight: '600', color: '#fff'},
+  buttonText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#fff',
+    textAlign: 'center',
+  },
 
   searchButton: {
     backgroundColor: '#f4511e',
@@ -361,8 +459,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 15,
   },
-  searchButtonText: {fontSize: 18, fontWeight: '600', color: '#fff'},
-  loadingText: {color: '#f4511e', marginTop: 10, fontWeight: '600'},
+  searchButtonText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#fff',
+    textAlign: 'center',
+  },
+  loadingText: {marginTop: 10, fontWeight: '600'},
 });
 
 export default Looking;
