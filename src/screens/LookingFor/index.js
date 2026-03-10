@@ -302,6 +302,7 @@ function Looking({navigation}) {
             placeholderTextColor={theme.textSecondary}
             value={routeTitle}
             onChangeText={setRouteTitle}
+            maxLength={30}
           />
 
           {selectedDateTime && (
@@ -389,7 +390,7 @@ const styles = StyleSheet.create({
 
   selectButton: {
     height: 55,
-    width: '90%',
+    width: 340,
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
