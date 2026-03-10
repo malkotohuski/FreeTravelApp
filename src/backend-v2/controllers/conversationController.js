@@ -52,6 +52,9 @@ exports.startConversation = async (req, res) => {
           user2: {select: {id: true, username: true}},
         },
       });
+      if (global.io) {
+        global.io.to('user_' + user2Id).emit('newConversation', conversation);
+      }
     }
 
     res.json(conversation);
@@ -95,6 +98,23 @@ exports.sendMessage = async (req, res) => {
     const message = await prisma.message.create({
       data: {conversationId, senderId, text},
     });
+
+    const conversation = await prisma.conversation.findUnique({
+      where: {id: conversationId},
+    });
+
+    const receiverId =
+      conversation.user1Id === senderId
+        ? conversation.user2Id
+        : conversation.user1Id;
+
+    // изпращаме съобщението в реално време
+    if (global.io) {
+      global.io.to('user_' + receiverId).emit('newMessage', {
+        conversationId,
+        message,
+      });
+    }
 
     // 🔥 Auto-restore conversation, ако някой е скрил
     await prisma.conversation.update({

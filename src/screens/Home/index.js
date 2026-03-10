@@ -16,6 +16,7 @@ import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import api from '../../api/api';
 import {useAuth} from '../../context/AuthContext';
 import {DarkModeContext} from '../../navigation/DarkModeContext';
+import socket from '../../socket/socket';
 
 function HomePage({navigation}) {
   const {darkMode} = useContext(DarkModeContext);
@@ -26,15 +27,45 @@ function HomePage({navigation}) {
   const [isBulgaria, setisBulgaria] = useState(false);
   const [notificationCount, setNotificationCount] = useState(0);
   const [reqestsCount, setReqestsCount] = useState(0);
+  const [chatNotificationCount, setChatNotificationCount] = useState(0);
 
   const loginUser = user?.username;
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    socket.emit('joinUserRoom', user.id);
+
+    socket.on('newConversation', () => {
+      setChatNotificationCount(prev => {
+        if (prev === '9+') return '9+';
+        const next = Number(prev || 0) + 1;
+        return next > 9 ? '9+' : next;
+      });
+    });
+
+    socket.on('newMessage', data => {
+      if (data?.message?.senderId === user.id) return;
+
+      setChatNotificationCount(prev => {
+        if (prev === '9+') return '9+';
+        const next = Number(prev || 0) + 1;
+        return next > 9 ? '9+' : next;
+      });
+    });
+
+    return () => {
+      socket.off('newConversation');
+      socket.off('newMessage');
+    };
+  }, [user?.id]);
 
   const getContainerStyle = () => ({
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'space-between',
     height: '100%',
-    backgroundColor: darkMode ? '#121212' : '#fff', // Поставяме условие за тъмен/светъл фон
+    backgroundColor: darkMode ? '#121212' : '#fff',
   });
 
   const getBackgroundImage = () => {
@@ -48,7 +79,7 @@ function HomePage({navigation}) {
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 10,
-    color: darkMode ? '#FFFDFDFF' : '#010101', // Текстовият цвят ще бъде по-светъл в тъмния режим
+    color: darkMode ? '#FFFDFDFF' : '#010101',
   });
 
   const getButtonStyle = (color = '#000') => ({
@@ -74,9 +105,9 @@ function HomePage({navigation}) {
   const getFooterStyle = () => ({
     flexDirection: 'row',
     justifyContent: 'space-around',
-    alignItems: 'center', // Центриране на иконите вертикално
+    alignItems: 'center',
     paddingVertical: 10,
-    backgroundColor: darkMode ? '#333232FF' : '#f4511e', // По-тъмно оранжево за тъмен режим
+    backgroundColor: darkMode ? '#333232FF' : '#f4511e',
     position: 'absolute',
     bottom: 0,
     left: 0,
@@ -90,8 +121,18 @@ function HomePage({navigation}) {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: darkMode ? '#010101' : '#f1f1f1', // Цветът на иконките, промени го според нуждите си
+    backgroundColor: darkMode ? '#010101' : '#f1f1f1',
     justifyContent: 'center',
+  });
+
+  const getChatIconBackground = () => ({
+    alignItems: 'center',
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    backgroundColor:
+      chatNotificationCount > 0 ? '#bd0e05' : darkMode ? '#010101' : '#f1f1f1',
   });
 
   const getNotificationIconColor = () => ({
@@ -99,25 +140,19 @@ function HomePage({navigation}) {
     size: 34,
   });
 
+  // =================== Fetch notifications ===================
   useEffect(() => {
     const fetchNotifications = async () => {
       if (!loginUser) return;
-
       try {
         const response = await api.get('/api/notifications');
-
-        // 1️⃣ Вземаме само непрочетените
         let unreadNotifications = response.data.filter(n => !n.read);
-
-        // 2️⃣ Филтрираме дубликатите по routeId + message
         unreadNotifications = unreadNotifications.filter(
           (v, i, a) =>
             a.findIndex(
               n => n.routeId === v.routeId && n.message === v.message,
             ) === i,
         );
-
-        // 3️⃣ Сетваме брояча
         setNotificationCount(
           unreadNotifications.length > 9 ? '9+' : unreadNotifications.length,
         );
@@ -125,26 +160,19 @@ function HomePage({navigation}) {
         console.error('Failed to fetch notifications:', error);
       }
     };
-
     fetchNotifications();
   }, [loginUser]);
 
+  // =================== Fetch route requests ===================
   useEffect(() => {
     const fetchRequests = async () => {
       const userId = user?.id;
-
-      if (!userId) {
-        console.log('Missing login user or route ID.');
-        return;
-      }
-
+      if (!userId) return;
       try {
         const response = await api.get('/api/requests');
-
         const pendingRequests = response.data.filter(
           req => req.userRouteId === userId && req.status === 'pending',
         );
-
         setReqestsCount(
           pendingRequests.length > 9 ? '9+' : pendingRequests.length,
         );
@@ -152,133 +180,90 @@ function HomePage({navigation}) {
         console.error('Failed to fetch route requests:', error);
       }
     };
-
     fetchRequests();
   }, [user?.id]);
 
+  // =================== Polling for new chat messages ===================
   useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      // Проверка за параметри от Notifications, които показват, че броят на нотификациите трябва да бъде занулен
-      if (route.params?.resetNotificationCount) {
-        setNotificationCount(0);
+    if (!user?.id) return;
+
+    const fetchUnread = async () => {
+      try {
+        const res = await api.get(`/api/conversations/user/${user.id}`);
+
+        let totalUnread = 0;
+
+        res.data.forEach(conv => {
+          if (conv.unreadCount > 0) {
+            totalUnread += conv.unreadCount;
+          }
+        });
+
+        setChatNotificationCount(totalUnread > 9 ? '9+' : totalUnread);
+      } catch (err) {
+        console.error('Failed to fetch unread:', err);
       }
-    });
+    };
 
-    return unsubscribe;
-  }, [navigation, route.params]);
+    fetchUnread();
+  }, [user?.id]);
 
+  // =================== Language switch ===================
   const changeLanguage = async lng => {
     await i18next.changeLanguage(lng);
     setisBulgaria(lng === 'bg');
   };
 
-  const handlerVehicle = () => {
-    navigation.navigate('Vehicle');
-    console.log('Vehicle clicked !!!');
-  };
-
+  // =================== Navigation handlers ===================
+  const handlerVehicle = () => navigation.navigate('Vehicle');
   const handlerRouteRequest = async () => {
     try {
-      // Вземаме всички заявки
       const response = await api.get('/api/requests');
-
-      // Филтрираме чакащите към текущия потребител
       const pendingRequests = response.data.filter(
         req =>
           req.userRouteId === user?.id && req.status === 'pending' && !req.read,
       );
-
-      // Обновяваме статуса на всяка на сървъра
       for (const request of pendingRequests) {
-        console.log(
-          'PATCH read request ID:',
-          request.id,
-          'type:',
-          typeof request.id,
-        );
-        if (!request.id) continue; // skip ако няма id
+        if (!request.id) continue;
         await api.patch(`/api/requests/${request.id}/read`);
       }
-      // Нулираме брояча на клиента
       setReqestsCount(0);
-
-      // Навигираме към екрана Route Request
       navigation.navigate('Route request');
-      console.log('RouteRequest clicked !!!');
     } catch (error) {
       console.error('Failed to mark requests as read:', error);
       Alert.alert('Error', 'Failed to update requests.');
     }
   };
-
-  const handlerLooking = () => {
-    navigation.navigate('Looking');
-    console.log('Looking clicked !!!');
-  };
-
-  const handlerSeekers = () => {
-    navigation.navigate('Seekers');
-    console.log('Seekers clicked !!!');
-  };
-
-  const handlerRouteViewer = () => {
-    navigation.navigate('ViewRoutes');
-    console.log('View Routes clicked !!!');
-  };
-
-  const handlerReporting = () => {
-    navigation.navigate('Reporting');
-    console.log('Reporting clicked !!!');
-  };
-
+  const handlerLooking = () => navigation.navigate('Looking');
+  const handlerSeekers = () => navigation.navigate('Seekers');
+  const handlerRouteViewer = () => navigation.navigate('ViewRoutes');
   const handlerChatScreen = () => {
+    setChatNotificationCount(0); // нулираме при влизане в чат
     navigation.navigate('ConversationsScreen');
   };
-  const getDisabledIconBackground = () => ({
-    alignItems: 'center',
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: darkMode ? '#2a2a2a' : '#cccccc',
-    justifyContent: 'center',
-    opacity: 0.6,
-  });
-
   const handlerNotificationScreen = async () => {
     try {
       if (!loginUser) return;
-
       const response = await api.get('/api/notifications');
-
-      // 1️⃣ Вземаме само непрочетените
       let unreadNotifications = response.data.filter(n => !n.read);
-
-      // 2️⃣ Филтрираме дубликатите
       unreadNotifications = unreadNotifications.filter(
         (v, i, a) =>
           a.findIndex(
             n => n.routeId === v.routeId && n.message === v.message,
           ) === i,
       );
-
-      // 3️⃣ Маркираме всяка като прочетена
       for (const notification of unreadNotifications) {
         await api.put(`/api/notifications/read/${notification.id}`);
       }
-
-      // 4️⃣ Нулираме брояча
       setNotificationCount(0);
-
-      // 5️⃣ Навигираме
-      navigation.navigate('Notifications', {
-        resetNotificationCount: true,
-      });
+      navigation.navigate('Notifications', {resetNotificationCount: true});
     } catch (error) {
       console.error('Failed to mark notifications as read:', error);
       Alert.alert('Error', 'Failed to update notifications.');
     }
   };
 
+  // =================== Render ===================
   return (
     <SafeAreaView style={{flex: 1}}>
       <ScrollView contentContainerStyle={{flexGrow: 1, paddingBottom: 60}}>
@@ -290,6 +275,7 @@ function HomePage({navigation}) {
             <Text style={getTextStyle()}>{t('We travel freely')}</Text>
           </View>
           <View style={{flex: 1}}>
+            {/* Language Switch */}
             <View style={styles.languageSwitchContainer}>
               <TouchableOpacity
                 style={styles.languageButton}
@@ -325,7 +311,7 @@ function HomePage({navigation}) {
                     fontWeight: '900',
                     fontSize: 24,
                     backgroundColor: darkMode
-                      ? 'rgba(255, 255, 255, 0.1)'
+                      ? 'rgba(255,255,255,0.1)'
                       : 'transparent',
                     paddingHorizontal: 10,
                     borderRadius: 5,
@@ -335,8 +321,8 @@ function HomePage({navigation}) {
               </TouchableOpacity>
             </View>
 
+            {/* Menu Buttons */}
             <View style={styles.menuImages}>
-              {/* Create a route (Driver) */}
               <TouchableOpacity
                 style={[getButtonStyle(), styles.fullWidthButton]}
                 onPress={handlerVehicle}>
@@ -352,7 +338,6 @@ function HomePage({navigation}) {
                 </View>
               </TouchableOpacity>
 
-              {/* Create request (Passenger) */}
               <TouchableOpacity
                 style={[getButtonStyle(), styles.fullWidthButton]}
                 onPress={handlerLooking}>
@@ -368,7 +353,6 @@ function HomePage({navigation}) {
                 </View>
               </TouchableOpacity>
 
-              {/* Seekers (Passengers) */}
               <TouchableOpacity
                 style={[getButtonStyle(), styles.fullWidthButton]}
                 onPress={handlerSeekers}>
@@ -384,7 +368,6 @@ function HomePage({navigation}) {
                 </View>
               </TouchableOpacity>
 
-              {/* Offering (Drivers) */}
               <TouchableOpacity
                 style={[getButtonStyle(), styles.fullWidthButton]}
                 onPress={handlerRouteViewer}>
@@ -400,27 +383,11 @@ function HomePage({navigation}) {
                 </View>
               </TouchableOpacity>
             </View>
-
-            {/*  <View style={styles.searchBox}>
-                    <View style={styles.searchContainer}>
-                        <TextInput
-                            style={styles.searchField}
-                            placeholderTextColor={'#F5FDFE'}
-                            placeholder={t('Search here')}
-                        />
-                    </View>
-                    <TouchableOpacity
-                        style={styles.searchButton}
-                        onPress={() => {
-
-                        }}
-                    >
-                        <Text style={styles.searchButtonText}>{t('Search')}</Text>
-                    </TouchableOpacity>
-                </View> */}
           </View>
         </View>
       </ScrollView>
+
+      {/* Footer */}
       <View style={getFooterStyle()}>
         <View style={styles.notificationWrapper}>
           <TouchableOpacity
@@ -434,14 +401,23 @@ function HomePage({navigation}) {
             )}
           </TouchableOpacity>
         </View>
+
         <View style={styles.notificationWrapper}>
           <TouchableOpacity
-            style={getNotificationIconBackground()}
+            style={getChatIconBackground()}
             onPress={handlerChatScreen}
             activeOpacity={0.8}>
             <Icons name="chat-processing" {...getNotificationIconColor()} />
+            {chatNotificationCount > 0 && (
+              <View style={styles.notificationBadge}>
+                <Text style={styles.notificationText}>
+                  {chatNotificationCount}
+                </Text>
+              </View>
+            )}
           </TouchableOpacity>
         </View>
+
         <View style={styles.notificationWrapper}>
           <TouchableOpacity
             style={getNotificationIconBackground()}

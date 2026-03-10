@@ -11,12 +11,50 @@ import {useAuth} from '../../context/AuthContext';
 import api from '../../api/api';
 import {useTranslation} from 'react-i18next';
 import {useTheme} from '../../theme/useTheme';
+import socket from '../../socket/socket';
 
 const ConversationsScreen = ({navigation}) => {
   const {t} = useTranslation();
   const {user} = useAuth();
   const [conversations, setConversations] = useState([]);
   const theme = useTheme();
+
+  useEffect(() => {
+    socket.on('newConversation', conv => {
+      setConversations(prev => [conv, ...prev]);
+    });
+
+    socket.on('newMessage', ({conversationId, message}) => {
+      setConversations(prev =>
+        prev.map(conv =>
+          conv.id === conversationId
+            ? {
+                ...conv,
+                messages: [...(conv.messages || []), message],
+              }
+            : conv,
+        ),
+      );
+    });
+
+    return () => {
+      socket.off('newConversation');
+      socket.off('newMessage');
+    };
+  }, []);
+
+  useEffect(() => {
+    const fetchConversations = async () => {
+      try {
+        const res = await api.get(`/api/conversations/user/${user.id}`);
+        setConversations(res.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchConversations();
+  }, []);
 
   const formatDate = date => {
     const messageDate = new Date(date);
@@ -52,19 +90,6 @@ const ConversationsScreen = ({navigation}) => {
 
     return messageDate.toLocaleDateString('bg-BG');
   };
-
-  useEffect(() => {
-    const fetchConversations = async () => {
-      try {
-        const res = await api.get(`/api/conversations/user/${user.id}`);
-        setConversations(res.data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    fetchConversations();
-  }, []);
 
   return (
     <View style={[styles.screen, {backgroundColor: theme.gradient[0]}]}>

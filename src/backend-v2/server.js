@@ -7,6 +7,9 @@ const prisma = new PrismaClient();
 const authenticateJWT = require('./middlewares/authenticateJWT');
 const multer = require('multer');
 
+const http = require('http');
+const {Server} = require('socket.io');
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -80,7 +83,28 @@ app.use((err, req, res, next) => {
   res.status(500).json({error: 'Server error'});
 });
 
-app.listen(3000, () => {
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: '*',
+  },
+});
+
+global.io = io;
+
+io.on('connection', socket => {
+  console.log('User connected:', socket.id);
+
+  socket.on('joinUserRoom', userId => {
+    socket.join('user_' + userId);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.id);
+  });
+});
+
+server.listen(3000, () => {
   console.log('Server running on port 3000');
 });
 

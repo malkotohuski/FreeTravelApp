@@ -14,6 +14,7 @@ import {useAuth} from '../../context/AuthContext';
 import {useTranslation} from 'react-i18next';
 import api from '../../api/api';
 import {useTheme} from '../../theme/useTheme';
+import socket from '../../socket/socket';
 
 const ChatScreen = ({route}) => {
   const {t} = useTranslation();
@@ -40,6 +41,31 @@ const ChatScreen = ({route}) => {
     otherMessage: darkMode ? '#eeeeee' : '#2a2a2a',
   };
  */
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    socket.emit('joinUserRoom', user.id);
+  }, [user?.id]);
+
+  useEffect(() => {
+    socket.on('newMessage', ({conversationId: convId, message}) => {
+      if (convId === route.params.conversationId) {
+        setMessages(prev => {
+          // проверка дали вече имаме съобщението по ID
+          if (prev.some(msg => msg.id === message.id)) return prev;
+          return [...prev, message];
+        });
+
+        setTimeout(() => {
+          flatListRef.current?.scrollToEnd({animated: true});
+        }, 100);
+      }
+    });
+
+    return () => socket.off('newMessage');
+  }, []);
+
   useEffect(() => {
     if (!conversationId || !user?.id) return;
 
@@ -74,10 +100,6 @@ const ChatScreen = ({route}) => {
     };
 
     fetchMessages();
-
-    const interval = setInterval(fetchMessages, 2000); // 🔥 refresh на 2 секунди
-
-    return () => clearInterval(interval);
   }, [conversationId]);
 
   const sendMessage = async () => {
@@ -90,7 +112,16 @@ const ChatScreen = ({route}) => {
           text,
         },
       );
-      setMessages(prev => [...prev, res.data]);
+
+      setMessages(prev => {
+        if (prev.some(msg => msg.id === res.data.id)) return prev;
+        return [...prev, res.data];
+      });
+
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({animated: true});
+      }, 100);
+
       setText('');
     } catch (err) {
       console.error(err);
