@@ -124,6 +124,7 @@ export default function Seekers({navigation}) {
               // 2️⃣ Реалната заявка за маршрута
               const tripRequestPayload = {
                 seekerRequestId: selectedRoute.id,
+                routeId: selectedRoute.routeId,
                 username: user.username,
                 userFname: user.fName,
                 userLname: user.lName,

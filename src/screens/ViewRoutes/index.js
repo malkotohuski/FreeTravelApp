@@ -60,10 +60,12 @@ function ViewRoutes({navigation}) {
           .includes(enteredArrivalCity.toLowerCase()),
     );
 
+    // филтрираме само маршрути, които НЕ са seeking-driver
     filtered = filtered.filter(
       route =>
         new Date(route.selectedDateTime) >= new Date() &&
-        route.status !== 'completed',
+        route.status !== 'completed' &&
+        route.selectedVehicle !== 'seeking-driver',
     );
 
     if (sortByDate) {
@@ -94,8 +96,12 @@ function ViewRoutes({navigation}) {
     try {
       setLoading(true);
       const response = await api.get('api/routes');
-      setRoutes(response.data);
-      setFilteredRoutesState(response.data);
+      // филтрираме само маршрути, които НЕ са seeking-driver
+      const offeredRoutes = response.data.filter(
+        route => route.selectedVehicle !== 'seeking-driver',
+      );
+      setRoutes(offeredRoutes);
+      setFilteredRoutesState(offeredRoutes);
     } catch (error) {
       console.error('Fetch error:', error);
     } finally {
