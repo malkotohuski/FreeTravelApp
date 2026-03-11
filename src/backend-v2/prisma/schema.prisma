@@ -118,6 +118,9 @@ model Route {
 
   owner    User @relation("UserRoutes", fields: [ownerId], references: [id])
   requests Request[] @relation("RouteRequests")
+  
+  isSeekerRoute Boolean @default(false)
+  seekerRequests SeekerRequest[]
 }
 
 // ======================
@@ -129,6 +132,9 @@ model SeekerRequest {
 
   userId           Int
   user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  routeId          Int?
+  route            Route?   @relation(fields: [routeId], references: [id])
 
   username         String
   userFname        String
@@ -145,7 +151,7 @@ model SeekerRequest {
 
   createdAt        DateTime @default(now())
 
-    requests        Request[]
+  requests        Request[]
 }
 
 // ======================

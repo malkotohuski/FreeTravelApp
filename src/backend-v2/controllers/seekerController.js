@@ -39,12 +39,26 @@ exports.createSeekerRequest = async (req, res) => {
       });
     }
 
-    const seeker = await prisma.seekerRequest.create({
+    const newRoute = await prisma.route.create({
       data: {
+        ownerId: userId,
+        selectedVehicle: 'seeking-driver',
         departureCity,
         arrivalCity,
         selectedDateTime: new Date(selectedDateTime),
         routeTitle,
+      },
+    });
+
+    const seeker = await prisma.seekerRequest.create({
+      data: {
+        routeId: newRoute.id,
+
+        departureCity,
+        arrivalCity,
+        selectedDateTime: new Date(selectedDateTime),
+        routeTitle,
+
         userId: user.id,
         username: user.username,
         userFname: user.fName || '',
