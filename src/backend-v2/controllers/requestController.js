@@ -218,7 +218,7 @@ exports.makeDecision = async (req, res) => {
 
       if (request.routeId) {
         // Upsert за реален route
-        await prisma.conversation.upsert({
+        const conversation = await prisma.conversation.upsert({
           where: {
             routeId_user1Id_user2Id: {
               routeId: request.routeId,
@@ -235,6 +235,15 @@ exports.makeDecision = async (req, res) => {
             arrivalCity,
           },
         });
+
+        if (global.io) {
+          global.io
+            .to('user_' + request.toUserId)
+            .emit('newConversation', conversation);
+          global.io
+            .to('user_' + request.userID)
+            .emit('newConversation', conversation);
+        }
       } else {
         // Просто findFirst + create за seekerRequest
         const existingConv = await prisma.conversation.findFirst({
@@ -246,7 +255,7 @@ exports.makeDecision = async (req, res) => {
         });
 
         if (!existingConv) {
-          await prisma.conversation.create({
+          const conversation = await prisma.conversation.create({
             data: {
               routeId: null,
               user1Id: request.toUserId,
@@ -255,6 +264,15 @@ exports.makeDecision = async (req, res) => {
               arrivalCity,
             },
           });
+
+          if (global.io) {
+            global.io
+              .to('user_' + request.toUserId)
+              .emit('newConversation', conversation);
+            global.io
+              .to('user_' + request.userID)
+              .emit('newConversation', conversation);
+          }
         }
       }
     }

@@ -19,24 +19,14 @@ function RouteDetails({route}) {
   const {t} = useTranslation();
   const navigation = useNavigation();
   const {user} = useAuth();
-  console.log('Route params:', route.params);
   const {username, userFname, userLname, userEmail, routeId} = route.params;
-  const loginUser = user?.username;
 
   const requesterUsername = user?.username;
-  const requestUserFirstName = user?.fName;
-  const requestUserLastName = user?.lName;
-  const requestUserEmail = user?.email;
-  const departureCityEmail = route.params.departureCity;
-  const arrivalCityEmail = route.params.arrivalCity;
+
   const departureCity = route.params.departureCity;
   const arrivalCity = route.params.arrivalCity;
 
-  const routeDateTime = route.params.selectedDateTime;
-  /*  const dataTime = routeDateTime.replace('T', ' ').replace('.000Z', ''); */
-
   const [tripRequestText, setTripRequestText] = useState('');
-  const [notificationCount, setNotificationCount] = useState(0);
   const [hasRequested, setHasRequested] = useState(false);
   const isOwnRoute = requesterUsername === username;
 

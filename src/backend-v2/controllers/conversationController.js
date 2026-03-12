@@ -53,6 +53,7 @@ exports.startConversation = async (req, res) => {
         },
       });
       if (global.io) {
+        global.io.to('user_' + user1Id).emit('newConversation', conversation);
         global.io.to('user_' + user2Id).emit('newConversation', conversation);
       }
     }

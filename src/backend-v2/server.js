@@ -96,7 +96,14 @@ io.on('connection', socket => {
   console.log('User connected:', socket.id);
 
   socket.on('joinUserRoom', userId => {
-    socket.join('user_' + userId);
+    const room = 'user_' + userId;
+
+    socket.join(room);
+
+    console.log(`User ${socket.id} joined room ${room}`);
+
+    // confirm към клиента
+    socket.emit('joinedRoom', room);
   });
 
   socket.on('disconnect', () => {

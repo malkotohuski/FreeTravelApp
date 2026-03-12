@@ -1,5 +1,5 @@
 import i18next from 'i18next';
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useState, useEffect, useContext, useCallback} from 'react';
 import {
   View,
   Text,
@@ -8,19 +8,22 @@ import {
   Alert,
   ScrollView,
   SafeAreaView,
+  Animated,
+  Vibration,
 } from 'react-native';
-import {useRoute} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
+import {useFocusEffect} from '@react-navigation/native';
 import styles from './styles';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import api from '../../api/api';
 import {useAuth} from '../../context/AuthContext';
 import {DarkModeContext} from '../../navigation/DarkModeContext';
 import socket from '../../socket/socket';
+import Toast from 'react-native-toast-message';
 
 function HomePage({navigation}) {
   const {darkMode} = useContext(DarkModeContext);
-  const route = useRoute();
+
   const {user} = useAuth();
 
   const {t} = useTranslation();
@@ -31,30 +34,60 @@ function HomePage({navigation}) {
 
   const loginUser = user?.username;
 
+  const pulseAnim = useState(new Animated.Value(0))[0];
+  const glowAnim = useState(new Animated.Value(0))[0];
+  const bounceAnim = useState(new Animated.Value(0))[0];
+
   useEffect(() => {
     if (!user?.id) return;
 
     socket.emit('joinUserRoom', user.id);
 
-    socket.on('newConversation', () => {
+    console.log('Joining room for user:', user.id);
+
+    socket.on('joinedRoom', room => {
+      console.log('Joined socket room:', room);
+    });
+
+    socket.on('newConversation', conv => {
+      Animated.sequence([
+        Animated.timing(bounceAnim, {
+          toValue: -16,
+          duration: 200,
+          useNativeDriver: false,
+        }),
+        Animated.spring(bounceAnim, {
+          toValue: 0,
+          friction: 3,
+          useNativeDriver: false,
+        }),
+      ]).start();
+      console.log('🔥 newConversation received:', conv);
+
+      Vibration.vibrate([0, 150, 70, 150, 70, 150]);
+
       setChatNotificationCount(prev => {
-        if (prev === '9+') return '9+';
         const next = Number(prev || 0) + 1;
         return next > 9 ? '9+' : next;
+      });
+
+      Toast.show({
+        type: 'success',
+        text1: 'New chat started',
+        text2: `${conv.departureCity} → ${conv.arrivalCity}`,
+        position: 'top',
+        visibilityTime: 7000,
+        autoHide: true,
+        topOffset: 60,
       });
     });
 
     socket.on('newMessage', data => {
-      if (data?.message?.senderId === user.id) return;
-
-      setChatNotificationCount(prev => {
-        if (prev === '9+') return '9+';
-        const next = Number(prev || 0) + 1;
-        return next > 9 ? '9+' : next;
-      });
+      console.log('📩 newMessage received:', data);
     });
 
     return () => {
+      socket.off('joinedRoom');
       socket.off('newConversation');
       socket.off('newMessage');
     };
@@ -140,6 +173,42 @@ function HomePage({navigation}) {
     size: 34,
   });
 
+  useEffect(() => {
+    if (chatNotificationCount > 0) {
+      Animated.loop(
+        Animated.parallel([
+          Animated.sequence([
+            Animated.timing(pulseAnim, {
+              toValue: 1.2,
+              duration: 1200,
+              useNativeDriver: false,
+            }),
+            Animated.timing(pulseAnim, {
+              toValue: 1,
+              duration: 1200,
+              useNativeDriver: false,
+            }),
+          ]),
+          Animated.sequence([
+            Animated.timing(glowAnim, {
+              toValue: 1,
+              duration: 1600,
+              useNativeDriver: false,
+            }),
+            Animated.timing(glowAnim, {
+              toValue: 0,
+              duration: 1600,
+              useNativeDriver: false,
+            }),
+          ]),
+        ]),
+      ).start();
+    } else {
+      pulseAnim.setValue(1);
+      glowAnim.setValue(0);
+    }
+  }, [chatNotificationCount]);
+
   // =================== Fetch notifications ===================
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -164,49 +233,59 @@ function HomePage({navigation}) {
   }, [loginUser]);
 
   // =================== Fetch route requests ===================
+  const fetchRequests = async () => {
+    const userId = user?.id;
+    if (!userId) return;
+
+    try {
+      const response = await api.get('/api/requests');
+
+      const pendingRequests = response.data.filter(
+        req => req.toUserId === userId && req.status === 'pending',
+      );
+
+      setReqestsCount(
+        pendingRequests.length > 9 ? '9+' : pendingRequests.length,
+      );
+    } catch (error) {
+      console.error('Failed to fetch route requests:', error);
+    }
+  };
+
   useEffect(() => {
-    const fetchRequests = async () => {
-      const userId = user?.id;
-      if (!userId) return;
-      try {
-        const response = await api.get('/api/requests');
-        const pendingRequests = response.data.filter(
-          req => req.userRouteId === userId && req.status === 'pending',
-        );
-        setReqestsCount(
-          pendingRequests.length > 9 ? '9+' : pendingRequests.length,
-        );
-      } catch (error) {
-        console.error('Failed to fetch route requests:', error);
-      }
-    };
     fetchRequests();
   }, [user?.id]);
 
+  useFocusEffect(
+    useCallback(() => {
+      fetchRequests();
+    }, [user?.id]),
+  );
+
   // =================== Polling for new chat messages ===================
-  useEffect(() => {
-    if (!user?.id) return;
+  useFocusEffect(
+    useCallback(() => {
+      const fetchUnread = async () => {
+        try {
+          const res = await api.get(`/api/conversations/user/${user.id}`);
 
-    const fetchUnread = async () => {
-      try {
-        const res = await api.get(`/api/conversations/user/${user.id}`);
+          let totalUnread = 0;
 
-        let totalUnread = 0;
+          res.data.forEach(conv => {
+            if (conv.unreadCount > 0) {
+              totalUnread += conv.unreadCount;
+            }
+          });
 
-        res.data.forEach(conv => {
-          if (conv.unreadCount > 0) {
-            totalUnread += conv.unreadCount;
-          }
-        });
+          setChatNotificationCount(totalUnread > 9 ? '9+' : totalUnread);
+        } catch (err) {
+          console.error(err);
+        }
+      };
 
-        setChatNotificationCount(totalUnread > 9 ? '9+' : totalUnread);
-      } catch (err) {
-        console.error('Failed to fetch unread:', err);
-      }
-    };
-
-    fetchUnread();
-  }, [user?.id]);
+      fetchUnread();
+    }, [user?.id]),
+  );
 
   // =================== Language switch ===================
   const changeLanguage = async lng => {
@@ -221,7 +300,7 @@ function HomePage({navigation}) {
       const response = await api.get('/api/requests');
       const pendingRequests = response.data.filter(
         req =>
-          req.userRouteId === user?.id && req.status === 'pending' && !req.read,
+          req.toUserId === user?.id && req.status === 'pending' && !req.read,
       );
       for (const request of pendingRequests) {
         if (!request.id) continue;
@@ -388,43 +467,92 @@ function HomePage({navigation}) {
       </ScrollView>
 
       {/* Footer */}
+      {/* Footer */}
       <View style={getFooterStyle()}>
+        {/* Route Requests */}
         <View style={styles.notificationWrapper}>
           <TouchableOpacity
             style={getNotificationIconBackground()}
-            onPress={handlerRouteRequest}>
-            <Icons name="routes" {...getNotificationIconColor()} />
+            onPress={handlerRouteRequest}
+            activeOpacity={0.8}>
+            <Icons
+              name="routes"
+              size={34}
+              color={darkMode ? '#f1f1f1' : '#010101'}
+            />
             {reqestsCount > 0 && (
-              <View style={styles.notificationBadge}>
+              <View
+                style={[
+                  styles.notificationBadge,
+                  {backgroundColor: '#bd0e05'},
+                ]}>
                 <Text style={styles.notificationText}>{reqestsCount}</Text>
               </View>
             )}
           </TouchableOpacity>
         </View>
 
+        {/* Chat */}
         <View style={styles.notificationWrapper}>
-          <TouchableOpacity
-            style={getChatIconBackground()}
-            onPress={handlerChatScreen}
-            activeOpacity={0.8}>
-            <Icons name="chat-processing" {...getNotificationIconColor()} />
-            {chatNotificationCount > 0 && (
-              <View style={styles.notificationBadge}>
-                <Text style={styles.notificationText}>
-                  {chatNotificationCount}
-                </Text>
-              </View>
-            )}
-          </TouchableOpacity>
+          <Animated.View
+            style={{
+              transform: [{scale: pulseAnim}, {translateY: bounceAnim}],
+              shadowColor: '#ff0000',
+              shadowOpacity: glowAnim,
+              shadowRadius: 15,
+              elevation: glowAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, 15],
+              }),
+            }}>
+            <TouchableOpacity
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 50,
+                height: 50,
+                borderRadius: 25,
+                backgroundColor: darkMode ? '#222' : '#f1f1f1', // винаги видим
+              }}
+              onPress={handlerChatScreen}
+              activeOpacity={0.8}>
+              <Icons
+                name="chat-processing"
+                size={34}
+                color={darkMode ? '#f1f1f1' : '#010101'} // винаги видим
+              />
+              {chatNotificationCount > 0 && (
+                <View
+                  style={[
+                    styles.notificationBadge,
+                    {backgroundColor: '#bd0e05'},
+                  ]}>
+                  <Text style={styles.notificationText}>
+                    {chatNotificationCount}
+                  </Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          </Animated.View>
         </View>
 
+        {/* General Notifications */}
         <View style={styles.notificationWrapper}>
           <TouchableOpacity
             style={getNotificationIconBackground()}
-            onPress={handlerNotificationScreen}>
-            <Icons name="bell" {...getNotificationIconColor()} />
+            onPress={handlerNotificationScreen}
+            activeOpacity={0.8}>
+            <Icons
+              name="bell"
+              size={34}
+              color={darkMode ? '#f1f1f1' : '#010101'}
+            />
             {notificationCount > 0 && (
-              <View style={styles.notificationBadge}>
+              <View
+                style={[
+                  styles.notificationBadge,
+                  {backgroundColor: '#bd0e05'},
+                ]}>
                 <Text style={styles.notificationText}>{notificationCount}</Text>
               </View>
             )}

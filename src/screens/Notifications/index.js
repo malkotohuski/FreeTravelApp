@@ -22,8 +22,6 @@ const Notifications = ({navigation}) => {
 
   const [notifications, setNotifications] = useState([]);
   const [visibleModalId, setVisibleModalId] = useState(null);
-  const [respondModalVisible, setRespondModalVisible] = useState(false);
-  const [respondingTo, setRespondingTo] = useState(null);
 
   // fetch notifications и reset на state за да няма дубли
   const fetchNotifications = async () => {
