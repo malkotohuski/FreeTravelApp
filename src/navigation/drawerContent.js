@@ -47,15 +47,6 @@ import AboutUsScreen from '../screens/Settings/AboutUsScreen';
 
 const Drawer = createDrawerNavigator();
 
-const styles = StyleSheet.create({
-  backgroundImage: {
-    flex: 1,
-    resizeMode: 'cover',
-    justifyContent: 'center',
-    opacity: 0.8, // Настройка на прозрачността на картината
-  },
-});
-
 export const Navigator = () => {
   const {t} = useTranslation();
   const {darkMode} = useContext(DarkModeContext);
@@ -65,23 +56,10 @@ export const Navigator = () => {
     return null; // или <SplashScreen />
   }
 
-  //const backgroundImage = require('../../images/drawer.jpg');
-
   const screenStyles = {
     headerStyle: {backgroundColor: darkMode ? '#333232FF' : '#f4511e'},
     headerTintColor: darkMode ? '#f1f1f1' : '#F1F1F1',
   };
-
-  const renderLogoutIcon = ({navigation}) => (
-    <TouchableOpacity
-      style={{marginRight: 16}}
-      onPress={() => {
-        // Handle the press event, navigate to the 'LogoutScreen'
-        navigation.navigate('LogoutScreen');
-      }}>
-      <Icon name="logout" size={24} color="white" />
-    </TouchableOpacity>
-  );
 
   const renderManageAccountsIcon = ({navigation}) => (
     <TouchableOpacity
@@ -128,18 +106,6 @@ export const Navigator = () => {
     </TouchableOpacity>
   );
 
-  const renderBackButtonIcons = ({navigation}) => (
-    <TouchableOpacity
-      style={{
-        marginRight: 16,
-      }}
-      onPress={() => {
-        navigation.navigate('Vehicle');
-      }}>
-      <Icons name="keyboard-backspace" size={24} color="white" />
-    </TouchableOpacity>
-  );
-
   const BackButtonRouteRequests = ({navigation}) => (
     <TouchableOpacity
       style={{marginRight: 16}}
@@ -165,26 +131,6 @@ export const Navigator = () => {
       style={{marginRight: 16}}
       onPress={() => {
         navigation.navigate('Settings');
-      }}>
-      <Icons name="keyboard-backspace" size={24} color="white" />
-    </TouchableOpacity>
-  );
-
-  const BackButtonToSeekers = ({navigation}) => (
-    <TouchableOpacity
-      style={{marginRight: 16}}
-      onPress={() => {
-        navigation.navigate('Seekers');
-      }}>
-      <Icons name="keyboard-backspace" size={24} color="white" />
-    </TouchableOpacity>
-  );
-
-  const BackButtonToRouteDetails = ({navigation}) => (
-    <TouchableOpacity
-      style={{marginRight: 16}}
-      onPress={() => {
-        navigation.navigate('RouteDetails');
       }}>
       <Icons name="keyboard-backspace" size={24} color="white" />
     </TouchableOpacity>
@@ -306,8 +252,7 @@ export const Navigator = () => {
                         flexDirection: 'row',
                         alignItems: 'center',
                       }}
-                      onPress={() => navigation.navigate('Route request')} // или друга логика за връщане
-                    >
+                      onPress={() => navigation.navigate('Home')}>
                       <Icons
                         name="keyboard-backspace"
                         size={24}

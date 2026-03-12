@@ -105,23 +105,7 @@ export default function Seekers({navigation}) {
           text: 'OK',
           onPress: async () => {
             try {
-              // 1️⃣ Notification към създателя
-              const notificationPayload = {
-                recipientId: selectedRoute.userId,
-                senderId: user.id,
-                message: `${user.fName} ${user.lName} подаде заявка за вашия маршрут "${selectedRoute.routeTitle}"`,
-                personalMessage: messageInput || null,
-                requester: {
-                  username: user.username,
-                  userFname: user.fName,
-                  userLname: user.lName,
-                  email: user.email,
-                },
-              };
-
-              await api.post('/api/notifications', notificationPayload);
-
-              // 2️⃣ Реалната заявка за маршрута
+              // 1 Реалната заявка за маршрута
               const tripRequestPayload = {
                 seekerRequestId: selectedRoute.id,
                 routeId: selectedRoute.routeId,
@@ -137,7 +121,7 @@ export default function Seekers({navigation}) {
 
               await api.post('/api/send-request-to-user', tripRequestPayload);
 
-              // 3️⃣ UI update
+              // 2 UI update
               setSelectedRoute(null);
               setMessageInput('');
 

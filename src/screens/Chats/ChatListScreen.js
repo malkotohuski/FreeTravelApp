@@ -136,12 +136,12 @@ const ChatScreen = ({route}) => {
 
     const yesterday = new Date();
     yesterday.setDate(now.getDate() - 1);
-
     const isYesterday = messageDate.toDateString() === yesterday.toDateString();
 
     const isThisYear = messageDate.getFullYear() === now.getFullYear();
 
     if (isToday) {
+      // Днес -> показваме само час и минути
       return messageDate.toLocaleTimeString('bg-BG', {
         hour: '2-digit',
         minute: '2-digit',
@@ -150,17 +150,43 @@ const ChatScreen = ({route}) => {
     }
 
     if (isYesterday) {
-      return 'Вчера';
+      // Вчера -> показваме "Вчера" + час и минути
+      return (
+        'Вчера ' +
+        messageDate.toLocaleTimeString('bg-BG', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+        })
+      );
     }
 
     if (isThisYear) {
-      return messageDate.toLocaleDateString('bg-BG', {
-        day: '2-digit',
-        month: 'short',
-      });
+      // Тази година -> показваме ден, месец и час
+      return (
+        messageDate.toLocaleDateString('bg-BG', {
+          day: '2-digit',
+          month: 'short',
+        }) +
+        ' ' +
+        messageDate.toLocaleTimeString('bg-BG', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+        })
+      );
     }
 
-    return messageDate.toLocaleDateString('bg-BG');
+    // Преди тази година -> показваме пълна дата + час
+    return (
+      messageDate.toLocaleDateString('bg-BG') +
+      ' ' +
+      messageDate.toLocaleTimeString('bg-BG', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      })
+    );
   };
 
   return (

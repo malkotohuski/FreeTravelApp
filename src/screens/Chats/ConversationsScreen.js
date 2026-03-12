@@ -60,35 +60,40 @@ const ConversationsScreen = ({navigation}) => {
     const messageDate = new Date(date);
     const now = new Date();
 
-    const isToday = messageDate.toDateString() === now.toDateString();
+    const diffDays = Math.floor((now - messageDate) / (1000 * 60 * 60 * 24));
 
-    const yesterday = new Date();
-    yesterday.setDate(now.getDate() - 1);
+    const time = messageDate.toLocaleTimeString('bg-BG', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
 
-    const isYesterday = messageDate.toDateString() === yesterday.toDateString();
-
-    const isThisYear = messageDate.getFullYear() === now.getFullYear();
-
-    if (isToday) {
-      return messageDate.toLocaleTimeString('bg-BG', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-      });
+    if (diffDays === 0) {
+      return time;
     }
 
-    if (isYesterday) {
-      return t('yesterday');
+    if (diffDays === 1) {
+      return `${t('yesterday')} ${time}`;
     }
 
-    if (isThisYear) {
-      return messageDate.toLocaleDateString('bg-BG', {
-        day: '2-digit',
-        month: 'short',
-      });
+    if (diffDays < 7) {
+      return (
+        messageDate.toLocaleDateString('bg-BG', {
+          weekday: 'short',
+        }) + ` ${time}`
+      );
     }
 
-    return messageDate.toLocaleDateString('bg-BG');
+    if (messageDate.getFullYear() === now.getFullYear()) {
+      return (
+        messageDate.toLocaleDateString('bg-BG', {
+          day: '2-digit',
+          month: 'short',
+        }) + ` ${time}`
+      );
+    }
+
+    return messageDate.toLocaleDateString('bg-BG') + ` ${time}`;
   };
 
   return (
@@ -176,7 +181,7 @@ const ConversationsScreen = ({navigation}) => {
                       {color: theme.textSecondary},
                       item.unreadCount > 0 && {
                         color: theme.textPrimary,
-                        fontWeight: '600',
+                        fontWeight: '700',
                       },
                     ]}>
                     {lastMessage?.text ||

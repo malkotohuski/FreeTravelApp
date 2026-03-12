@@ -18,11 +18,6 @@ const LogoutScreen = ({navigation}) => {
     logout(); // ✅ това е всичко
   };
 
-  const handleCancel = () => {
-    // просто се връщаме назад
-    // без logout
-  };
-
   return (
     <SafeAreaView style={styles.mainContainer}>
       <Image

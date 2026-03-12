@@ -8,7 +8,6 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
-import LinearGradient from 'react-native-linear-gradient';
 import {useTranslation} from 'react-i18next';
 import {useRoute} from '@react-navigation/native';
 
@@ -18,7 +17,6 @@ function UserDetailsScreen() {
   const {t} = useTranslation();
   const route = useRoute();
   const {userId} = route.params;
-  console.log('USER ID RECEIVED:', userId);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -97,12 +95,7 @@ function UserDetailsScreen() {
       <FlatList
         ListHeaderComponent={
           <View style={styles.headerWrapper}>
-            <View style={styles.avatarHaloWrapper}>
-              {/*   <LinearGradient
-                colors={['rgba(255,255,255,0.5)', 'transparent']}
-                style={styles.avatarHalo}
-              /> */}
-            </View>
+            <View style={styles.avatarHaloWrapper}></View>
             <Image source={{uri: user.userImage}} style={styles.avatar} />
             <Text style={styles.username}>@{user.username}</Text>
             <Text style={styles.fullName}>

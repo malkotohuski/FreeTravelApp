@@ -16,7 +16,6 @@ import {useTranslation} from 'react-i18next';
 import {useAuth} from '../../context/AuthContext';
 import {useRouteContext} from '../../context/RouteContext';
 import api from '../../api/api';
-import {DarkModeContext} from '../../navigation/DarkModeContext';
 import {useTheme} from '../../theme/useTheme';
 
 const colors = [
@@ -49,7 +48,7 @@ function RouteRequestScreen({route, navigation}) {
   const [routeRequests, setRouteRequests] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [decisionMessage, setDecisionMessage] = useState('');
-  const {darkMode} = useContext(DarkModeContext);
+
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const theme = useTheme();
@@ -64,7 +63,6 @@ function RouteRequestScreen({route, navigation}) {
     const filtered = requests.filter(
       request => request.toUserId === user.id && request.status === 'pending',
     );
-    console.log('Filtered requests for user:', filtered);
     setRouteRequests(filtered);
   }, [requests, user.id]);
 
@@ -91,6 +89,10 @@ function RouteRequestScreen({route, navigation}) {
         decision,
         personalMessage: decisionMessage,
       });
+
+      if (decision === 'approved') {
+        navigation.navigate('Home');
+      }
 
       // махаме заявката локално
       setRouteRequests(prev => prev.filter(r => r.id !== requestId));
@@ -122,42 +124,37 @@ function RouteRequestScreen({route, navigation}) {
 
   const renderRoutes = () => {
     return routeRequests.length > 0 ? (
-      routeRequests.map(
-        request => (
-          console.log('Request item:', request),
-          (
-            <TouchableOpacity
-              key={request.id}
+      routeRequests.map(request => (
+        <TouchableOpacity
+          key={request.id}
+          style={[
+            styles.requestContainer,
+            {
+              backgroundColor: theme.cardBackground,
+              borderColor: theme.cardBorder,
+            },
+          ]}
+          onPress={() => handlePress(request)}>
+          <View style={styles.userContainer}>
+            <View
               style={[
-                styles.requestContainer,
-                {
-                  backgroundColor: theme.cardBackground,
-                  borderColor: theme.cardBorder,
-                },
-              ]}
-              onPress={() => handlePress(request)}>
-              <View style={styles.userContainer}>
-                <View
-                  style={[
-                    styles.initialsContainer,
-                    {backgroundColor: getAvatarColor(request.username)},
-                  ]}>
-                  <Text style={styles.initialsText}>
-                    {request.username.slice(0, 2).toUpperCase()}
-                  </Text>
-                </View>
-                <Text style={[styles.userName, {color: theme.textPrimary}]}>
-                  {request.username}
-                </Text>
-              </View>
-              <Text style={[styles.text, {color: theme.textSecondary}]}>
-                {t('Direction')}:{' '}
-                {t(`${request.departureCity}-${request.arrivalCity}`)}
+                styles.initialsContainer,
+                {backgroundColor: getAvatarColor(request.username)},
+              ]}>
+              <Text style={styles.initialsText}>
+                {request.username.slice(0, 2).toUpperCase()}
               </Text>
-            </TouchableOpacity>
-          )
-        ),
-      )
+            </View>
+            <Text style={[styles.userName, {color: theme.textPrimary}]}>
+              {request.username}
+            </Text>
+          </View>
+          <Text style={[styles.text, {color: theme.textSecondary}]}>
+            {t('Direction')}:{' '}
+            {t(`${request.departureCity}-${request.arrivalCity}`)}
+          </Text>
+        </TouchableOpacity>
+      ))
     ) : (
       <Text>{t('No new requests.')}</Text>
     );
