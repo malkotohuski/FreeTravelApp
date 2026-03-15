@@ -14,18 +14,14 @@ import {useTranslation} from 'react-i18next';
 import StarRating from 'react-native-star-rating-widget';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {DarkModeContext} from '../../navigation/DarkModeContext';
-import {useAuth} from '../../context/AuthContext';
 import api from '../../api/api';
+import Toast from 'react-native-toast-message';
 
 const RateUserScreen = ({navigation}) => {
   const {t} = useTranslation();
   const route = useRoute();
   const {routeId, ratedId} = route.params;
   const [ratedUsername, setRatedUsername] = useState(null);
-  const {user} = useAuth();
-  const currentUser = user?.username;
-  const currentUserId = user?.id;
-  const currentUserImage = user?.userImage;
   const {darkMode} = useContext(DarkModeContext);
 
   const [rating, setRating] = useState(0);
@@ -35,20 +31,18 @@ const RateUserScreen = ({navigation}) => {
     const fetchUser = async () => {
       try {
         const res = await api.get(`/api/users/${ratedId}`);
-        console.log('USER RESPONSE:', res.data); // 👈 добави това
         setRatedUsername(res.data.username);
       } catch (err) {
-        console.log('User fetch error', err.response?.data || err);
+        Toast.show({
+          type: 'error',
+          text1: t('Failed to fetch user information.'),
+        });
       }
     };
 
-    if (ratedId) {
-      fetchUser();
-    }
+    if (ratedId) fetchUser();
   }, [ratedId]);
 
-  console.log('ROUTE PARAMS:', route.params);
-  console.log('RatedId:', ratedId);
   useFocusEffect(
     useCallback(() => {
       setComment('');
@@ -58,31 +52,70 @@ const RateUserScreen = ({navigation}) => {
 
   const submitRating = async () => {
     if (rating === 0) {
-      Alert.alert(t('Error'), t('Please select a number of stars.'));
+      Toast.show({
+        type: 'error',
+        text1: t('Please select a number of stars.'),
+        position: 'top',
+        visibilityTime: 3000,
+      });
       return;
     }
 
-    try {
-      const response = await api.post('/api/ratings', {
-        routeId: routeId,
-        ratedId: ratedId,
-        score: rating,
-        comment: comment,
-      });
+    // Потвърждение за завършване на маршрута
+    Alert.alert(
+      t('Confirm'),
+      t('Do you want to complete this route and submit your rating?'),
+      [
+        {text: t('Cancel'), style: 'cancel'},
+        {
+          text: t('OK'),
+          onPress: async () => {
+            try {
+              const response = await api.post('/api/ratings', {
+                routeId: routeId,
+                ratedId: ratedId,
+                score: rating,
+                comment: comment,
+              });
 
-      Alert.alert(t('Success'), t('Successfully rated the user.'));
-      navigation.navigate('Home');
-    } catch (error) {
-      console.log('Rating error:', error.response?.data);
+              Toast.show({
+                type: 'success',
+                text1: t('Successfully rated the user.'),
+                position: 'top',
+                visibilityTime: 3000,
+              });
 
-      if (error.response?.status === 400) {
-        Alert.alert(t('Information'), error.response.data.message);
-      } else if (error.response?.status === 403) {
-        Alert.alert(t('Error'), error.response.data.message);
-      } else {
-        Alert.alert(t('Error'), t('Server error.'));
-      }
-    }
+              navigation.navigate('Home');
+            } catch (error) {
+              console.log('Rating error:', error.response?.data);
+
+              if (error.response?.status === 400) {
+                Toast.show({
+                  type: 'info',
+                  text1: error.response.data.message,
+                  position: 'top',
+                  visibilityTime: 3000,
+                });
+              } else if (error.response?.status === 403) {
+                Toast.show({
+                  type: 'error',
+                  text1: error.response.data.message,
+                  position: 'top',
+                  visibilityTime: 3000,
+                });
+              } else {
+                Toast.show({
+                  type: 'error',
+                  text1: t('Server error.'),
+                  position: 'top',
+                  visibilityTime: 3000,
+                });
+              }
+            }
+          },
+        },
+      ],
+    );
   };
 
   const getHeaderStyles = () => ({
@@ -145,6 +178,7 @@ const RateUserScreen = ({navigation}) => {
           </TouchableOpacity>
         </View>
       </View>
+      <Toast />
     </SafeAreaView>
   );
 };

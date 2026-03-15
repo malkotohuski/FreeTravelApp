@@ -13,18 +13,17 @@ import {
 } from 'react-native';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useAuth} from '../../context/AuthContext';
-import {useRouteContext} from '../../context/RouteContext';
 import api from '../../api/api';
 import {DarkModeContext} from '../../navigation/DarkModeContext';
+import socket from '../../socket/socket';
+import Toast from 'react-native-toast-message';
 
 const RouteHistory = ({navigation}) => {
   const {user} = useAuth();
   const {darkMode} = useContext(DarkModeContext);
-  const {requests} = useRouteContext();
   const {t} = useTranslation();
   const [originalRoutesState, setOriginalRoutesState] = useState([]);
   const [filteredRoutesState, setFilteredRoutesState] = useState([]);
-  const [completedRoutes, setCompletedRoutes] = useState([]);
   const [searchDepartureText, setSearchDepartureText] = useState('');
   const [searchArrivalText, setSearchArrivalText] = useState('');
 
@@ -112,19 +111,54 @@ const RouteHistory = ({navigation}) => {
     );
   };
 
-  const handleMarkAsCompleted = async routeId => {
-    try {
-      await api.patch(`/api/routes/${routeId}/complete`);
+  const handleMarkAsCompleted = routeId => {
+    const routeToComplete = originalRoutesState.find(r => r.id === routeId);
+    if (!routeToComplete) return;
 
-      const updatedRoutes = originalRoutesState.filter(
-        route => route.id !== routeId,
-      );
+    Alert.alert(
+      t('Complete Route'),
+      t('Are you sure you want to mark this route as completed?'),
+      [
+        {text: t('Cancel'), style: 'cancel'},
+        {
+          text: t('OK'),
+          onPress: async () => {
+            try {
+              await api.patch(`/api/routes/${routeId}/complete`);
 
-      setOriginalRoutesState(updatedRoutes);
-      setFilteredRoutesState(updatedRoutes);
-    } catch (error) {
-      console.error(error);
-    }
+              const updatedRoutes = originalRoutesState.filter(
+                r => r.id !== routeId,
+              );
+              setOriginalRoutesState(updatedRoutes);
+              setFilteredRoutesState(updatedRoutes);
+
+              const notification = {
+                id: Date.now(),
+                message: t('Please rate your passenger'),
+                routeId,
+                senderId: user.id,
+                recipientId: routeToComplete.passengerId,
+                status: 'active',
+                createdAt: new Date(),
+              };
+
+              socket.emit('routeCompleted', notification);
+
+              Toast.show({
+                type: 'success',
+                text1: t('Route marked as completed'),
+                text2: t('A notification has been sent to rate your passenger'),
+                visibilityTime: 4000,
+              });
+            } catch (error) {
+              console.error(error);
+              Alert.alert(t('Error'), t('Failed to complete the route.'));
+            }
+          },
+        },
+      ],
+      {cancelable: false},
+    );
   };
 
   return (

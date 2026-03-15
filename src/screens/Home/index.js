@@ -93,6 +93,27 @@ function HomePage({navigation}) {
     };
   }, [user?.id]);
 
+  useEffect(() => {
+    if (!user?.id) return;
+
+    socket.emit('joinUserRoom', user.id);
+
+    socket.on('newNotification', notification => {
+      setNotificationCount(prev => {
+        const next = prev + 1;
+        return next;
+      });
+
+      Toast.show({
+        type: 'info',
+        text1: notification.message,
+        visibilityTime: 4000,
+      });
+    });
+
+    return () => socket.off('newNotification');
+  }, [user?.id]);
+
   const getContainerStyle = () => ({
     flex: 1,
     flexDirection: 'column',
@@ -467,7 +488,6 @@ function HomePage({navigation}) {
       </ScrollView>
 
       {/* Footer */}
-      {/* Footer */}
       <View style={getFooterStyle()}>
         {/* Route Requests */}
         <View style={styles.notificationWrapper}>
@@ -486,7 +506,7 @@ function HomePage({navigation}) {
                   styles.notificationBadge,
                   {backgroundColor: '#bd0e05'},
                 ]}>
-                <Text style={styles.notificationText}>{reqestsCount}</Text>
+                <Text style={styles.notificationText}>{`${reqestsCount}`}</Text>
               </View>
             )}
           </TouchableOpacity>
@@ -512,14 +532,14 @@ function HomePage({navigation}) {
                 width: 50,
                 height: 50,
                 borderRadius: 25,
-                backgroundColor: darkMode ? '#222' : '#f1f1f1', // винаги видим
+                backgroundColor: darkMode ? '#222' : '#f1f1f1',
               }}
               onPress={handlerChatScreen}
               activeOpacity={0.8}>
               <Icons
                 name="chat-processing"
                 size={34}
-                color={darkMode ? '#f1f1f1' : '#010101'} // винаги видим
+                color={darkMode ? '#f1f1f1' : '#010101'}
               />
               {chatNotificationCount > 0 && (
                 <View
@@ -527,9 +547,10 @@ function HomePage({navigation}) {
                     styles.notificationBadge,
                     {backgroundColor: '#bd0e05'},
                   ]}>
-                  <Text style={styles.notificationText}>
-                    {chatNotificationCount}
-                  </Text>
+                  <Text
+                    style={
+                      styles.notificationText
+                    }>{`${chatNotificationCount}`}</Text>
                 </View>
               )}
             </TouchableOpacity>
@@ -553,7 +574,10 @@ function HomePage({navigation}) {
                   styles.notificationBadge,
                   {backgroundColor: '#bd0e05'},
                 ]}>
-                <Text style={styles.notificationText}>{notificationCount}</Text>
+                <Text
+                  style={
+                    styles.notificationText
+                  }>{`${notificationCount}`}</Text>
               </View>
             )}
           </TouchableOpacity>

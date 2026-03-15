@@ -1,4 +1,4 @@
-import React, {useState, useContext, useCallback} from 'react';
+import React, {useState, useContext, useCallback, useEffect} from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,8 @@ import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import api from '../../api/api';
 import {useAuth} from '../../context/AuthContext';
 import {useTheme} from '../../theme/useTheme';
+import socket from '../../socket/socket';
+import Toast from 'react-native-toast-message';
 
 const Notifications = ({navigation}) => {
   const {user} = useAuth();
@@ -23,18 +25,13 @@ const Notifications = ({navigation}) => {
   const [notifications, setNotifications] = useState([]);
   const [visibleModalId, setVisibleModalId] = useState(null);
 
-  // fetch notifications и reset на state за да няма дубли
   const fetchNotifications = async () => {
     try {
-      // 1️⃣ Вземаме notifications от API
       const response = await api.get('/api/notifications');
-
-      // 2️⃣ Филтрираме само активните
       const activeNotifications = response.data
         .filter(n => n.status === 'active')
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-      // 3️⃣ Филтрираме дубликатите по routeId + message
       const uniqueNotifications = activeNotifications.filter(
         (v, i, a) =>
           a.findIndex(
@@ -42,19 +39,37 @@ const Notifications = ({navigation}) => {
           ) === i,
       );
 
-      // 4️⃣ Обновяваме state
       setNotifications(uniqueNotifications);
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
     }
   };
 
-  // useFocusEffect с празен dependency → fetch само при фокус на screen
   useFocusEffect(
     useCallback(() => {
       fetchNotifications();
     }, []),
   );
+
+  // --- SOCKET LISTENER за нови уведомления ---
+  useEffect(() => {
+    if (!user?.id) return;
+
+    socket.emit('joinUserRoom', user.id);
+
+    socket.on('newNotification', notification => {
+      setNotifications(prev => [notification, ...prev]);
+
+      // Toast
+      Toast.show({
+        type: 'info',
+        text1: notification.message,
+        visibilityTime: 4000,
+      });
+    });
+
+    return () => socket.off('newNotification');
+  }, [user?.id]);
 
   const formatDate = dateString => {
     const now = new Date();
@@ -173,7 +188,7 @@ const Notifications = ({navigation}) => {
         <FlatList
           data={notifications}
           keyExtractor={item => item.id.toString()}
-          contentContainerStyle={styles.notificationList}
+          contentContainerStyle={{padding: 16}}
           ListEmptyComponent={
             <View style={styles.emptyState}>
               <Icons
@@ -240,7 +255,7 @@ const Notifications = ({navigation}) => {
                       ]}>
                       {t('Do you want to delete this notification:')}
                       {'\n\n'}
-                      {item.message}
+                      {`${item.message}`}
                     </Text>
                     <TouchableOpacity
                       style={[
@@ -277,9 +292,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 20,
     elevation: 2,
-    borderRadius: 10,
-    marginBottom: 20,
-    elevation: 2,
     borderWidth: 1,
     borderColor: '#000000',
     shadowColor: '#000',
@@ -298,7 +310,6 @@ const styles = StyleSheet.create({
   emptyMessage: {
     marginTop: 10,
     fontSize: 18,
-    color: '#010101',
     textAlign: 'center',
   },
   newLabel: {
@@ -312,7 +323,6 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     fontSize: 12,
   },
-  newNotification: {backgroundColor: '#cce7ff'},
   dotsButton: {position: 'absolute', top: 10, right: -5, zIndex: 1, padding: 5},
   modalOverlay: {
     flex: 1,
@@ -325,32 +335,17 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 20,
     alignItems: 'center',
-    borderRadius: 10,
-    padding: 20,
-    alignItems: 'center',
     elevation: 5,
   },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#333',
-  },
-  modalMessage: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
+  modalTitle: {fontSize: 18, fontWeight: 'bold', marginBottom: 10},
+  modalMessage: {fontSize: 16, marginBottom: 20, textAlign: 'center'},
   modalButton: {
     width: '100%',
     padding: 15,
-    backgroundColor: '#f4511e',
     borderRadius: 5,
     marginVertical: 5,
     alignItems: 'center',
   },
-  cancelButton: {backgroundColor: '#ccc'},
   modalButtonText: {color: 'white', fontSize: 16, fontWeight: 'bold'},
 });
 

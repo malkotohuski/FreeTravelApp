@@ -109,7 +109,6 @@ exports.completeRoute = async (req, res) => {
     const routeId = Number(req.params.id);
     const userId = req.user.id;
 
-    // 1️⃣ Проверка дали маршрутът съществува
     const route = await prisma.route.findUnique({
       where: {id: routeId},
     });
@@ -118,24 +117,20 @@ exports.completeRoute = async (req, res) => {
       return res.status(404).json({error: 'Route not found'});
     }
 
-    // 2️⃣ Проверка дали принадлежи на user-а
     if (route.ownerId !== userId) {
       return res.status(403).json({error: 'Unauthorized'});
     }
 
-    // 3️⃣ Проверка дали вече е completed
     if (route.status === 'completed') {
       return res.status(400).json({error: 'Route already completed'});
     }
 
     await prisma.$transaction(async tx => {
-      // ✅ Update route
       await tx.route.update({
         where: {id: routeId},
         data: {status: 'completed'},
       });
 
-      // ✅ Взимаме всички approved заявки
       const approvedRequests = await tx.request.findMany({
         where: {
           routeId: routeId,
@@ -143,15 +138,13 @@ exports.completeRoute = async (req, res) => {
         },
       });
 
-      // ✅ Ако няма пътници — спираме тук
       if (approvedRequests.length === 0) {
         return;
       }
 
-      // ✅ Създаваме нотификации
       for (const req of approvedRequests) {
-        // Към пътника
-        await tx.notification.create({
+        // 1️⃣ notification към пътника
+        const passengerNotification = await tx.notification.create({
           data: {
             recipientId: req.userID,
             routeId: routeId,
@@ -162,8 +155,13 @@ exports.completeRoute = async (req, res) => {
           },
         });
 
-        // Към шофьора
-        await tx.notification.create({
+        // 🔴 SOCKET
+        global.io
+          .to('user_' + req.userID)
+          .emit('newNotification', passengerNotification);
+
+        // 2️⃣ notification към шофьора
+        const driverNotification = await tx.notification.create({
           data: {
             recipientId: route.ownerId,
             routeId: routeId,
@@ -173,6 +171,11 @@ exports.completeRoute = async (req, res) => {
             status: 'active',
           },
         });
+
+        // 🔴 SOCKET
+        global.io
+          .to('user_' + route.ownerId)
+          .emit('newNotification', driverNotification);
       }
     });
 
