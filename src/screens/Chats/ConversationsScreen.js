@@ -1,0 +1,339 @@
+import React, {useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+} from 'react-native';
+import {useAuth} from '../../context/AuthContext';
+import api from '../../api/api';
+import {useTranslation} from 'react-i18next';
+import {useTheme} from '../../theme/useTheme';
+import socket from '../../socket/socket';
+
+const ConversationsScreen = ({navigation}) => {
+  const {t} = useTranslation();
+  const {user} = useAuth();
+  const [conversations, setConversations] = useState([]);
+  const theme = useTheme();
+
+  useEffect(() => {
+    socket.on('newConversation', conv => {
+      setConversations(prev => [conv, ...prev]);
+    });
+
+    socket.on('newMessage', ({conversationId, message}) => {
+      setConversations(prev =>
+        prev.map(conv =>
+          conv.id === conversationId
+            ? {
+                ...conv,
+                messages: [...(conv.messages || []), message],
+              }
+            : conv,
+        ),
+      );
+    });
+
+    return () => {
+      socket.off('newConversation');
+      socket.off('newMessage');
+    };
+  }, []);
+
+  useEffect(() => {
+    const fetchConversations = async () => {
+      try {
+        const res = await api.get(`/api/conversations/user/${user.id}`);
+        setConversations(res.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchConversations();
+  }, []);
+
+  const formatDate = date => {
+    const messageDate = new Date(date);
+    const now = new Date();
+
+    const diffDays = Math.floor((now - messageDate) / (1000 * 60 * 60 * 24));
+
+    const time = messageDate.toLocaleTimeString('bg-BG', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+
+    if (diffDays === 0) {
+      return time;
+    }
+
+    if (diffDays === 1) {
+      return `${t('yesterday')} ${time}`;
+    }
+
+    if (diffDays < 7) {
+      return (
+        messageDate.toLocaleDateString('bg-BG', {
+          weekday: 'short',
+        }) + ` ${time}`
+      );
+    }
+
+    if (messageDate.getFullYear() === now.getFullYear()) {
+      return (
+        messageDate.toLocaleDateString('bg-BG', {
+          day: '2-digit',
+          month: 'short',
+        }) + ` ${time}`
+      );
+    }
+
+    return messageDate.toLocaleDateString('bg-BG') + ` ${time}`;
+  };
+
+  return (
+    <View style={[styles.screen, {backgroundColor: theme.gradient[0]}]}>
+      <FlatList
+        data={conversations}
+        keyExtractor={item => item.id.toString()}
+        renderItem={({item}) => {
+          const lastMessage =
+            item.messages && item.messages.length > 0
+              ? item.messages[item.messages.length - 1]
+              : null;
+
+          return (
+            <TouchableOpacity
+              style={[
+                styles.conversationCard,
+                {
+                  backgroundColor: theme.cardBackground,
+                  borderColor: theme.cardBorder,
+                },
+              ]}
+              onPress={() => {
+                navigation.navigate('ChatScreen', {
+                  conversationId: item.id,
+                  otherUser: item.otherUser,
+                });
+
+                setConversations(prev =>
+                  prev.map(conv =>
+                    conv.id === item.id ? {...conv, unreadCount: 0} : conv,
+                  ),
+                );
+              }}
+              onLongPress={() => {
+                Alert.alert(
+                  t('deleteConversation'),
+                  t('areYouSureYouWantToDeleteThisConversation'),
+                  [
+                    {text: t('Cancel'), style: 'cancel'},
+                    {
+                      text: t('Delete'),
+                      style: 'destructive',
+                      onPress: async () => {
+                        try {
+                          await api.delete(`/api/conversations/${item.id}`);
+
+                          // Скриваме го локално за потребителя
+                          setConversations(prev =>
+                            prev.filter(conv => conv.id !== item.id),
+                          );
+                        } catch (err) {
+                          console.error('Delete failed:', err);
+                        }
+                      },
+                    },
+                  ],
+                );
+              }}>
+              {/* Avatar */}
+              <View style={[styles.avatar, {backgroundColor: theme.highlight}]}>
+                <Text style={styles.avatarText}>
+                  {item.otherUser.username[0].toUpperCase()}
+                </Text>
+              </View>
+
+              {/* Middle Section */}
+              <View style={styles.middleSection}>
+                <View style={styles.topRow}>
+                  <Text style={[styles.username, {color: theme.textPrimary}]}>
+                    {item.otherUser.username}
+                  </Text>
+
+                  {lastMessage && (
+                    <Text style={[styles.time, {color: theme.placeholder}]}>
+                      {formatDate(lastMessage.createdAt)}
+                    </Text>
+                  )}
+                </View>
+
+                <View style={styles.bottomRow}>
+                  <Text
+                    style={[
+                      styles.lastMessage,
+                      {color: theme.textSecondary},
+                      item.unreadCount > 0 && {
+                        color: theme.textPrimary,
+                        fontWeight: '700',
+                      },
+                    ]}>
+                    {lastMessage?.text ||
+                      `${item.departureCity} → ${item.arrivalCity}`}
+                  </Text>
+
+                  {item.unreadCount > 0 && (
+                    <View
+                      style={[
+                        styles.unreadBadge,
+                        {backgroundColor: theme.primaryButton},
+                      ]}>
+                      <Text style={styles.unreadText}>{item.unreadCount}</Text>
+                    </View>
+                  )}
+                </View>
+              </View>
+            </TouchableOpacity>
+          );
+        }}
+      />
+    </View>
+  );
+};
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: '#1e1e1e',
+  },
+  conversationCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: 14,
+    marginBottom: 10,
+    borderWidth: 1,
+  },
+
+  leftSection: {
+    flexDirection: 'row',
+    flex: 1,
+    alignItems: 'center',
+  },
+
+  textSection: {
+    flex: 1,
+  },
+
+  rightSection: {
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    gap: 6,
+    minHeight: 95,
+  },
+
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+
+  middleSection: {
+    flex: 1,
+  },
+
+  route: {
+    color: '#f4511e',
+    fontSize: 13,
+    marginTop: 2,
+    fontWeight: '500',
+  },
+
+  routeBadge: {
+    backgroundColor: 'rgba(244,81,30,0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    marginTop: 4,
+  },
+
+  avatarText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 18,
+  },
+
+  deleteButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#2a2a2a',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+
+  bottomRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+
+  username: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+    flex: 1,
+    marginRight: 10,
+  },
+
+  lastMessage: {
+    color: '#ccc',
+    flex: 1,
+    marginRight: 10,
+  },
+
+  lastMessageUnread: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+
+  time: {
+    fontSize: 12,
+    color: '#aaa',
+  },
+
+  unreadBadge: {
+    minWidth: 20,
+    height: 20,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 6,
+  },
+
+  unreadText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+});
+export default ConversationsScreen;

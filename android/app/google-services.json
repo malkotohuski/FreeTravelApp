@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1078186533123",
+    "project_id": "freetravelapp-507ff",
+    "storage_bucket": "freetravelapp-507ff.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1078186533123:android:5a67a2742dff7b19fc0936",
+        "android_client_info": {
+          "package_name": "com.freetravelapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDmI6I6W-pqiesviqqO4VPrvVWfYZ-R5io"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

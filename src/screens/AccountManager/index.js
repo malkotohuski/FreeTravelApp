@@ -1,0 +1,242 @@
+import React from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  SafeAreaView,
+  Dimensions,
+  ScrollView,
+} from 'react-native';
+import {useTranslation} from 'react-i18next';
+import StarRating from 'react-native-star-rating-widget';
+import {useAuth} from '../../context/AuthContext';
+import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {useTheme} from '../../theme/useTheme';
+
+const {width, height} = Dimensions.get('window'); // За адаптивност на различни екрани
+
+const StarRatingDisplay = ({rating, size = 50}) => {
+  const stars = [];
+  // Закръгляне до най-близка половинка
+  const roundedRating = Math.round(rating * 2) / 2;
+
+  const fullStars = Math.floor(roundedRating);
+  const hasHalfStar = roundedRating % 1 !== 0;
+
+  // Пълни звезди
+  for (let i = 0; i < fullStars; i++) {
+    stars.push(
+      <Icons key={`full-${i}`} name="star" size={size} color="gold" />,
+    );
+  }
+
+  // Половин звезда
+  if (hasHalfStar) {
+    stars.push(<Icons key="half" name="star-half" size={size} color="gold" />);
+  }
+
+  return (
+    <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+      {stars}
+    </View>
+  );
+};
+
+const AccountManager = ({navigation}) => {
+  const {user} = useAuth();
+  const userNAME = user?.username;
+  const theme = useTheme();
+  const styles = createStyles(theme);
+
+  const {profilePicture} = useAuth();
+  const defaultProfilePicture = require('../../../images/emptyUserImage.png');
+  const {t} = useTranslation();
+
+  const handlerCommendSection = () => navigation.navigate('Comments');
+  const handlerChangeAcountSettings = () =>
+    navigation.navigate('AccountSettings');
+  const handlerHomeScreen = () => navigation.navigate('Home');
+
+  return (
+    <SafeAreaView
+      style={{
+        flex: 1,
+        backgroundColor: theme.gradient[0],
+      }}>
+      <ScrollView contentContainerStyle={{flexGrow: 1}}>
+        {/*  <Image
+          source={require('../../../images/user-background.jpg')}
+          style={styles.backgroundImage}
+        /> */}
+        <View style={styles.mainContainer}>
+          <View style={styles.overlay} />
+          {/* Profile Picture Section */}
+
+          <View style={styles.profilePictureContainer}>
+            <Image
+              source={
+                user?.userImage
+                  ? {uri: user.userImage} // Използва снимката от userImage, ако съществува
+                  : defaultProfilePicture // В противен случай, използва снимката по подразбиране
+              }
+              style={styles.profilePicture}
+            />
+          </View>
+
+          {/* User Info */}
+          <View style={styles.userInfoSection}>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>{t('Username')}:</Text>
+              <Text style={styles.infoText}>{user?.username}</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>{t('Names')}:</Text>
+              <Text style={styles.infoText}>
+                {user?.fName} {user?.lName}
+              </Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>{t('Email')}:</Text>
+              <Text style={styles.infoText}>{user?.email}</Text>
+            </View>
+          </View>
+
+          {/* Rating Section */}
+          <View style={styles.ratingSection}>
+            <Text style={styles.ratingTitle}>{t('Your rating')}</Text>
+            <StarRatingDisplay rating={user?.averageRating || 0} size={50} />
+          </View>
+          <Text
+            style={{
+              color: theme.textPrimary,
+              marginBottom: 5,
+              fontSize: 20,
+              fontWeight: 'bold',
+            }}>
+            ({user?.averageRating?.toFixed(2) || '0.00'})
+          </Text>
+          {/* Buttons Section */}
+          <View style={styles.buttonsContainer}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handlerCommendSection}>
+              <Text style={styles.buttonText}>{t('Comments')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handlerChangeAcountSettings}>
+              <Text style={styles.buttonText}>{t('Change user settings')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={handlerHomeScreen}>
+              <Text style={styles.buttonText}>{t('Lets travel')}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+const createStyles = theme =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: '#1e1e1e',
+      alignItems: 'center',
+      justifyContent: 'space-between', // Прави подравняване на секциите по вертикала
+    },
+    mainContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    backgroundImage: {
+      position: 'absolute',
+      width: '100%',
+      height: '100%',
+      resizeMode: 'cover',
+    },
+    overlay: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: 'rgba(0,0,0,0.05)',
+    },
+    profilePictureContainer: {
+      marginTop: height * 0.05,
+      marginBottom: 20,
+      alignItems: 'center',
+    },
+    profilePicture: {
+      width: 100,
+      height: 100,
+      borderRadius: 50,
+      borderWidth: 2,
+      borderColor: theme.cardBorder,
+    },
+    userInfoSection: {
+      width: '90%',
+      padding: 15,
+      backgroundColor: theme.cardBackground,
+      borderRadius: 10,
+      shadowColor: '#000',
+      shadowOffset: {width: 0, height: 2},
+      shadowOpacity: 0.3,
+      shadowRadius: 4,
+      elevation: 5,
+      marginVertical: 10,
+    },
+    infoRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      paddingVertical: 5,
+    },
+    infoLabel: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: theme.textPrimary,
+    },
+    infoText: {
+      fontSize: 16,
+      color: '#080808',
+    },
+    userInfoText: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: '#fff',
+      marginVertical: 4,
+    },
+    ratingSection: {
+      alignItems: 'center',
+    },
+    ratingTitle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: theme.textPrimary,
+      marginBottom: 10,
+    },
+    ratingStars: {
+      flexDirection: 'row',
+    },
+    buttonsContainer: {
+      width: '100%',
+      paddingHorizontal: 20,
+      marginBottom: height * 0.05,
+    },
+    button: {
+      backgroundColor: theme.primaryButton,
+      borderRadius: 14,
+      paddingVertical: 15,
+      alignItems: 'center',
+      marginBottom: 20,
+      borderWidth: 1,
+      borderColor: theme.cardBorder,
+    },
+    buttonText: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: '#fff',
+    },
+  });
+
+export default AccountManager;
