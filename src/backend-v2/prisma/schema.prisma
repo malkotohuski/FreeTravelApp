@@ -7,56 +7,40 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ======================
-// Модел за потребители
-// ======================
-
 model User {
-  id                        Int       @id @default(autoincrement())
-  username                  String    @unique
-  email                     String    @unique
+  id                        Int             @id @default(autoincrement())
+  username                  String          @unique
+  email                     String          @unique
   password                  String
   fName                     String?
   lName                     String?
   userImage                 String?
-  userImagePublicId         String? 
   confirmationCode          String?
   confirmationCodeExpiresAt DateTime?
   lastConfirmationResend    DateTime?
-  isActive                  Boolean   @default(false)
-  isAdmin                   Boolean   @default(false)
-  createdAt                 DateTime  @default(now())
-  accountStatus             String    @default("active")
-
-  conversationsAsUser1 Conversation[] @relation("ConversationUser1")
-  conversationsAsUser2 Conversation[] @relation("ConversationUser2")
-
-  routes        Route[]          @relation("UserRoutes")
-  friends       Json?
-  averageRating Float @default(0)
-
-  reportsSent     Report[] @relation("Reporter")
-  reportsReceived Report[] @relation("ReportedUser")
-  requests        Request[] @relation("UserRequests")
-
-  givenComments    Comment[] @relation("GivenComments")
-  receivedComments Comment[] @relation("ReceivedComments")
-
-  givenRatings     Rating[] @relation("GivenRatings")
-  receivedRatings  Rating[] @relation("ReceivedRatings")
-
-  receivedNotifications Notification[] @relation("UserReceivedNotifications")
-  sentNotifications     Notification[] @relation("UserSentNotifications")
-
-  sentMessages Message[] @relation("SenderMessages") 
-
-  seekerRequests SeekerRequest[]
-  devices UserDevice[]
+  isActive                  Boolean         @default(false)
+  createdAt                 DateTime        @default(now())
+  accountStatus             String          @default("active")
+  friends                   Json?
+  averageRating             Float           @default(0)
+  isAdmin                   Boolean         @default(false)
+  userImagePublicId         String?
+  givenComments             Comment[]       @relation("GivenComments")
+  receivedComments          Comment[]       @relation("ReceivedComments")
+  conversationsAsUser1      Conversation[]  @relation("ConversationUser1")
+  conversationsAsUser2      Conversation[]  @relation("ConversationUser2")
+  sentMessages              Message[]       @relation("SenderMessages")
+  receivedNotifications     Notification[]  @relation("UserReceivedNotifications")
+  sentNotifications         Notification[]  @relation("UserSentNotifications")
+  receivedRatings           Rating[]        @relation("ReceivedRatings")
+  givenRatings              Rating[]        @relation("GivenRatings")
+  reportsReceived           Report[]        @relation("ReportedUser")
+  reportsSent               Report[]        @relation("Reporter")
+  requests                  Request[]       @relation("UserRequests")
+  routes                    Route[]         @relation("UserRoutes")
+  seekerRequests            SeekerRequest[]
+  devices                   UserDevice[]
 }
-
-// ======================
-// Модел за коментарите
-// ======================
 
 model Comment {
   id          Int      @id @default(autoincrement())
@@ -64,20 +48,14 @@ model Comment {
   rating      Int
   authorId    Int
   recipientId Int
-  routeId     Int?
   createdAt   DateTime @default(now())
-
-  author    User  @relation("GivenComments", fields: [authorId], references: [id])
-  recipient User  @relation("ReceivedComments", fields: [recipientId], references: [id])
-
-  route     Route? @relation(fields: [routeId], references: [id])
+  routeId     Int?
+  author      User     @relation("GivenComments", fields: [authorId], references: [id])
+  recipient   User     @relation("ReceivedComments", fields: [recipientId], references: [id])
+  route       Route?   @relation(fields: [routeId], references: [id])
 
   @@index([recipientId])
 }
-
-// ======================
-// Модел за рейтинг
-// ======================
 
 model Rating {
   id        Int      @id @default(autoincrement())
@@ -87,20 +65,15 @@ model Rating {
   score     Int
   comment   String?
   createdAt DateTime @default(now())
-
-  route Route @relation(fields: [routeId], references: [id])
-  rater User  @relation("GivenRatings", fields: [raterId], references: [id])
-  rated User  @relation("ReceivedRatings", fields: [ratedId], references: [id])
+  rated     User     @relation("ReceivedRatings", fields: [ratedId], references: [id])
+  rater     User     @relation("GivenRatings", fields: [raterId], references: [id])
+  route     Route    @relation(fields: [routeId], references: [id])
 
   @@unique([routeId, raterId, ratedId])
 }
 
-// ======================
-// Модел за маршрути
-// ======================
-
 model Route {
-  id                 Int      @id @default(autoincrement())
+  id                 Int             @id @default(autoincrement())
   ownerId            Int
   selectedVehicle    String
   registrationNumber String?
@@ -112,193 +85,134 @@ model Route {
   arrivalNumber      String?
   selectedDateTime   DateTime
   routeTitle         String?
-  status             String   @default("active")
-  createdAt          DateTime @default(now())
+  status             String          @default("active")
+  createdAt          DateTime        @default(now())
+  isSeekerRoute      Boolean         @default(false)
   comments           Comment[]
   ratings            Rating[]
-
-  owner    User @relation("UserRoutes", fields: [ownerId], references: [id])
-  requests Request[] @relation("RouteRequests")
-  
-  isSeekerRoute Boolean @default(false)
-  seekerRequests SeekerRequest[]
+  requests           Request[]       @relation("RouteRequests")
+  owner              User            @relation("UserRoutes", fields: [ownerId], references: [id])
+  seekerRequests     SeekerRequest[]
 }
-
-// ======================
-// Модел за търсещи
-// ======================
 
 model SeekerRequest {
-  id               Int      @id @default(autoincrement())
-
-  userId           Int
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  routeId          Int?
-  route            Route?   @relation(fields: [routeId], references: [id])
-
-  username         String
-  userFname        String
-  userLname        String
-  userEmail        String
-  userImage        String?
-
-  routeTitle       String
+  id               Int       @id @default(autoincrement())
   departureCity    String
   arrivalCity      String
+  routeTitle       String
+  userId           Int
+  createdAt        DateTime  @default(now())
   selectedDateTime DateTime
-
-  status           String   @default("active")
-
-  createdAt        DateTime @default(now())
-
-  requests        Request[]
+  status           String    @default("active")
+  userEmail        String
+  userFname        String
+  userImage        String?
+  userLname        String
+  username         String
+  routeId          Int?
+  requests         Request[]
+  route            Route?    @relation(fields: [routeId], references: [id])
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
-
-// ======================
-// Модел за репорти
-// ======================
 
 model Report {
-  id          Int      @id @default(autoincrement())
-  text        String
-  image       String?
-  status      ReportStatus @default(PENDING)
-
-  reporterId  Int
-  reportedId  Int
-
-  reporter    User @relation("Reporter", fields: [reporterId], references: [id])
-  reported    User @relation("ReportedUser", fields: [reportedId], references: [id])
-
-  createdAt   DateTime @default(now())
-}
-
-enum ReportStatus {
-  PENDING
-  RESOLVED
-  REJECTED
+  id         Int          @id @default(autoincrement())
+  text       String
+  image      String?
+  status     ReportStatus @default(PENDING)
+  reporterId Int
+  reportedId Int
+  createdAt  DateTime     @default(now())
+  reported   User         @relation("ReportedUser", fields: [reportedId], references: [id])
+  reporter   User         @relation("Reporter", fields: [reporterId], references: [id])
 }
 
 model BugReport {
-  id          Int      @id @default(autoincrement())
-  userId      Int
-  title       String
-  description String
-  steps       String?
-  image       String?
-  appVersion  String
-  platform    String
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  title         String
+  description   String
+  steps         String?
+  image         String?
+  appVersion    String
+  platform      String
   systemVersion String
-  deviceModel String
-  status      String   @default("open")
-  createdAt   DateTime @default(now())
+  deviceModel   String
+  status        String   @default("open")
+  createdAt     DateTime @default(now())
 }
 
-// ======================
-// Модел за рикуести
-// ======================
-
 model Request {
- id              Int      @id @default(autoincrement())
-
+  id              Int            @id @default(autoincrement())
   routeId         Int?
-  route           Route?   @relation("RouteRequests", fields: [routeId], references: [id])
-
-  seekerRequestId Int?
-  seekerRequest   SeekerRequest? @relation(fields: [seekerRequestId], references: [id])
-
   userID          Int
-  user            User     @relation("UserRequests", fields: [userID], references: [id])
-
-  toUserId        Int
-
   username        String
   userFname       String
   userLname       String
   userEmail       String
   userRouteId     Int
-
   departureCity   String
   arrivalCity     String
   dataTime        DateTime
   requestComment  String
-
-  status          String   @default("pending")
-  rateCreator     Boolean  @default(false)
-  rateUser        Boolean  @default(false)
-
-  createdAt       DateTime @default(now())
+  status          String         @default("pending")
+  rateCreator     Boolean        @default(false)
+  rateUser        Boolean        @default(false)
+  createdAt       DateTime       @default(now())
+  toUserId        Int
   decidedAt       DateTime?
-  read Boolean @default(false)
+  read            Boolean        @default(false)
+  seekerRequestId Int?
+  route           Route?         @relation("RouteRequests", fields: [routeId], references: [id])
+  seekerRequest   SeekerRequest? @relation(fields: [seekerRequestId], references: [id])
+  user            User           @relation("UserRequests", fields: [userID], references: [id])
 }
-
-// ======================
-// Модел за нотификации
-// ======================
 
 model Notification {
   id              Int      @id @default(autoincrement())
-
-  recipientId     Int
-  recipient       User @relation("UserReceivedNotifications", fields: [recipientId], references: [id])
-
-  senderId        Int
-  sender          User @relation("UserSentNotifications", fields: [senderId], references: [id])
-
   routeId         Int?
   message         String
-  requester       Json?
-  personalMessage String?
-  conversationId  String?
   createdAt       DateTime @default(now())
   read            Boolean  @default(false)
   status          String   @default("active")
+  senderId        Int
+  conversationId  String?
+  personalMessage String?
+  requester       Json?
   approver        Json?
+  recipientId     Int
+  recipient       User     @relation("UserReceivedNotifications", fields: [recipientId], references: [id])
+  sender          User     @relation("UserSentNotifications", fields: [senderId], references: [id])
 
   @@unique([recipientId, routeId, message, status])
 }
 
-// ======================
-// Модел за разговор
-// ======================
-
 model Conversation {
-  id        Int       @id @default(autoincrement())
-  routeId   Int?
-  user1Id   Int
-  user2Id   Int
-  createdAt DateTime  @default(now())
-
-  // 🔥 NEW
-  hiddenByUser1 Boolean @default(false)
-  hiddenByUser2 Boolean @default(false)
-
-  messages  Message[]
-
-  user1     User @relation("ConversationUser1", fields: [user1Id], references: [id])
-  user2     User @relation("ConversationUser2", fields: [user2Id], references: [id])
-
-  departureCity String
+  id            Int       @id @default(autoincrement())
+  routeId       Int?
+  user1Id       Int
+  user2Id       Int
+  createdAt     DateTime  @default(now())
   arrivalCity   String
+  departureCity String
+  hiddenByUser1 Boolean   @default(false)
+  hiddenByUser2 Boolean   @default(false)
+  user1         User      @relation("ConversationUser1", fields: [user1Id], references: [id])
+  user2         User      @relation("ConversationUser2", fields: [user2Id], references: [id])
+  messages      Message[]
 
   @@unique([routeId, user1Id, user2Id])
 }
 
-// ======================
-// Модел за съобщения
-// ======================
-
 model Message {
-  id             Int      @id @default(autoincrement())
+  id             Int          @id @default(autoincrement())
   conversationId Int
   senderId       Int
   text           String
-  createdAt      DateTime @default(now())
-  read           Boolean  @default(false)
-
+  createdAt      DateTime     @default(now())
+  read           Boolean      @default(false)
   conversation   Conversation @relation(fields: [conversationId], references: [id])
-  sender         User @relation("SenderMessages", fields: [senderId], references: [id]) // ← добавен name
+  sender         User         @relation("SenderMessages", fields: [senderId], references: [id])
 
   @@index([conversationId])
   @@index([senderId])
@@ -309,6 +223,11 @@ model UserDevice {
   userId    Int
   fcmToken  String
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+enum ReportStatus {
+  PENDING
+  RESOLVED
+  REJECTED
 }
