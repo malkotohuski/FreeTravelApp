@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 const SALT_ROUNDS = 12; // колко "силно" се хешира
 const plainPassword = '12345678'; // тук сложи паролата, която искаш да хешираш
