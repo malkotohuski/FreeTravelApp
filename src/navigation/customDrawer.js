@@ -35,10 +35,6 @@ function CustomerDrawer({navigation}) {
     navigation.navigate('RoutesHistory');
   };
 
-  const handlerUsersScreen = () => {
-    navigation.navigate('UsersScreen');
-  };
-
   const handlerReporting = () => {
     navigation.navigate('Reporting'); // предаваме userId като параметър
   };
