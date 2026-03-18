@@ -4,10 +4,13 @@ const admin = require('firebase-admin');
 // Абсолютен път до JSON не ти трябва, защото имаш FIREBASE_KEY_JSON в env
 const serviceAccount = JSON.parse(process.env.FIREBASE_KEY_JSON);
 
+// 🛠 FIX за новите линии в private_key
+serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+
 // Инициализация
 if (!admin.apps.length) {
   admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount), // <--- просто обекта
+    credential: admin.credential.cert(serviceAccount),
   });
 }
 
