@@ -1,8 +1,8 @@
+require('dotenv').config();
 const admin = require('firebase-admin');
-const path = require('path');
 
-// Използваме пътя от .env, гарантирано ще работи във всеки environment
-const serviceAccount = require(path.resolve(process.env.FIREBASE_KEY_PATH));
+// Взимаме JSON-а от env
+const serviceAccount = JSON.parse(process.env.FIREBASE_KEY_JSON);
 
 if (!admin.apps.length) {
   admin.initializeApp({
