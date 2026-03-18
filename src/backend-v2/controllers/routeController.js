@@ -148,7 +148,7 @@ exports.completeRoute = async (req, res) => {
           data: {
             recipientId: req.userID,
             routeId: routeId,
-            message: `Please rate the trip`,
+            message: `Rate the trip from ${route.departureCity} to ${route.arrivalCity}`,
             senderId: userId,
             read: false,
             status: 'active',
@@ -165,7 +165,7 @@ exports.completeRoute = async (req, res) => {
           data: {
             recipientId: route.ownerId,
             routeId: routeId,
-            message: `Please rate your passenger`,
+            message: `Rate your passenger for the trip from ${route.departureCity} to ${route.arrivalCity}`,
             senderId: req.userID,
             read: false,
             status: 'active',

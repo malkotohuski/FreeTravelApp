@@ -91,7 +91,7 @@ exports.createRequest = async (req, res) => {
     await sendNotification({
       recipientId: ownerId,
       senderId: userId,
-      message: `${username} кандидатства за твоя маршрут`,
+      message: `${username} is interested in your route`,
       routeId: route?.id || null,
       type: 'request',
       data: {
@@ -161,8 +161,8 @@ exports.makeDecision = async (req, res) => {
       senderId: request.toUserId,
       message:
         decision === 'approved'
-          ? 'Одобрен си за пътуването'
-          : 'Отхвърлен си за пътуването',
+          ? 'You are approved for the trip ✅'
+          : 'Your request for the trip was not approved ❌',
       routeId: request.routeId,
       type: 'approval',
       data: {routeId: request.routeId, status: decision},
