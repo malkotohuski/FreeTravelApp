@@ -1,14 +1,13 @@
 require('dotenv').config();
 const admin = require('firebase-admin');
-const path = require('path');
 
-// Абсолютен път до JSON
+// Абсолютен път до JSON не ти трябва, защото имаш FIREBASE_KEY_JSON в env
 const serviceAccount = JSON.parse(process.env.FIREBASE_KEY_JSON);
 
 // Инициализация
 if (!admin.apps.length) {
   admin.initializeApp({
-    credential: admin.credential.cert(require(serviceAccount)),
+    credential: admin.credential.cert(serviceAccount), // <--- просто обекта
   });
 }
 
