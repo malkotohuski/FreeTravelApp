@@ -261,3 +261,13 @@ exports.softDeleteAccount = async (req, res) => {
     res.status(500).json({error: 'Server error.'});
   }
 };
+
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await prisma.user.findMany();
+    res.json(users);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({error: 'Server error'});
+  }
+};

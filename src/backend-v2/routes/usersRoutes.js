@@ -26,6 +26,8 @@ router.patch(
 );
 router.patch('/password', authenticateJWT, usersController.changePassword);
 
+router.get('/', usersController.getAllUsers);
+
 router.patch(
   '/delete-account',
   authenticateJWT,
