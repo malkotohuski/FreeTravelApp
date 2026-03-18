@@ -54,7 +54,6 @@ function CustomerDrawer({navigation}) {
 
   const handlerLogout = () => {
     navigation.navigate('LogoutScreen');
-    console.log('Logout clicked !!!');
   };
 
   return (
