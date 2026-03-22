@@ -22,6 +22,7 @@ exports.sendNotification = async ({
     throw new Error('recipientId, senderId и message са задължителни');
   }
 
+  // 🔹 Проверка за дублираща нотификация
   const existing = await prisma.notification.findFirst({
     where: {
       recipientId: Number(recipientId),
@@ -31,6 +32,25 @@ exports.sendNotification = async ({
     },
   });
 
+  // 🔹 Функция за title според type
+  const getNotificationTitle = (type, senderName = '') => {
+    switch (type) {
+      case 'message':
+        return senderName ? `📩 ${senderName} ти писа` : '📩 Ново съобщение';
+      case 'request':
+        return '🚗 Нова заявка за пътуване';
+      case 'accept':
+        return '✅ Заявката ти е приета';
+      case 'reject':
+        return '❌ Заявката ти е отказана';
+      case 'rating':
+        return '⭐ Получи нова оценка';
+      default:
+        return '🔔 Ново известие';
+    }
+  };
+
+  // 🔹 Изпращане на push
   const pushToUser = async () => {
     const userDevice = await prisma.userDevice.findFirst({
       where: {userId: Number(recipientId)},
@@ -38,21 +58,31 @@ exports.sendNotification = async ({
     });
 
     const isOnline = isUserOnline(recipientId);
+
     if (!skipPushIfOnline || !isOnline) {
       if (userDevice?.fcmToken) {
-        console.log('Sending push to token:', userDevice.fcmToken);
-        console.log(
-          'Sending push to userId:',
-          recipientId,
-          'token:',
-          userDevice?.fcmToken,
-        );
+        console.log('Sending push to userId:', recipientId);
+
+        // 👉 взимаме името на подателя (за по-добър UX)
+        let senderName = '';
+        try {
+          const sender = await prisma.user.findUnique({
+            where: {id: Number(senderId)},
+            select: {name: true},
+          });
+          senderName = sender?.name || '';
+        } catch (e) {
+          console.log('Sender fetch error:', e.message);
+        }
+
+        const title = getNotificationTitle(type, senderName);
+
         const stringifiedData = {};
         for (const key in data) {
           stringifiedData[key] = String(data[key] ?? '');
         }
 
-        await sendPush(userDevice.fcmToken, 'Нова нотификация', message, {
+        await sendPush(userDevice.fcmToken, title, message, {
           type: String(type || ''),
           routeId: String(routeId || ''),
           conversationId: String(conversationId || ''),
@@ -62,11 +92,13 @@ exports.sendNotification = async ({
     }
   };
 
+  // 🔹 Ако вече има такава нотификация
   if (existing) {
     await pushToUser();
     return existing;
   }
 
+  // 🔹 Създаване в базата
   const notification = await prisma.notification.create({
     data: {
       recipientId: Number(recipientId),
@@ -82,11 +114,14 @@ exports.sendNotification = async ({
     },
   });
 
+  // 🔹 Socket emit (real-time)
   if (global.io) {
     global.io.to('user_' + recipientId).emit('newNotification', notification);
   }
 
+  // 🔹 Push
   await pushToUser();
+
   return notification;
 };
 
