@@ -68,9 +68,9 @@ exports.sendNotification = async ({
         try {
           const sender = await prisma.user.findUnique({
             where: {id: Number(senderId)},
-            select: {name: true},
+            select: {fName: true, lName: true},
           });
-          senderName = sender?.name || '';
+          senderName = `${sender?.fName || ''} ${sender?.lName || ''}`.trim();
         } catch (e) {
           console.log('Sender fetch error:', e.message);
         }
