@@ -82,6 +82,10 @@ exports.sendNotification = async ({
     },
   });
 
+  if (global.io) {
+    global.io.to('user_' + recipientId).emit('newNotification', notification);
+  }
+
   await pushToUser();
   return notification;
 };

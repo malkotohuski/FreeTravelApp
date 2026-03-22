@@ -82,9 +82,10 @@ export default function Login({navigation, route}) {
         // ⚡ save push token (без да блокира login)
         try {
           const fcmToken = await NotificationService.init();
-          await api.post('/api/saveDeviceToken', {
+          await api.post('/api/register-device', {
+            // ✅ правилно URL
             userId: user.id,
-            token: fcmToken,
+            fcmToken: fcmToken, // ✅ правилно поле
           });
           console.log('FCM token saved:', fcmToken);
         } catch (tokenErr) {
