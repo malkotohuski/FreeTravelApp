@@ -111,12 +111,17 @@ exports.register = async (req, res) => {
       },
     });
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: useremail,
-      subject: 'Account Confirmation',
-      text: `Your confirmation code is: ${confirmationCode}`,
-    });
+    try {
+      await transporter.sendMail({
+        // проняма за Product
+        from: process.env.EMAIL_USER,
+        to: useremail,
+        subject: 'Account Confirmation',
+        text: `Your confirmation code is: ${confirmationCode}`,
+      });
+    } catch (err) {
+      console.log('Email failed but user created:', err.message);
+    }
 
     const safeUser = {...newUser};
     delete safeUser.password;

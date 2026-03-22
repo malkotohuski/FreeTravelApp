@@ -6,5 +6,6 @@
   "java.compile.nullAnalysis.mode": "automatic",
   "editor.autoClosingQuotes": "never",
   "editor.autoClosingBrackets": "never",
-  "editor.autoSurround": "never"
+  "editor.autoSurround": "never",
+  "java.configuration.updateBuildConfiguration": "interactive"
 }

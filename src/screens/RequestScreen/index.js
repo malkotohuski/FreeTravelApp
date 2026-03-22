@@ -4,15 +4,21 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Image,
+  ActivityIndicator,
   Alert,
   TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {useAuth} from '../../context/AuthContext';
 import LinearGradient from 'react-native-linear-gradient';
+import Toast from 'react-native-toast-message';
 import api from '../../api/api';
 
 function RouteDetails({route}) {
@@ -20,6 +26,7 @@ function RouteDetails({route}) {
   const navigation = useNavigation();
   const {user} = useAuth();
   const {username, userFname, userLname, userEmail, routeId} = route.params;
+  const [loading, setLoading] = useState(false);
 
   const requesterUsername = user?.username;
 
@@ -61,6 +68,7 @@ function RouteDetails({route}) {
   }, [routeId, user?.id]);
 
   const handlerTripRequest = async () => {
+    if (loading) return;
     // 1️⃣ Проверки преди изпращане
     if (isOwnRoute) {
       Alert.alert(
@@ -93,7 +101,8 @@ function RouteDetails({route}) {
           text: 'OK',
           onPress: async () => {
             try {
-              // 3️⃣ Изпращаме заявката към бекенда
+              setLoading(true); // 🔥 старт
+
               const payload = {
                 routeId,
                 username: user.username,
@@ -111,18 +120,21 @@ function RouteDetails({route}) {
 
               setHasRequested(true);
 
-              // 4️⃣ Успешно уведомление
-              Alert.alert(
-                t('Success'),
-                t('You have successfully applied for this route!'),
-                [{text: 'OK', onPress: () => navigation.navigate('Home')}],
-              );
+              Toast.show({
+                type: 'success',
+                text1: 'Success',
+                text2: 'Request sent successfully!',
+              });
+              navigation.navigate('Home');
             } catch (err) {
               console.error('API error:', err);
-              Alert.alert(
-                t('Error'),
-                err.response?.data?.error || 'Failed to send trip request.',
-              );
+              Toast.show({
+                type: 'error',
+                text1: 'Error',
+                text2: err.response?.data?.error || 'Something went wrong',
+              });
+            } finally {
+              setLoading(false); // 🔥 край
             }
           },
         },
@@ -135,95 +147,102 @@ function RouteDetails({route}) {
   };
 
   return (
-    <LinearGradient
-      colors={['#1b1b1b', '#2a2a2a']}
-      style={styles.mainContainer}>
-      <View style={styles.container}>
-        {/*   <Image
-        source={require('../../../images/confirm2-background.jpg')}
-        style={{
-          flex: 1,
-          width: '100%',
-          height: '100%',
-          resizeMode: 'cover',
-          position: 'absolute',
-        }}
-      /> */}
-
-        <Text style={styles.headerText}>{t('Route Details')}:</Text>
-        <Text style={styles.text}>
-          {' '}
-          {t('Nick name')} : {username}
-        </Text>
-        <Text style={styles.text}>
-          {' '}
-          {t('Names')} : {userFname} {userLname}
-        </Text>
-        <Text style={styles.text}>
-          {' '}
-          {t('Route')} : {departureCity}-{arrivalCity}{' '}
-        </Text>
-
-        <TextInput
-          style={styles.input}
-          onChangeText={text => setTripRequestText(text)}
-          value={tripRequestText}
-          placeholder={t('Enter your travel request comment here :')}
-          multiline={true}
-          numberOfLines={4}
-        />
-
-        <TouchableOpacity
-          style={styles.buttonUserInfo}
-          onPress={() =>
-            navigation.navigate('UserDetails', {
-              userId: route.params.userId,
-            })
-          }>
-          <Text style={styles.infoButtonText}>{t('viewUserInfo')}</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.buttonConfirm,
-            (isOwnRoute || hasRequested) && {backgroundColor: '#ccc'},
-          ]}
-          onPress={() => {
-            if (isOwnRoute) {
-              Alert.alert(
-                t('Error'),
-                t('You cannot apply for this route because you created it.'),
-              );
-            } else if (hasRequested) {
-              Alert.alert(
-                t('Error'),
-                t('You have already submitted a request for this route.'),
-              );
-            } else {
-              handlerTripRequest();
-            }
+    <KeyboardAvoidingView
+      style={{flex: 1}}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <LinearGradient colors={['#1b1b1b', '#2a2a2a']} style={{flex: 1}}>
+        <ScrollView
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingHorizontal: 20,
+            paddingVertical: 30,
+            justifyContent: 'flex-start',
           }}
-          disabled={isOwnRoute || hasRequested}>
-          <Text style={styles.buttonText}>{t('Trip request')}</Text>
-        </TouchableOpacity>
-        {hasRequested && (
-          <Text style={styles.requestedText}>
-            {t('You have already applied for this route.')}
-          </Text>
-        )}
+          keyboardShouldPersistTaps="handled">
+          <Text style={styles.headerText}>{t('Route Details')}:</Text>
 
-        <TouchableOpacity
-          style={styles.buttonBack}
-          onPress={handlerBackToViewRoute}>
-          <Text style={styles.buttonText}>{t('Back')}</Text>
-        </TouchableOpacity>
-        {requesterUsername === username && (
-          <Text style={styles.warningText}>
-            {t('This route was created by you, and you cannot request it!')}
+          <Text style={styles.text}>
+            {t('Nick name')} : {username}
           </Text>
+          <Text style={styles.text}>
+            {t('Names')} : {userFname} {userLname}
+          </Text>
+          <Text style={styles.text}>
+            {t('Route')} : {departureCity}-{arrivalCity}
+          </Text>
+
+          <TextInput
+            style={[styles.input, {minHeight: 80, maxHeight: 200}]}
+            onChangeText={text => setTripRequestText(text)}
+            value={tripRequestText}
+            placeholder={t('Enter your travel request comment here :')}
+            multiline
+            textAlignVertical="top"
+          />
+
+          <TouchableOpacity
+            style={styles.buttonUserInfo}
+            onPress={() =>
+              navigation.navigate('UserDetails', {userId: route.params.userId})
+            }>
+            <Text style={styles.infoButtonText}>{t('viewUserInfo')}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.buttonConfirm,
+              (isOwnRoute || hasRequested || loading) && {
+                backgroundColor: '#ccc',
+              },
+            ]}
+            onPress={() => {
+              if (isOwnRoute) {
+                Alert.alert(
+                  t('Error'),
+                  t('You cannot apply for this route because you created it.'),
+                );
+              } else if (hasRequested) {
+                Alert.alert(
+                  t('Error'),
+                  t('You have already submitted a request for this route.'),
+                );
+              } else {
+                handlerTripRequest();
+              }
+            }}
+            disabled={isOwnRoute || hasRequested || loading}>
+            <Text style={styles.buttonText}>
+              {loading ? 'Sending...' : t('Trip request')}
+            </Text>
+          </TouchableOpacity>
+
+          {hasRequested && (
+            <Text style={styles.requestedText}>
+              {t('You have already applied for this route.')}
+            </Text>
+          )}
+
+          <TouchableOpacity
+            style={styles.buttonBack}
+            onPress={handlerBackToViewRoute}
+            disabled={loading}>
+            <Text style={styles.buttonText}>{t('Back')}</Text>
+          </TouchableOpacity>
+
+          {requesterUsername === username && (
+            <Text style={styles.warningText}>
+              {t('This route was created by you, and you cannot request it!')}
+            </Text>
+          )}
+        </ScrollView>
+
+        {loading && (
+          <View style={styles.loadingOverlay}>
+            <ActivityIndicator size="large" color="#27ae60" />
+          </View>
         )}
-      </View>
-    </LinearGradient>
+      </LinearGradient>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -237,6 +256,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerText: {
+    alignSelf: 'center',
     fontWeight: 'bold',
     fontSize: 24,
     paddingBottom: 10,
@@ -245,6 +265,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#cacaca',
   },
   text: {
+    alignSelf: 'center',
     fontWeight: 'bold',
     fontSize: 18,
     paddingBottom: 10,
@@ -253,6 +274,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#919191',
   },
   buttonUserInfo: {
+    alignSelf: 'center',
     marginTop: 10,
     padding: 15,
     backgroundColor: '#e3e9e5',
@@ -264,6 +286,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   buttonConfirm: {
+    alignSelf: 'center',
     marginTop: 10,
     padding: 15,
     backgroundColor: '#27ae60',
@@ -279,6 +302,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   buttonBack: {
+    alignSelf: 'center',
     marginTop: 10,
     padding: 15,
     backgroundColor: '#AE2727FF',
@@ -294,6 +318,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   input: {
+    alignSelf: 'center',
     marginTop: 10,
     padding: 10,
     width: '90%',
@@ -318,6 +343,16 @@ const styles = StyleSheet.create({
     color: 'red',
     textAlign: 'center',
     fontWeight: 'bold',
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)', // затъмнение
   },
 });
 

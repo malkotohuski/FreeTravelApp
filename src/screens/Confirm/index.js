@@ -17,6 +17,7 @@ import {useRoute, useNavigation} from '@react-navigation/native';
 import {useRouteContext} from '../../context/RouteContext';
 import {useAuth} from '../../context/AuthContext';
 import {useTheme} from '../../theme/useTheme';
+import api from '../../api/api';
 
 function Confirm() {
   const submitLock = useRef(false); // предотвратява двойно изпращане
@@ -107,6 +108,11 @@ function Confirm() {
   const handleConfirm = async () => {
     if (submitLock.current) return;
 
+    if (!user) {
+      Alert.alert(t('Error'), t('User not authenticated'));
+      return;
+    }
+
     submitLock.current = true;
     setIsSubmitting(true);
 
@@ -126,24 +132,21 @@ function Confirm() {
         userFname,
         userLname,
         userEmail,
+        idempotencyKey: idempotencyKeyRef.current,
       };
 
-      const response = await fetch('http://192.168.1.3:3000/api/routes', {
-        method: 'POST',
+      // --- Използваме api wrapper вместо fetch ---
+      const response = await api.post('/api/routes', newRoute, {
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`, // backend ще вземе userId от JWT
         },
-        body: JSON.stringify(newRoute),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Create route failed');
+      if (!response?.data?.route) {
+        throw new Error(t('Invalid server response'));
       }
 
-      const responseData = await response.json();
-      addRoute(responseData.route);
+      addRoute(response.data.route);
 
       setSuccessMessage(t('The route has been created!'));
 
@@ -152,7 +155,11 @@ function Confirm() {
       }, 1500);
     } catch (err) {
       console.error(err);
-      Alert.alert(t('Error'), t('Failed to create route.'));
+      const message =
+        err.response?.data?.error ||
+        err.message ||
+        t('Failed to create route.');
+      Alert.alert(t('Error'), message);
     } finally {
       submitLock.current = false;
       setIsSubmitting(false);

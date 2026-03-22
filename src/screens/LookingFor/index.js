@@ -17,13 +17,14 @@ import {useTranslation} from 'react-i18next';
 import CitySelector from '../../server/Cities/cities';
 import {useFocusEffect} from '@react-navigation/native';
 import {useAuth} from '../../context/AuthContext';
-import {useTheme} from '../../theme/useTheme'; // <- добавяме темата
+import {useTheme} from '../../theme/useTheme';
+import api from '../../api/api';
 
 function Looking({navigation}) {
   const {t, i18n} = useTranslation();
   const cities = CitySelector();
   const {user, token} = useAuth();
-  const theme = useTheme(); // <- взимаме theme
+  const theme = useTheme();
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -83,55 +84,45 @@ function Looking({navigation}) {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('http://192.168.1.3:3000/api/seekers', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          departureCity,
-          arrivalCity,
-          selectedDateTime,
-          routeTitle,
-        }),
+      const response = await api.post('/api/seekers', {
+        departureCity,
+        arrivalCity,
+        selectedDateTime,
+        routeTitle,
       });
 
-      if (response.ok) {
-        const responseData = await response.json();
-        setSuccessMessage(t('The route has been created!'));
+      const responseData = response.data;
 
-        Alert.alert(
-          t('Success'),
-          t('The route has been created!'),
-          [
-            {
-              text: t('OK'),
-              onPress: () => {
-                setSuccessMessage('');
-                setIsGenerating(false);
-                setIsSubmitting(false);
-                navigation.navigate('Seekers', {seeker: responseData});
-              },
+      setSuccessMessage(t('The route has been created!'));
+
+      Alert.alert(
+        t('Success'),
+        t('The route has been created!'),
+        [
+          {
+            text: t('OK'),
+            onPress: () => {
+              setSuccessMessage('');
+              setIsGenerating(false);
+              setIsSubmitting(false);
+              navigation.navigate('Seekers', {seeker: responseData});
             },
-          ],
-          {cancelable: false},
-        );
-      } else if (response.status === 429) {
-        // 🔹 Ново: лимит от 3 маршрута на ден
-        const errorData = await response.json();
-        Alert.alert(t('limitReached'), t('youHaveReachedMaximum'));
-        setIsGenerating(false);
-        setIsSubmitting(false);
-      } else {
-        const errorData = await response.json();
-        Alert.alert(t('Error'), errorData.error || 'Failed to create route.');
-        setIsGenerating(false);
-        setIsSubmitting(false);
-      }
+          },
+        ],
+        {cancelable: false},
+      );
     } catch (error) {
-      Alert.alert(t('Error'), 'An error occurred while creating the route.');
-      console.error('Route creation error:', error);
+      console.log('FULL ERROR:', error);
+
+      if (error.response?.status === 429) {
+        Alert.alert(t('limitReached'), t('youHaveReachedMaximum'));
+      } else {
+        Alert.alert(
+          t('Error'),
+          error.response?.data?.error || 'Failed to create route.',
+        );
+      }
+
       setIsGenerating(false);
       setIsSubmitting(false);
     }

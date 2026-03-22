@@ -176,8 +176,7 @@ const Notifications = ({navigation}) => {
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: theme.gradient[0]}}>
-      <View
-        style={{flex: 1, justifyContent: 'flex-start', alignItems: 'center'}}>
+      <View style={{flex: 1}}>
         <View style={getHeaderStyles()}>
           <Text style={styles.headerTitle}>{t('Notifications')}</Text>
           <TouchableOpacity onPress={() => navigation.navigate('Home')}>
@@ -188,7 +187,11 @@ const Notifications = ({navigation}) => {
         <FlatList
           data={notifications}
           keyExtractor={item => item.id.toString()}
-          contentContainerStyle={{padding: 16}}
+          contentContainerStyle={{
+            paddingVertical: 20,
+            paddingHorizontal: 16,
+            flexGrow: 1,
+          }}
           ListEmptyComponent={
             <View style={styles.emptyState}>
               <Icons
@@ -202,80 +205,51 @@ const Notifications = ({navigation}) => {
             </View>
           }
           renderItem={({item}) => (
+            // --- В FlatList renderItem ---
             <View
               style={[
                 styles.notification,
                 {
-                  backgroundColor: theme.cardBackground,
+                  backgroundColor: isNewNotification(item.createdAt)
+                    ? theme.highlight + '22'
+                    : theme.cardBackground,
                   borderColor: theme.cardBorder,
                   borderWidth: 1,
                 },
-                isNewNotification(item.createdAt) && {
-                  backgroundColor: theme.highlight + '22',
-                },
               ]}>
-              <Text style={styles.newLabel}>
-                {isNewNotification(item.createdAt) ? t('New') : t('Earlier')}
-              </Text>
-              <TouchableOpacity
-                style={styles.dotsButton}
-                onPress={() => setVisibleModalId(item.id)}>
-                <Icons name="dots-vertical" size={25} color="#000" />
-              </TouchableOpacity>
+              {/* HEADER ROW */}
+              <View style={styles.notificationHeader}>
+                <Text
+                  style={[
+                    styles.newLabel,
+                    {
+                      backgroundColor: isNewNotification(item.createdAt)
+                        ? '#cce7ff'
+                        : '#eee',
+                      color: isNewNotification(item.createdAt)
+                        ? '#005fcb'
+                        : '#888',
+                    },
+                  ]}>
+                  {isNewNotification(item.createdAt) ? t('New') : t('Earlier')}
+                </Text>
 
+                <TouchableOpacity onPress={() => setVisibleModalId(item.id)}>
+                  <Icons name="dots-vertical" size={25} color="#000" />
+                </TouchableOpacity>
+              </View>
+
+              {/* MESSAGE */}
               <TouchableOpacity onPress={() => handleNotificationPress(item)}>
                 <Text style={[styles.message, {color: theme.textPrimary}]}>
                   {item.message}
                 </Text>
               </TouchableOpacity>
 
+              {/* DATE */}
               <Text style={[styles.date, {color: theme.placeholder}]}>
                 {formatDate(item.createdAt)}
               </Text>
-
-              <Modal
-                transparent
-                visible={visibleModalId === item.id}
-                animationType="fade"
-                onRequestClose={() => setVisibleModalId(null)}>
-                <View style={styles.modalOverlay}>
-                  <View
-                    style={[
-                      styles.modalContent,
-                      {backgroundColor: theme.cardBackground},
-                    ]}>
-                    <Text
-                      style={[styles.modalTitle, {color: theme.textPrimary}]}>
-                      {t('Notification Options')}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.modalMessage,
-                        {color: theme.textSecondary},
-                      ]}>
-                      {t('Do you want to delete this notification:')}
-                      {'\n\n'}
-                      {`${item.message}`}
-                    </Text>
-                    <TouchableOpacity
-                      style={[
-                        styles.modalButton,
-                        {backgroundColor: theme.warning},
-                      ]}
-                      onPress={() => deleteNotification(item.id)}>
-                      <Text style={styles.modalButtonText}>{t('Delete')}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[
-                        styles.modalButton,
-                        {backgroundColor: theme.secondaryButton},
-                      ]}
-                      onPress={() => setVisibleModalId(null)}>
-                      <Text style={styles.modalButtonText}>{t('Cancel')}</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </Modal>
             </View>
           )}
         />
@@ -288,16 +262,23 @@ const styles = StyleSheet.create({
   headerTitle: {color: 'white', fontSize: 20, fontWeight: 'bold'},
   notificationList: {padding: 16},
   notification: {
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 20,
+    width: '100%', // сега вече заема почти целия контейнер
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginBottom: 12,
     elevation: 2,
     borderWidth: 1,
-    borderColor: '#000000',
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 3,
+  },
+  notificationHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
   },
   message: {fontSize: 16, color: '#010101', marginBottom: 8},
   date: {fontSize: 12},
@@ -313,13 +294,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   newLabel: {
-    position: 'absolute',
-    top: -10,
-    left: 10,
-    backgroundColor: '#cce7ff',
-    color: '#005fcb',
     fontWeight: 'bold',
-    paddingHorizontal: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
     borderRadius: 3,
     fontSize: 12,
   },

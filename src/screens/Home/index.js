@@ -133,7 +133,7 @@ function HomePage({navigation}) {
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 10,
-    color: darkMode ? '#FFFDFDFF' : '#010101',
+    color: darkMode ? '#FFFDFDFF' : '#000000',
   });
 
   const getButtonStyle = (color = '#000') => ({
