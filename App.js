@@ -7,6 +7,7 @@ import {Navigator} from './src/navigation/drawerContent';
 import {RouteProvider} from './src/context/RouteContext';
 import {AuthProvider} from './src/context/AuthContext';
 import {DarkModeProvider} from './src/navigation/DarkModeContext';
+import {navigationRef} from './src/navigation/NavigationService';
 import NotificationService from './src/backend-v2/services/NotificationService';
 import {useEffect} from 'react';
 import Toast from 'react-native-toast-message';
@@ -39,7 +40,7 @@ function App() {
   return (
     <SafeAreaView style={{flex: 1}}>
       <DarkModeProvider>
-        <NavigationContainer>
+        <NavigationContainer ref={navigationRef}>
           <AuthProvider>
             <RouteProvider>
               <Navigator isLoggedIn={isLoggedIn} />
