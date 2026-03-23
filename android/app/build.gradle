@@ -26,13 +26,13 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.freetravelapp2"
+    namespace "com.freetravelapp3"
     defaultConfig {
-        applicationId "com.freetravelapp2"
+        applicationId "com.freetravelapp3"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 5
-        versionName "1.0.1"
+        versionCode 1
+        versionName "1.0.0"
     }
 
     signingConfigs {

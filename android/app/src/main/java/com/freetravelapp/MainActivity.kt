@@ -1,4 +1,4 @@
-package com.freetravelapp2
+package com.freetravelapp3
 import android.os.Bundle;
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

@@ -1,4 +1,4 @@
-package com.freetravelapp2
+package com.freetravelapp3
 
 import android.app.Application
 import com.facebook.react.PackageList
