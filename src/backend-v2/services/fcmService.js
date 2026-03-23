@@ -16,7 +16,10 @@ if (!admin.apps.length) {
 
 const sendPush = async (fcmToken, title, body, data = {}) => {
   try {
+    console.log('🔥 TITLE SENT:', title);
+    console.log('🔥 BODY SENT:', body);
     console.log('👉 SENDING PUSH TO:', fcmToken);
+    console.log('🔥 NEW VERSION WORKING');
     const message = {
       token: fcmToken,
       notification: {title, body},
