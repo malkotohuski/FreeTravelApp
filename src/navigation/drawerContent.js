@@ -498,7 +498,7 @@ export const Navigator = () => {
             }}
           />
           <Drawer.Screen
-            name="Route request"
+            name="RouteRequest"
             component={RouteRequestScreen}
             options={{
               title: t('Inquiries'),

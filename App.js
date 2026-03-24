@@ -24,7 +24,7 @@ function App() {
 
       try {
         await api.post('api/register-device', {
-          userId: 2,
+          userId: user.id,
           fcmToken: token,
         });
 

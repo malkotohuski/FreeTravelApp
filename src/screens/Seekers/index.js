@@ -194,7 +194,7 @@ export default function Seekers({navigation}) {
                 color: theme.textPrimary,
               },
             ]}
-            placeholder={t('Search by starting point')}
+            placeholder={t('From')}
             placeholderTextColor={theme.textSecondary}
             value={searchDeparture}
             onChangeText={setSearchDeparture}
@@ -207,7 +207,7 @@ export default function Seekers({navigation}) {
                 color: theme.textPrimary,
               },
             ]}
-            placeholder={t('Search by endpoint')}
+            placeholder={t('To')}
             placeholderTextColor={theme.textSecondary}
             value={searchArrival}
             onChangeText={setSearchArrival}

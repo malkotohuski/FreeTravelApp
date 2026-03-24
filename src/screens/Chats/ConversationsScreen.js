@@ -156,7 +156,7 @@ const ConversationsScreen = ({navigation}) => {
               {/* Avatar */}
               <View style={[styles.avatar, {backgroundColor: theme.highlight}]}>
                 <Text style={styles.avatarText}>
-                  {item.otherUser.username[0].toUpperCase()}
+                  {item.otherUser?.username?.[0]?.toUpperCase() || '?'}
                 </Text>
               </View>
 

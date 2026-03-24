@@ -10,7 +10,9 @@ i18next.use(initReactI18next).init({
         // English translations here...
         'Register your vehicle': 'Register your vehicle',
         'Route request': 'Route request',
+        Passenger: 'Passenger',
         'Select date:': 'Select date:',
+        Refresh: 'Refresh',
         limitReached: 'Limit Reached',
         writePersonalMessage: 'Write a personal message (optional)',
         dailyLimitReached:
@@ -5194,6 +5196,8 @@ i18next.use(initReactI18next).init({
         'Route request': 'Запитване за маршрут',
         letsStart: 'Нека започнем!',
         'View routes': 'Преглед на маршрутите',
+        Passenger: 'Пътник',
+        Refresh: 'Обновяване',
         'More info about': 'Повече информация за',
         termsOfService: 'Условия за ползване',
         ContactUsScreen: 'Свържете се с нас',

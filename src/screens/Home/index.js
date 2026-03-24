@@ -328,7 +328,7 @@ function HomePage({navigation}) {
         await api.patch(`/api/requests/${request.id}/read`);
       }
       setReqestsCount(0);
-      navigation.navigate('Route request');
+      navigation.navigate('RouteRequest');
     } catch (error) {
       console.error('Failed to mark requests as read:', error);
       Alert.alert('Error', 'Failed to update requests.');
@@ -370,10 +370,10 @@ function HomePage({navigation}) {
         <View style={getContainerStyle()}>
           <Image source={getBackgroundImage()} style={styles.backgroundImage} />
           <View style={styles.overlay} />
-          <View style={styles.centeredTextContainer}>
+          {/*    <View style={styles.centeredTextContainer}>
             <Text style={getTextStyle()}>{t('In the car with me')}</Text>
             <Text style={getTextStyle()}>{t('We travel freely')}</Text>
-          </View>
+          </View> */}
           <View style={{flex: 1}}>
             {/* Language Switch */}
             <View style={styles.languageSwitchContainer}>
@@ -423,6 +423,7 @@ function HomePage({navigation}) {
 
             {/* Menu Buttons */}
             <View style={styles.menuImages}>
+              <Text style={styles.sectionHeader}>{t('Driver')}</Text>
               <TouchableOpacity
                 style={[getButtonStyle(), styles.fullWidthButton]}
                 onPress={handlerVehicle}>
@@ -437,6 +438,31 @@ function HomePage({navigation}) {
                   </Text>
                 </View>
               </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[getButtonStyle(), styles.fullWidthButton]}
+                onPress={handlerRouteViewer}>
+                <View style={styles.rowButtonContent}>
+                  <Icons
+                    name="steering"
+                    size={26}
+                    color={darkMode ? '#f1f1f1' : '#010101'}
+                  />
+                  <Text style={getTextButtonStyles()}>
+                    {t('List of Offering (Drivers)')}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              <View
+                style={{
+                  height: 3,
+                  backgroundColor: darkMode ? '#555' : '#ffffff',
+                  marginVertical: 12,
+                }}
+              />
+
+              <Text style={styles.sectionHeader}>{t('Passenger')}</Text>
 
               <TouchableOpacity
                 style={[getButtonStyle(), styles.fullWidthButton]}
@@ -464,21 +490,6 @@ function HomePage({navigation}) {
                   />
                   <Text style={getTextButtonStyles()}>
                     {t('List of Seekers (Passengers)')}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[getButtonStyle(), styles.fullWidthButton]}
-                onPress={handlerRouteViewer}>
-                <View style={styles.rowButtonContent}>
-                  <Icons
-                    name="steering"
-                    size={26}
-                    color={darkMode ? '#f1f1f1' : '#010101'}
-                  />
-                  <Text style={getTextButtonStyles()}>
-                    {t('List of Offering (Drivers)')}
                   </Text>
                 </View>
               </TouchableOpacity>

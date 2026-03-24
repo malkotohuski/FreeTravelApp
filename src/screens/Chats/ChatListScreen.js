@@ -31,6 +31,19 @@ const ChatScreen = ({route}) => {
   const flatListRef = useRef(null);
 
   useEffect(() => {
+    socket.emit('joinConversation', {
+      userId: user.id,
+      conversationId,
+    });
+
+    return () => {
+      socket.emit('leaveConversation', {
+        userId: user.id,
+      });
+    };
+  }, [conversationId]);
+
+  useEffect(() => {
     if (!user?.id) return;
 
     socket.emit('joinUserRoom', user.id);

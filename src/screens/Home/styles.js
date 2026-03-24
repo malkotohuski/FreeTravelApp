@@ -82,6 +82,17 @@ export default StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 12,
   },
+  sectionHeader: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginVertical: 4,
+    textAlign: 'center',
+    color: '#ffffff',
+  },
+  sectionContainer: {
+    padding: 12,
+    borderRadius: 12,
+  },
   textButtons: {
     fontSize: 20,
     color: '#010101',

@@ -5,7 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
+  TouchableWithoutFeedback,
   TextInput,
   Modal,
   Pressable,
@@ -144,91 +144,100 @@ function ViewRoutes({navigation}) {
         transparent={true}
         visible={showFilterModal}
         onRequestClose={toggleFilterModal}>
-        <View
-          style={[
-            styles.modalContainer,
-            {backgroundColor: theme.modalOverlay},
-          ]}>
+        <TouchableWithoutFeedback onPress={toggleFilterModal}>
           <View
             style={[
-              styles.modalContent,
-              {backgroundColor: theme.cardBackground},
+              styles.modalContainer,
+              {backgroundColor: theme.modalOverlay},
             ]}>
-            <Text style={[styles.modalHeader, {color: theme.textPrimary}]}>
-              {t('Filter Options')}
-            </Text>
-            <TextInput
-              style={[
-                styles.input,
-                {
-                  backgroundColor:
-                    theme.mode === 'dark' ? theme.inputBackground : '#ddd', // светъл режим – сиво, не бяло
-                  color: theme.textPrimary,
-                  textAlign: 'center',
-                },
-              ]}
-              placeholder={t('Departure City')}
-              placeholderTextColor={
-                theme.mode === 'dark' ? theme.textSecondary : '#555'
-              }
-              value={enteredDepartureCity}
-              onChangeText={setEnteredDepartureCity}
-            />
+            {/* Това е съдържанието на модала */}
+            <TouchableWithoutFeedback onPress={() => {}}>
+              <View
+                style={[
+                  styles.modalContent,
+                  {backgroundColor: theme.cardBackground},
+                ]}>
+                <Text style={[styles.modalHeader, {color: theme.textPrimary}]}>
+                  {t('Filter Options')}
+                </Text>
 
-            <TextInput
-              style={[
-                styles.input,
-                {
-                  backgroundColor:
-                    theme.mode === 'dark' ? theme.inputBackground : '#ddd',
-                  color: theme.textPrimary,
-                  textAlign: 'center',
-                },
-              ]}
-              placeholder={t('Arrival City')}
-              placeholderTextColor={
-                theme.mode === 'dark' ? theme.textSecondary : '#555'
-              }
-              value={enteredArrivalCity}
-              onChangeText={setEnteredArrivalCity}
-            />
+                <TextInput
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor:
+                        theme.mode === 'dark' ? theme.inputBackground : '#ddd',
+                      color: theme.textPrimary,
+                      textAlign: 'center',
+                    },
+                  ]}
+                  placeholder={t('Departure City')}
+                  placeholderTextColor={
+                    theme.mode === 'dark' ? theme.textSecondary : '#555'
+                  }
+                  value={enteredDepartureCity}
+                  onChangeText={setEnteredDepartureCity}
+                />
 
-            <Pressable
-              style={[
-                styles.applyFiltersButton,
-                {backgroundColor: theme.primaryButton},
-              ]}
-              onPress={applyFilters}>
-              <Text style={styles.buttonText}>{t('Apply Filters')}</Text>
-            </Pressable>
-            <Pressable
-              style={[
-                styles.sortByDateButton,
-                {backgroundColor: theme.secondaryButton},
-              ]}
-              onPress={() => setSortByDate(!sortByDate)}>
-              <Text style={styles.buttonText}>
-                {sortByDate ? t('Sort by Oldest') : t('Sort by Newest')}
-              </Text>
-            </Pressable>
-            <Pressable
-              style={[
-                styles.clearFiltersButton,
-                {backgroundColor: theme.errorButton},
-              ]}
-              onPress={clearFilters}>
-              <Text style={styles.buttonText}>{t('Clear Filters')}</Text>
-            </Pressable>
-            <Pressable
-              style={[
-                styles.closeModalButton,
-                {backgroundColor: theme.secondaryButton},
-              ]}
-              onPress={toggleFilterModal}>
-              <Text style={styles.buttonText}>{t('Close')}</Text>
-            </Pressable>
+                <TextInput
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor:
+                        theme.mode === 'dark' ? theme.inputBackground : '#ddd',
+                      color: theme.textPrimary,
+                      textAlign: 'center',
+                    },
+                  ]}
+                  placeholder={t('Arrival City')}
+                  placeholderTextColor={
+                    theme.mode === 'dark' ? theme.textSecondary : '#555'
+                  }
+                  value={enteredArrivalCity}
+                  onChangeText={setEnteredArrivalCity}
+                />
+
+                <Pressable
+                  style={[
+                    styles.applyFiltersButton,
+                    {backgroundColor: theme.primaryButton},
+                  ]}
+                  onPress={applyFilters}>
+                  <Text style={styles.buttonText}>{t('Apply Filters')}</Text>
+                </Pressable>
+
+                <Pressable
+                  style={[
+                    styles.sortByDateButton,
+                    {backgroundColor: theme.secondaryButton},
+                  ]}
+                  onPress={() => setSortByDate(!sortByDate)}>
+                  <Text style={styles.buttonText}>
+                    {sortByDate ? t('Sort by Oldest') : t('Sort by Newest')}
+                  </Text>
+                </Pressable>
+
+                <Pressable
+                  style={[
+                    styles.clearFiltersButton,
+                    {backgroundColor: theme.errorButton},
+                  ]}
+                  onPress={clearFilters}>
+                  <Text style={styles.buttonText}>{t('Clear Filters')}</Text>
+                </Pressable>
+
+                <Pressable
+                  style={[
+                    styles.closeModalButton,
+                    {backgroundColor: theme.secondaryButton},
+                  ]}
+                  onPress={toggleFilterModal}>
+                  <Text style={styles.buttonText}>{t('Close')}</Text>
+                </Pressable>
+              </View>
+            </TouchableWithoutFeedback>
           </View>
-        </View>
+        </TouchableWithoutFeedback>
       </Modal>
 
       <ScrollView

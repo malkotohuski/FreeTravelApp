@@ -52,43 +52,59 @@ exports.sendNotification = async ({
 
   // 🔹 Изпращане на push
   const pushToUser = async () => {
-    const userDevice = await prisma.userDevice.findFirst({
+    const devices = await prisma.userDevice.findMany({
       where: {userId: Number(recipientId)},
-      orderBy: {createdAt: 'desc'},
     });
 
     const isOnline = isUserOnline(recipientId);
 
+    const isInSameChat = global.isUserInConversation(
+      recipientId,
+      conversationId,
+    );
+
+    console.log('🧠 CHECK:', {
+      isOnline,
+      isInSameChat,
+    });
+
+    // ❌ ако е в същия чат → НЕ пращай push
+    if (conversationId && isInSameChat) {
+      console.log('🔕 USER IN CHAT → NO PUSH');
+      return;
+    }
+
     if (!skipPushIfOnline || !isOnline) {
-      if (userDevice?.fcmToken) {
-        console.log('Sending push to userId:', recipientId);
+      for (const device of devices) {
+        if (device?.fcmToken) {
+          console.log('📲 Sending push to device:', device.fcmToken);
 
-        // 👉 взимаме името на подателя (за по-добър UX)
-        let senderName = '';
-        try {
-          const sender = await prisma.user.findUnique({
-            where: {id: Number(senderId)},
-            select: {fName: true, lName: true},
+          let senderName = '';
+          try {
+            const sender = await prisma.user.findUnique({
+              where: {id: Number(senderId)},
+              select: {fName: true, lName: true},
+            });
+            senderName = `${sender?.fName || ''} ${sender?.lName || ''}`.trim();
+          } catch (e) {
+            console.log('Sender fetch error:', e.message);
+          }
+
+          const title = getNotificationTitle(type, senderName);
+
+          const stringifiedData = {};
+          for (const key in data) {
+            stringifiedData[key] = String(data[key] ?? '');
+          }
+
+          await sendPush(device.fcmToken, title, message, {
+            screen: type,
+            type: String(type || ''),
+            routeId: String(routeId || ''),
+            conversationId: String(conversationId || ''),
+            ...stringifiedData,
           });
-          senderName = `${sender?.fName || ''} ${sender?.lName || ''}`.trim();
-        } catch (e) {
-          console.log('Sender fetch error:', e.message);
         }
-
-        const title = getNotificationTitle(type, senderName);
-
-        const stringifiedData = {};
-        for (const key in data) {
-          stringifiedData[key] = String(data[key] ?? '');
-        }
-
-        await sendPush(userDevice.fcmToken, title, message, {
-          screen: type,
-          type: String(type || ''),
-          routeId: String(routeId || ''),
-          conversationId: String(conversationId || ''),
-          ...stringifiedData,
-        });
       }
     }
   };

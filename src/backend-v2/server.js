@@ -1,4 +1,14 @@
 const onlineUsers = new Map();
+const userCurrentChat = new Map();
+
+global.userCurrentChat = userCurrentChat;
+
+global.isUserInConversation = (userId, conversationId) => {
+  return userCurrentChat.get(Number(userId)) === String(conversationId);
+};
+
+global.isUserInConversation = isUserInConversation;
+
 const {setOnlineUsers} = require('./utils/onlineUsers');
 setOnlineUsers(onlineUsers);
 require('dotenv').config();
@@ -130,6 +140,20 @@ io.on('connection', socket => {
     }
 
     console.log('🔴 ONLINE USERS:', onlineUsers);
+  });
+
+  // 👉 когато user отвори чат
+  socket.on('joinConversation', ({userId, conversationId}) => {
+    userCurrentChat.set(Number(userId), String(conversationId));
+
+    console.log('💬 USER IN CHAT:', userId, conversationId);
+  });
+
+  // 👉 когато user излезе от чат
+  socket.on('leaveConversation', ({userId}) => {
+    userCurrentChat.delete(Number(userId));
+
+    console.log('🚪 USER LEFT CHAT:', userId);
   });
 });
 

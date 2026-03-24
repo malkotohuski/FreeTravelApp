@@ -121,7 +121,7 @@ const Notifications = ({navigation}) => {
         message.includes('candidate') &&
         notification.recipientId === user.id
       ) {
-        navigation.navigate('Route request', {fromNotification: true});
+        navigation.navigate('RouteRequest', {fromNotification: true});
       }
 
       // APPROVED → CHAT

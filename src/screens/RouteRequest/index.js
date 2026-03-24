@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Alert,
-  Image,
   ScrollView,
   TextInput,
   Button,
@@ -53,10 +52,15 @@ function RouteRequestScreen({route, navigation}) {
   const [modalVisible, setModalVisible] = useState(false);
   const theme = useTheme();
 
+  useEffect(() => {
+    console.log('ROUTE PARAMS:', route.params);
+  }, []);
+
   useFocusEffect(
     useCallback(() => {
+      console.log('SCREEN FOCUSED → REFRESH');
       refreshUserData();
-    }, [route.params?.fromNotification]),
+    }, []),
   );
 
   useEffect(() => {
@@ -273,10 +277,6 @@ function RouteRequestScreen({route, navigation}) {
       )}
 
       <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-        {/*  <Image
-          source={require('../../../images/routes2-background.jpg')}
-          style={styles.backgroundImage}
-        /> */}
         <View style={styles.container}>
           <Text
             style={[
@@ -287,7 +287,7 @@ function RouteRequestScreen({route, navigation}) {
             ]}>
             {t('Inquiries')}:
           </Text>
-          <Button title="🔄 Refresh" onPress={refreshUserData} />
+          <Button title={`🔄 ${t('Refresh')}`} onPress={refreshUserData} />
           {renderRoutes()}
         </View>
       </ScrollView>
