@@ -116,10 +116,10 @@ exports.sendNotification = async ({
             screen: type || '',
             type: String(type || ''),
             routeId: routeId ? String(routeId) : '',
-            conversationId: conversationId ? String(conversationId) : '',
             senderId: String(senderId),
             recipientId: String(recipientId),
             ...stringifiedData,
+            conversationId: String(conversationId || ''),
           });
         }
       }

@@ -29,9 +29,15 @@ class NotificationService {
       return;
     }
 
-    if (screen === 'message' && conversationId) {
-      console.log('🔹 NAV CURRENT:', navigationRef.current);
-      navigationRef.current?.navigate('ConversationsScreen', {conversationId});
+    if (screen === 'message') {
+      if (!conversationId) {
+        console.log('❌ Missing conversationId → skip navigation');
+        return;
+      }
+
+      navigationRef.current?.navigate('ConversationsScreen', {
+        conversationId,
+      });
     }
 
     if (screen === 'request' && routeId) {
