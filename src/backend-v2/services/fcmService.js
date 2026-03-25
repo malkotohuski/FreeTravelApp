@@ -14,47 +14,21 @@ if (!admin.apps.length) {
   });
 }
 
-const {PrismaClient} = require('@prisma/client');
-const prisma = new PrismaClient();
-
 const sendPush = async (fcmToken, title, body, data = {}) => {
   try {
     console.log('🔥 TITLE SENT:', title);
     console.log('🔥 BODY SENT:', body);
     console.log('👉 SENDING PUSH TO:', fcmToken);
-
+    console.log('🔥 NEW VERSION WORKING');
     const message = {
       token: fcmToken,
-      data: {
-        title: title,
-        body: body,
-        screen: data.screen || '',
-        conversationId: data.conversationId || '',
-        routeId: data.routeId || '',
-        senderId: data.senderId || '',
-        recipientId: data.recipientId || '',
-      },
-      android: {
-        priority: 'high',
-      },
+      notification: {title, body},
+      data,
     };
-
     const response = await admin.messaging().send(message);
     console.log('✅ PUSH SUCCESS:', response);
   } catch (err) {
     console.log('❌ PUSH ERROR:', err);
-
-    // ✅ 👉 ТОВА Е ВАЖНОТО
-    if (
-      err.code === 'messaging/registration-token-not-registered' ||
-      err.errorInfo?.code === 'messaging/registration-token-not-registered'
-    ) {
-      console.log('🧹 DELETING INVALID TOKEN:', fcmToken);
-
-      await prisma.userDevice.deleteMany({
-        where: {fcmToken},
-      });
-    }
   }
 };
 

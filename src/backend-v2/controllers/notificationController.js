@@ -52,76 +52,43 @@ exports.sendNotification = async ({
 
   // 🔹 Изпращане на push
   const pushToUser = async () => {
-    const devices = await prisma.userDevice.findMany({
+    const userDevice = await prisma.userDevice.findFirst({
       where: {userId: Number(recipientId)},
+      orderBy: {createdAt: 'desc'},
     });
-
-    // ⚡️ Уникализиране по fcmToken, за да не се дублират пушове
-    const uniqueDevices = Array.from(
-      new Map(devices.map(d => [d.fcmToken, d])).values(),
-    );
 
     const isOnline = isUserOnline(recipientId);
 
-    const isInSameChat = global.isUserInConversation(
-      recipientId,
-      conversationId,
-    );
-
-    console.log('🧠 CHECK:', {
-      isOnline,
-      isInSameChat,
-    });
-
-    // ❌ ако е в същия чат → НЕ пращай push
-    if (conversationId && isInSameChat) {
-      console.log('🔕 USER IN CHAT → NO PUSH');
-      return;
-    }
-
     if (!skipPushIfOnline || !isOnline) {
-      for (const device of uniqueDevices) {
-        if (device?.fcmToken) {
-          console.log('📲 Sending push to device:', device.fcmToken);
+      if (userDevice?.fcmToken) {
+        console.log('Sending push to userId:', recipientId);
 
-          let senderName = '';
-          try {
-            const sender = await prisma.user.findUnique({
-              where: {id: Number(senderId)},
-              select: {fName: true, lName: true},
-            });
-            senderName = `${sender?.fName || ''} ${sender?.lName || ''}`.trim();
-          } catch (e) {
-            console.log('Sender fetch error:', e.message);
-          }
-
-          const title = getNotificationTitle(type, senderName);
-
-          const stringifiedData = {};
-          for (const key in data) {
-            stringifiedData[key] = String(data[key] ?? '');
-          }
-
-          console.log('📨 PUSH DATA:', {
-            screen: type || '',
-            type: String(type || ''),
-            routeId: routeId ? String(routeId) : '',
-            conversationId: conversationId ? String(conversationId) : '',
-            senderId: String(senderId),
-            recipientId: String(recipientId),
-            ...stringifiedData,
+        // 👉 взимаме името на подателя (за по-добър UX)
+        let senderName = '';
+        try {
+          const sender = await prisma.user.findUnique({
+            where: {id: Number(senderId)},
+            select: {fName: true, lName: true},
           });
-
-          await sendPush(device.fcmToken, title, message, {
-            screen: type || '',
-            type: String(type || ''),
-            routeId: routeId ? String(routeId) : '',
-            senderId: String(senderId),
-            recipientId: String(recipientId),
-            ...stringifiedData,
-            conversationId: String(conversationId || ''),
-          });
+          senderName = `${sender?.fName || ''} ${sender?.lName || ''}`.trim();
+        } catch (e) {
+          console.log('Sender fetch error:', e.message);
         }
+
+        const title = getNotificationTitle(type, senderName);
+
+        const stringifiedData = {};
+        for (const key in data) {
+          stringifiedData[key] = String(data[key] ?? '');
+        }
+
+        await sendPush(userDevice.fcmToken, title, message, {
+          screen: type,
+          type: String(type || ''),
+          routeId: String(routeId || ''),
+          conversationId: String(conversationId || ''),
+          ...stringifiedData,
+        });
       }
     }
   };
@@ -138,7 +105,7 @@ exports.sendNotification = async ({
       recipientId: Number(recipientId),
       senderId: Number(senderId),
       message,
-      routeId: routeId ? String(routeId) : null,
+      routeId,
       personalMessage,
       requester,
       conversationId: conversationId ? String(conversationId) : null,

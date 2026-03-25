@@ -1,7 +1,6 @@
-// src/backend-v2/services/NotificationService.js
 import messaging from '@react-native-firebase/messaging';
 import {PermissionsAndroid, Platform} from 'react-native';
-import notifee, {AndroidImportance} from '@notifee/react-native';
+import {navigate} from '../../navigation/NavigationService';
 
 class NotificationService {
   async requestPermission() {
@@ -18,6 +17,22 @@ class NotificationService {
     );
   }
 
+  handleNavigation(data) {
+    if (!data) return;
+
+    const {screen, conversationId, routeId} = data;
+
+    console.log('NAVIGATE DATA:', data);
+
+    if (screen === 'message' && conversationId) {
+      navigate('ChatScreen', {conversationId});
+    }
+
+    if (screen === 'request' && routeId) {
+      navigate('RouteDetails', {routeId});
+    }
+  }
+
   async getFCMToken() {
     try {
       await messaging().registerDeviceForRemoteMessages();
@@ -31,55 +46,32 @@ class NotificationService {
 
   async init() {
     await this.requestPermission();
-
-    // Създаваме channel за Android
-    await notifee.createChannel({
-      id: 'default',
-      name: 'FreeTravel Notifications',
-      importance: AndroidImportance.HIGH,
-    });
-
     const token = await this.getFCMToken();
 
-    // Foreground handler
+    // 👉 когато app е отворено
     messaging().onMessage(async remoteMessage => {
       console.log('Foreground push:', remoteMessage);
-
-      const title = remoteMessage.notification?.title || '🔔 Ново известие';
-      const body = remoteMessage.notification?.body || '';
-
-      await notifee.displayNotification({
-        title,
-        body,
-        android: {
-          channelId: 'default',
-          pressAction: {id: 'default'},
-        },
-      });
     });
 
-    // Background handler
-    messaging().setBackgroundMessageHandler(async remoteMessage => {
-      console.log('Background push:', remoteMessage);
+    // 👉 когато кликнеш нотификация (app във background)
+    messaging().onNotificationOpenedApp(remoteMessage => {
+      console.log('Notification opened:', remoteMessage);
 
-      const title = remoteMessage.data?.title || '🔔 Ново известие';
-      const body = remoteMessage.data?.body || '';
-
-      await notifee.displayNotification({
-        title,
-        body,
-        android: {
-          channelId: 'default',
-          pressAction: {id: 'default'},
-        },
-      });
+      setTimeout(() => {
+        this.handleNavigation(remoteMessage.data);
+      }, 500);
     });
+    // 👉 когато app е затворено и се отвори от нотификация
+    const initialNotification = await messaging().getInitialNotification();
+
+    if (initialNotification) {
+      console.log('App opened from quit state:', initialNotification);
+      setTimeout(() => {
+        this.handleNavigation(initialNotification.data);
+      }, 1000);
+    }
 
     return token;
-  }
-
-  onNavigationReady() {
-    // placeholder ако искаме да навигираме при click
   }
 }
 

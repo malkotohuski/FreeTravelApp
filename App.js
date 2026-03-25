@@ -1,6 +1,5 @@
-// App.js
 import 'react-native-gesture-handler';
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import './src/i18n/i18n';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {NavigationContainer} from '@react-navigation/native';
@@ -10,6 +9,7 @@ import {AuthProvider} from './src/context/AuthContext';
 import {DarkModeProvider} from './src/navigation/DarkModeContext';
 import {navigationRef} from './src/navigation/NavigationService';
 import NotificationService from './src/backend-v2/services/NotificationService';
+import {useEffect} from 'react';
 import Toast from 'react-native-toast-message';
 import api from './src/api/api';
 
@@ -18,15 +18,13 @@ function App() {
 
   useEffect(() => {
     async function initPush() {
-      // Инициализира notification service + foreground + background
       const token = await NotificationService.init();
 
       console.log('Device token:', token);
 
       try {
-        // Регистрираме device token в backend
         await api.post('api/register-device', {
-          userId: user?.id,
+          userId: user.id,
           fcmToken: token,
         });
 
@@ -42,11 +40,7 @@ function App() {
   return (
     <SafeAreaView style={{flex: 1}}>
       <DarkModeProvider>
-        <NavigationContainer
-          ref={navigationRef}
-          onReady={() => {
-            NotificationService.onNavigationReady(); // placeholder за навигация при click
-          }}>
+        <NavigationContainer ref={navigationRef}>
           <AuthProvider>
             <RouteProvider>
               <Navigator isLoggedIn={isLoggedIn} />
@@ -54,8 +48,6 @@ function App() {
           </AuthProvider>
         </NavigationContainer>
       </DarkModeProvider>
-
-      {/* Toast за foreground */}
       <Toast />
     </SafeAreaView>
   );
