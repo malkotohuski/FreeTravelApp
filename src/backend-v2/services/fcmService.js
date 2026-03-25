@@ -23,15 +23,18 @@ const sendPush = async (fcmToken, title, body, data = {}) => {
     console.log('🔥 BODY SENT:', body);
     console.log('👉 SENDING PUSH TO:', fcmToken);
 
+    // ⚡️ Data-only push (не използвай notification поле)
     const message = {
       token: fcmToken,
-      notification: {title, body},
-      data,
+      data: {
+        title: title || '', // за всякакви alert-и във foreground
+        body: body || '',
+        ...Object.fromEntries(
+          Object.entries(data).map(([k, v]) => [k, String(v) || '']),
+        ),
+      },
       android: {
         priority: 'high',
-        notification: {
-          clickAction: 'FLUTTER_NOTIFICATION_CLICK',
-        },
       },
     };
 
@@ -40,7 +43,6 @@ const sendPush = async (fcmToken, title, body, data = {}) => {
   } catch (err) {
     console.log('❌ PUSH ERROR:', err);
 
-    // ✅ 👉 ТОВА Е ВАЖНОТО
     if (
       err.code === 'messaging/registration-token-not-registered' ||
       err.errorInfo?.code === 'messaging/registration-token-not-registered'
