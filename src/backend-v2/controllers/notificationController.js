@@ -56,6 +56,11 @@ exports.sendNotification = async ({
       where: {userId: Number(recipientId)},
     });
 
+    // ⚡️ Уникализиране по fcmToken, за да не се дублират пушове
+    const uniqueDevices = Array.from(
+      new Map(devices.map(d => [d.fcmToken, d])).values(),
+    );
+
     const isOnline = isUserOnline(recipientId);
 
     const isInSameChat = global.isUserInConversation(
@@ -75,7 +80,7 @@ exports.sendNotification = async ({
     }
 
     if (!skipPushIfOnline || !isOnline) {
-      for (const device of devices) {
+      for (const device of uniqueDevices) {
         if (device?.fcmToken) {
           console.log('📲 Sending push to device:', device.fcmToken);
 
