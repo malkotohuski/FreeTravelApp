@@ -47,23 +47,6 @@ class NotificationService {
     }
   }
 
-  getToastTitle(type) {
-    switch (type) {
-      case 'message':
-        return '📩 Ново съобщение';
-      case 'request':
-        return '🚗 Нова заявка за пътуване';
-      case 'accept':
-        return '✅ Заявката е приета';
-      case 'reject':
-        return '❌ Заявката е отказана';
-      case 'rating':
-        return '⭐ Нова оценка';
-      default:
-        return '🔔 Известие';
-    }
-  }
-
   async init() {
     await this.requestPermission();
     const token = await this.getFCMToken();
@@ -71,22 +54,6 @@ class NotificationService {
     // 👉 когато app е отворено
     messaging().onMessage(async remoteMessage => {
       console.log('Foreground push:', remoteMessage);
-
-      const {notification, data} = remoteMessage;
-
-      const title = getToastTitle(data?.type);
-      const body = notification?.body || data?.message || 'Имаш ново известие';
-
-      Toast.show({
-        type: 'info',
-        text1: title,
-        text2: body,
-        position: 'top',
-        visibilityTime: 3000,
-        onPress: () => {
-          this.handleNavigation(data); // 👈 директно навигираш
-        },
-      });
     });
 
     // 👉 когато кликнеш нотификация (app във background)
