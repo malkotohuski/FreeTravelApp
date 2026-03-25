@@ -4,6 +4,18 @@ import {navigate} from '../../navigation/NavigationService';
 import Toast from 'react-native-toast-message';
 
 class NotificationService {
+  currentConversationId = null;
+
+  // 👉 SET активен чат
+  setActiveConversation(conversationId) {
+    this.currentConversationId = String(conversationId);
+  }
+
+  // 👉 CLEAR като излезеш
+  clearActiveConversation() {
+    this.currentConversationId = null;
+  }
+
   async requestPermission() {
     if (Platform.OS === 'android' && Platform.Version >= 33) {
       await PermissionsAndroid.request(
@@ -23,8 +35,6 @@ class NotificationService {
 
     const {screen, conversationId, routeId} = data;
 
-    console.log('NAVIGATE DATA:', data);
-
     if (screen === 'message' && conversationId) {
       navigate('ConversationsScreen', {conversationId});
     }
@@ -32,7 +42,7 @@ class NotificationService {
     if (screen === 'request' && routeId) {
       navigate('RouteRequest', {
         routeId,
-        fromNotification: true, // 👈 ВАЖНО
+        fromNotification: true,
       });
     }
   }
@@ -41,7 +51,6 @@ class NotificationService {
     try {
       await messaging().registerDeviceForRemoteMessages();
       const token = await messaging().getToken();
-      console.log('FCM TOKEN:', token);
       return token;
     } catch (err) {
       console.log('FCM ERROR:', err);
@@ -69,13 +78,24 @@ class NotificationService {
     await this.requestPermission();
     const token = await this.getFCMToken();
 
-    // 👉 когато app е отворено
+    // 🔥 FOREGROUND
     messaging().onMessage(async remoteMessage => {
-      console.log('Foreground push:', remoteMessage);
-
       const {data} = remoteMessage;
 
+      const incomingConversationId = data?.conversationId;
+
+      // ❌ ако си вътре в същия чат → НЕ показвай toast
+      if (
+        data?.type === 'message' &&
+        incomingConversationId &&
+        String(incomingConversationId) === this.currentConversationId
+      ) {
+        console.log('⛔ Skip toast (inside chat)');
+        return;
+      }
+
       const title = this.getToastTitle(data?.type);
+
       let body = '';
 
       if (data?.type === 'message') {
@@ -94,24 +114,22 @@ class NotificationService {
         position: 'top',
         visibilityTime: 3000,
         onPress: () => {
-          this.handleNavigation(data); // 👈 директно навигираш
+          this.handleNavigation(data);
         },
       });
     });
 
-    // 👉 когато кликнеш нотификация (app във background)
+    // 👉 BACKGROUND CLICK
     messaging().onNotificationOpenedApp(remoteMessage => {
-      console.log('Notification opened:', remoteMessage);
-
       setTimeout(() => {
         this.handleNavigation(remoteMessage.data);
       }, 500);
     });
-    // 👉 когато app е затворено и се отвори от нотификация
+
+    // 👉 QUIT STATE
     const initialNotification = await messaging().getInitialNotification();
 
     if (initialNotification) {
-      console.log('App opened from quit state:', initialNotification);
       setTimeout(() => {
         this.handleNavigation(initialNotification.data);
       }, 1000);

@@ -15,6 +15,7 @@ import {useTranslation} from 'react-i18next';
 import api from '../../api/api';
 import {useTheme} from '../../theme/useTheme';
 import socket from '../../socket/socket';
+import NotificationService from '../../backend-v2/services/NotificationService';
 
 const ChatScreen = ({route}) => {
   const {t} = useTranslation();
@@ -29,6 +30,14 @@ const ChatScreen = ({route}) => {
   const [conversationInfo, setConversationInfo] = useState(null);
 
   const flatListRef = useRef(null);
+
+  useEffect(() => {
+    NotificationService.setActiveConversation(conversationId);
+
+    return () => {
+      NotificationService.clearActiveConversation();
+    };
+  }, [conversationId]);
 
   useEffect(() => {
     socket.emit('joinConversation', {
