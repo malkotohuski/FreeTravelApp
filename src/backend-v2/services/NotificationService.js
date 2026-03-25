@@ -10,6 +10,7 @@ class NotificationService {
   // ⚡️ Вика се когато NavigationContainer е готов
   onNavigationReady() {
     if (this.pendingNavigation) {
+      console.log('⏳ Executing pending navigation after cold start');
       this.handleNavigation(this.pendingNavigation);
       this.pendingNavigation = null;
     }
@@ -20,16 +21,7 @@ class NotificationService {
     console.log('🔹 HANDLE NAV DATA:', data);
     if (!data) return;
 
-    // ❌ Ако сме във foreground → не навигирай
-    if (AppState.currentState === 'active') {
-      console.log('⏸ App in foreground → skipping navigation');
-      return;
-    }
-
     const {screen, conversationId, routeId} = data;
-
-    console.log('🧭 NAVIGATE DATA:', data);
-    console.log('🧭 NAV READY:', navigationRef.isReady());
 
     if (!navigationRef.isReady()) {
       console.log('⏳ Navigation not ready yet, retry in 1s', data);
@@ -80,7 +72,7 @@ class NotificationService {
 
       Toast.show({
         text1: message || 'Ново известие',
-        visibilityTime: 2000,
+        visibilityTime: 3000,
         position: 'top',
       });
 
