@@ -26,11 +26,13 @@ const sendPush = async (fcmToken, title, body, data = {}) => {
     const message = {
       token: fcmToken,
       data: {
-        title,
-        body,
+        title: title,
+        body: body,
         screen: data.screen || '',
         conversationId: data.conversationId || '',
         routeId: data.routeId || '',
+        senderId: data.senderId || '',
+        recipientId: data.recipientId || '',
       },
       android: {
         priority: 'high',
