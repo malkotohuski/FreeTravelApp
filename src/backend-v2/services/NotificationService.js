@@ -9,7 +9,7 @@ class NotificationService {
   // ⚡️ Вика се когато NavigationContainer е готов
   onNavigationReady() {
     if (this.pendingNavigation) {
-      this.navigate(this.pendingNavigation);
+      this.handleNavigation(this.pendingNavigation);
       this.pendingNavigation = null;
     }
   }
@@ -30,11 +30,11 @@ class NotificationService {
     }
 
     if (screen === 'message' && conversationId) {
-      navigate('ConversationsScreen', {conversationId});
+      navigationRef.current?.navigate('ConversationsScreen', {conversationId});
     }
 
     if (screen === 'request' && routeId) {
-      navigate('Route request', {routeId});
+      navigationRef.current?.navigate('RouteRequest', {routeId});
     }
   }
 
