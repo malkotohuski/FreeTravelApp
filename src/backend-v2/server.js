@@ -7,8 +7,6 @@ global.isUserInConversation = (userId, conversationId) => {
   return userCurrentChat.get(Number(userId)) === String(conversationId);
 };
 
-global.isUserInConversation = isUserInConversation;
-
 const {setOnlineUsers} = require('./utils/onlineUsers');
 setOnlineUsers(onlineUsers);
 require('dotenv').config();

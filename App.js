@@ -40,7 +40,11 @@ function App() {
   return (
     <SafeAreaView style={{flex: 1}}>
       <DarkModeProvider>
-        <NavigationContainer ref={navigationRef}>
+        <NavigationContainer
+          ref={navigationRef}
+          onReady={() => {
+            NotificationService.onNavigationReady(); // ⚡️ изпълнява чакащата навигация
+          }}>
           <AuthProvider>
             <RouteProvider>
               <Navigator isLoggedIn={isLoggedIn} />

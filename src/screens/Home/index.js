@@ -370,10 +370,10 @@ function HomePage({navigation}) {
         <View style={getContainerStyle()}>
           <Image source={getBackgroundImage()} style={styles.backgroundImage} />
           <View style={styles.overlay} />
-          {/*    <View style={styles.centeredTextContainer}>
-            <Text style={getTextStyle()}>{t('In the car with me')}</Text>
+          <View style={styles.centeredTextContainer}>
+            {/*   <Text style={getTextStyle()}>{t('In the car with me')}</Text> */}
             <Text style={getTextStyle()}>{t('We travel freely')}</Text>
-          </View> */}
+          </View>
           <View style={{flex: 1}}>
             {/* Language Switch */}
             <View style={styles.languageSwitchContainer}>

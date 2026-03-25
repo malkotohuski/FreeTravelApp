@@ -1,32 +1,27 @@
+// src/backend-v2/services/NotificationService.js
 import messaging from '@react-native-firebase/messaging';
-import {PermissionsAndroid, Platform} from 'react-native';
-import {navigate} from '../../navigation/NavigationService';
+import {Platform, PermissionsAndroid, Alert} from 'react-native';
 import {navigationRef} from '../../navigation/NavigationService';
 
 class NotificationService {
-  async requestPermission() {
-    if (Platform.OS === 'android' && Platform.Version >= 33) {
-      await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
-      );
-    }
+  pendingNavigation = null;
 
-    const authStatus = await messaging().requestPermission();
-    return (
-      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-      authStatus === messaging.AuthorizationStatus.PROVISIONAL
-    );
+  // ⚡️ Вика се когато NavigationContainer е готов
+  onNavigationReady() {
+    if (this.pendingNavigation) {
+      this.navigate(this.pendingNavigation);
+      this.pendingNavigation = null;
+    }
   }
 
+  // Основна функция за навигация
   handleNavigation(data) {
-    console.log('🔥 FULL DATA:', data);
     if (!data) return;
 
     const {screen, conversationId, routeId} = data;
 
-    console.log('🔥 SCREEN:', screen);
-    console.log('🔥 ROUTE ID:', routeId);
-    console.log('🔥 CONVERSATION ID:', conversationId);
+    console.log('🧭 NAVIGATE DATA:', data);
+    console.log('🧭 NAV READY:', navigationRef.isReady());
 
     if (!navigationRef.isReady()) {
       console.log('⏳ Navigation not ready, retrying...');
@@ -34,56 +29,58 @@ class NotificationService {
       return;
     }
 
-    if (screen?.toLowerCase() === 'message' && conversationId) {
-      console.log('➡️ GO TO CHAT');
+    if (screen === 'message' && conversationId) {
       navigate('ConversationsScreen', {conversationId});
     }
 
-    if (screen?.toLowerCase() === 'request' && routeId) {
-      console.log('➡️ GO TO REQUEST SCREEN');
-      navigate('RouteRequest', {routeId, fromNotification: true});
+    if (screen === 'request' && routeId) {
+      navigate('Route request', {routeId});
     }
   }
 
-  async getFCMToken() {
-    try {
-      await messaging().registerDeviceForRemoteMessages();
-      const token = await messaging().getToken();
-      console.log('FCM TOKEN:', token);
-      return token;
-    } catch (err) {
-      console.log('FCM ERROR:', err);
+  async requestPermission() {
+    if (Platform.OS === 'android' && Platform.Version >= 33) {
+      await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+      );
     }
+    const status = await messaging().requestPermission();
+    return (
+      status === messaging.AuthorizationStatus.AUTHORIZED ||
+      status === messaging.AuthorizationStatus.PROVISIONAL
+    );
+  }
+
+  async getFCMToken() {
+    await messaging().registerDeviceForRemoteMessages();
+    const token = await messaging().getToken();
+    console.log('FCM TOKEN:', token);
+    return token;
   }
 
   async init() {
     await this.requestPermission();
     const token = await this.getFCMToken();
 
-    // 👉 когато app е отворено
-    messaging().onMessage(async remoteMessage => {
-      console.log('Foreground push:', remoteMessage);
+    // 👀 foreground push
+    messaging().onMessage(remoteMessage => {
+      Alert.alert(
+        remoteMessage.notification?.title || 'Ново съобщение',
+        remoteMessage.notification?.body || '',
+      );
     });
 
-    // 👉 когато кликнеш нотификация (app във background)
+    // 👀 background push click
     messaging().onNotificationOpenedApp(remoteMessage => {
-      console.log('📲 CLICKED NOTIFICATION:', remoteMessage);
-      console.log('📲 DATA:', remoteMessage.data);
-
-      setTimeout(() => {
-        this.handleNavigation(remoteMessage.data);
-      }, 500);
+      console.log('Background notification click:', remoteMessage.data);
+      this.navigate(remoteMessage.data);
     });
-    // 👉 когато app е затворено и се отвори от нотификация
+
+    // 👀 cold start push click
     const initialNotification = await messaging().getInitialNotification();
-
     if (initialNotification) {
-      console.log('🚀 OPEN FROM CLOSED APP:', initialNotification);
-      console.log('🚀 DATA:', initialNotification.data);
-
-      setTimeout(() => {
-        this.handleNavigation(initialNotification.data);
-      }, 1000);
+      console.log('Cold start notification:', initialNotification.data);
+      this.pendingNavigation = initialNotification.data;
     }
 
     return token;
