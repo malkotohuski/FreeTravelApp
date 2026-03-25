@@ -1,6 +1,7 @@
 // src/backend-v2/services/NotificationService.js
 import messaging from '@react-native-firebase/messaging';
-import {Platform, PermissionsAndroid, Alert} from 'react-native';
+import {Platform, PermissionsAndroid, Alert, AppState} from 'react-native';
+import Toast from 'react-native-toast-message';
 import {navigationRef} from '../../navigation/NavigationService';
 
 class NotificationService {
@@ -18,6 +19,12 @@ class NotificationService {
   handleNavigation(data) {
     console.log('🔹 HANDLE NAV DATA:', data);
     if (!data) return;
+
+    // ❌ Ако сме във foreground → не навигирай
+    if (AppState.currentState === 'active') {
+      console.log('⏸ App in foreground → skipping navigation');
+      return;
+    }
 
     const {screen, conversationId, routeId} = data;
 
@@ -65,10 +72,19 @@ class NotificationService {
     const token = await this.getFCMToken();
 
     // 👀 foreground push
+    // 👀 foreground push
     messaging().onMessage(remoteMessage => {
-      // ⚡️ foreground push – директно навигация, без Alert
       console.log('Foreground push received:', remoteMessage.data);
-      this.handleNavigation(remoteMessage.data);
+
+      const {message} = remoteMessage.data;
+
+      Toast.show({
+        text1: message || 'Ново известие',
+        visibilityTime: 2000,
+        position: 'top',
+      });
+
+      // ❌ НЕ викай handleNavigation тук
     });
 
     // 👀 background push click
