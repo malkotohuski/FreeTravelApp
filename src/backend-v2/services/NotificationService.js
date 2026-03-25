@@ -51,17 +51,17 @@ class NotificationService {
   getToastTitle(type) {
     switch (type) {
       case 'message':
-        return '📩 Ново съобщение';
+        return '📩';
       case 'request':
-        return '🚗 Нова заявка за пътуване';
+        return '🚗 You have a new request';
       case 'accept':
-        return '✅ Заявката е приета';
+        return '✅ Your request was accepted';
       case 'reject':
-        return '❌ Заявката е отказана';
+        return '❌ Your request was rejected';
       case 'rating':
-        return '⭐ Нова оценка';
+        return '⭐ You received a new rating';
       default:
-        return '🔔 Известие';
+        return '🔔 Notification';
     }
   }
 
@@ -76,7 +76,16 @@ class NotificationService {
       const {data} = remoteMessage;
 
       const title = this.getToastTitle(data?.type);
-      const body = data?.message || 'Имаш ново известие';
+      let body = '';
+
+      if (data?.type === 'message') {
+        const name = data?.senderName || 'Someone';
+        body = `${name}: ${data?.message}`;
+      } else if (data?.type === 'request') {
+        body = 'Tap to view the request';
+      } else {
+        body = data?.message || 'You have a notification';
+      }
 
       Toast.show({
         type: 'info',

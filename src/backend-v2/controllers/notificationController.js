@@ -87,7 +87,8 @@ exports.sendNotification = async ({
           type: String(type || ''),
           routeId: String(routeId || ''),
           conversationId: String(conversationId || ''),
-          message: String(message || ''), // 👈 ТОВА добавяш
+          message: String(message || ''),
+          senderName: String(senderName || ''),
           ...stringifiedData,
         });
       }
