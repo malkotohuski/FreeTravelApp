@@ -103,11 +103,13 @@ exports.sendNotification = async ({
           }
 
           await sendPush(device.fcmToken, title, message, {
-            screen: type,
+            screen: type || '', // винаги стринг
             type: String(type || ''),
-            routeId: String(routeId || ''),
-            conversationId: String(conversationId || ''),
-            ...stringifiedData,
+            routeId: routeId ? String(routeId) : '', // ако няма – празен string
+            conversationId: conversationId ? String(conversationId) : '',
+            senderId: String(senderId),
+            recipientId: String(recipientId),
+            ...stringifiedData, // допълнителни полета
           });
         }
       }
@@ -126,7 +128,7 @@ exports.sendNotification = async ({
       recipientId: Number(recipientId),
       senderId: Number(senderId),
       message,
-      routeId,
+      routeId: routeId ? String(routeId) : null,
       personalMessage,
       requester,
       conversationId: conversationId ? String(conversationId) : null,

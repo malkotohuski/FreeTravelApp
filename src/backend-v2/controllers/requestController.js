@@ -68,40 +68,43 @@ exports.createRequest = async (req, res) => {
       ownerId = seeker.user.id;
     }
 
+    // Създаваме заявката
     const newRequest = await prisma.request.create({
       data: {
-        routeId: route ? route.id : null,
-        seekerRequestId: seeker ? seeker.id : null,
+        routeId: route ? String(route.id) : null,
+        seekerRequestId: seeker ? String(seeker.id) : null,
         userID: userId,
         toUserId: ownerId,
-        username,
-        userFname,
-        userLname,
-        userEmail,
+        username: username || '',
+        userFname: userFname || '',
+        userLname: userLname || '',
+        userEmail: userEmail || '',
         userRouteId: userRouteId || 0,
-        departureCity,
-        arrivalCity,
+        departureCity: departureCity || '',
+        arrivalCity: arrivalCity || '',
         dataTime: parsedDate,
-        requestComment,
+        requestComment: requestComment || '',
         status: 'pending',
       },
     });
 
-    // 🔔 Изпращане на нотификация с новия helper
+    // 🔔 Push нотификация
     await sendNotification({
       recipientId: ownerId,
       senderId: userId,
-      message: `${username} is interested in your route`,
-      routeId: route?.id || null,
+      message: `${username || 'Someone'} is interested in your route`,
+      routeId: route?.id ? String(route.id) : null,
       type: 'request',
       data: {
-        routeId: route?.id || null,
-        requesterId: userId,
-        username,
-        fName: userFname,
-        lName: userLname,
-        email: userEmail,
-        comment: requestComment,
+        screen: 'request',
+        type: 'request',
+        routeId: route?.id ? String(route.id) : '',
+        requesterId: String(userId),
+        username: username || '',
+        fName: userFname || '',
+        lName: userLname || '',
+        email: userEmail || '',
+        comment: requestComment || '',
       },
       skipPushIfOnline: true,
     });

@@ -16,6 +16,7 @@ class NotificationService {
 
   // Основна функция за навигация
   handleNavigation(data) {
+    console.log('🔹 HANDLE NAV DATA:', data);
     if (!data) return;
 
     const {screen, conversationId, routeId} = data;
@@ -24,7 +25,7 @@ class NotificationService {
     console.log('🧭 NAV READY:', navigationRef.isReady());
 
     if (!navigationRef.isReady()) {
-      console.log('⏳ Navigation not ready, retrying...');
+      console.log('⏳ Navigation not ready yet, retry in 1s', data);
       setTimeout(() => this.handleNavigation(data), 1000);
       return;
     }
