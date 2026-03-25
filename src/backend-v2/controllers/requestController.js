@@ -71,10 +71,9 @@ exports.createRequest = async (req, res) => {
     // Създаваме заявката
     const newRequest = await prisma.request.create({
       data: {
-        routeId: route ? String(route.id) : null,
-        seekerRequestId: seeker ? String(seeker.id) : null,
+        routeId: route ? route.id : null, // Int или null
+        seekerRequestId: seeker ? seeker.id : null, // Int или null
         userID: userId,
-        toUserId: ownerId,
         username: username || '',
         userFname: userFname || '',
         userLname: userLname || '',
@@ -85,6 +84,7 @@ exports.createRequest = async (req, res) => {
         dataTime: parsedDate,
         requestComment: requestComment || '',
         status: 'pending',
+        toUserId: ownerId,
       },
     });
 
@@ -93,13 +93,13 @@ exports.createRequest = async (req, res) => {
       recipientId: ownerId,
       senderId: userId,
       message: `${username || 'Someone'} is interested in your route`,
-      routeId: route?.id ? String(route.id) : null,
+      routeId: route?.id || null, // <--- тук е промяната
       type: 'request',
       data: {
         screen: 'request',
         type: 'request',
-        routeId: route?.id ? String(route.id) : '',
-        requesterId: String(userId),
+        routeId: route?.id || null, // <--- също така
+        requesterId: userId, // Number вече, не String
         username: username || '',
         fName: userFname || '',
         lName: userLname || '',
