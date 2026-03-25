@@ -1,12 +1,12 @@
 // src/backend-v2/services/NotificationService.js
 import messaging from '@react-native-firebase/messaging';
-import {Platform, PermissionsAndroid} from 'react-native';
+import {Platform, PermissionsAndroid, Alert} from 'react-native';
 import {navigationRef} from '../../navigation/NavigationService';
-import {CommonActions} from '@react-navigation/native';
 
 class NotificationService {
   pendingNavigation = null;
 
+  // ⚡️ Вика се когато NavigationContainer е готов
   onNavigationReady() {
     if (this.pendingNavigation) {
       this.handleNavigation(this.pendingNavigation);
@@ -14,33 +14,30 @@ class NotificationService {
     }
   }
 
+  // Основна функция за навигация
   handleNavigation(data) {
+    console.log('🔹 HANDLE NAV DATA:', data);
     if (!data) return;
 
     const {screen, conversationId, routeId} = data;
-    console.log('🔹 HANDLE NAV DATA:', data);
 
-    const tryNavigate = () => {
-      if (!navigationRef.current) {
-        console.log('⏳ Navigation not ready, retry in 500ms');
-        setTimeout(tryNavigate, 500);
-        return;
-      }
+    console.log('🧭 NAVIGATE DATA:', data);
+    console.log('🧭 NAV READY:', navigationRef.isReady());
 
-      console.log('🔹 NAV CURRENT READY:', navigationRef.current);
+    if (!navigationRef.isReady()) {
+      console.log('⏳ Navigation not ready yet, retry in 1s', data);
+      setTimeout(() => this.handleNavigation(data), 1000);
+      return;
+    }
 
-      if (screen === 'message' && conversationId) {
-        navigationRef.current.dispatch(
-          CommonActions.navigate('ConversationsScreen', {conversationId}),
-        );
-      } else if (screen === 'request' && routeId) {
-        navigationRef.current.dispatch(
-          CommonActions.navigate('RouteRequest', {routeId}),
-        );
-      }
-    };
+    if (screen === 'message' && conversationId) {
+      console.log('🔹 NAV CURRENT:', navigationRef.current);
+      navigationRef.current?.navigate('ConversationsScreen', {conversationId});
+    }
 
-    tryNavigate();
+    if (screen === 'request' && routeId) {
+      navigationRef.current?.navigate('RouteRequest', {routeId});
+    }
   }
 
   async requestPermission() {
@@ -69,6 +66,7 @@ class NotificationService {
 
     // 👀 foreground push
     messaging().onMessage(remoteMessage => {
+      // ⚡️ foreground push – директно навигация, без Alert
       console.log('Foreground push received:', remoteMessage.data);
       this.handleNavigation(remoteMessage.data);
     });

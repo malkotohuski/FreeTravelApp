@@ -101,19 +101,15 @@ exports.sendNotification = async ({
           for (const key in data) {
             stringifiedData[key] = String(data[key] ?? '');
           }
-          console.log('📨 PUSH DATA TO SEND:', {
-            fcmToken: device.fcmToken,
-            title,
-            body: message,
-            data: {
-              screen: type || '',
-              type: String(type || ''),
-              routeId: routeId ? String(routeId) : '',
-              conversationId: conversationId ? String(conversationId) : '',
-              senderId: String(senderId),
-              recipientId: String(recipientId),
-              ...stringifiedData,
-            },
+
+          console.log('📨 PUSH DATA:', {
+            screen: type || '',
+            type: String(type || ''),
+            routeId: routeId ? String(routeId) : '',
+            conversationId: conversationId ? String(conversationId) : '',
+            senderId: String(senderId),
+            recipientId: String(recipientId),
+            ...stringifiedData,
           });
 
           await sendPush(device.fcmToken, title, message, {
