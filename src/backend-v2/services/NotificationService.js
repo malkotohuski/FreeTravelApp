@@ -1,6 +1,7 @@
 import messaging from '@react-native-firebase/messaging';
 import {PermissionsAndroid, Platform} from 'react-native';
 import {navigate} from '../../navigation/NavigationService';
+import Toast from 'react-native-toast-message';
 
 class NotificationService {
   async requestPermission() {
@@ -72,10 +73,10 @@ class NotificationService {
     messaging().onMessage(async remoteMessage => {
       console.log('Foreground push:', remoteMessage);
 
-      const {notification, data} = remoteMessage;
+      const {data} = remoteMessage;
 
-      const title = getToastTitle(data?.type);
-      const body = notification?.body || data?.message || 'Имаш ново известие';
+      const title = this.getToastTitle(data?.type);
+      const body = data?.message || 'Имаш ново известие';
 
       Toast.show({
         type: 'info',
