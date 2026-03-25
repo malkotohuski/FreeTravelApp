@@ -31,6 +31,7 @@ class NotificationService {
     }
 
     if (screen === 'message' && conversationId) {
+      console.log('🔹 NAV CURRENT:', navigationRef.current);
       navigationRef.current?.navigate('ConversationsScreen', {conversationId});
     }
 
