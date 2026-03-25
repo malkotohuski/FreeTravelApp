@@ -102,14 +102,24 @@ exports.sendNotification = async ({
             stringifiedData[key] = String(data[key] ?? '');
           }
 
-          await sendPush(device.fcmToken, title, message, {
-            screen: type || '', // винаги стринг
+          console.log('📨 PUSH DATA:', {
+            screen: type || '',
             type: String(type || ''),
-            routeId: routeId ? String(routeId) : '', // ако няма – празен string
+            routeId: routeId ? String(routeId) : '',
             conversationId: conversationId ? String(conversationId) : '',
             senderId: String(senderId),
             recipientId: String(recipientId),
-            ...stringifiedData, // допълнителни полета
+            ...stringifiedData,
+          });
+
+          await sendPush(device.fcmToken, title, message, {
+            screen: type || '',
+            type: String(type || ''),
+            routeId: routeId ? String(routeId) : '',
+            conversationId: conversationId ? String(conversationId) : '',
+            senderId: String(senderId),
+            recipientId: String(recipientId),
+            ...stringifiedData,
           });
         }
       }
