@@ -25,11 +25,14 @@ class NotificationService {
     console.log('NAVIGATE DATA:', data);
 
     if (screen === 'message' && conversationId) {
-      navigate('ChatScreen', {conversationId});
+      navigate('ConversationsScreen', {conversationId});
     }
 
     if (screen === 'request' && routeId) {
-      navigate('RouteDetails', {routeId});
+      navigate('RouteRequest', {
+        routeId,
+        fromNotification: true, // 👈 ВАЖНО
+      });
     }
   }
 
