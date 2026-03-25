@@ -25,13 +25,15 @@ const sendPush = async (fcmToken, title, body, data = {}) => {
 
     const message = {
       token: fcmToken,
-      notification: {title, body},
-      data,
+      data: {
+        title,
+        body,
+        screen: data.screen || '',
+        conversationId: data.conversationId || '',
+        routeId: data.routeId || '',
+      },
       android: {
         priority: 'high',
-        notification: {
-          clickAction: 'FLUTTER_NOTIFICATION_CLICK',
-        },
       },
     };
 

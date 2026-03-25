@@ -29,14 +29,11 @@ class NotificationService {
       return;
     }
 
-    if (screen === 'message') {
-      if (!conversationId) {
-        console.log('❌ Missing conversationId → skip navigation');
-        return;
-      }
+    if (screen === 'message' && conversationId) {
+      console.log('🚀 NAVIGATING TO CHAT:', conversationId);
 
       navigationRef.current?.navigate('ConversationsScreen', {
-        conversationId,
+        conversationId: String(conversationId),
       });
     }
 
