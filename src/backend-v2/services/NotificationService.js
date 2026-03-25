@@ -64,16 +64,15 @@ class NotificationService {
 
     // 👀 foreground push
     messaging().onMessage(remoteMessage => {
-      Alert.alert(
-        remoteMessage.notification?.title || 'Ново съобщение',
-        remoteMessage.notification?.body || '',
-      );
+      // ⚡️ foreground push – директно навигация, без Alert
+      console.log('Foreground push received:', remoteMessage.data);
+      this.handleNavigation(remoteMessage.data);
     });
 
     // 👀 background push click
     messaging().onNotificationOpenedApp(remoteMessage => {
       console.log('Background notification click:', remoteMessage.data);
-      this.navigate(remoteMessage.data);
+      this.handleNavigation(remoteMessage.data);
     });
 
     // 👀 cold start push click
