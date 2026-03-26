@@ -21,14 +21,6 @@ export default StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
-  topRight: {
-    position: 'absolute',
-    top: 15,
-    right: 0,
-    marginBottom: 15,
-    marginRight: 20,
-    zIndex: 1,
-  },
   profilePicture: {
     width: 100,
     height: 100,

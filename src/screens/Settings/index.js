@@ -104,10 +104,10 @@ const SettingsScreen = () => {
         navigation.navigate('AboutUsScreen');
         break;
       case 'privacyPolicy':
-        navigation.navigate('PrivacyPolicyScreen');
+        navigation.getParent()?.navigate('PrivacyPolicyScreen');
         break;
       case 'termsOfService':
-        navigation.navigate('TermsOfServiceScreen');
+        navigation.getParent()?.navigate('TermsOfServiceScreen');
         break;
       default:
         console.log('Pressed', id);

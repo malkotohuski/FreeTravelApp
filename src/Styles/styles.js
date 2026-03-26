@@ -11,10 +11,8 @@ export default StyleSheet.create({
   },
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100%',
-    backgroundColor: 'grey',
+    paddingHorizontal: 20,
+    paddingTop: 20,
   },
   adBox: {
     flex: 1,
@@ -40,6 +38,29 @@ export default StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 10,
+  },
+  form: {
+    marginTop: 30,
+    alignItems: 'center',
+  },
+
+  languageSwitchContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 40,
+  },
+
+  profilePictureContainerCenter: {
+    alignSelf: 'center',
+    marginTop: 20,
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#fff',
   },
   searchBox: {
     flexDirection: 'column',
@@ -230,12 +251,17 @@ export default StyleSheet.create({
     fontWeight: 'bold',
     color: '#f1f1f1',
   },
-  profilePictureContainer: {
+  /*   profilePictureContainerCenter: {
+    alignSelf: 'center',
+    marginTop: 20,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#ffffff30',
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
+    overflow: 'hidden',
+  }, */
   userTextContainer: {
     fontSize: 20,
     fontWeight: 'bold',

@@ -10,6 +10,7 @@ import {
   Modal,
   ScrollView,
   SafeAreaView,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import DatePicker from 'react-native-date-picker';
 import LinearGradient from 'react-native-linear-gradient';
@@ -176,47 +177,59 @@ function Looking({navigation}) {
           </TouchableOpacity>
 
           <Modal visible={modalDeparture} transparent animationType="slide">
-            <View
-              style={[
-                styles.modalContainer,
-                {
-                  backgroundColor: theme.cardBackground,
-                  borderColor: theme.cardBorder,
-                },
-              ]}>
-              <TextInput
-                placeholder={t('Search City')}
-                placeholderTextColor={theme.textSecondary}
-                style={[
-                  styles.input,
-                  {
-                    backgroundColor: theme.inputBackground,
-                    color: theme.textPrimary,
-                    borderColor: theme.cardBorder,
-                  },
-                ]}
-                value={departureSearch}
-                onChangeText={text =>
-                  filterCities(
-                    text,
-                    setFilteredDepartureCities,
-                    setDepartureSearch,
-                  )
-                }
-              />
-              <FlatList
-                data={filteredDepartureCities}
-                keyExtractor={item => item.value}
-                renderItem={({item}) =>
-                  renderCityItem(
-                    item,
-                    setDepartureCity,
-                    setModalDeparture,
-                    setDepartureSearch,
-                  )
-                }
-              />
-            </View>
+            <TouchableWithoutFeedback onPress={() => setModalDeparture(false)}>
+              <View
+                style={{
+                  flex: 1,
+                  backgroundColor: 'rgba(0,0,0,0.5)',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <TouchableWithoutFeedback>
+                  <View
+                    style={[
+                      styles.modalContainer,
+                      {
+                        backgroundColor: theme.cardBackground,
+                        borderColor: theme.cardBorder,
+                      },
+                    ]}>
+                    <TextInput
+                      placeholder={t('Search City')}
+                      placeholderTextColor={theme.textSecondary}
+                      style={[
+                        styles.input,
+                        {
+                          backgroundColor: theme.inputBackground,
+                          color: theme.textPrimary,
+                          borderColor: theme.cardBorder,
+                        },
+                      ]}
+                      value={departureSearch}
+                      onChangeText={text =>
+                        filterCities(
+                          text,
+                          setFilteredDepartureCities,
+                          setDepartureSearch,
+                        )
+                      }
+                    />
+                    <FlatList
+                      data={filteredDepartureCities}
+                      keyExtractor={item => item.value}
+                      renderItem={({item}) =>
+                        renderCityItem(
+                          item,
+                          setDepartureCity,
+                          setModalDeparture,
+                          setDepartureSearch,
+                        )
+                      }
+                    />
+                  </View>
+                </TouchableWithoutFeedback>
+              </View>
+            </TouchableWithoutFeedback>
           </Modal>
 
           <Text style={[styles.label, {color: theme.textSecondary}]}>
@@ -237,43 +250,59 @@ function Looking({navigation}) {
           </TouchableOpacity>
 
           <Modal visible={modalArrival} transparent animationType="slide">
-            <View
-              style={[
-                styles.modalContainer,
-                {
-                  backgroundColor: theme.cardBackground,
-                  borderColor: theme.cardBorder,
-                },
-              ]}>
-              <TextInput
-                placeholder={t('Search City')}
-                placeholderTextColor={theme.textSecondary}
-                style={[
-                  styles.input,
-                  {
-                    backgroundColor: theme.inputBackground,
-                    color: theme.textPrimary,
-                    borderColor: theme.cardBorder,
-                  },
-                ]}
-                value={arrivalSearch}
-                onChangeText={text =>
-                  filterCities(text, setFilteredArrivalCities, setArrivalSearch)
-                }
-              />
-              <FlatList
-                data={filteredArrivalCities}
-                keyExtractor={item => item.value}
-                renderItem={({item}) =>
-                  renderCityItem(
-                    item,
-                    setArrivalCity,
-                    setModalArrival,
-                    setArrivalSearch,
-                  )
-                }
-              />
-            </View>
+            <TouchableWithoutFeedback onPress={() => setModalArrival(false)}>
+              <View
+                style={{
+                  flex: 1,
+                  backgroundColor: 'rgba(0,0,0,0.5)',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <TouchableWithoutFeedback>
+                  <View
+                    style={[
+                      styles.modalContainer,
+                      {
+                        backgroundColor: theme.cardBackground,
+                        borderColor: theme.cardBorder,
+                      },
+                    ]}>
+                    <TextInput
+                      placeholder={t('Search City')}
+                      placeholderTextColor={theme.textSecondary}
+                      style={[
+                        styles.input,
+                        {
+                          backgroundColor: theme.inputBackground,
+                          color: theme.textPrimary,
+                          borderColor: theme.cardBorder,
+                        },
+                      ]}
+                      value={arrivalSearch}
+                      onChangeText={text =>
+                        filterCities(
+                          text,
+                          setFilteredArrivalCities,
+                          setArrivalSearch,
+                        )
+                      }
+                    />
+                    <FlatList
+                      data={filteredArrivalCities}
+                      keyExtractor={item => item.value}
+                      renderItem={({item}) =>
+                        renderCityItem(
+                          item,
+                          setArrivalCity,
+                          setModalArrival,
+                          setArrivalSearch,
+                        )
+                      }
+                    />
+                  </View>
+                </TouchableWithoutFeedback>
+              </View>
+            </TouchableWithoutFeedback>
           </Modal>
 
           <Text style={[styles.label, {color: theme.textSecondary}]}>
@@ -319,11 +348,6 @@ function Looking({navigation}) {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric',
-                })}{' '}
-                {selectedDateTime.toLocaleTimeString(i18n.language, {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: false,
                 })}
               </Text>
             </View>
@@ -353,7 +377,7 @@ function Looking({navigation}) {
             modal
             open={open}
             date={date}
-            mode="datetime"
+            mode="date" // <- само дата, без час и минути
             theme="dark"
             minimumDate={new Date()}
             locale={locale}
@@ -398,11 +422,13 @@ const styles = StyleSheet.create({
   },
 
   modalContainer: {
-    marginTop: 100,
+    width: '90%', // по-широк модал
+    maxHeight: '80%', // да не заема целия екран, ако има много градове
     padding: 20,
-    marginHorizontal: 20,
     borderRadius: 12,
     borderWidth: 1,
+    borderColor: '#ccc', // по-мека рамка
+    backgroundColor: '#fff', // временно, после theme.cardBackground
   },
   cityItem: {padding: 12, borderBottomWidth: 1},
   cityItemText: {fontSize: 16, fontWeight: '500'},

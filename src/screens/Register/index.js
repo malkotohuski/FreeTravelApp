@@ -209,21 +209,21 @@ export default function Register({navigation}) {
                 <Text style={styles.languageText}>{t('Bulgarian')}</Text>
               </TouchableOpacity>
             </View>
+            <TouchableOpacity
+              onPress={handleImagePicker}
+              style={styles.profilePictureContainer}>
+              {profilePicture ? (
+                <Image
+                  source={{uri: profilePicture}}
+                  style={styles.profilePicture}
+                />
+              ) : (
+                <Text style={styles.addPhotoText}>
+                  {t('Add Profile Picture')}
+                </Text>
+              )}
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity
-            onPress={handleImagePicker}
-            style={[styles.profilePictureContainer, styles.topRight]}>
-            {profilePicture ? (
-              <Image
-                source={{uri: profilePicture}}
-                style={styles.profilePicture}
-              />
-            ) : (
-              <Text style={styles.addPhotoText}>
-                {t('Add Profile Picture')}
-              </Text>
-            )}
-          </TouchableOpacity>
           <Text style={styles.title}>{t('Register here')}:</Text>
           <TextInput
             placeholderTextColor={'#F5FDFE'}

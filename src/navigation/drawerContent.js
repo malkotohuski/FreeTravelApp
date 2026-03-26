@@ -172,6 +172,23 @@ export const Navigator = () => {
             }}
           />
           <Drawer.Screen
+            name="PrivacyPolicyScreen"
+            component={PrivacyPolicyScreen}
+            options={{
+              headerShown: false,
+              drawerItemStyle: {display: 'none'},
+            }}
+          />
+
+          <Drawer.Screen
+            name="TermsOfServiceScreen"
+            component={TermsOfServiceScreen}
+            options={{
+              headerShown: false,
+              drawerItemStyle: {display: 'none'},
+            }}
+          />
+          <Drawer.Screen
             name="ResetPassword"
             component={ResetPassword}
             options={{
@@ -658,38 +675,6 @@ export const Navigator = () => {
               headerShown: false,
               drawerItemStyle: {display: 'none'},
             }}
-          />
-          <Drawer.Screen
-            name="PrivacyPolicyScreen"
-            component={PrivacyPolicyScreen}
-            options={{
-              title: t('privacyPolicy'),
-              ...screenStyles,
-              drawerItemStyle: {display: 'none'},
-            }}
-            listeners={({navigation}) => ({
-              focus: () => {
-                navigation.setOptions({
-                  headerRight: () => BackButtonSettings({navigation}),
-                });
-              },
-            })}
-          />
-          <Drawer.Screen
-            name="TermsOfServiceScreen"
-            component={TermsOfServiceScreen}
-            options={{
-              title: t('termsOfService'),
-              ...screenStyles,
-              drawerItemStyle: {display: 'none'},
-            }}
-            listeners={({navigation}) => ({
-              focus: () => {
-                navigation.setOptions({
-                  headerRight: () => BackButtonSettings({navigation}),
-                });
-              },
-            })}
           />
           <Drawer.Screen
             name="ContactUsScreen"
