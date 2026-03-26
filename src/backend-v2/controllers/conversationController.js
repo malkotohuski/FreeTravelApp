@@ -140,10 +140,15 @@ exports.sendMessage = async (req, res) => {
     await sendNotification({
       recipientId: receiverId,
       senderId,
-      message: notificationMessage,
-      conversationId: conversationId ? String(conversationId) : null,
-      type: 'chat',
-      skipPushIfOnline: true, // само ако получателят е офлайн
+      message: text,
+      conversationId: conversationId,
+      type: 'message',
+      data: {
+        type: 'message',
+        conversationId: conversationId,
+        message: text,
+      },
+      skipPushIfOnline: false, // 🔥 важно
     });
 
     res.json(message);
