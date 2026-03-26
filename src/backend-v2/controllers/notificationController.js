@@ -83,10 +83,10 @@ exports.sendNotification = async ({
         }
 
         await sendPush(userDevice.fcmToken, title, message, {
-          screen: type,
+          screen: type === 'chat' ? 'message' : type,
           type: String(type || ''),
           routeId: String(routeId || ''),
-          conversationId: String(conversationId || ''),
+          conversationId: conversationId ? String(conversationId) : '',
           message: String(message || ''),
           senderName: String(senderName || ''),
           ...stringifiedData,

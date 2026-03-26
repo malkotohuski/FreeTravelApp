@@ -87,8 +87,8 @@ class NotificationService {
       // ❌ ако си вътре в същия чат → НЕ показвай toast
       if (
         (data?.type === 'message' || data?.type === 'chat') &&
-        incomingConversationId &&
-        String(incomingConversationId) === this.currentConversationId
+        String(incomingConversationId || '') ===
+          String(this.currentConversationId || '')
       ) {
         console.log('⛔ Skip toast (inside chat)');
         return;
