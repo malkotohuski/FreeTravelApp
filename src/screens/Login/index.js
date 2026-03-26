@@ -55,15 +55,12 @@ export default function Login({navigation, route}) {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Toast.show({
-        type: 'error',
-        text1: t('Please enter email and password.'),
-      });
+      Toast.show({type: 'error', text1: t('Please enter email and password.')});
       return;
     }
 
-    const startTime = Date.now();
     setIsLoading(true);
+    const startTime = Date.now();
 
     try {
       const response = await api.post('/api/auth/login', {email, password});
@@ -71,7 +68,6 @@ export default function Login({navigation, route}) {
       if (response.status === 200) {
         const user = response.data.user;
         const token = response.data.token;
-
         login(user, token);
 
         try {
@@ -81,13 +77,6 @@ export default function Login({navigation, route}) {
         } catch (tokenErr) {
           console.warn('FCM token не може да се запази:', tokenErr);
         }
-
-        // 🔹 гарантира минимум 3 секунди loading
-        const elapsed = Date.now() - startTime;
-        const remaining = 3000 - elapsed;
-        setTimeout(() => setIsLoading(false), remaining > 0 ? remaining : 0);
-
-        return;
       } else {
         Toast.show({
           type: 'error',
@@ -99,6 +88,11 @@ export default function Login({navigation, route}) {
         type: 'error',
         text1: t('Email or password is incorrect. Please try again.'),
       });
+    } finally {
+      // гарантираме поне 3 секунди loading
+      const elapsed = Date.now() - startTime;
+      const remaining = 3000 - elapsed;
+      setTimeout(() => setIsLoading(false), remaining > 0 ? remaining : 0);
     }
   };
 
