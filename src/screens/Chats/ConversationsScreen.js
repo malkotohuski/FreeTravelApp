@@ -26,14 +26,19 @@ const ConversationsScreen = ({navigation}) => {
 
     socket.on('newMessage', ({conversationId, message}) => {
       setConversations(prev =>
-        prev.map(conv =>
-          conv.id === conversationId
-            ? {
-                ...conv,
-                messages: [...(conv.messages || []), message],
-              }
-            : conv,
-        ),
+        prev.map(conv => {
+          if (conv.id !== conversationId) return conv;
+
+          const isMyMessage = message.senderId === user.id;
+
+          return {
+            ...conv,
+            messages: [...(conv.messages || []), message],
+            unreadCount: isMyMessage
+              ? conv.unreadCount
+              : (conv.unreadCount || 0) + 1,
+          };
+        }),
       );
     });
 
