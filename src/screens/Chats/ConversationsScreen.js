@@ -12,6 +12,7 @@ import api from '../../api/api';
 import {useTranslation} from 'react-i18next';
 import {useTheme} from '../../theme/useTheme';
 import socket from '../../socket/socket';
+import NotificationService from '../../backend-v2/services/NotificationService';
 import {useFocusEffect} from '@react-navigation/native';
 
 const ConversationsScreen = ({navigation}) => {
@@ -47,12 +48,15 @@ const ConversationsScreen = ({navigation}) => {
 
           const isMyMessage = message.senderId === user.id;
 
+          const isActiveChat =
+            String(NotificationService.currentConversationId) ===
+            String(conversationId);
+
           return {
             ...conv,
             messages: [...(conv.messages || []), message],
-            /*      unreadCount: isMyMessage
-              ? conv.unreadCount
-              : (conv.unreadCount || 0) + 1, */
+            unreadCount:
+              isMyMessage || isActiveChat ? 0 : (conv.unreadCount || 0) + 1,
           };
         }),
       );
