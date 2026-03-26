@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import {
   View,
   Text,
@@ -12,12 +12,28 @@ import api from '../../api/api';
 import {useTranslation} from 'react-i18next';
 import {useTheme} from '../../theme/useTheme';
 import socket from '../../socket/socket';
+import {useFocusEffect} from '@react-navigation/native';
 
 const ConversationsScreen = ({navigation}) => {
   const {t} = useTranslation();
   const {user} = useAuth();
   const [conversations, setConversations] = useState([]);
   const theme = useTheme();
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchConversations = async () => {
+        try {
+          const res = await api.get(`/api/conversations/user/${user.id}`);
+          setConversations(res.data);
+        } catch (err) {
+          console.error(err);
+        }
+      };
+
+      fetchConversations();
+    }, [user.id]),
+  );
 
   useEffect(() => {
     socket.on('newConversation', conv => {
@@ -34,9 +50,9 @@ const ConversationsScreen = ({navigation}) => {
           return {
             ...conv,
             messages: [...(conv.messages || []), message],
-            unreadCount: isMyMessage
+            /*      unreadCount: isMyMessage
               ? conv.unreadCount
-              : (conv.unreadCount || 0) + 1,
+              : (conv.unreadCount || 0) + 1, */
           };
         }),
       );
