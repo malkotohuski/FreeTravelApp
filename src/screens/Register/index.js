@@ -317,19 +317,13 @@ export default function Register({navigation}) {
                 {t('byCreatingAccount')}{' '}
                 <Text
                   style={{color: '#4da6ff', textDecorationLine: 'underline'}}
-                  onPress={() => {
-                    setTermsType('terms');
-                    setShowTermsModal(true);
-                  }}>
+                  onPress={() => navigation.navigate('TermsOfServiceScreen')}>
                   {t('termsOfService')}
                 </Text>{' '}
                 {t('and')}{' '}
                 <Text
                   style={{color: '#4da6ff', textDecorationLine: 'underline'}}
-                  onPress={() => {
-                    setTermsType('privacy');
-                    setShowTermsModal(true);
-                  }}>
+                  onPress={() => navigation.navigate('PrivacyPolicyScreen')}>
                   {t('privacyPolicy')}
                 </Text>
                 .

@@ -114,11 +114,6 @@ const SettingsScreen = () => {
     }
   };
 
-  const getContainerStyle = () => ({
-    ...styles.container,
-    backgroundColor: darkMode ? '#121212' : '#fff',
-  });
-
   const getSectionHeaderStyle = () => ({
     ...styles.sectionHeader,
     color: darkMode ? '#E0E0E0' : '#000',

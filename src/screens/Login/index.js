@@ -34,10 +34,6 @@ export default function Login({navigation, route}) {
   };
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 3000);
-
     const animateOpacity = () => {
       Animated.loop(
         Animated.sequence([
@@ -55,8 +51,6 @@ export default function Login({navigation, route}) {
       ).start();
     };
     animateOpacity();
-
-    return () => clearTimeout(timer);
   }, []);
 
   const handleLogin = async () => {
@@ -68,31 +62,32 @@ export default function Login({navigation, route}) {
       return;
     }
 
+    const startTime = Date.now();
     setIsLoading(true);
+
     try {
-      // ⚡ login request
       const response = await api.post('/api/auth/login', {email, password});
 
       if (response.status === 200) {
         const user = response.data.user;
         const token = response.data.token;
 
-        login(user, token); // успешен login
+        login(user, token);
 
-        // ⚡ save push token (без да блокира login)
         try {
           const fcmToken = await NotificationService.init();
-          await api.post('/api/register-device', {
-            // ✅ правилно URL
-            userId: user.id,
-            fcmToken: fcmToken, // ✅ правилно поле
-          });
+          await api.post('/api/register-device', {userId: user.id, fcmToken});
           console.log('FCM token saved:', fcmToken);
         } catch (tokenErr) {
           console.warn('FCM token не може да се запази:', tokenErr);
         }
 
-        return; // важно! не продължава към catch
+        // 🔹 гарантира минимум 3 секунди loading
+        const elapsed = Date.now() - startTime;
+        const remaining = 3000 - elapsed;
+        setTimeout(() => setIsLoading(false), remaining > 0 ? remaining : 0);
+
+        return;
       } else {
         Toast.show({
           type: 'error',
@@ -100,13 +95,10 @@ export default function Login({navigation, route}) {
         });
       }
     } catch (error) {
-      // само за грешка при самия login request
       Toast.show({
         type: 'error',
         text1: t('Email or password is incorrect. Please try again.'),
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 

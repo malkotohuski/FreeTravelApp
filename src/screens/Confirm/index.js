@@ -116,6 +116,8 @@ function Confirm() {
     submitLock.current = true;
     setIsSubmitting(true);
 
+    const startTime = Date.now(); // ⬅️ засичаме началото
+
     try {
       const newRoute = {
         selectedVehicle,
@@ -135,10 +137,9 @@ function Confirm() {
         idempotencyKey: idempotencyKeyRef.current,
       };
 
-      // --- Използваме api wrapper вместо fetch ---
       const response = await api.post('/api/routes', newRoute, {
         headers: {
-          Authorization: `Bearer ${token}`, // backend ще вземе userId от JWT
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -148,11 +149,17 @@ function Confirm() {
 
       addRoute(response.data.route);
 
-      setSuccessMessage(t('The route has been created!'));
+      const elapsed = Date.now() - startTime;
+      const remaining = 3000 - elapsed; // изчисляваме оставащото до 3 сек
 
-      setTimeout(() => {
-        navigation.navigate('ViewRoutes', {refresh: true});
-      }, 1500);
+      // Гарантира минимум 3 секунди анимация
+      setTimeout(
+        () => {
+          setSuccessMessage(t('The route has been created!'));
+          navigation.navigate('ViewRoutes', {refresh: true});
+        },
+        remaining > 0 ? remaining : 0,
+      );
     } catch (err) {
       console.error(err);
       const message =
@@ -161,8 +168,17 @@ function Confirm() {
         t('Failed to create route.');
       Alert.alert(t('Error'), message);
     } finally {
-      submitLock.current = false;
-      setIsSubmitting(false);
+      const elapsed = Date.now() - startTime;
+      const remaining = 3000 - elapsed;
+
+      // Анимацията се крие след минимум 3 секунди
+      setTimeout(
+        () => {
+          submitLock.current = false;
+          setIsSubmitting(false);
+        },
+        remaining > 0 ? remaining : 0,
+      );
     }
   };
 
