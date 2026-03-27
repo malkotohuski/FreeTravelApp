@@ -36,9 +36,8 @@ class NotificationService {
     const {screen, conversationId, routeId} = data;
 
     if (screen === 'message' && conversationId) {
-      navigate('ChatScreen', {
-        conversationId,
-      });
+      NotificationService.setActiveConversation(conversationId); // <--- важно
+      navigate('ChatScreen', {conversationId});
     }
 
     if (screen === 'request' && routeId) {
@@ -125,16 +124,14 @@ class NotificationService {
     messaging().onNotificationOpenedApp(remoteMessage => {
       setTimeout(() => {
         this.handleNavigation(remoteMessage.data);
-      }, 500);
+      }, 500); // 500ms за attach на socket
     });
 
-    // 👉 QUIT STATE
     const initialNotification = await messaging().getInitialNotification();
-
     if (initialNotification) {
       setTimeout(() => {
         this.handleNavigation(initialNotification.data);
-      }, 1000);
+      }, 1000); // 1s за safety
     }
 
     return token;

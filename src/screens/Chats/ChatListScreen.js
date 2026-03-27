@@ -60,24 +60,32 @@ const ChatScreen = ({route}) => {
 
   useEffect(() => {
     const handler = ({conversationId: convId, message}) => {
-      if (convId === route.params.conversationId) {
+      const activeConv = String(
+        NotificationService.currentConversationId || '',
+      );
+      if (String(convId) === activeConv) {
         setMessages(prev => {
           if (prev.some(msg => msg.id === message.id)) return prev;
           return [...prev, message];
         });
 
-        api.put(`/api/conversations/${conversationId}/read`, {
-          userId: user.id,
-        });
+        api.put(`/api/conversations/${convId}/read`, {userId: user.id});
 
-        setTimeout(() => {
-          flatListRef.current?.scrollToEnd({animated: true});
-        }, 100);
+        setTimeout(
+          () => flatListRef.current?.scrollToEnd({animated: true}),
+          100,
+        );
+      } else {
+        // toast за други chat-ове остава
+        Toast.show({
+          type: 'info',
+          text1: '📩 New message',
+          text2: message.text,
+        });
       }
     };
 
     socket.on('newMessage', handler);
-
     return () => socket.off('newMessage', handler);
   }, []);
 
@@ -104,16 +112,13 @@ const ChatScreen = ({route}) => {
 
   useEffect(() => {
     const fetchMessages = async () => {
-      try {
-        const res = await api.get(
-          `/api/conversations/${conversationId}/messages`,
-        );
-        setMessages(res.data);
-      } catch (err) {
-        console.error(err);
-      }
+      if (!conversationId) return;
+      const res = await api.get(
+        `/api/conversations/${conversationId}/messages`,
+      );
+      setMessages(res.data);
+      NotificationService.setActiveConversation(conversationId);
     };
-
     fetchMessages();
   }, [conversationId]);
 
