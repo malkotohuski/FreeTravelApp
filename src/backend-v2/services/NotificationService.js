@@ -1,6 +1,6 @@
 import messaging from '@react-native-firebase/messaging';
 import {PermissionsAndroid, Platform} from 'react-native';
-import {navigate} from '../../navigation/NavigationService';
+import {navigate} from '../../navigation/NavigationService'; // ✅ само оттук!
 import Toast from 'react-native-toast-message';
 
 class NotificationService {
@@ -30,14 +30,20 @@ class NotificationService {
     );
   }
 
+  // 👉 NAVIGATION от push
   handleNavigation(data) {
     if (!data) return;
 
     const {screen, conversationId, routeId} = data;
 
+    console.log('📲 PUSH NAVIGATION:', data);
+
     if (screen === 'message' && conversationId) {
-      NotificationService.setActiveConversation(conversationId); // <--- важно
-      navigate('ChatScreen', {conversationId});
+      this.setActiveConversation(conversationId);
+
+      navigate('ChatScreen', {
+        conversationId,
+      });
     }
 
     if (screen === 'request' && routeId) {
@@ -120,18 +126,24 @@ class NotificationService {
       });
     });
 
-    // 👉 BACKGROUND CLICK
+    // 👉 BACKGROUND (app е в background)
     messaging().onNotificationOpenedApp(remoteMessage => {
+      console.log('📲 BACKGROUND CLICK');
+
       setTimeout(() => {
         this.handleNavigation(remoteMessage.data);
-      }, 500); // 500ms за attach на socket
+      }, 800); // 🔥 малко по-голям delay
     });
 
+    // 👉 QUIT STATE (app е бил затворен)
     const initialNotification = await messaging().getInitialNotification();
+
     if (initialNotification) {
+      console.log('📲 OPEN FROM QUIT');
+
       setTimeout(() => {
         this.handleNavigation(initialNotification.data);
-      }, 1000); // 1s за safety
+      }, 1500); // 🔥 ключово за Play Store!
     }
 
     return token;
