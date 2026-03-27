@@ -9,6 +9,7 @@ import {
   Modal,
   Pressable,
   SafeAreaView,
+  Linking,
 } from 'react-native';
 import {ListItem, Icon} from 'react-native-elements';
 import {useTranslation} from 'react-i18next';
@@ -22,7 +23,7 @@ const SettingsScreen = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const {darkMode, toggleDarkMode} = useContext(DarkModeContext);
   const navigation = useNavigation();
-  const {t} = useTranslation();
+  const {t, i18n} = useTranslation();
   const {logout, user} = useAuth();
   const userId = user?.id;
   console.log('USER ID:', userId);
@@ -104,10 +105,19 @@ const SettingsScreen = () => {
         navigation.navigate('AboutUsScreen');
         break;
       case 'privacyPolicy':
-        navigation.getParent()?.navigate('PrivacyPolicyScreen');
+        Linking.openURL(
+          i18n.language === 'bg'
+            ? 'https://malkotohuski.github.io/legal-pages/privacy-policy-bg.html'
+            : 'https://malkotohuski.github.io/legal-pages/privacy-policy-eng.html',
+        );
         break;
+
       case 'termsOfService':
-        navigation.getParent()?.navigate('TermsOfServiceScreen');
+        Linking.openURL(
+          i18n.language === 'bg'
+            ? 'https://malkotohuski.github.io/legal-pages/terms-of-service-bg.html'
+            : 'https://malkotohuski.github.io/legal-pages/terms-of-service-en.html',
+        );
         break;
       default:
         console.log('Pressed', id);

@@ -15,12 +15,18 @@ export default function TermsModal({visible, onClose, type}) {
 
   const source =
     type === 'terms'
-      ? i18n.language === 'bg'
-        ? require('../../docs/terms-of-service-bg.html')
-        : require('../../docs/terms-of-service-en.html')
-      : i18n.language === 'bg'
-      ? require('../../docs/privacy-policy-bg.html')
-      : require('../../docs/privacy-policy-eng.html');
+      ? {
+          uri:
+            i18n.language === 'bg'
+              ? 'https://malkotohuski.github.io/legal-pages/terms-of-service-bg.html'
+              : 'https://malkotohuski.github.io/legal-pages/terms-of-service-en.html',
+        }
+      : {
+          uri:
+            i18n.language === 'bg'
+              ? 'https://malkotohuski.github.io/legal-pages/privacy-policy-bg.html'
+              : 'https://malkotohuski.github.io/legal-pages/privacy-policy-eng.html',
+        };
 
   return (
     <Modal visible={visible} animationType="slide" transparent={false}>

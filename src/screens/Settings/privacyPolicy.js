@@ -15,10 +15,12 @@ export default function PrivacyPolicyScreen() {
   const {i18n, t} = useTranslation();
   const navigation = useNavigation();
 
-  const source =
-    i18n.language === 'bg'
-      ? require('../../../docs/privacy-policy-bg.html')
-      : require('../../../docs/privacy-policy-eng.html');
+  const source = {
+    uri:
+      i18n.language === 'bg'
+        ? 'https://malkotohuski.github.io/legal-pages/privacy-policy-bg.html'
+        : 'https://malkotohuski.github.io/legal-pages/privacy-policy-eng.html',
+  };
 
   return (
     <SafeAreaView style={styles.container}>

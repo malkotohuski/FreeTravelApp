@@ -15,10 +15,12 @@ export default function TermsOfServiceScreen() {
   const {i18n, t} = useTranslation();
   const navigation = useNavigation();
 
-  const source =
-    i18n.language === 'bg'
-      ? require('../../../docs/terms-of-service-bg.html')
-      : require('../../../docs/terms-of-service-en.html');
+  const source = {
+    uri:
+      i18n.language === 'bg'
+        ? 'https://malkotohuski.github.io/legal-pages/terms-of-service-bg.html'
+        : 'https://malkotohuski.github.io/legal-pages/terms-of-service-en.html',
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -32,21 +34,19 @@ export default function TermsOfServiceScreen() {
       </View>
 
       {/* 📄 WebView */}
-      <WebView originWhitelist={['*']} source={source} />
+      <WebView originWhitelist={['*']} source={source} style={{flex: 1}} />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {flex: 1},
-
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 12,
     backgroundColor: '#fff',
   },
-
   title: {
     fontSize: 18,
     marginLeft: 10,
