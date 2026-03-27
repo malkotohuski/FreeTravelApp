@@ -36,7 +36,9 @@ class NotificationService {
     const {screen, conversationId, routeId} = data;
 
     if (screen === 'message' && conversationId) {
-      navigate('ConversationsScreen', {conversationId});
+      navigate('ChatScreen', {
+        conversationId,
+      });
     }
 
     if (screen === 'request' && routeId) {

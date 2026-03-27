@@ -21,6 +21,18 @@ const ConversationsScreen = ({navigation}) => {
   const [conversations, setConversations] = useState([]);
   const theme = useTheme();
 
+  useEffect(() => {
+    socket.on('messagesRead', ({conversationId}) => {
+      setConversations(prev =>
+        prev.map(conv =>
+          conv.id === conversationId ? {...conv, unreadCount: 0} : conv,
+        ),
+      );
+    });
+
+    return () => socket.off('messagesRead');
+  }, []);
+
   useFocusEffect(
     React.useCallback(() => {
       const fetchConversations = async () => {
@@ -66,19 +78,6 @@ const ConversationsScreen = ({navigation}) => {
       socket.off('newConversation');
       socket.off('newMessage');
     };
-  }, []);
-
-  useEffect(() => {
-    const fetchConversations = async () => {
-      try {
-        const res = await api.get(`/api/conversations/user/${user.id}`);
-        setConversations(res.data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    fetchConversations();
   }, []);
 
   const formatDate = date => {

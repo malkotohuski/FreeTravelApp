@@ -67,13 +67,20 @@ const ChatScreen = ({route}) => {
           return [...prev, message];
         });
 
+        // 🔥 МАРКИРАЙ КАТО ПРОЧЕТЕНО ВЕДНАГА
+        api.put(`/api/conversations/${conversationId}/read`, {
+          userId: user.id,
+        });
+
         setTimeout(() => {
           flatListRef.current?.scrollToEnd({animated: true});
         }, 100);
       }
     });
 
-    return () => socket.off('newMessage');
+    socket.on('newMessage', handler);
+
+    return () => socket.off('newMessage', handler);
   }, []);
 
   useEffect(() => {

@@ -226,6 +226,12 @@ exports.markAsRead = async (req, res) => {
       },
     });
 
+    if (global.io) {
+      global.io.to('user_' + userId).emit('messagesRead', {
+        conversationId,
+      });
+    }
+
     res.json({updatedCount: updated.count});
   } catch (error) {
     console.error('Mark messages as read error:', error);
