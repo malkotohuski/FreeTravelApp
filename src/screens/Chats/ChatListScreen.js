@@ -59,15 +59,13 @@ const ChatScreen = ({route}) => {
   }, [user?.id]);
 
   useEffect(() => {
-    socket.on('newMessage', ({conversationId: convId, message}) => {
+    const handler = ({conversationId: convId, message}) => {
       if (convId === route.params.conversationId) {
         setMessages(prev => {
-          // проверка дали вече имаме съобщението по ID
           if (prev.some(msg => msg.id === message.id)) return prev;
           return [...prev, message];
         });
 
-        // 🔥 МАРКИРАЙ КАТО ПРОЧЕТЕНО ВЕДНАГА
         api.put(`/api/conversations/${conversationId}/read`, {
           userId: user.id,
         });
@@ -76,7 +74,7 @@ const ChatScreen = ({route}) => {
           flatListRef.current?.scrollToEnd({animated: true});
         }, 100);
       }
-    });
+    };
 
     socket.on('newMessage', handler);
 
