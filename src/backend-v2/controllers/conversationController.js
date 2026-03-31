@@ -39,7 +39,8 @@ exports.startConversation = async (req, res) => {
 
     // Ако няма → създаваме
     if (!conversation) {
-      conversation = await prisma.conversation.create({
+      // 1️⃣ създаваме conversation
+      const newConversation = await prisma.conversation.create({
         data: {
           routeId,
           user1Id,
@@ -47,16 +48,45 @@ exports.startConversation = async (req, res) => {
           departureCity: route.departureCity,
           arrivalCity: route.arrivalCity,
         },
-        include: {
-          messages: {orderBy: {createdAt: 'asc'}},
-          user1: {select: {id: true, username: true}},
-          user2: {select: {id: true, username: true}},
+      });
+
+      // 2️⃣ създаваме първо съобщение (ВАЖНО 🔥)
+      await prisma.message.create({
+        data: {
+          conversationId: newConversation.id,
+          senderId: user1Id, // може и req.user.id ако имаш auth
+          text: `${route.departureCity} → ${route.arrivalCity}`,
         },
       });
+      // 3️⃣ взимаме conversation с messages + image
+      const fullConversation = await prisma.conversation.findUnique({
+        where: {id: newConversation.id},
+        include: {
+          messages: {orderBy: {createdAt: 'asc'}},
+          user1: {select: {id: true, username: true, userImage: true}},
+          user2: {select: {id: true, username: true, userImage: true}},
+        },
+      });
+
+      // 4️⃣ правим различен обект за всеки user
+      const convForUser1 = {
+        ...fullConversation,
+        otherUser: fullConversation.user2,
+      };
+
+      const convForUser2 = {
+        ...fullConversation,
+        otherUser: fullConversation.user1,
+      };
+
+      // 5️⃣ socket emit
       if (global.io) {
-        global.io.to('user_' + user1Id).emit('newConversation', conversation);
-        global.io.to('user_' + user2Id).emit('newConversation', conversation);
+        global.io.to('user_' + user1Id).emit('newConversation', convForUser1);
+        global.io.to('user_' + user2Id).emit('newConversation', convForUser2);
       }
+
+      // важно
+      conversation = fullConversation;
     }
 
     res.json(conversation);
@@ -148,7 +178,7 @@ exports.sendMessage = async (req, res) => {
         conversationId: conversationId,
         message: text,
       },
-      skipPushIfOnline: false, // 🔥 важно
+      skipPushIfOnline: true,
     });
 
     res.json(message);
@@ -161,6 +191,8 @@ exports.sendMessage = async (req, res) => {
 // Вземане на разговори за потребител
 exports.getUserConversations = async (req, res) => {
   const userId = Number(req.params.userId);
+  const defaultAvatar =
+    'https://res.cloudinary.com/dqxczsig5/image/upload/v1774361343/avatars/bzrmewmud1dlaatajmyf.jpg';
 
   try {
     const conversations = await prisma.conversation.findMany({
@@ -183,8 +215,18 @@ exports.getUserConversations = async (req, res) => {
 
         const otherUser = await prisma.user.findUnique({
           where: {id: otherUserId},
-          select: {id: true, username: true},
+          select: {
+            id: true,
+            username: true,
+            userImage: true,
+          },
         });
+
+        const safeOtherUser = otherUser || {
+          id: otherUserId,
+          username: 'Потребител',
+          userImage: defaultAvatar,
+        };
 
         const unreadCount = conv.messages.filter(
           msg => msg.senderId !== userId && msg.read === false,
@@ -192,12 +234,13 @@ exports.getUserConversations = async (req, res) => {
 
         return {
           ...conv,
-          otherUser,
+          otherUser: safeOtherUser,
           unreadCount,
         };
       }),
     );
 
+    console.log('Conversations with avatars:', conversationsWithExtras);
     res.json(conversationsWithExtras);
   } catch (error) {
     console.error('Get user conversations error:', error);
@@ -206,6 +249,7 @@ exports.getUserConversations = async (req, res) => {
 };
 
 // Маркиране на съобщения като прочетени
+// В markAsRead
 exports.markAsRead = async (req, res) => {
   const conversationId = Number(req.params.id);
   const userId = Number(req.body.userId);
@@ -214,6 +258,15 @@ exports.markAsRead = async (req, res) => {
     if (!conversationId || !userId) {
       return res.status(400).json({error: 'Invalid data'});
     }
+
+    const unreadBefore = await prisma.message.findMany({
+      where: {conversationId, senderId: {not: userId}, read: false},
+      select: {id: true, text: true},
+    });
+    console.log(
+      '📌 Unread messages BEFORE markAsRead:',
+      unreadBefore.map(m => m.id),
+    );
 
     const updated = await prisma.message.updateMany({
       where: {
@@ -225,6 +278,15 @@ exports.markAsRead = async (req, res) => {
         read: true,
       },
     });
+
+    const unreadAfter = await prisma.message.findMany({
+      where: {conversationId, senderId: {not: userId}, read: false},
+      select: {id: true, text: true},
+    });
+    console.log(
+      '✅ Unread messages AFTER markAsRead:',
+      unreadAfter.map(m => m.id),
+    );
 
     if (global.io) {
       global.io.to('user_' + userId).emit('messagesRead', {

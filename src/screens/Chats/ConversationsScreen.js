@@ -5,40 +5,112 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
-  Alert,
+  Image,
 } from 'react-native';
 import {useAuth} from '../../context/AuthContext';
 import api from '../../api/api';
 import {useTranslation} from 'react-i18next';
 import {useTheme} from '../../theme/useTheme';
 import socket from '../../socket/socket';
-import NotificationService from '../../backend-v2/services/NotificationService';
 import {useFocusEffect} from '@react-navigation/native';
 
-const ConversationsScreen = ({navigation}) => {
+const ConversationsScreen = ({navigation, route}) => {
+  const resetChatNotifications = route.params?.resetChatNotifications;
   const {t} = useTranslation();
   const {user} = useAuth();
   const [conversations, setConversations] = useState([]);
+  const [currentConversationId, setCurrentConversationId] = useState(null);
   const theme = useTheme();
 
+  // 🔹 SOCKETS: нови разговори и съобщения
   useEffect(() => {
-    socket.on('messagesRead', ({conversationId}) => {
-      setConversations(prev =>
-        prev.map(conv =>
-          conv.id === conversationId ? {...conv, unreadCount: 0} : conv,
-        ),
-      );
-    });
+    const handleNewConversation = conv => {
+      setConversations(prev => [
+        {
+          ...conv,
+          otherUser: conv.otherUser || {
+            username: 'Потребител',
+            userImage:
+              'https://res.cloudinary.com/dqxczsig5/image/upload/v1774361343/avatars/bzrmewmud1dlaatajmyf.jpg',
+          },
+        },
+        ...prev,
+      ]);
+    };
 
-    return () => socket.off('messagesRead');
-  }, []);
+    const handleNewMessage = ({conversationId: msgConvId, message}) => {
+      setConversations(prev => {
+        let updated = false;
+        const newConversations = prev.map(conv => {
+          if (conv.id === msgConvId) {
+            updated = true;
+            const isMyMessage = String(message.senderId) === String(user.id);
+            return {
+              ...conv,
+              messages: [...(conv.messages || []), message],
+              unreadCount: isMyMessage
+                ? conv.unreadCount
+                : (conv.unreadCount || 0) + 1,
+            };
+          }
+          return conv;
+        });
 
+        if (!updated) {
+          // Ако чатът е нов
+          const isMyMessage = String(message.senderId) === String(user.id);
+          return [
+            {
+              id: msgConvId,
+              messages: [message],
+              unreadCount: isMyMessage ? 0 : 1,
+            },
+            ...prev,
+          ];
+        }
+
+        return newConversations;
+      });
+    };
+
+    socket.on('newConversation', handleNewConversation);
+    socket.on('newMessage', handleNewMessage);
+
+    return () => {
+      socket.off('newConversation', handleNewConversation);
+      socket.off('newMessage', handleNewMessage);
+    };
+  }, [user.id, currentConversationId]);
+
+  // 🔹 Fetch разговори при фокус на екрана
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       const fetchConversations = async () => {
         try {
           const res = await api.get(`/api/conversations/user/${user.id}`);
-          setConversations(res.data);
+
+          setConversations(prev => {
+            const merged = res.data.map(newConv => {
+              const existing = prev.find(c => c.id === newConv.id);
+              return {
+                ...newConv,
+                otherUser: newConv.otherUser || existing?.otherUser,
+                unreadCount: existing
+                  ? Math.max(
+                      existing.unreadCount || 0,
+                      newConv.unreadCount || 0,
+                    )
+                  : newConv.unreadCount,
+              };
+            });
+
+            // Сортиране по последно съобщение
+            return merged.sort((a, b) => {
+              const aTime = a.messages?.[a.messages.length - 1]?.createdAt || 0;
+              const bTime = b.messages?.[b.messages.length - 1]?.createdAt || 0;
+              return new Date(bTime) - new Date(aTime);
+            });
+          });
         } catch (err) {
           console.error(err);
         }
@@ -48,75 +120,30 @@ const ConversationsScreen = ({navigation}) => {
     }, [user.id]),
   );
 
-  useEffect(() => {
-    socket.on('newConversation', conv => {
-      setConversations(prev => [conv, ...prev]);
-    });
-
-    socket.on('newMessage', ({conversationId, message}) => {
-      setConversations(prev =>
-        prev.map(conv => {
-          if (conv.id !== conversationId) return conv;
-
-          const isMyMessage = message.senderId === user.id;
-
-          const isActiveChat =
-            String(NotificationService.currentConversationId) ===
-            String(conversationId);
-
-          return {
-            ...conv,
-            messages: [...(conv.messages || []), message],
-            unreadCount:
-              isMyMessage || isActiveChat ? 0 : (conv.unreadCount || 0) + 1,
-          };
-        }),
-      );
-    });
-
-    return () => {
-      socket.off('newConversation');
-      socket.off('newMessage');
-    };
-  }, []);
-
+  // 🔹 Форматиране на дата
   const formatDate = date => {
     const messageDate = new Date(date);
     const now = new Date();
-
     const diffDays = Math.floor((now - messageDate) / (1000 * 60 * 60 * 24));
-
     const time = messageDate.toLocaleTimeString('bg-BG', {
       hour: '2-digit',
       minute: '2-digit',
       hour12: false,
     });
 
-    if (diffDays === 0) {
-      return time;
-    }
-
-    if (diffDays === 1) {
-      return `${t('yesterday')} ${time}`;
-    }
-
-    if (diffDays < 7) {
+    if (diffDays === 0) return time;
+    if (diffDays === 1) return `Вчера ${time}`;
+    if (diffDays < 7)
       return (
-        messageDate.toLocaleDateString('bg-BG', {
-          weekday: 'short',
-        }) + ` ${time}`
+        messageDate.toLocaleDateString('bg-BG', {weekday: 'short'}) + ` ${time}`
       );
-    }
-
-    if (messageDate.getFullYear() === now.getFullYear()) {
+    if (messageDate.getFullYear() === now.getFullYear())
       return (
         messageDate.toLocaleDateString('bg-BG', {
           day: '2-digit',
           month: 'short',
         }) + ` ${time}`
       );
-    }
-
     return messageDate.toLocaleDateString('bg-BG') + ` ${time}`;
   };
 
@@ -130,6 +157,8 @@ const ConversationsScreen = ({navigation}) => {
             item.messages && item.messages.length > 0
               ? item.messages[item.messages.length - 1]
               : null;
+
+          console.log('Other user image:', item.otherUser?.userImage);
 
           return (
             <TouchableOpacity
@@ -146,51 +175,47 @@ const ConversationsScreen = ({navigation}) => {
                   otherUser: item.otherUser,
                 });
 
+                // Брой непрочетени в този разговор
+                const unread = item.unreadCount || 0;
+
+                // Нулиране на локалния state
                 setConversations(prev =>
                   prev.map(conv =>
                     conv.id === item.id ? {...conv, unreadCount: 0} : conv,
                   ),
                 );
-              }}
-              onLongPress={() => {
-                Alert.alert(
-                  t('deleteConversation'),
-                  t('areYouSureYouWantToDeleteThisConversation'),
-                  [
-                    {text: t('Cancel'), style: 'cancel'},
-                    {
-                      text: t('Delete'),
-                      style: 'destructive',
-                      onPress: async () => {
-                        try {
-                          await api.delete(`/api/conversations/${item.id}`);
 
-                          // Скриваме го локално за потребителя
-                          setConversations(prev =>
-                            prev.filter(conv => conv.id !== item.id),
-                          );
-                        } catch (err) {
-                          console.error('Delete failed:', err);
-                        }
-                      },
-                    },
-                  ],
-                );
+                // Нулиране на броя в HomePage
+                if (resetChatNotifications && unread > 0) {
+                  resetChatNotifications(unread);
+                }
+
+                // Уведомление към бекенд
+                api.put(`/api/conversations/${item.id}/read`, {
+                  userId: user.id,
+                });
               }}>
-              {/* Avatar */}
               <View style={[styles.avatar, {backgroundColor: theme.highlight}]}>
-                <Text style={styles.avatarText}>
-                  {item.otherUser?.username?.[0]?.toUpperCase() || '?'}
-                </Text>
+                {item.otherUser?.userImage ? (
+                  <Image
+                    source={{uri: item.otherUser.userImage}}
+                    style={styles.avatarImage} // новият стил по-долу
+                  />
+                ) : (
+                  <Image
+                    source={{
+                      uri: 'https://res.cloudinary.com/dqxczsig5/image/upload/v1774361343/avatars/bzrmewmud1dlaatajmyf.jpg',
+                    }}
+                    style={styles.avatarImage}
+                  />
+                )}
               </View>
 
-              {/* Middle Section */}
               <View style={styles.middleSection}>
                 <View style={styles.topRow}>
                   <Text style={[styles.username, {color: theme.textPrimary}]}>
                     {item.otherUser.username}
                   </Text>
-
                   {lastMessage && (
                     <Text style={[styles.time, {color: theme.placeholder}]}>
                       {formatDate(lastMessage.createdAt)}
@@ -230,6 +255,7 @@ const ConversationsScreen = ({navigation}) => {
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
@@ -290,6 +316,13 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignSelf: 'flex-start',
     marginTop: 4,
+  },
+
+  avatarImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 25, // да съвпада с контейнера
+    resizeMode: 'cover',
   },
 
   avatarText: {

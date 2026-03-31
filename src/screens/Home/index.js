@@ -298,7 +298,20 @@ function HomePage({navigation}) {
             }
           });
 
-          setChatNotificationCount(totalUnread > 9 ? '9+' : totalUnread);
+          setChatNotificationCount(prev => {
+            const apiCount = totalUnread;
+
+            // ако вече имаме повече (от socket), НЕ го трий
+            if (prev === '9+') return prev;
+
+            const prevNum = Number(prev || 0);
+
+            if (prevNum > apiCount) {
+              return prev; // 🔥 пазим по-голямото
+            }
+
+            return apiCount > 9 ? '9+' : apiCount;
+          });
         } catch (err) {
           console.error(err);
         }

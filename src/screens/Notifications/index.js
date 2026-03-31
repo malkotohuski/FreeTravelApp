@@ -60,6 +60,14 @@ const Notifications = ({navigation}) => {
     socket.on('newNotification', notification => {
       setNotifications(prev => [notification, ...prev]);
 
+      if (
+        notification.conversationId &&
+        String(notification.conversationId) ===
+          String(NotificationService.currentConversationId)
+      ) {
+        return;
+      }
+
       // Toast
       Toast.show({
         type: 'info',

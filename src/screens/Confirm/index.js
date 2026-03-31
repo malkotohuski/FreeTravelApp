@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
   },
   successMessage: {
     backgroundColor: '#27ae60',
-    color: '#fff',
+    color: '#080808',
     padding: 15,
     borderRadius: 10,
     marginTop: 20,

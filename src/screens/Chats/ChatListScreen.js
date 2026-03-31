@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
+  Image,
 } from 'react-native';
 import {useAuth} from '../../context/AuthContext';
 import {useTranslation} from 'react-i18next';
@@ -22,6 +23,7 @@ const ChatScreen = ({route}) => {
 
   const {conversationId, otherUser} = route.params;
   const {user} = useAuth();
+  const {resetChatNotifications} = route.params ?? {};
 
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState('');
@@ -32,24 +34,24 @@ const ChatScreen = ({route}) => {
   const flatListRef = useRef(null);
 
   useEffect(() => {
+    // Нулиране на брояча при отваряне на този конкретен чат
+    if (resetChatNotifications) resetChatNotifications();
+
+    if (!conversationId || !user?.id) return;
+    api.put(`/api/conversations/${conversationId}/read`, {userId: user.id});
+  }, [conversationId, user?.id]);
+
+  useEffect(() => {
+    // ⚡️ Активен чат → за push skip
     NotificationService.setActiveConversation(conversationId);
 
-    return () => {
-      NotificationService.clearActiveConversation();
-    };
+    // 🧹 Clear при излизане
+    return () => NotificationService.clearActiveConversation();
   }, [conversationId]);
 
   useEffect(() => {
-    socket.emit('joinConversation', {
-      userId: user.id,
-      conversationId,
-    });
-
-    return () => {
-      socket.emit('leaveConversation', {
-        userId: user.id,
-      });
-    };
+    socket.emit('joinConversation', {userId: user.id, conversationId});
+    return () => socket.emit('leaveConversation', {userId: user.id});
   }, [conversationId]);
 
   useEffect(() => {
@@ -58,44 +60,47 @@ const ChatScreen = ({route}) => {
     socket.emit('joinUserRoom', user.id);
   }, [user?.id]);
 
+  // 🔹 Ново съобщение
   useEffect(() => {
     const handler = ({conversationId: convId, message}) => {
-      const activeConv = String(
-        NotificationService.currentConversationId || '',
-      );
-      if (String(convId) === activeConv) {
+      console.log('📩 SOCKET IN CHAT:', convId, 'ACTIVE:', conversationId);
+
+      // винаги добавяме ако е текущия чат
+      if (String(convId) === String(conversationId)) {
         setMessages(prev => {
           if (prev.some(msg => msg.id === message.id)) return prev;
           return [...prev, message];
         });
 
-        api.put(`/api/conversations/${convId}/read`, {userId: user.id});
-
-        setTimeout(
-          () => flatListRef.current?.scrollToEnd({animated: true}),
-          100,
-        );
-      } else {
-        // toast за други chat-ове остава
-        Toast.show({
-          type: 'info',
-          text1: '📩 New message',
-          text2: message.text,
+        api.put(`/api/conversations/${convId}/read`, {
+          userId: user.id,
         });
+
+        setTimeout(() => {
+          flatListRef.current?.scrollToEnd({animated: true});
+        }, 100);
       }
     };
 
     socket.on('newMessage', handler);
+
     return () => socket.off('newMessage', handler);
-  }, []);
+  }, [conversationId, user.id]); // ❗ МНОГО ВАЖНО
 
   useEffect(() => {
     if (!conversationId || !user?.id) return;
 
-    api.put(`/api/conversations/${conversationId}/read`, {
-      userId: user.id,
-    });
-  }, [conversationId, user?.id]);
+    const unreadInThisConversation = conversationInfo?.unreadCount || 0;
+
+    // Отбелязваме в API като прочетено
+    api
+      .put(`/api/conversations/${conversationId}/read`, {userId: user.id})
+      .catch(err => console.error(err));
+
+    // Callback към HomePage за намаляване на общия брояч
+    if (resetChatNotifications)
+      resetChatNotifications(unreadInThisConversation);
+  }, [conversationId, user?.id, conversationInfo]);
 
   useEffect(() => {
     const fetchConversation = async () => {
@@ -224,9 +229,19 @@ const ChatScreen = ({route}) => {
             },
           ]}>
           <View style={[styles.avatar, {backgroundColor: theme.highlight}]}>
-            <Text style={{color: '#fff', fontWeight: '700', fontSize: 18}}>
-              {otherUser?.username?.[0]?.toUpperCase()}
-            </Text>
+            {otherUser?.userImage ? (
+              <Image
+                source={{uri: otherUser.userImage}}
+                style={styles.avatarImage}
+              />
+            ) : (
+              <Image
+                source={{
+                  uri: 'https://res.cloudinary.com/dqxczsig5/image/upload/v1774361343/avatars/bzrmewmud1dlaatajmyf.jpg',
+                }}
+                style={styles.avatarImage}
+              />
+            )}
           </View>
 
           <View style={{flex: 1}}>
@@ -263,9 +278,19 @@ const ChatScreen = ({route}) => {
                 {!isMe && (
                   <View
                     style={[styles.avatarSmall, {backgroundColor: '#f4511e'}]}>
-                    <Text style={{color: '#fff', fontSize: 13}}>
-                      {otherUser?.username?.[0]?.toUpperCase()}
-                    </Text>
+                    {otherUser?.userImage ? (
+                      <Image
+                        source={{uri: otherUser.userImage}}
+                        style={styles.avatarSmallImage}
+                      />
+                    ) : (
+                      <Image
+                        source={{
+                          uri: 'https://res.cloudinary.com/dqxczsig5/image/upload/v1774361343/avatars/bzrmewmud1dlaatajmyf.jpg',
+                        }}
+                        style={styles.avatarSmallImage}
+                      />
+                    )}
                   </View>
                 )}
 
@@ -368,6 +393,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 6,
+  },
+
+  avatarImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 23,
+    resizeMode: 'cover',
+  },
+
+  avatarSmallImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 16,
+    resizeMode: 'cover',
   },
 
   username: {

@@ -46,11 +46,9 @@ const StarRatingDisplay = ({rating, size = 50}) => {
 
 const AccountManager = ({navigation}) => {
   const {user} = useAuth();
-  const userNAME = user?.username;
   const theme = useTheme();
   const styles = createStyles(theme);
 
-  const {profilePicture} = useAuth();
   const defaultProfilePicture = require('../../../images/emptyUserImage.png');
   const {t} = useTranslation();
 
@@ -66,10 +64,6 @@ const AccountManager = ({navigation}) => {
         backgroundColor: theme.gradient[0],
       }}>
       <ScrollView contentContainerStyle={{flexGrow: 1}}>
-        {/*  <Image
-          source={require('../../../images/user-background.jpg')}
-          style={styles.backgroundImage}
-        /> */}
         <View style={styles.mainContainer}>
           <View style={styles.overlay} />
           {/* Profile Picture Section */}

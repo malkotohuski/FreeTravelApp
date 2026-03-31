@@ -88,10 +88,12 @@ class NotificationService {
     // 🔥 FOREGROUND
     messaging().onMessage(async remoteMessage => {
       const {data} = remoteMessage;
-
       const incomingConversationId = data?.conversationId;
 
-      // ❌ ако си вътре в същия чат → НЕ показвай toast
+      console.log('📲 PUSH RECEIVED:', data);
+      console.log('🔹 currentConversationId:', this.currentConversationId);
+      console.log('🔹 incomingConversationId:', incomingConversationId);
+
       if (
         (data?.type === 'message' || data?.type === 'chat') &&
         String(incomingConversationId || '') ===
