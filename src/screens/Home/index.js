@@ -20,6 +20,7 @@ import {useAuth} from '../../context/AuthContext';
 import {DarkModeContext} from '../../navigation/DarkModeContext';
 import socket from '../../socket/socket';
 import Toast from 'react-native-toast-message';
+import NotificationService from '../../backend-v2/services/NotificationService';
 
 function HomePage({navigation}) {
   const {darkMode} = useContext(DarkModeContext);
@@ -50,6 +51,11 @@ function HomePage({navigation}) {
     });
 
     socket.on('newConversation', conv => {
+      const activeConv = NotificationService.getActiveConversation();
+
+      if (activeConv && String(activeConv) === String(conv.id)) {
+        return;
+      }
       Animated.sequence([
         Animated.timing(bounceAnim, {
           toValue: -16,
@@ -82,8 +88,20 @@ function HomePage({navigation}) {
       });
     });
 
-    socket.on('newMessage', data => {
-      console.log('📩 newMessage received:', data);
+    socket.on('newMessage', ({conversationId}) => {
+      const activeConv = NotificationService.getActiveConversation();
+
+      // ❗ ако този чат е отворен → skip
+      if (String(activeConv) === String(conversationId)) {
+        return;
+      }
+
+      // иначе увеличаваме
+      setChatNotificationCount(prev => {
+        if (prev === '9+') return prev;
+        const next = Number(prev || 0) + 1;
+        return next > 9 ? '9+' : next;
+      });
     });
 
     return () => {
@@ -218,19 +236,9 @@ function HomePage({navigation}) {
             }
           });
 
-          setChatNotificationCount(prev => {
-            const apiCount = totalUnread;
-
-            // ако вече имаме повече (от socket), НЕ го трий
-            if (prev === '9+') return prev;
-
-            const prevNum = Number(prev || 0);
-
-            if (prevNum > apiCount) {
-              return prev; // 🔥 пазим по-голямото
-            }
-
-            return apiCount > 9 ? '9+' : apiCount;
+          setChatNotificationCount(() => {
+            // 👉 винаги взимаме реалното от API
+            return totalUnread > 9 ? '9+' : totalUnread;
           });
         } catch (err) {
           console.error(err);
@@ -271,8 +279,17 @@ function HomePage({navigation}) {
   const handlerSeekers = () => navigation.navigate('Seekers');
   const handlerRouteViewer = () => navigation.navigate('ViewRoutes');
   const handlerChatScreen = () => {
-    setChatNotificationCount(0); // нулираме при влизане в чат
-    navigation.navigate('ConversationsScreen');
+    navigation.navigate('ConversationsScreen', {
+      resetChatNotifications: count => {
+        if (count === null) {
+          setChatNotificationCount(0);
+        } else {
+          setChatNotificationCount(prev =>
+            Math.max(0, Number(prev || 0) - count),
+          );
+        }
+      },
+    });
   };
   const handlerNotificationScreen = async () => {
     try {

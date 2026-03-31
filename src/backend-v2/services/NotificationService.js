@@ -11,9 +11,12 @@ class NotificationService {
     this.currentConversationId = String(conversationId);
   }
 
-  // 👉 CLEAR като излезеш
   clearActiveConversation() {
     this.currentConversationId = null;
+  }
+
+  getActiveConversation() {
+    return this.currentConversationId;
   }
 
   async requestPermission() {

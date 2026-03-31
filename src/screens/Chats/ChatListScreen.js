@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useContext, useRef} from 'react';
+import React, {useEffect, useState, useCallback, useRef} from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import {useAuth} from '../../context/AuthContext';
 import {useTranslation} from 'react-i18next';
+import {useFocusEffect} from '@react-navigation/native';
 import api from '../../api/api';
 import {useTheme} from '../../theme/useTheme';
 import socket from '../../socket/socket';
@@ -23,7 +24,7 @@ const ChatScreen = ({route}) => {
 
   const {conversationId, otherUser} = route.params;
   const {user} = useAuth();
-  const {resetChatNotifications} = route.params ?? {};
+  const resetChatNotifications = route.params?.resetChatNotifications || null;
 
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState('');
@@ -33,21 +34,17 @@ const ChatScreen = ({route}) => {
 
   const flatListRef = useRef(null);
 
-  useEffect(() => {
-    // Нулиране на брояча при отваряне на този конкретен чат
-    if (resetChatNotifications) resetChatNotifications();
+  useFocusEffect(
+    React.useCallback(() => {
+      // когато влезеш в чата
+      NotificationService.setActiveConversation(conversationId);
 
-    if (!conversationId || !user?.id) return;
-    api.put(`/api/conversations/${conversationId}/read`, {userId: user.id});
-  }, [conversationId, user?.id]);
-
-  useEffect(() => {
-    // ⚡️ Активен чат → за push skip
-    NotificationService.setActiveConversation(conversationId);
-
-    // 🧹 Clear при излизане
-    return () => NotificationService.clearActiveConversation();
-  }, [conversationId]);
+      return () => {
+        // когато излезеш от чата (back)
+        NotificationService.clearActiveConversation();
+      };
+    }, [conversationId]),
+  );
 
   useEffect(() => {
     socket.emit('joinConversation', {userId: user.id, conversationId});

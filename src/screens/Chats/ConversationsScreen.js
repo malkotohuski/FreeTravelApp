@@ -15,7 +15,13 @@ import socket from '../../socket/socket';
 import {useFocusEffect} from '@react-navigation/native';
 
 const ConversationsScreen = ({navigation, route}) => {
-  const resetChatNotifications = route.params?.resetChatNotifications;
+  const resetChatNotifications = (count = 0) => {
+    setConversations(prev =>
+      prev.map(conv =>
+        conv.id === currentConversationId ? {...conv, unreadCount: 0} : conv,
+      ),
+    );
+  };
   const {t} = useTranslation();
   const {user} = useAuth();
   const [conversations, setConversations] = useState([]);
@@ -94,7 +100,10 @@ const ConversationsScreen = ({navigation, route}) => {
               return {
                 ...newConv,
                 otherUser: newConv.otherUser || existing?.otherUser,
-                unreadCount: newConv.unreadCount,
+                unreadCount:
+                  existing && existing.unreadCount > newConv.unreadCount
+                    ? existing.unreadCount
+                    : newConv.unreadCount,
               };
             });
 
@@ -168,7 +177,7 @@ const ConversationsScreen = ({navigation, route}) => {
                 navigation.navigate('ChatScreen', {
                   conversationId: item.id,
                   otherUser: item.otherUser,
-                  resetChatNotifications, // ако имаш
+                  resetChatNotifications, // 👈 важно
                 });
 
                 setConversations(prev =>
