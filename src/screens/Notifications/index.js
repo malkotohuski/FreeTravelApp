@@ -16,6 +16,7 @@ import {useAuth} from '../../context/AuthContext';
 import {useTheme} from '../../theme/useTheme';
 import socket from '../../socket/socket';
 import Toast from 'react-native-toast-message';
+import NotificationService from '../../backend-v2/services/NotificationService';
 
 const Notifications = ({navigation}) => {
   const {user} = useAuth();
@@ -182,6 +183,7 @@ const Notifications = ({navigation}) => {
     backgroundColor: theme.firstButton,
   });
 
+  // Вътре във Notifications
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: theme.gradient[0]}}>
       <View style={{flex: 1}}>
@@ -213,7 +215,6 @@ const Notifications = ({navigation}) => {
             </View>
           }
           renderItem={({item}) => (
-            // --- В FlatList renderItem ---
             <View
               style={[
                 styles.notification,
@@ -225,7 +226,6 @@ const Notifications = ({navigation}) => {
                   borderWidth: 1,
                 },
               ]}>
-              {/* HEADER ROW */}
               <View style={styles.notificationHeader}>
                 <Text
                   style={[
@@ -242,25 +242,69 @@ const Notifications = ({navigation}) => {
                   {isNewNotification(item.createdAt) ? t('New') : t('Earlier')}
                 </Text>
 
-                <TouchableOpacity onPress={() => setVisibleModalId(item.id)}>
-                  <Icons name="dots-vertical" size={25} color="#000" />
+                {/* Дотс бутон */}
+                <TouchableOpacity
+                  onPress={() => setVisibleModalId(item.id)}
+                  style={{padding: 8}}>
+                  <Icons
+                    name="dots-vertical"
+                    size={25}
+                    color={theme.textPrimary}
+                  />
                 </TouchableOpacity>
               </View>
 
-              {/* MESSAGE */}
               <TouchableOpacity onPress={() => handleNotificationPress(item)}>
                 <Text style={[styles.message, {color: theme.textPrimary}]}>
                   {item.message}
                 </Text>
               </TouchableOpacity>
-
-              {/* DATE */}
               <Text style={[styles.date, {color: theme.placeholder}]}>
                 {formatDate(item.createdAt)}
               </Text>
             </View>
           )}
         />
+
+        {/* --- Root level Modal --- */}
+        <Modal
+          visible={!!visibleModalId}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setVisibleModalId(null)}>
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            activeOpacity={1}
+            onPressOut={() => setVisibleModalId(null)}>
+            <View
+              style={[
+                styles.modalContent,
+                {backgroundColor: theme.cardBackground},
+              ]}>
+              <Text style={[styles.modalTitle, {color: theme.textPrimary}]}>
+                {t('Actions')}
+              </Text>
+              <TouchableOpacity
+                style={[
+                  styles.modalButton,
+                  {backgroundColor: theme.primaryButton},
+                ]}
+                onPress={() => {
+                  deleteNotification(visibleModalId);
+                }}>
+                <Text style={styles.modalButtonText}>{t('Delete')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.modalButton,
+                  {backgroundColor: theme.secondaryButton},
+                ]}
+                onPress={() => setVisibleModalId(null)}>
+                <Text style={styles.modalButtonText}>{t('Cancel')}</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </Modal>
       </View>
     </SafeAreaView>
   );
@@ -308,7 +352,14 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     fontSize: 12,
   },
-  dotsButton: {position: 'absolute', top: 10, right: -5, zIndex: 1, padding: 5},
+  dotsButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 9999,
+    padding: 10,
+    backgroundColor: 'transparent',
+  },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -321,6 +372,7 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: 'center',
     elevation: 5,
+    backgroundColor: 'white', // ще override-нем с theme.cardBackground
   },
   modalTitle: {fontSize: 18, fontWeight: 'bold', marginBottom: 10},
   modalMessage: {fontSize: 16, marginBottom: 20, textAlign: 'center'},

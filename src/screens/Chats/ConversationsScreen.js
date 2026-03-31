@@ -45,19 +45,18 @@ const ConversationsScreen = ({navigation, route}) => {
           if (conv.id === msgConvId) {
             updated = true;
             const isMyMessage = String(message.senderId) === String(user.id);
+            const unreadIncrement =
+              currentConversationId === msgConvId ? 0 : isMyMessage ? 0 : 1; // 🟢 ключово
             return {
               ...conv,
               messages: [...(conv.messages || []), message],
-              unreadCount: isMyMessage
-                ? conv.unreadCount
-                : (conv.unreadCount || 0) + 1,
+              unreadCount: (conv.unreadCount || 0) + unreadIncrement,
             };
           }
           return conv;
         });
 
         if (!updated) {
-          // Ако чатът е нов
           const isMyMessage = String(message.senderId) === String(user.id);
           return [
             {
@@ -95,12 +94,7 @@ const ConversationsScreen = ({navigation, route}) => {
               return {
                 ...newConv,
                 otherUser: newConv.otherUser || existing?.otherUser,
-                unreadCount: existing
-                  ? Math.max(
-                      existing.unreadCount || 0,
-                      newConv.unreadCount || 0,
-                    )
-                  : newConv.unreadCount,
+                unreadCount: newConv.unreadCount,
               };
             });
 
@@ -115,7 +109,7 @@ const ConversationsScreen = ({navigation, route}) => {
           console.error(err);
         }
       };
-
+      setCurrentConversationId(null);
       fetchConversations();
     }, [user.id]),
   );
@@ -170,27 +164,23 @@ const ConversationsScreen = ({navigation, route}) => {
                 },
               ]}
               onPress={() => {
+                setCurrentConversationId(item.id); // 🟢 ново
                 navigation.navigate('ChatScreen', {
                   conversationId: item.id,
                   otherUser: item.otherUser,
+                  resetChatNotifications, // ако имаш
                 });
 
-                // Брой непрочетени в този разговор
-                const unread = item.unreadCount || 0;
-
-                // Нулиране на локалния state
                 setConversations(prev =>
                   prev.map(conv =>
                     conv.id === item.id ? {...conv, unreadCount: 0} : conv,
                   ),
                 );
 
-                // Нулиране на броя в HomePage
-                if (resetChatNotifications && unread > 0) {
-                  resetChatNotifications(unread);
+                if (resetChatNotifications && item.unreadCount > 0) {
+                  resetChatNotifications(item.unreadCount);
                 }
 
-                // Уведомление към бекенд
                 api.put(`/api/conversations/${item.id}/read`, {
                   userId: user.id,
                 });

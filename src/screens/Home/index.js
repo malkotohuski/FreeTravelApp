@@ -114,86 +114,6 @@ function HomePage({navigation}) {
     return () => socket.off('newNotification');
   }, [user?.id]);
 
-  const getContainerStyle = () => ({
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    height: '100%',
-    backgroundColor: darkMode ? '#121212' : '#fff',
-  });
-
-  const getBackgroundImage = () => {
-    return darkMode
-      ? require('../../../images/roadHistory2.png')
-      : require('../../../images/home2-background.jpg');
-  };
-
-  const getTextStyle = () => ({
-    fontSize: 30,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 10,
-    color: darkMode ? '#FFFDFDFF' : '#000000',
-  });
-
-  const getButtonStyle = (color = '#000') => ({
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-    paddingVertical: 14,
-    paddingHorizontal: 10,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: darkMode ? '#444' : '#000',
-    backgroundColor: darkMode
-      ? 'rgba(255, 255, 255, 0.1)'
-      : 'rgba(255, 255, 255, 0.3)',
-  });
-
-  const getTextButtonStyles = () => ({
-    fontSize: 20,
-    fontWeight: '800',
-    color: darkMode ? '#f1f1f1' : '#010101',
-  });
-
-  const getFooterStyle = () => ({
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    paddingVertical: 10,
-    backgroundColor: darkMode ? '#333232FF' : '#f4511e',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    elevation: 10,
-    paddingHorizontal: 0,
-  });
-
-  const getNotificationIconBackground = () => ({
-    alignItems: 'center',
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: darkMode ? '#010101' : '#f1f1f1',
-    justifyContent: 'center',
-  });
-
-  const getChatIconBackground = () => ({
-    alignItems: 'center',
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
-    backgroundColor:
-      chatNotificationCount > 0 ? '#bd0e05' : darkMode ? '#010101' : '#f1f1f1',
-  });
-
-  const getNotificationIconColor = () => ({
-    color: darkMode ? '#f1f1f1' : '#010101',
-    size: 34,
-  });
-
   useEffect(() => {
     if (chatNotificationCount > 0) {
       Animated.loop(
@@ -375,6 +295,71 @@ function HomePage({navigation}) {
       Alert.alert('Error', 'Failed to update notifications.');
     }
   };
+
+  const getContainerStyle = () => ({
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    height: '100%',
+    backgroundColor: darkMode ? '#121212' : '#fff',
+  });
+
+  const getBackgroundImage = () => {
+    return darkMode
+      ? require('../../../images/roadHistory2.png')
+      : require('../../../images/home2-background.jpg');
+  };
+
+  const getTextStyle = () => ({
+    fontSize: 30,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 10,
+    color: darkMode ? '#FFFDFDFF' : '#000000',
+  });
+
+  const getButtonStyle = (color = '#000') => ({
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    paddingVertical: 14,
+    paddingHorizontal: 10,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: darkMode ? '#444' : '#000',
+    backgroundColor: darkMode
+      ? 'rgba(255, 255, 255, 0.1)'
+      : 'rgba(255, 255, 255, 0.3)',
+  });
+
+  const getTextButtonStyles = () => ({
+    fontSize: 20,
+    fontWeight: '800',
+    color: darkMode ? '#f1f1f1' : '#010101',
+  });
+
+  const getFooterStyle = () => ({
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingVertical: 10,
+    backgroundColor: darkMode ? '#333232FF' : '#f4511e',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    elevation: 10,
+    paddingHorizontal: 0,
+  });
+
+  const getNotificationIconBackground = () => ({
+    alignItems: 'center',
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: darkMode ? '#010101' : '#f1f1f1',
+    justifyContent: 'center',
+  });
 
   // =================== Render ===================
   return (
