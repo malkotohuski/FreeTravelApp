@@ -30,7 +30,7 @@ const Notifications = ({navigation}) => {
     try {
       const response = await api.get('/api/notifications');
       const activeNotifications = response.data
-        .filter(n => n.status === 'active')
+        .filter(n => n.status === 'active' && !n.conversationId) // ❌ добави !n.conversationId
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
       const uniqueNotifications = activeNotifications.filter(
@@ -59,15 +59,10 @@ const Notifications = ({navigation}) => {
     socket.emit('joinUserRoom', user.id);
 
     socket.on('newNotification', notification => {
-      setNotifications(prev => [notification, ...prev]);
+      // ❌ Пропускаме chat-съобщения
+      if (notification.conversationId) return;
 
-      if (
-        notification.conversationId &&
-        String(notification.conversationId) ===
-          String(NotificationService.currentConversationId)
-      ) {
-        return;
-      }
+      setNotifications(prev => [notification, ...prev]);
 
       // Toast
       Toast.show({

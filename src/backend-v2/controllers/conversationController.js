@@ -166,7 +166,7 @@ exports.sendMessage = async (req, res) => {
 
     const notificationMessage = `${sender.username} sent you a message`;
 
-    // 5️⃣ Създаваме push notification
+    /*   // 5️⃣ Създаваме push notification
     await sendNotification({
       recipientId: receiverId,
       senderId,
@@ -179,7 +179,7 @@ exports.sendMessage = async (req, res) => {
         message: text,
       },
       skipPushIfOnline: true,
-    });
+    }); */
 
     res.json(message);
   } catch (error) {
