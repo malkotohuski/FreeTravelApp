@@ -103,7 +103,11 @@ const ChatScreen = ({route}) => {
     const fetchConversation = async () => {
       try {
         const res = await api.get(`/api/conversations/${conversationId}`);
-        setConversationInfo(res.data);
+        setConversationInfo(prev => ({
+          ...prev,
+          ...res.data,
+          unreadCount: prev?.unreadCount || res.data.unreadCount,
+        }));
       } catch (err) {
         console.error(err);
       }
@@ -118,7 +122,16 @@ const ChatScreen = ({route}) => {
       const res = await api.get(
         `/api/conversations/${conversationId}/messages`,
       );
-      setMessages(res.data);
+
+      setMessages(prev => {
+        const existingIds = new Set(prev.map(m => m.id));
+        const merged = [
+          ...prev,
+          ...res.data.filter(m => !existingIds.has(m.id)),
+        ];
+        return merged;
+      });
+
       NotificationService.setActiveConversation(conversationId);
     };
     fetchMessages();

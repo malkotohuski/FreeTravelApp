@@ -122,11 +122,11 @@ function HomePage({navigation}) {
         return next;
       });
 
-      Toast.show({
+      /*    Toast.show({
         type: 'info',
         text1: notification.message,
         visibilityTime: 4000,
-      });
+      }); */
     });
 
     return () => socket.off('newNotification');

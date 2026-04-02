@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  Image,
 } from 'react-native';
 import {useAuth} from '../../context/AuthContext';
 import api from '../../api/api';
@@ -44,8 +45,19 @@ const ConversationsScreen = ({navigation}) => {
           const res = await api.get(
             `/api/conversations/user/${user.id}?skip=0&take=${LIMIT}`,
           );
-          setConversations(res.data);
-          setPage(1);
+
+          setConversations(prev => {
+            return res.data.map(newConv => {
+              const oldConv = prev.find(c => c.id === newConv.id);
+              return {
+                ...newConv,
+                unreadCount: oldConv
+                  ? oldConv.unreadCount
+                  : newConv.unreadCount,
+                messages: oldConv?.messages || newConv.messages,
+              };
+            });
+          });
         } catch (err) {
           console.error(err);
         }
@@ -221,9 +233,19 @@ const ConversationsScreen = ({navigation}) => {
               }}>
               {/* Avatar */}
               <View style={[styles.avatar, {backgroundColor: theme.highlight}]}>
-                <Text style={styles.avatarText}>
-                  {item.otherUser?.username?.[0]?.toUpperCase() || '?'}
-                </Text>
+                {item.otherUser?.userImage ? (
+                  <Image
+                    source={{uri: item.otherUser.userImage}}
+                    style={styles.avatarImage}
+                  />
+                ) : (
+                  <Image
+                    source={{
+                      uri: 'https://res.cloudinary.com/dqxczsig5/image/upload/v1774361343/avatars/bzrmewmud1dlaatajmyf.jpg',
+                    }}
+                    style={styles.avatarImage}
+                  />
+                )}
               </View>
 
               {/* Middle Section */}
