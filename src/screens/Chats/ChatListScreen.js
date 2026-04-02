@@ -36,12 +36,20 @@ const ChatScreen = ({route}) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      // когато влезеш в чата
-      NotificationService.setActiveConversation(conversationId);
+      // Маркираме този чат като активен
+      NotificationService.currentConversationId = conversationId;
 
+      // Когато потребителят излезе от чата
       return () => {
-        // когато излезеш от чата (back)
-        NotificationService.clearActiveConversation();
+        NotificationService.currentConversationId = null;
+
+        // Казваме на backend/socket, че съобщенията са прочетени
+        socket.emit('messagesRead', {conversationId});
+
+        // Също можеш да отбележиш в API
+        api
+          .put(`/api/conversations/${conversationId}/read`, {userId: user.id})
+          .catch(console.error);
       };
     }, [conversationId]),
   );

@@ -200,11 +200,11 @@ const ConversationsScreen = ({navigation}) => {
                   otherUser: item.otherUser,
                 });
 
-                setConversations(prev =>
+                /*   setConversations(prev =>
                   prev.map(conv =>
                     conv.id === item.id ? {...conv, unreadCount: 0} : conv,
                   ),
-                );
+                ); */
               }}
               onLongPress={() => {
                 Alert.alert(
