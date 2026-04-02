@@ -190,6 +190,8 @@ exports.sendMessage = async (req, res) => {
 
 // Вземане на разговори за потребител
 exports.getUserConversations = async (req, res) => {
+  const skip = Number(req.query.skip) || 0;
+  const take = Number(req.query.take) || 20;
   const userId = Number(req.params.userId);
   const defaultAvatar =
     'https://res.cloudinary.com/dqxczsig5/image/upload/v1774361343/avatars/bzrmewmud1dlaatajmyf.jpg';
@@ -203,9 +205,21 @@ exports.getUserConversations = async (req, res) => {
         ],
       },
       include: {
-        messages: {orderBy: {createdAt: 'asc'}},
+        messages: {
+          orderBy: {createdAt: 'desc'},
+          take: 1,
+        },
+        user1: {
+          select: {id: true, username: true, userImage: true},
+        },
+        user2: {
+          select: {id: true, username: true, userImage: true},
+        },
       },
       orderBy: {createdAt: 'desc'},
+      take: 20,
+      skip,
+      take,
     });
 
     const conversationsWithExtras = await Promise.all(
@@ -213,14 +227,7 @@ exports.getUserConversations = async (req, res) => {
         const otherUserId =
           conv.user1Id === userId ? conv.user2Id : conv.user1Id;
 
-        const otherUser = await prisma.user.findUnique({
-          where: {id: otherUserId},
-          select: {
-            id: true,
-            username: true,
-            userImage: true,
-          },
-        });
+        const otherUser = conv.user1Id === userId ? conv.user2 : conv.user1;
 
         const safeOtherUser = otherUser || {
           id: otherUserId,
@@ -228,9 +235,13 @@ exports.getUserConversations = async (req, res) => {
           userImage: defaultAvatar,
         };
 
-        const unreadCount = conv.messages.filter(
-          msg => msg.senderId !== userId && msg.read === false,
-        ).length;
+        const unreadCount = await prisma.message.count({
+          where: {
+            conversationId: conv.id,
+            senderId: {not: userId},
+            read: false,
+          },
+        });
 
         return {
           ...conv,
@@ -239,8 +250,6 @@ exports.getUserConversations = async (req, res) => {
         };
       }),
     );
-
-    console.log('Conversations with avatars:', conversationsWithExtras);
     res.json(conversationsWithExtras);
   } catch (error) {
     console.error('Get user conversations error:', error);

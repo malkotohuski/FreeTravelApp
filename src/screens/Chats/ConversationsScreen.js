@@ -19,6 +19,9 @@ const ConversationsScreen = ({navigation}) => {
   const {t} = useTranslation();
   const {user} = useAuth();
   const [conversations, setConversations] = useState([]);
+  const [page, setPage] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const LIMIT = 20;
 
   const theme = useTheme();
 
@@ -38,8 +41,11 @@ const ConversationsScreen = ({navigation}) => {
     React.useCallback(() => {
       const fetchConversations = async () => {
         try {
-          const res = await api.get(`/api/conversations/user/${user.id}`);
+          const res = await api.get(
+            `/api/conversations/user/${user.id}?skip=0&take=${LIMIT}`,
+          );
           setConversations(res.data);
+          setPage(1);
         } catch (err) {
           console.error(err);
         }
@@ -51,13 +57,22 @@ const ConversationsScreen = ({navigation}) => {
 
   useEffect(() => {
     socket.on('newConversation', conv => {
-      setConversations(prev => [conv, ...prev]);
+      setConversations(prev => {
+        // Проверяваме дали вече го имаме
+        const exists = prev.some(c => c.id === conv.id);
+        if (exists) return prev;
+        return [conv, ...prev];
+      });
     });
 
     socket.on('newMessage', ({conversationId, message}) => {
       setConversations(prev =>
         prev.map(conv => {
           if (conv.id !== conversationId) return conv;
+
+          // Проверка дали вече имаме това съобщение
+          const messageExists = conv.messages?.some(m => m.id === message.id);
+          if (messageExists) return conv;
 
           const isMyMessage = message.senderId === user.id;
 
@@ -80,6 +95,32 @@ const ConversationsScreen = ({navigation}) => {
       socket.off('newMessage');
     };
   }, []);
+
+  const loadMore = async () => {
+    if (loadingMore) return;
+
+    try {
+      setLoadingMore(true);
+
+      const res = await api.get(
+        `/api/conversations/user/${user.id}?skip=${page * LIMIT}&take=${LIMIT}`,
+      );
+
+      // ако няма нови – просто спираме
+      if (res.data.length === 0) return;
+
+      setConversations(prev => {
+        const existingIds = new Set(prev.map(c => c.id));
+        const newOnes = res.data.filter(c => !existingIds.has(c.id));
+        return [...prev, ...newOnes];
+      });
+      setPage(prev => prev + 1);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   const formatDate = date => {
     const messageDate = new Date(date);
@@ -227,6 +268,8 @@ const ConversationsScreen = ({navigation}) => {
             </TouchableOpacity>
           );
         }}
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.2}
       />
     </View>
   );
