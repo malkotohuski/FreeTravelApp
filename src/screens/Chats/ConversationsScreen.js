@@ -27,15 +27,24 @@ const ConversationsScreen = ({navigation}) => {
   const theme = useTheme();
 
   useEffect(() => {
-    socket.on('messagesRead', ({conversationId}) => {
+    const handler = ({conversationId}) => {
+      if (
+        String(NotificationService.currentConversationId) !==
+        String(conversationId)
+      ) {
+        return;
+      }
+
       setConversations(prev =>
         prev.map(conv =>
           conv.id === conversationId ? {...conv, unreadCount: 0} : conv,
         ),
       );
-    });
+    };
 
-    return () => socket.off('messagesRead');
+    socket.on('messagesRead', handler);
+
+    return () => socket.off('messagesRead', handler);
   }, []);
 
   useFocusEffect(

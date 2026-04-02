@@ -36,15 +36,30 @@ const ChatScreen = ({route}) => {
 
   useFocusEffect(
     React.useCallback(() => {
+      // ✅ активен чат
+      NotificationService.currentConversationId = conversationId;
+
+      // ✅ маркираме като прочетено ВЕДНАГА
+      api
+        .put(`/api/conversations/${conversationId}/read`, {
+          userId: user.id,
+        })
+        .catch(console.error);
+
+      return () => {
+        NotificationService.currentConversationId = null;
+      };
+    }, [conversationId]),
+  );
+
+  useFocusEffect(
+    React.useCallback(() => {
       // Маркираме този чат като активен
       NotificationService.currentConversationId = conversationId;
 
       // Когато потребителят излезе от чата
       return () => {
         NotificationService.currentConversationId = null;
-
-        // Казваме на backend/socket, че съобщенията са прочетени
-        socket.emit('messagesRead', {conversationId});
 
         // Също можеш да отбележиш в API
         api
@@ -91,21 +106,6 @@ const ChatScreen = ({route}) => {
 
     return () => socket.off('newMessage', handler);
   }, [conversationId, user.id]); // ❗ МНОГО ВАЖНО
-
-  useEffect(() => {
-    if (!conversationId || !user?.id) return;
-
-    const unreadInThisConversation = conversationInfo?.unreadCount || 0;
-
-    // Отбелязваме в API като прочетено
-    api
-      .put(`/api/conversations/${conversationId}/read`, {userId: user.id})
-      .catch(err => console.error(err));
-
-    // Callback към HomePage за намаляване на общия брояч
-    if (resetChatNotifications)
-      resetChatNotifications(unreadInThisConversation);
-  }, [conversationId, user?.id, conversationInfo]);
 
   useEffect(() => {
     const fetchConversation = async () => {
