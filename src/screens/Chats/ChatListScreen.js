@@ -65,6 +65,8 @@ const ChatScreen = ({route}) => {
         api
           .put(`/api/conversations/${conversationId}/read`, {userId: user.id})
           .catch(console.error);
+
+        socket.emit('messagesRead', {conversationId});
       };
     }, [conversationId]),
   );

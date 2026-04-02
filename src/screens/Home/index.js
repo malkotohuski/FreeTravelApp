@@ -108,6 +108,7 @@ function HomePage({navigation}) {
       socket.off('joinedRoom');
       socket.off('newConversation');
       socket.off('newMessage');
+      socket.off('messagesRead');
     };
   }, [user?.id]);
 
@@ -236,8 +237,12 @@ function HomePage({navigation}) {
             }
           });
 
-          setChatNotificationCount(() => {
-            // 👉 винаги взимаме реалното от API
+          setChatNotificationCount(prev => {
+            // ❗ ако API връща 0 → НЕ пипаме
+            if (totalUnread === 0) {
+              return prev;
+            }
+
             return totalUnread > 9 ? '9+' : totalUnread;
           });
         } catch (err) {
