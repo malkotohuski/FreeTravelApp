@@ -25,7 +25,7 @@ const ChatScreen = ({route}) => {
 
   const {conversationId, otherUser} = route.params;
   const {user} = useAuth();
-  const resetChatNotifications = route.params?.resetChatNotifications || null;
+  const [loadingMessages, setLoadingMessages] = useState(true);
 
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState('');
@@ -53,6 +53,11 @@ const ChatScreen = ({route}) => {
   );
 
   useEffect(() => {
+    setMessages([]); // ❌ премахваме старите съобщения веднага
+    setLoadingMessages(true);
+  }, [conversationId]);
+
+  useEffect(() => {
     setActiveConversation(conversationId);
 
     return () => {
@@ -74,29 +79,28 @@ const ChatScreen = ({route}) => {
   // 🔹 Ново съобщение
   useEffect(() => {
     const handler = ({conversationId: convId, message}) => {
-      console.log('📩 SOCKET IN CHAT:', convId, 'ACTIVE:', conversationId);
+      // Добавяме съобщението само ако е за текущия conversationId
+      if (String(convId) !== String(conversationId)) return;
 
-      // винаги добавяме ако е текущия чат
-      if (String(convId) === String(conversationId)) {
-        setMessages(prev => {
-          if (prev.some(msg => msg.id === message.id)) return prev;
-          return [...prev, message];
-        });
+      setMessages(prev => {
+        // проверка за дубликати
+        if (prev.some(msg => msg.id === message.id)) return prev;
+        return [...prev, message];
+      });
 
-        api.put(`/api/conversations/${convId}/read`, {
-          userId: user.id,
-        });
+      api.put(`/api/conversations/${convId}/read`, {
+        userId: user.id,
+      });
 
-        setTimeout(() => {
-          flatListRef.current?.scrollToEnd({animated: true});
-        }, 100);
-      }
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({animated: true});
+      }, 100);
     };
 
     socket.on('newMessage', handler);
 
     return () => socket.off('newMessage', handler);
-  }, [conversationId, user.id]); // ❗ МНОГО ВАЖНО
+  }, [conversationId, user.id]);
 
   useEffect(() => {
     const fetchConversation = async () => {
@@ -118,21 +122,23 @@ const ChatScreen = ({route}) => {
   useEffect(() => {
     const fetchMessages = async () => {
       if (!conversationId) return;
-      const res = await api.get(
-        `/api/conversations/${conversationId}/messages`,
-      );
 
-      setMessages(prev => {
-        const existingIds = new Set(prev.map(m => m.id));
-        const merged = [
-          ...prev,
-          ...res.data.filter(m => !existingIds.has(m.id)),
-        ];
-        return merged;
-      });
-
-      NotificationService.setActiveConversation(conversationId);
+      try {
+        const res = await api.get(
+          `/api/conversations/${conversationId}/messages`,
+        );
+        setMessages(res.data);
+        NotificationService.setActiveConversation(conversationId);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingMessages(false); // 🔹 край на loader-а
+        setTimeout(() => {
+          flatListRef.current?.scrollToEnd({animated: true});
+        }, 100);
+      }
     };
+
     fetchMessages();
   }, [conversationId]);
 
@@ -266,77 +272,77 @@ const ChatScreen = ({route}) => {
           </View>
         </View>
 
-        <FlatList
-          ref={flatListRef}
-          data={messages}
-          keyboardShouldPersistTaps="handled"
-          keyExtractor={item => item.id.toString()}
-          onContentSizeChange={() =>
-            flatListRef.current?.scrollToEnd({animated: true})
-          }
-          onLayout={() => flatListRef.current?.scrollToEnd({animated: true})}
-          renderItem={({item}) => {
-            const isMe = item.senderId === user.id;
-
-            return (
-              <View
-                style={[
-                  styles.messageRow,
-                  {flexDirection: isMe ? 'row-reverse' : 'row'},
-                ]}>
-                {!isMe && (
-                  <View
-                    style={[styles.avatarSmall, {backgroundColor: '#f4511e'}]}>
-                    {otherUser?.userImage ? (
-                      <Image
-                        source={{uri: otherUser.userImage}}
-                        style={styles.avatarSmallImage}
-                      />
-                    ) : (
+        {loadingMessages ? (
+          <View
+            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <Text style={{color: theme.textPrimary}}>
+              Зареждане на съобщения...
+            </Text>
+          </View>
+        ) : (
+          <FlatList
+            ref={flatListRef}
+            data={messages}
+            keyboardShouldPersistTaps="handled"
+            keyExtractor={item => item.id.toString()}
+            renderItem={({item}) => {
+              const isMe = item.senderId === user.id;
+              return (
+                <View
+                  style={[
+                    styles.messageRow,
+                    {flexDirection: isMe ? 'row-reverse' : 'row'},
+                  ]}>
+                  {!isMe && (
+                    <View
+                      style={[
+                        styles.avatarSmall,
+                        {backgroundColor: '#f4511e'},
+                      ]}>
                       <Image
                         source={{
-                          uri: 'https://res.cloudinary.com/dqxczsig5/image/upload/v1774361343/avatars/bzrmewmud1dlaatajmyf.jpg',
+                          uri:
+                            otherUser?.userImage ||
+                            'https://res.cloudinary.com/dqxczsig5/image/upload/v1774361343/avatars/bzrmewmud1dlaatajmyf.jpg',
                         }}
                         style={styles.avatarSmallImage}
                       />
-                    )}
-                  </View>
-                )}
-
-                <View
-                  style={[
-                    styles.bubble,
-                    isMe ? styles.myBubble : styles.otherBubble,
-                    {
-                      backgroundColor: isMe
-                        ? theme.primaryButton
-                        : theme.inputBackground,
-                    },
-                  ]}>
-                  <Text
+                    </View>
+                  )}
+                  <View
                     style={[
-                      styles.messageText,
-                      {color: isMe ? '#fff' : theme.textPrimary},
-                    ]}>
-                    {item.text}
-                  </Text>
-
-                  <Text
-                    style={[
-                      styles.timeText,
+                      styles.bubble,
+                      isMe ? styles.myBubble : styles.otherBubble,
                       {
-                        color: isMe
-                          ? 'rgba(255,255,255,0.7)'
-                          : theme.placeholder,
+                        backgroundColor: isMe
+                          ? theme.primaryButton
+                          : theme.inputBackground,
                       },
                     ]}>
-                    {formatDate(item.createdAt)}
-                  </Text>
+                    <Text
+                      style={[
+                        styles.messageText,
+                        {color: isMe ? '#fff' : theme.textPrimary},
+                      ]}>
+                      {item.text}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.timeText,
+                        {
+                          color: isMe
+                            ? 'rgba(255,255,255,0.7)'
+                            : theme.placeholder,
+                        },
+                      ]}>
+                      {formatDate(item.createdAt)}
+                    </Text>
+                  </View>
                 </View>
-              </View>
-            );
-          }}
-        />
+              );
+            }}
+          />
+        )}
 
         <View
           style={[

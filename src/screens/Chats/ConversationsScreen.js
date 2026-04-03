@@ -69,16 +69,11 @@ const ConversationsScreen = ({navigation}) => {
           setConversations(prev => {
             const merged = res.data.reduce(
               (acc, c) => {
-                const exists = acc.some(
-                  e =>
-                    e.routeId === c.routeId &&
-                    ((e.user1Id === c.user1Id && e.user2Id === c.user2Id) ||
-                      (e.user1Id === c.user2Id && e.user2Id === c.user1Id)),
-                );
+                const exists = acc.some(e => e.id === c.id);
                 if (!exists)
                   acc.push({
                     ...c,
-                    messages: [], // ✅ задължително празен масив
+                    messages: [], // винаги празни за нов fetch
                     unreadCount: c.unreadCount || 0,
                   });
                 return acc;
@@ -103,8 +98,6 @@ const ConversationsScreen = ({navigation}) => {
         const exists = prev.some(c => c.id === conv.id);
         if (exists) return prev;
 
-        const updated = [{...conv, messages: []}, ...prev];
-
         // Навигация към ChatScreen ако е за текущия потребител
         if (conv.user1Id === user.id || conv.user2Id === user.id) {
           navigation.navigate('ChatScreen', {
@@ -113,7 +106,7 @@ const ConversationsScreen = ({navigation}) => {
           });
         }
 
-        return updated;
+        return [{...conv, messages: []}, ...prev]; // винаги празни messages
       });
     });
     socket.on('newMessage', ({conversationId, message}) => {
@@ -132,7 +125,7 @@ const ConversationsScreen = ({navigation}) => {
 
           return {
             ...conv,
-            messages: [...(conv.messages || []), message], // 🔹 добавяме към messages
+            messages: [...(conv.messages || []), message],
             lastMessage: message,
             unreadCount:
               isActiveChat || isMyMessage ? 0 : (conv.unreadCount || 0) + 1,
@@ -161,14 +154,7 @@ const ConversationsScreen = ({navigation}) => {
       if (res.data.length === 0) return;
 
       setConversations(prev => {
-        const newOnes = res.data.filter(c => {
-          return !prev.some(
-            e =>
-              e.routeId === c.routeId &&
-              ((e.user1Id === c.user1Id && e.user2Id === c.user2Id) ||
-                (e.user1Id === c.user2Id && e.user2Id === c.user1Id)),
-          );
-        });
+        const newOnes = res.data.filter(c => !prev.some(e => e.id === c.id));
         return [...prev, ...newOnes.map(c => ({...c, messages: []}))];
       });
       setPage(prev => prev + 1);
