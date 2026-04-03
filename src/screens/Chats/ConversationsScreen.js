@@ -66,21 +66,21 @@ const ConversationsScreen = ({navigation}) => {
             `/api/conversations/user/${user.id}?skip=0&take=${LIMIT}`,
           );
 
-          setConversations(prev =>
-            res.data.map(newConv => {
-              // Ако имаме стар разговор, пазим unreadCount, но НЕ мърджваме messages
-              const oldConv = prev.find(
-                c => String(c.id) === String(newConv.id),
-              );
-              return {
-                ...newConv,
-                unreadCount: oldConv
-                  ? oldConv.unreadCount
-                  : newConv.unreadCount,
-                messages: oldConv ? oldConv.messages : [], // ❌ Винаги чисто ново поле
-              };
-            }),
-          );
+          setConversations(prev => {
+            const newConvs = res.data.map(c => ({
+              ...c,
+              messages: [], // винаги празен масив за нови разговори
+              unreadCount: c.unreadCount || 0,
+            }));
+
+            // merge без дубликати
+            const existingIds = new Set(prev.map(c => String(c.id)));
+            const merged = [
+              ...prev,
+              ...newConvs.filter(c => !existingIds.has(String(c.id))),
+            ];
+            return merged;
+          });
         } catch (err) {
           console.error(err);
         }
@@ -96,7 +96,7 @@ const ConversationsScreen = ({navigation}) => {
         // Проверяваме дали вече го имаме
         const exists = prev.some(c => c.id === conv.id);
         if (exists) return prev;
-        return [conv, ...prev];
+        return [{...conv, messages: []}, ...prev];
       });
     });
     socket.on('newMessage', ({conversationId, message}) => {
@@ -115,7 +115,8 @@ const ConversationsScreen = ({navigation}) => {
 
           return {
             ...conv,
-            messages: [...(conv.messages || []), message],
+            messages: [...(conv.messages || []), message], // 🔹 добавяме към messages
+            lastMessage: message,
             unreadCount:
               isActiveChat || isMyMessage ? 0 : (conv.unreadCount || 0) + 1,
           };
@@ -143,9 +144,9 @@ const ConversationsScreen = ({navigation}) => {
       if (res.data.length === 0) return;
 
       setConversations(prev => {
-        const existingIds = new Set(prev.map(c => c.id));
-        const newOnes = res.data.filter(c => !existingIds.has(c.id));
-        return [...prev, ...newOnes];
+        const existingIds = new Set(prev.map(c => String(c.id)));
+        const newOnes = res.data.filter(c => !existingIds.has(String(c.id)));
+        return [...prev, ...newOnes.map(c => ({...c, messages: []}))];
       });
       setPage(prev => prev + 1);
     } catch (err) {
