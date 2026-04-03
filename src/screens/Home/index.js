@@ -606,7 +606,11 @@ function HomePage({navigation}) {
                 color={darkMode ? '#f1f1f1' : '#010101'}
               />
               {chatCount > 0 && (
-                <View style={styles.notificationBadge}>
+                <View
+                  style={[
+                    styles.notificationBadge,
+                    {backgroundColor: '#bd0e05'},
+                  ]}>
                   <Text>{chatCount > 9 ? '9+' : chatCount}</Text>
                 </View>
               )}

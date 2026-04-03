@@ -66,18 +66,21 @@ const ConversationsScreen = ({navigation}) => {
             `/api/conversations/user/${user.id}?skip=0&take=${LIMIT}`,
           );
 
-          setConversations(prev => {
-            return res.data.map(newConv => {
-              const oldConv = prev.find(c => c.id === newConv.id);
+          setConversations(prev =>
+            res.data.map(newConv => {
+              // Ако имаме стар разговор, пазим unreadCount, но НЕ мърджваме messages
+              const oldConv = prev.find(
+                c => String(c.id) === String(newConv.id),
+              );
               return {
                 ...newConv,
                 unreadCount: oldConv
                   ? oldConv.unreadCount
                   : newConv.unreadCount,
-                messages: oldConv?.messages || newConv.messages,
+                messages: oldConv ? oldConv.messages : [], // ❌ Винаги чисто ново поле
               };
-            });
-          });
+            }),
+          );
         } catch (err) {
           console.error(err);
         }
@@ -96,36 +99,25 @@ const ConversationsScreen = ({navigation}) => {
         return [conv, ...prev];
       });
     });
-
     socket.on('newMessage', ({conversationId, message}) => {
       setConversations(prev =>
         prev.map(conv => {
-          if (conv.id !== conversationId) return conv;
+          if (String(conv.id) !== String(conversationId)) return conv;
 
+          // Проверка за дубликати
           const messageExists = conv.messages?.some(m => m.id === message.id);
           if (messageExists) return conv;
 
           const isMyMessage = message.senderId === user.id;
-
           const isActiveChat =
             String(NotificationService.currentConversationId) ===
             String(conversationId);
 
-          // 🔥 ТОВА ТИ ЛИПСВА
-          if (isActiveChat) {
-            return {
-              ...conv,
-              messages: [...(conv.messages || []), message],
-              unreadCount: 0,
-            };
-          }
-
           return {
             ...conv,
             messages: [...(conv.messages || []), message],
-            unreadCount: isMyMessage
-              ? conv.unreadCount || 0
-              : (conv.unreadCount || 0) + 1,
+            unreadCount:
+              isActiveChat || isMyMessage ? 0 : (conv.unreadCount || 0) + 1,
           };
         }),
       );
