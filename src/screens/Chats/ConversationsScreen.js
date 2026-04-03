@@ -67,18 +67,25 @@ const ConversationsScreen = ({navigation}) => {
           );
 
           setConversations(prev => {
-            const newConvs = res.data.map(c => ({
-              ...c,
-              messages: [], // винаги празен масив за нови разговори
-              unreadCount: c.unreadCount || 0,
-            }));
+            const merged = res.data.reduce(
+              (acc, c) => {
+                const exists = acc.some(
+                  e =>
+                    e.routeId === c.routeId &&
+                    ((e.user1Id === c.user1Id && e.user2Id === c.user2Id) ||
+                      (e.user1Id === c.user2Id && e.user2Id === c.user1Id)),
+                );
+                if (!exists)
+                  acc.push({
+                    ...c,
+                    messages: [], // ✅ задължително празен масив
+                    unreadCount: c.unreadCount || 0,
+                  });
+                return acc;
+              },
+              [...prev],
+            );
 
-            // merge без дубликати
-            const existingIds = new Set(prev.map(c => String(c.id)));
-            const merged = [
-              ...prev,
-              ...newConvs.filter(c => !existingIds.has(String(c.id))),
-            ];
             return merged;
           });
         } catch (err) {
@@ -93,10 +100,20 @@ const ConversationsScreen = ({navigation}) => {
   useEffect(() => {
     socket.on('newConversation', conv => {
       setConversations(prev => {
-        // Проверяваме дали вече го имаме
         const exists = prev.some(c => c.id === conv.id);
         if (exists) return prev;
-        return [{...conv, messages: []}, ...prev];
+
+        const updated = [{...conv, messages: []}, ...prev];
+
+        // Навигация към ChatScreen ако е за текущия потребител
+        if (conv.user1Id === user.id || conv.user2Id === user.id) {
+          navigation.navigate('ChatScreen', {
+            conversationId: conv.id,
+            otherUser: conv.otherUser,
+          });
+        }
+
+        return updated;
       });
     });
     socket.on('newMessage', ({conversationId, message}) => {
@@ -144,8 +161,14 @@ const ConversationsScreen = ({navigation}) => {
       if (res.data.length === 0) return;
 
       setConversations(prev => {
-        const existingIds = new Set(prev.map(c => String(c.id)));
-        const newOnes = res.data.filter(c => !existingIds.has(String(c.id)));
+        const newOnes = res.data.filter(c => {
+          return !prev.some(
+            e =>
+              e.routeId === c.routeId &&
+              ((e.user1Id === c.user1Id && e.user2Id === c.user2Id) ||
+                (e.user1Id === c.user2Id && e.user2Id === c.user1Id)),
+          );
+        });
         return [...prev, ...newOnes.map(c => ({...c, messages: []}))];
       });
       setPage(prev => prev + 1);
