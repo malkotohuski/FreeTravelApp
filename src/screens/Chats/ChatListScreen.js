@@ -18,6 +18,7 @@ import api from '../../api/api';
 import {useTheme} from '../../theme/useTheme';
 import socket from '../../socket/socket';
 import NotificationService from '../../backend-v2/services/NotificationService';
+import {useChat} from '../../context/ChatContext';
 
 const ChatScreen = ({route}) => {
   const {t} = useTranslation();
@@ -31,20 +32,19 @@ const ChatScreen = ({route}) => {
   const theme = useTheme();
 
   const [conversationInfo, setConversationInfo] = useState(null);
+  const {setChatCount, setActiveConversation} = useChat();
 
   const flatListRef = useRef(null);
 
   useFocusEffect(
     React.useCallback(() => {
-      // ✅ активен чат
-      NotificationService.currentConversationId = conversationId;
+      setChatCount(0); // 🔥 ако прави проблем да стане ---> setChatCount(prev => Math.max(0, prev - 1));
 
-      // ✅ маркираме като прочетено ВЕДНАГА
-      api
-        .put(`/api/conversations/${conversationId}/read`, {
-          userId: user.id,
-        })
-        .catch(console.error);
+      api.put(`/api/conversations/${conversationId}/read`, {
+        userId: user.id,
+      });
+
+      socket.emit('messagesRead', {conversationId});
 
       return () => {
         NotificationService.currentConversationId = null;
@@ -52,24 +52,13 @@ const ChatScreen = ({route}) => {
     }, [conversationId]),
   );
 
-  useFocusEffect(
-    React.useCallback(() => {
-      // Маркираме този чат като активен
-      NotificationService.currentConversationId = conversationId;
+  useEffect(() => {
+    setActiveConversation(conversationId);
 
-      // Когато потребителят излезе от чата
-      return () => {
-        NotificationService.currentConversationId = null;
-
-        // Също можеш да отбележиш в API
-        api
-          .put(`/api/conversations/${conversationId}/read`, {userId: user.id})
-          .catch(console.error);
-
-        socket.emit('messagesRead', {conversationId});
-      };
-    }, [conversationId]),
-  );
+    return () => {
+      setActiveConversation(null);
+    };
+  }, [conversationId]);
 
   useEffect(() => {
     socket.emit('joinConversation', {userId: user.id, conversationId});

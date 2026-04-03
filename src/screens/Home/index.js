@@ -1,5 +1,11 @@
 import i18next from 'i18next';
-import React, {useState, useEffect, useContext, useCallback} from 'react';
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useCallback,
+  useRef,
+} from 'react';
 import {
   View,
   Text,
@@ -21,6 +27,7 @@ import {DarkModeContext} from '../../navigation/DarkModeContext';
 import socket from '../../socket/socket';
 import Toast from 'react-native-toast-message';
 import NotificationService from '../../backend-v2/services/NotificationService';
+import {useChat} from '../../context/ChatContext';
 
 function HomePage({navigation}) {
   const {darkMode} = useContext(DarkModeContext);
@@ -31,13 +38,13 @@ function HomePage({navigation}) {
   const [isBulgaria, setisBulgaria] = useState(false);
   const [notificationCount, setNotificationCount] = useState(0);
   const [reqestsCount, setReqestsCount] = useState(0);
-  const [chatNotificationCount, setChatNotificationCount] = useState(0);
+  const {chatCount, setChatCount} = useChat();
 
   const loginUser = user?.username;
 
-  const pulseAnim = useState(new Animated.Value(0))[0];
-  const glowAnim = useState(new Animated.Value(0))[0];
-  const bounceAnim = useState(new Animated.Value(0))[0];
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const glowAnim = useRef(new Animated.Value(0)).current;
+  const bounceAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (!user?.id) return;
@@ -72,9 +79,8 @@ function HomePage({navigation}) {
 
       Vibration.vibrate([0, 150, 70, 150, 70, 150]);
 
-      setChatNotificationCount(prev => {
-        const next = Number(prev || 0) + 1;
-        return next > 9 ? '9+' : next;
+      setChatCount(prev => {
+        setChatCount(prev => prev + 1);
       });
 
       Toast.show({
@@ -91,16 +97,14 @@ function HomePage({navigation}) {
     socket.on('newMessage', ({conversationId}) => {
       const activeConv = NotificationService.getActiveConversation();
 
-      // ❗ ако този чат е отворен → skip
       if (String(activeConv) === String(conversationId)) {
         return;
       }
 
-      // иначе увеличаваме
-      setChatNotificationCount(prev => {
+      setChatCount(prev => {
         if (prev === '9+') return prev;
-        const next = Number(prev || 0) + 1;
-        return next > 9 ? '9+' : next;
+
+        setChatCount(prev => prev + 1);
       });
     });
 
@@ -108,14 +112,11 @@ function HomePage({navigation}) {
       socket.off('joinedRoom');
       socket.off('newConversation');
       socket.off('newMessage');
-      socket.off('messagesRead');
     };
   }, [user?.id]);
 
   useEffect(() => {
     if (!user?.id) return;
-
-    socket.emit('joinUserRoom', user.id);
 
     socket.on('newNotification', notification => {
       setNotificationCount(prev => {
@@ -133,9 +134,37 @@ function HomePage({navigation}) {
     return () => socket.off('newNotification');
   }, [user?.id]);
 
+  // ─────── Нов useEffect за messagesRead ───────
+  useFocusEffect(
+    React.useCallback(() => {
+      if (!user?.id) return;
+
+      const handler = ({conversationId}) => {
+        const activeConv = NotificationService.getActiveConversation();
+        // ❗ Зануляваме брояча само ако текущият чат е активен
+        if (String(activeConv) === String(conversationId)) {
+          setChatCount(0);
+        }
+      };
+
+      socket.on('messagesRead', handler);
+
+      return () => {
+        socket.off('messagesRead', handler);
+      };
+    }, [user?.id]),
+  );
+
+  const pulseLoopRef = useRef(null);
+
   useEffect(() => {
-    if (chatNotificationCount > 0) {
-      Animated.loop(
+    if (pulseLoopRef.current) {
+      pulseLoopRef.current.stop();
+      pulseLoopRef.current = null;
+    }
+
+    if (chatCount > 0) {
+      const loop = Animated.loop(
         Animated.parallel([
           Animated.sequence([
             Animated.timing(pulseAnim, {
@@ -162,12 +191,23 @@ function HomePage({navigation}) {
             }),
           ]),
         ]),
-      ).start();
+      );
+
+      pulseLoopRef.current = loop;
+      loop.start();
     } else {
       pulseAnim.setValue(1);
       glowAnim.setValue(0);
     }
-  }, [chatNotificationCount]);
+
+    // 🔥 МНОГО ВАЖНО
+    return () => {
+      if (pulseLoopRef.current) {
+        pulseLoopRef.current.stop();
+        pulseLoopRef.current = null;
+      }
+    };
+  }, [chatCount]);
 
   // =================== Fetch notifications ===================
   useEffect(() => {
@@ -237,12 +277,7 @@ function HomePage({navigation}) {
             }
           });
 
-          setChatNotificationCount(prev => {
-            // ❗ ако API връща 0 → НЕ пипаме
-            if (totalUnread === 0) {
-              return prev;
-            }
-
+          setChatCount(prev => {
             return totalUnread > 9 ? '9+' : totalUnread;
           });
         } catch (err) {
@@ -287,11 +322,9 @@ function HomePage({navigation}) {
     navigation.navigate('ConversationsScreen', {
       resetChatNotifications: count => {
         if (count === null) {
-          setChatNotificationCount(0);
+          setChatCount(0);
         } else {
-          setChatNotificationCount(prev =>
-            Math.max(0, Number(prev || 0) - count),
-          );
+          setChatCount(prev => Math.max(0, Number(prev || 0) - count));
         }
       },
     });
@@ -572,16 +605,9 @@ function HomePage({navigation}) {
                 size={34}
                 color={darkMode ? '#f1f1f1' : '#010101'}
               />
-              {chatNotificationCount > 0 && (
-                <View
-                  style={[
-                    styles.notificationBadge,
-                    {backgroundColor: '#bd0e05'},
-                  ]}>
-                  <Text
-                    style={
-                      styles.notificationText
-                    }>{`${chatNotificationCount}`}</Text>
+              {chatCount > 0 && (
+                <View style={styles.notificationBadge}>
+                  <Text>{chatCount > 9 ? '9+' : chatCount}</Text>
                 </View>
               )}
             </TouchableOpacity>

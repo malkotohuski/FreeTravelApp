@@ -15,6 +15,7 @@ import {useTheme} from '../../theme/useTheme';
 import socket from '../../socket/socket';
 import NotificationService from '../../backend-v2/services/NotificationService';
 import {useFocusEffect} from '@react-navigation/native';
+import {useChat} from '../../context/ChatContext';
 
 const ConversationsScreen = ({navigation}) => {
   const {t} = useTranslation();
@@ -23,17 +24,27 @@ const ConversationsScreen = ({navigation}) => {
   const [page, setPage] = useState(0);
   const [loadingMore, setLoadingMore] = useState(false);
   const LIMIT = 20;
+  const {setChatCount} = useChat();
 
   const theme = useTheme();
+
+  useEffect(() => {
+    let total = 0;
+
+    conversations.forEach(conv => {
+      total += conv.unreadCount || 0;
+    });
+
+    setChatCount(total);
+  }, [conversations]);
 
   useEffect(() => {
     const handler = ({conversationId}) => {
       if (
         String(NotificationService.currentConversationId) !==
         String(conversationId)
-      ) {
+      )
         return;
-      }
 
       setConversations(prev =>
         prev.map(conv =>
@@ -91,7 +102,6 @@ const ConversationsScreen = ({navigation}) => {
         prev.map(conv => {
           if (conv.id !== conversationId) return conv;
 
-          // Проверка дали вече имаме това съобщение
           const messageExists = conv.messages?.some(m => m.id === message.id);
           if (messageExists) return conv;
 
@@ -101,11 +111,21 @@ const ConversationsScreen = ({navigation}) => {
             String(NotificationService.currentConversationId) ===
             String(conversationId);
 
+          // 🔥 ТОВА ТИ ЛИПСВА
+          if (isActiveChat) {
+            return {
+              ...conv,
+              messages: [...(conv.messages || []), message],
+              unreadCount: 0,
+            };
+          }
+
           return {
             ...conv,
             messages: [...(conv.messages || []), message],
-            unreadCount:
-              isMyMessage || isActiveChat ? 0 : (conv.unreadCount || 0) + 1,
+            unreadCount: isMyMessage
+              ? conv.unreadCount || 0
+              : (conv.unreadCount || 0) + 1,
           };
         }),
       );
@@ -115,7 +135,7 @@ const ConversationsScreen = ({navigation}) => {
       socket.off('newConversation');
       socket.off('newMessage');
     };
-  }, []);
+  }, [user.id]);
 
   const loadMore = async () => {
     if (loadingMore) return;
@@ -209,11 +229,11 @@ const ConversationsScreen = ({navigation}) => {
                   otherUser: item.otherUser,
                 });
 
-                /*   setConversations(prev =>
+                setConversations(prev =>
                   prev.map(conv =>
                     conv.id === item.id ? {...conv, unreadCount: 0} : conv,
                   ),
-                ); */
+                );
               }}
               onLongPress={() => {
                 Alert.alert(

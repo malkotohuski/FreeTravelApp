@@ -9,6 +9,7 @@ import {Navigator} from './src/navigation/drawerContent';
 import {RouteProvider} from './src/context/RouteContext';
 import {AuthProvider} from './src/context/AuthContext';
 import {DarkModeProvider} from './src/navigation/DarkModeContext';
+import {ChatProvider} from './src/context/ChatContext';
 
 import {
   navigationRef,
@@ -29,18 +30,20 @@ function App() {
   return (
     <SafeAreaView style={{flex: 1}}>
       <DarkModeProvider>
-        <NavigationContainer
-          ref={navigationRef}
-          onReady={() => {
-            console.log('✅ Navigation ready');
-            handlePendingNavigation(); // 💥 ТОВА Е FIX-а
-          }}>
-          <AuthProvider>
-            <RouteProvider>
-              <Navigator isLoggedIn={isLoggedIn} />
-            </RouteProvider>
-          </AuthProvider>
-        </NavigationContainer>
+        <AuthProvider>
+          <ChatProvider>
+            <NavigationContainer
+              ref={navigationRef}
+              onReady={() => {
+                console.log('✅ Navigation ready');
+                handlePendingNavigation(); // 💥 ТОВА Е FIX-а
+              }}>
+              <RouteProvider>
+                <Navigator isLoggedIn={isLoggedIn} />
+              </RouteProvider>
+            </NavigationContainer>
+          </ChatProvider>
+        </AuthProvider>
       </DarkModeProvider>
 
       <Toast />
