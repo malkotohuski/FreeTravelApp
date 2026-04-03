@@ -103,6 +103,23 @@ const ChatScreen = ({route}) => {
   }, [conversationId, user.id]);
 
   useEffect(() => {
+    const handler = ({conversationId: convId}) => {
+      if (String(convId) !== String(conversationId)) return;
+
+      // маркираме МОИТЕ съобщения като прочетени
+      setMessages(prev =>
+        prev.map(msg =>
+          msg.senderId === user.id ? {...msg, read: true} : msg,
+        ),
+      );
+    };
+
+    socket.on('messagesRead', handler);
+
+    return () => socket.off('messagesRead', handler);
+  }, [conversationId, user.id]);
+
+  useEffect(() => {
     const fetchConversation = async () => {
       try {
         const res = await api.get(`/api/conversations/${conversationId}`);
@@ -275,9 +292,7 @@ const ChatScreen = ({route}) => {
         {loadingMessages ? (
           <View
             style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <Text style={{color: theme.textPrimary}}>
-              Зареждане на съобщения...
-            </Text>
+            <Text style={{color: theme.textPrimary}}>Loading...</Text>
           </View>
         ) : (
           <FlatList
@@ -326,17 +341,30 @@ const ChatScreen = ({route}) => {
                       ]}>
                       {item.text}
                     </Text>
-                    <Text
-                      style={[
-                        styles.timeText,
-                        {
-                          color: isMe
-                            ? 'rgba(255,255,255,0.7)'
-                            : theme.placeholder,
-                        },
-                      ]}>
-                      {formatDate(item.createdAt)}
-                    </Text>
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                      <Text
+                        style={[
+                          styles.timeText,
+                          {
+                            color: isMe
+                              ? 'rgba(255,255,255,0.7)'
+                              : theme.placeholder,
+                          },
+                        ]}>
+                        {formatDate(item.createdAt)}
+                      </Text>
+
+                      {isMe && item.read && (
+                        <Text
+                          style={{
+                            marginLeft: 6,
+                            fontSize: 11,
+                            color: 'rgba(255,255,255,0.7)',
+                          }}>
+                          ✓✓
+                        </Text>
+                      )}
+                    </View>
                   </View>
                 </View>
               );

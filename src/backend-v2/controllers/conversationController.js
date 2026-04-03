@@ -128,7 +128,12 @@ exports.sendMessage = async (req, res) => {
 
     // 1️⃣ Създаваме съобщението
     const message = await prisma.message.create({
-      data: {conversationId, senderId, text},
+      data: {
+        conversationId,
+        senderId,
+        text,
+        read: false, // важно
+      },
     });
 
     const conversation = await prisma.conversation.findUnique({
@@ -163,8 +168,6 @@ exports.sendMessage = async (req, res) => {
       where: {id: senderId},
       select: {username: true},
     });
-
-    const notificationMessage = `${sender.username} sent you a message`;
 
     // 5️⃣ Създаваме push notification
     await sendNotification({
@@ -283,7 +286,10 @@ exports.markAsRead = async (req, res) => {
         read: false,
       },
       data: {
-        read: true,
+        data: {
+          read: true,
+          readAt: new Date(),
+        },
       },
     });
 
@@ -297,7 +303,16 @@ exports.markAsRead = async (req, res) => {
     );
 
     if (global.io) {
-      global.io.to('user_' + userId).emit('messagesRead', {
+      const conversation = await prisma.conversation.findUnique({
+        where: {id: conversationId},
+      });
+
+      const otherUserId =
+        conversation.user1Id === userId
+          ? conversation.user2Id
+          : conversation.user1Id;
+
+      global.io.to('user_' + otherUserId).emit('messagesRead', {
         conversationId,
       });
     }
