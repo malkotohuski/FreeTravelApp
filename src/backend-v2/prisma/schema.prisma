@@ -213,7 +213,7 @@ model Message {
   read           Boolean      @default(false)
   conversation   Conversation @relation(fields: [conversationId], references: [id])
   sender         User         @relation("SenderMessages", fields: [senderId], references: [id])
-
+  readAt         DateTime?
   @@index([conversationId])
   @@index([senderId])
 }
