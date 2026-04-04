@@ -38,18 +38,23 @@ const ChatScreen = ({route}) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      setChatCount(0); // 🔥 ако прави проблем да стане ---> setChatCount(prev => Math.max(0, prev - 1));
+      setChatCount(0);
 
-      api.put(`/api/conversations/${conversationId}/read`, {
-        userId: user.id,
-      });
+      // Проверка дали има чужди непрочетени съобщения
+      const hasUnread = messages.some(
+        msg => msg.senderId !== user.id && !msg.read,
+      );
 
-      socket.emit('messagesRead', {conversationId});
+      if (hasUnread) {
+        api.put(`/api/conversations/${conversationId}/read`, {
+          userId: user.id,
+        });
+      }
 
       return () => {
         NotificationService.currentConversationId = null;
       };
-    }, [conversationId]),
+    }, [conversationId, messages]),
   );
 
   useEffect(() => {
