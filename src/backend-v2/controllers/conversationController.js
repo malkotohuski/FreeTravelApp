@@ -286,10 +286,8 @@ exports.markAsRead = async (req, res) => {
         read: false,
       },
       data: {
-        data: {
-          read: true,
-          readAt: new Date(),
-        },
+        read: true,
+        readAt: new Date(),
       },
     });
 
@@ -314,6 +312,7 @@ exports.markAsRead = async (req, res) => {
 
       global.io.to('user_' + otherUserId).emit('messagesRead', {
         conversationId,
+        userId,
       });
     }
 
