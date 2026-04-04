@@ -80,7 +80,9 @@ function HomePage({navigation}) {
       Vibration.vibrate([0, 150, 70, 150, 70, 150]);
 
       setChatCount(prev => {
-        setChatCount(prev => prev + 1);
+        if (prev === '9+') return prev;
+        const next = Number(prev || 0) + 1;
+        return next > 9 ? '9+' : next;
       });
 
       Toast.show({
@@ -277,9 +279,11 @@ function HomePage({navigation}) {
             }
           });
 
-          setChatCount(prev => {
-            return totalUnread > 9 ? '9+' : totalUnread;
-          });
+          const activeConv = NotificationService.getActiveConversation();
+
+          if (activeConv) return;
+
+          setChatCount(totalUnread > 9 ? '9+' : totalUnread);
         } catch (err) {
           console.error(err);
         }

@@ -221,7 +221,7 @@ exports.getUserConversations = async (req, res) => {
       },
       orderBy: {createdAt: 'desc'},
       skip,
-      take: 20,
+      take,
     });
 
     const conversationsWithExtras = await Promise.all(
@@ -278,7 +278,11 @@ exports.markAsRead = async (req, res) => {
       '📌 Unread messages BEFORE markAsRead:',
       unreadBefore.map(m => m.id),
     );
-
+    console.log('🔥 DEBUG:', {
+      conversationId,
+      userId,
+    });
+    console.log('🔥 RUNNING UPDATE MANY');
     const updated = await prisma.message.updateMany({
       where: {
         conversationId,
@@ -286,10 +290,8 @@ exports.markAsRead = async (req, res) => {
         read: false,
       },
       data: {
-        data: {
-          read: true,
-          readAt: new Date(),
-        },
+        read: true,
+        readAt: new Date(),
       },
     });
 

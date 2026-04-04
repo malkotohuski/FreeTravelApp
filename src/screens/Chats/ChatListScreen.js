@@ -38,7 +38,9 @@ const ChatScreen = ({route}) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      setChatCount(0); // 🔥 ако прави проблем да стане ---> setChatCount(prev => Math.max(0, prev - 1));
+      setChatCount(0);
+      NotificationService.setActiveConversation(conversationId);
+      // 🔥 ако прави проблем да стане ---> setChatCount(prev => Math.max(0, prev - 1));
 
       api.put(`/api/conversations/${conversationId}/read`, {
         userId: user.id,
@@ -59,9 +61,11 @@ const ChatScreen = ({route}) => {
 
   useEffect(() => {
     setActiveConversation(conversationId);
+    NotificationService.setActiveConversation(conversationId);
 
     return () => {
       setActiveConversation(null);
+      NotificationService.setActiveConversation(null);
     };
   }, [conversationId]);
 
