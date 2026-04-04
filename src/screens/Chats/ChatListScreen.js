@@ -88,10 +88,6 @@ const ChatScreen = ({route}) => {
         return [...prev, message];
       });
 
-      api.put(`/api/conversations/${convId}/read`, {
-        userId: user.id,
-      });
-
       setTimeout(() => {
         flatListRef.current?.scrollToEnd({animated: true});
       }, 100);
@@ -354,14 +350,16 @@ const ChatScreen = ({route}) => {
                         {formatDate(item.createdAt)}
                       </Text>
 
-                      {isMe && item.read && (
+                      {isMe && (
                         <Text
                           style={{
                             marginLeft: 6,
                             fontSize: 11,
-                            color: 'rgba(255,255,255,0.7)',
+                            color: item.read
+                              ? 'rgba(255,255,255,0.7)' // прочетено
+                              : 'rgba(255,255,255,0.4)', // изпратено
                           }}>
-                          ✓✓
+                          {item.read ? '✓✓' : '✓'}
                         </Text>
                       )}
                     </View>
