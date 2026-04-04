@@ -38,23 +38,18 @@ const ChatScreen = ({route}) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      setChatCount(0);
+      setChatCount(0); // 🔥 ако прави проблем да стане ---> setChatCount(prev => Math.max(0, prev - 1));
 
-      // Проверка дали има чужди непрочетени съобщения
-      const hasUnread = messages.some(
-        msg => msg.senderId !== user.id && !msg.read,
-      );
+      api.put(`/api/conversations/${conversationId}/read`, {
+        userId: user.id,
+      });
 
-      if (hasUnread) {
-        api.put(`/api/conversations/${conversationId}/read`, {
-          userId: user.id,
-        });
-      }
+      socket.emit('messagesRead', {conversationId});
 
       return () => {
         NotificationService.currentConversationId = null;
       };
-    }, [conversationId, messages]),
+    }, [conversationId]),
   );
 
   useEffect(() => {
@@ -91,6 +86,10 @@ const ChatScreen = ({route}) => {
         // проверка за дубликати
         if (prev.some(msg => msg.id === message.id)) return prev;
         return [...prev, message];
+      });
+
+      api.put(`/api/conversations/${convId}/read`, {
+        userId: user.id,
       });
 
       setTimeout(() => {
@@ -355,16 +354,14 @@ const ChatScreen = ({route}) => {
                         {formatDate(item.createdAt)}
                       </Text>
 
-                      {isMe && (
+                      {isMe && item.read && (
                         <Text
                           style={{
                             marginLeft: 6,
                             fontSize: 11,
-                            color: item.read
-                              ? 'rgba(255,255,255,0.7)' // прочетено
-                              : 'rgba(255,255,255,0.4)', // изпратено
+                            color: 'rgba(255,255,255,0.7)',
                           }}>
-                          {item.read ? '✓✓' : '✓'}
+                          ✓✓
                         </Text>
                       )}
                     </View>

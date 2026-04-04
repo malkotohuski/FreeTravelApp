@@ -70,6 +70,7 @@ const ConversationsScreen = ({navigation}) => {
             const merged = res.data.reduce(
               (acc, c) => {
                 const exists = acc.some(e => e.id === c.id);
+
                 if (!exists)
                   acc.push({
                     ...c,
@@ -155,6 +156,7 @@ const ConversationsScreen = ({navigation}) => {
 
       setConversations(prev => {
         const newOnes = res.data.filter(c => !prev.some(e => e.id === c.id));
+
         return [...prev, ...newOnes.map(c => ({...c, messages: []}))];
       });
       setPage(prev => prev + 1);
