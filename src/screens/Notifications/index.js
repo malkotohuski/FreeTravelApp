@@ -16,7 +16,6 @@ import {useAuth} from '../../context/AuthContext';
 import {useTheme} from '../../theme/useTheme';
 import socket from '../../socket/socket';
 import Toast from 'react-native-toast-message';
-import NotificationService from '../../backend-v2/services/NotificationService';
 
 const Notifications = ({navigation}) => {
   const {user} = useAuth();
@@ -63,13 +62,6 @@ const Notifications = ({navigation}) => {
       if (notification.conversationId) return;
 
       setNotifications(prev => [notification, ...prev]);
-
-      // Toast
-      Toast.show({
-        type: 'info',
-        text1: notification.message,
-        visibilityTime: 4000,
-      });
     });
 
     return () => socket.off('newNotification');

@@ -15,7 +15,6 @@ import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useAuth} from '../../context/AuthContext';
 import api from '../../api/api';
 import {DarkModeContext} from '../../navigation/DarkModeContext';
-import socket from '../../socket/socket';
 import Toast from 'react-native-toast-message';
 
 const RouteHistory = ({navigation}) => {

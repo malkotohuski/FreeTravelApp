@@ -91,44 +91,11 @@ class NotificationService {
     // 🔥 FOREGROUND
     messaging().onMessage(async remoteMessage => {
       const {data} = remoteMessage;
-      const incomingConversationId = data?.conversationId;
 
-      console.log('📲 PUSH RECEIVED:', data);
-      console.log('🔹 currentConversationId:', this.currentConversationId);
-      console.log('🔹 incomingConversationId:', incomingConversationId);
+      console.log('📲 PUSH RECEIVED (foreground):', data);
 
-      if (
-        (data?.type === 'message' || data?.type === 'chat') &&
-        String(incomingConversationId || '') ===
-          String(this.currentConversationId || '')
-      ) {
-        console.log('⛔ Skip toast (inside chat)');
-        return;
-      }
-
-      const title = this.getToastTitle(data?.type);
-
-      let body = '';
-
-      if (data?.type === 'message') {
-        const name = data?.senderName || 'Someone';
-        body = `${name}: ${data?.message}`;
-      } else if (data?.type === 'request') {
-        body = 'Tap to view the request';
-      } else {
-        body = data?.message || 'You have a notification';
-      }
-
-      Toast.show({
-        type: 'info',
-        text1: title,
-        text2: body,
-        position: 'top',
-        visibilityTime: 3000,
-        onPress: () => {
-          this.handleNavigation(data);
-        },
-      });
+      // ❗ Нищо не правим
+      return;
     });
 
     // 👉 BACKGROUND (app е в background)
