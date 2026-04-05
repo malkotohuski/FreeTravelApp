@@ -142,16 +142,26 @@ io.on('connection', socket => {
 
   // 👉 когато user отвори чат
   socket.on('joinConversation', ({userId, conversationId}) => {
+    const room = 'conversation_' + conversationId;
+
+    socket.join(room); // 💥 ДОБАВИ ТОВА
+
     userCurrentChat.set(Number(userId), String(conversationId));
 
     console.log('💬 USER IN CHAT:', userId, conversationId);
+    console.log('📦 JOINED ROOM:', room);
   });
 
   // 👉 когато user излезе от чат
-  socket.on('leaveConversation', ({userId}) => {
+  socket.on('leaveConversation', ({userId, conversationId}) => {
+    const room = 'conversation_' + conversationId;
+
+    socket.leave(room); // 💥 ДОБАВИ ТОВА
+
     userCurrentChat.delete(Number(userId));
 
     console.log('🚪 USER LEFT CHAT:', userId);
+    console.log('📦 LEFT ROOM:', room);
   });
 });
 

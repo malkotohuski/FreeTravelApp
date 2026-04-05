@@ -151,7 +151,7 @@ exports.sendMessage = async (req, res) => {
 
     // 2️⃣ Emit в реално време
     if (global.io) {
-      global.io.to('user_' + receiverId).emit('newMessage', {
+      global.io.to('conversation_' + conversationId).emit('newMessage', {
         conversationId,
         message,
       });

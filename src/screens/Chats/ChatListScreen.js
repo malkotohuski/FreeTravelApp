@@ -71,8 +71,27 @@ const ChatScreen = ({route}) => {
 
   useEffect(() => {
     socket.emit('joinConversation', {userId: user.id, conversationId});
-    return () => socket.emit('leaveConversation', {userId: user.id});
+    return () =>
+      socket.emit('leaveConversation', {
+        userId: user.id,
+        conversationId,
+      });
   }, [conversationId]);
+
+  useEffect(() => {
+    const reconnectHandler = () => {
+      console.log('🔁 RECONNECTED → join пак');
+
+      socket.emit('joinConversation', {
+        userId: user.id,
+        conversationId,
+      });
+    };
+
+    socket.on('connect', reconnectHandler);
+
+    return () => socket.off('connect', reconnectHandler);
+  }, [conversationId, user.id]);
 
   useEffect(() => {
     if (!user?.id) return;
