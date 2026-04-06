@@ -18,21 +18,17 @@ exports.getUserById = async (req, res) => {
         userImage: true,
         averageRating: true,
 
-        receivedRatings: {
-          where: {
-            comment: {
-              not: null,
-            },
-          },
+        // 🔹 Взимаме коментарите към този потребител
+        receivedComments: {
           orderBy: {
             createdAt: 'desc',
           },
           select: {
             id: true,
-            score: true,
-            comment: true,
+            text: true,
+            rating: true,
             createdAt: true,
-            rater: {
+            author: {
               select: {
                 id: true,
                 username: true,
@@ -44,7 +40,7 @@ exports.getUserById = async (req, res) => {
 
         _count: {
           select: {
-            receivedRatings: true,
+            receivedComments: true,
           },
         },
       },

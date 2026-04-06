@@ -181,7 +181,18 @@ function RouteDetails({route}) {
           <TouchableOpacity
             style={styles.buttonUserInfo}
             onPress={() =>
-              navigation.navigate('UserDetails', {userId: route.params.userId})
+              navigation.navigate('UserInfo', {
+                userId: route.params.userId,
+                username: username,
+                userFname: userFname,
+                userLname: userLname,
+                userEmail: userEmail,
+                departureCity: route.params.departureCity,
+                arrivalCity: route.params.arrivalCity,
+                selectedVehicle: route.params.selectedVehicle,
+                registrationNumber: route.params.registrationNumber,
+                routeDetailsData: route.params.routeDetailsData,
+              })
             }>
             <Text style={styles.infoButtonText}>{t('viewUserInfo')}</Text>
           </TouchableOpacity>

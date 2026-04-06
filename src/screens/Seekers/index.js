@@ -290,7 +290,36 @@ export default function Seekers({navigation}) {
                     style={[styles.modalRouteText, {color: theme.textPrimary}]}>
                     {selectedRoute.departureCity} ➝ {selectedRoute.arrivalCity}
                   </Text>
+                  <TouchableOpacity
+                    style={[
+                      styles.viewProfileButton,
+                      {
+                        backgroundColor: theme.secondaryButton,
+                        marginBottom: 10,
+                      },
+                    ]}
+                    onPress={() => {
+                      setSelectedRoute(null); // затваряме modal-а
 
+                      navigation.navigate('UserInfo', {
+                        username: selectedRoute.username,
+                        userFname: selectedRoute.userFname,
+                        userLname: selectedRoute.userLname,
+                        userEmail: selectedRoute.userEmail,
+                        userId: selectedRoute.userId,
+
+                        // ако имаш тези данни ги подай, ако не – махни ги
+                        departureCity: selectedRoute.departureCity,
+                        arrivalCity: selectedRoute.arrivalCity,
+                        selectedVehicle: selectedRoute.selectedVehicle,
+                        registrationNumber: selectedRoute.registrationNumber,
+                        routeDetailsData: selectedRoute,
+                      });
+                    }}>
+                    <View style={styles.creatorContainer}>
+                      <Text style={styles.buttonText}>{t('View Profile')}</Text>
+                    </View>
+                  </TouchableOpacity>
                   <View style={styles.modalButtons}>
                     {selectedRoute.username !== user?.username ? (
                       <TouchableOpacity
@@ -400,6 +429,11 @@ const createStyles = theme =>
       shadowOpacity: 0.4,
       shadowRadius: 3,
       elevation: 5,
+    },
+    viewProfileButton: {
+      padding: 10,
+      borderRadius: 8,
+      alignItems: 'center',
     },
     secondaryButton: {
       padding: 10,

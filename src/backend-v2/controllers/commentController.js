@@ -24,6 +24,7 @@ exports.createComment = async (req, res) => {
         routeId,
       },
     });
+    console.log({text, rating, authorId, recipientId, routeId});
 
     // 3️⃣ Пресмятаме нов average rating
     const ratings = await prisma.comment.aggregate({

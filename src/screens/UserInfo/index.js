@@ -46,18 +46,17 @@ const renderStars = rating => {
 const UserInfo = ({route, navigation}) => {
   const {darkMode} = useContext(DarkModeContext);
   const {t} = useTranslation();
-  // Взимаме всички params за RouteDetails бутона
+
   const {
     username,
     userFname,
     userLname,
-    userEmail,
     userId,
+    departureCity,
+    arrivalCity,
     selectedVehicle,
     registrationNumber,
     routeDetailsData,
-    departureCity,
-    arrivalCity,
   } = route.params;
 
   const [userData, setUserData] = useState(null);
@@ -65,7 +64,6 @@ const UserInfo = ({route, navigation}) => {
 
   const fadeAnims = useRef([]).current;
 
-  // Фиксираме логиката за бутона за back
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
@@ -76,7 +74,6 @@ const UserInfo = ({route, navigation}) => {
               username,
               userFname,
               userLname,
-              userEmail,
               userId,
               departureCity,
               arrivalCity,
@@ -85,7 +82,11 @@ const UserInfo = ({route, navigation}) => {
               routeDetailsData,
             })
           }>
-          <Icon name="keyboard-backspace" size={26} color="#ffffff" />
+          <Icon
+            name="keyboard-backspace"
+            size={26}
+            color={darkMode ? '#fff' : '#000'}
+          />
         </TouchableOpacity>
       ),
     });
@@ -94,22 +95,20 @@ const UserInfo = ({route, navigation}) => {
     username,
     userFname,
     userLname,
-    userEmail,
     userId,
     selectedVehicle,
     registrationNumber,
     routeDetailsData,
     departureCity,
     arrivalCity,
+    darkMode,
   ]);
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const res = await api.get(`/users?username=${username}`);
-        if (res.data.length > 0) {
-          setUserData(res.data[0]);
-        }
+        const res = await api.get(`/api/users/${userId}`);
+        setUserData(res.data);
       } catch (err) {
         console.error('Грешка при зареждане на потребителя:', err);
       } finally {
@@ -117,14 +116,13 @@ const UserInfo = ({route, navigation}) => {
       }
     };
     fetchUserData();
-  }, [username]);
+  }, [userId]);
 
   useEffect(() => {
-    if (userData?.comments) {
-      userData.comments.forEach((_, i) => {
+    if (userData?.receivedRatings) {
+      userData.receivedRatings.forEach((_, i) => {
         fadeAnims[i] = new Animated.Value(0);
       });
-
       const animations = fadeAnims.map((fadeAnim, index) =>
         Animated.timing(fadeAnim, {
           toValue: 1,
@@ -133,7 +131,6 @@ const UserInfo = ({route, navigation}) => {
           useNativeDriver: true,
         }),
       );
-
       Animated.stagger(100, animations).start();
     }
   }, [userData]);
@@ -143,9 +140,12 @@ const UserInfo = ({route, navigation}) => {
       <View
         style={[
           styles.centered,
-          {backgroundColor: darkMode ? '#111' : '#fff'},
+          {backgroundColor: darkMode ? '#1c1c1c' : '#fff'},
         ]}>
-        <ActivityIndicator size="large" color="#f4511e" />
+        <ActivityIndicator
+          size="large"
+          color={darkMode ? '#ffa726' : '#f4511e'}
+        />
       </View>
     );
   }
@@ -155,7 +155,7 @@ const UserInfo = ({route, navigation}) => {
       <View
         style={[
           styles.centered,
-          {backgroundColor: darkMode ? '#111' : '#fff'},
+          {backgroundColor: darkMode ? '#1c1c1c' : '#fff'},
         ]}>
         <Text style={{color: 'red', fontSize: 18}}>
           Потребителят не беше намерен.
@@ -164,29 +164,18 @@ const UserInfo = ({route, navigation}) => {
     );
   }
 
-  const {averageRating, comments = []} = userData;
-
-  const formatDate = isoDate => {
-    if (!isoDate) return 'Unknown date';
-    const date = new Date(isoDate);
-    return date.toLocaleDateString('bg-BG', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
+  const {averageRating, receivedRatings = []} = userData;
 
   const renderComment = (c, index) => {
     const fadeAnim = fadeAnims[index] || new Animated.Value(1);
+    const author = c.rater || {};
     return (
       <Animated.View
-        key={index}
+        key={c.id || index}
         style={[
           styles.commentCard,
           {
-            backgroundColor: darkMode ? '#222' : '#fff',
+            backgroundColor: darkMode ? '#2a2a2a' : '#fff',
             opacity: fadeAnim,
             transform: [
               {
@@ -200,20 +189,20 @@ const UserInfo = ({route, navigation}) => {
         ]}>
         <View style={styles.commentHeader}>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            {c.image ? (
-              <Image source={{uri: c.image}} style={styles.avatar} />
+            {author.userImage ? (
+              <Image source={{uri: author.userImage}} style={styles.avatar} />
             ) : (
               <View
                 style={[
                   styles.avatar,
                   {
-                    backgroundColor: '#888',
+                    backgroundColor: '#555',
                     justifyContent: 'center',
                     alignItems: 'center',
                   },
                 ]}>
                 <Text style={{color: '#fff', fontWeight: 'bold'}}>
-                  {c.user?.slice(0, 2).toUpperCase() || 'AN'}
+                  {author.username?.slice(0, 2).toUpperCase() || 'AN'}
                 </Text>
               </View>
             )}
@@ -222,21 +211,27 @@ const UserInfo = ({route, navigation}) => {
                 styles.username,
                 {color: darkMode ? '#ffa726' : '#f4511e', marginLeft: 10},
               ]}>
-              {c.user || 'Анонимен'}
+              {author.username || 'Анонимен'}
             </Text>
           </View>
           <Text style={{color: darkMode ? '#ccc' : '#666', fontSize: 12}}>
-            {formatDate(c.date)}
+            {new Date(c.createdAt).toLocaleDateString('bg-BG', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
           </Text>
         </View>
         <Text style={[styles.commentText, {color: darkMode ? '#fff' : '#000'}]}>
           {c.comment}
         </Text>
-        {c.rating !== undefined && (
+        {c.score !== undefined && (
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            {renderStars(c.rating)}
+            {renderStars(c.score)}
             <Text style={{marginLeft: 6, color: darkMode ? '#ccc' : '#333'}}>
-              ({c.rating})
+              ({c.score})
             </Text>
           </View>
         )}
@@ -246,7 +241,7 @@ const UserInfo = ({route, navigation}) => {
 
   return (
     <LinearGradient
-      colors={['#1b1b1b', '#686666']}
+      colors={darkMode ? ['#1c1c1c', '#3a3a3a'] : ['#f5f5f5', '#e0e0e0']}
       style={styles.mainContainer}>
       <ScrollView contentContainerStyle={styles.container}>
         <Image source={{uri: userData.userImage}} style={styles.avatarLarge} />
@@ -254,7 +249,7 @@ const UserInfo = ({route, navigation}) => {
           {userData.userFname} {userData.userLname}
         </Text>
         <Text
-          style={[styles.usernameText, {color: darkMode ? '#ccc' : '#000000'}]}>
+          style={[styles.usernameText, {color: darkMode ? '#ccc' : '#000'}]}>
           @{username}
         </Text>
         <View
@@ -264,16 +259,18 @@ const UserInfo = ({route, navigation}) => {
             marginVertical: 12,
           }}>
           {renderStars(averageRating || 0)}
-          <Text style={{marginLeft: 6, color: darkMode ? '#ccc' : '#000000'}}>
+          <Text style={{marginLeft: 6, color: darkMode ? '#ccc' : '#000'}}>
             ({averageRating?.toFixed(2) || '0.00'})
           </Text>
         </View>
+
         <Text
           style={[styles.commentsHeader, {color: darkMode ? '#fff' : '#000'}]}>
           💬 {t('Comments')}
         </Text>
-        {comments.length > 0 ? (
-          comments.map(renderComment)
+
+        {receivedRatings.length > 0 ? (
+          receivedRatings.map(renderComment)
         ) : (
           <Text
             style={{
@@ -290,19 +287,9 @@ const UserInfo = ({route, navigation}) => {
 };
 
 const styles = StyleSheet.create({
-  mainContainer: {
-    flex: 1,
-  },
-  container: {
-    alignItems: 'center',
-    padding: 16,
-    paddingBottom: 40,
-  },
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  mainContainer: {flex: 1},
+  container: {alignItems: 'center', padding: 16, paddingBottom: 40},
+  centered: {flex: 1, justifyContent: 'center', alignItems: 'center'},
   avatarLarge: {
     width: 90,
     height: 90,
@@ -310,14 +297,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#ccc',
     marginBottom: 12,
   },
-  name: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  usernameText: {
-    fontSize: 16,
-    marginBottom: 10,
-  },
+  name: {fontSize: 20, fontWeight: 'bold'},
+  usernameText: {fontSize: 16, marginBottom: 10},
   commentsHeader: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -341,19 +322,9 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     alignItems: 'center',
   },
-  username: {
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  commentText: {
-    fontSize: 15,
-    marginVertical: 6,
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-  },
+  username: {fontSize: 14, fontWeight: 'bold'},
+  commentText: {fontSize: 15, marginVertical: 6},
+  avatar: {width: 40, height: 40, borderRadius: 20},
 });
 
 export default UserInfo;

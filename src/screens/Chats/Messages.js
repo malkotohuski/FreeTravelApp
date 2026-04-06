@@ -1,6 +1,5 @@
 import React, {useState, useContext} from 'react';
 import {
-  Pressable,
   StyleSheet,
   Text,
   Image,

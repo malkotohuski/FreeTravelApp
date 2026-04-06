@@ -377,16 +377,16 @@ const ChatScreen = ({route}) => {
                         {formatDate(item.createdAt)}
                       </Text>
 
-                      {isMe && item.read && (
+                      {/*  {isMe && item.read && (
                         <Text
                           style={{
                             marginLeft: 6,
                             fontSize: 11,
-                            color: 'rgba(255,255,255,0.7)',
+                            color: 'rgba(255,255,255,0.7)',----> тикчета за прочетено
                           }}>
-                          ✓✓
+  
                         </Text>
-                      )}
+                      )} */}
                     </View>
                   </View>
                 </View>
