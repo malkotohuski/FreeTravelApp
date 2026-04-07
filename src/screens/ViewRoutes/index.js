@@ -213,9 +213,9 @@ function ViewRoutes({navigation}) {
                   {route.departureCity} → {route.arrivalCity}
                 </Text>
                 <View style={styles.creatorContainer}>
-                  {route.owner?.image ? (
+                  {route.owner?.userImage ? (
                     <Image
-                      source={{uri: route.owner.image}}
+                      source={{uri: route.owner.userImage}}
                       style={styles.userImage}
                     />
                   ) : (

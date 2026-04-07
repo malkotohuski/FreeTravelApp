@@ -92,7 +92,7 @@ exports.getActiveRoutes = async (req, res) => {
             fName: true,
             lName: true,
             email: true,
-            image: true,
+            userImage: true,
           },
         },
       },
