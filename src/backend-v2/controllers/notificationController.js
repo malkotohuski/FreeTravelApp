@@ -22,6 +22,9 @@ exports.sendNotification = async ({
     throw new Error('recipientId, senderId и message са задължителни');
   }
 
+  // 🔥 Пропускаме чат съобщения → няма да се добавят в Notifications
+  if (type === 'message') return;
+
   // 🔹 Проверка за дублираща нотификация
   const existing = await prisma.notification.findFirst({
     where: {
@@ -32,7 +35,6 @@ exports.sendNotification = async ({
     },
   });
 
-  // 🔹 Функция за title според type
   const getNotificationTitle = (type, senderName = '') => {
     switch (type) {
       case 'message':
@@ -50,7 +52,6 @@ exports.sendNotification = async ({
     }
   };
 
-  // 🔹 Изпращане на push
   const pushToUser = async () => {
     const userDevice = await prisma.userDevice.findFirst({
       where: {userId: Number(recipientId)},
@@ -61,9 +62,6 @@ exports.sendNotification = async ({
 
     if (!skipPushIfOnline || !isOnline) {
       if (userDevice?.fcmToken) {
-        console.log('Sending push to userId:', recipientId);
-
-        // 👉 взимаме името на подателя (за по-добър UX)
         let senderName = '';
         try {
           const sender = await prisma.user.findUnique({
@@ -95,13 +93,11 @@ exports.sendNotification = async ({
     }
   };
 
-  // 🔹 Ако вече има такава нотификация
   if (existing) {
     await pushToUser();
     return existing;
   }
 
-  // 🔹 Създаване в базата
   const notification = await prisma.notification.create({
     data: {
       recipientId: Number(recipientId),
@@ -117,12 +113,10 @@ exports.sendNotification = async ({
     },
   });
 
-  // 🔹 Socket emit (real-time)
   if (global.io) {
     global.io.to('user_' + recipientId).emit('newNotification', notification);
   }
 
-  // 🔹 Push
   await pushToUser();
 
   return notification;

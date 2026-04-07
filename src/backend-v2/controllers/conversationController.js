@@ -163,26 +163,8 @@ exports.sendMessage = async (req, res) => {
       data: {hiddenByUser1: false, hiddenByUser2: false},
     });
 
-    // 4️⃣ Вземаме името на подателя
-    const sender = await prisma.user.findUnique({
-      where: {id: senderId},
-      select: {username: true},
-    });
-
-    // 5️⃣ Създаваме push notification
-    await sendNotification({
-      recipientId: receiverId,
-      senderId,
-      message: text,
-      conversationId: conversationId,
-      type: 'message',
-      data: {
-        type: 'message',
-        conversationId: conversationId,
-        message: text,
-      },
-      skipPushIfOnline: true,
-    });
+    // 🔥 4️⃣ НЕ правим нотификация за чат! Просто skip
+    // await sendNotification(...);  <- премахнато за chat messages
 
     res.json(message);
   } catch (error) {

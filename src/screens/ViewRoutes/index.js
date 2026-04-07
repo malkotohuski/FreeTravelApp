@@ -26,10 +26,8 @@ function ViewRoutes({navigation}) {
   const [enteredDepartureCity, setEnteredDepartureCity] = useState('');
   const [enteredArrivalCity, setEnteredArrivalCity] = useState('');
   const {user} = useAuth();
-  const [showFilterModal, setShowFilterModal] = useState(false);
   const [sortByDate, setSortByDate] = useState(false);
   const [routes, setRoutes] = useState([]);
-  const [filteredRoutesState, setFilteredRoutesState] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -37,49 +35,6 @@ function ViewRoutes({navigation}) {
   const userFnameRequest = user?.fName;
   const userLnameRequest = user?.lName;
   const fullUserInfo = {usernameRequest, userFnameRequest, userLnameRequest};
-
-  const toggleFilterModal = () => setShowFilterModal(!showFilterModal);
-
-  const clearFilters = () => {
-    setEnteredDepartureCity('');
-    setEnteredArrivalCity('');
-    setFilteredRoutesState(routes);
-    toggleFilterModal();
-  };
-
-  const applyFilters = () => {
-    toggleFilterModal();
-
-    let filtered = routes.filter(
-      route =>
-        route.departureCity
-          .toLowerCase()
-          .includes(enteredDepartureCity.toLowerCase()) &&
-        route.arrivalCity
-          .toLowerCase()
-          .includes(enteredArrivalCity.toLowerCase()),
-    );
-
-    // филтрираме само маршрути, които НЕ са seeking-driver
-    filtered = filtered.filter(
-      route =>
-        new Date(route.selectedDateTime) >= new Date() &&
-        route.status !== 'completed' &&
-        route.selectedVehicle !== 'seeking-driver',
-    );
-
-    if (sortByDate) {
-      filtered.sort(
-        (a, b) => new Date(a.selectedDateTime) - new Date(b.selectedDateTime),
-      );
-    } else {
-      filtered.sort(
-        (a, b) => new Date(b.selectedDateTime) - new Date(a.selectedDateTime),
-      );
-    }
-
-    setFilteredRoutesState(filtered);
-  };
 
   const handlerSeeView = routeParams => {
     navigation.navigate('RouteDetails', {
@@ -101,7 +56,6 @@ function ViewRoutes({navigation}) {
         route => route.selectedVehicle !== 'seeking-driver',
       );
       setRoutes(offeredRoutes);
-      setFilteredRoutesState(offeredRoutes);
     } catch (error) {
       console.error('Fetch error:', error);
     } finally {
@@ -121,6 +75,32 @@ function ViewRoutes({navigation}) {
     }
   }, [navigation]);
 
+  const filteredRoutes = routes.filter(route => {
+    const isFuture = new Date(route.selectedDateTime) >= new Date();
+
+    const depMatch = route.departureCity
+      ?.toLowerCase()
+      .includes(enteredDepartureCity.toLowerCase());
+
+    const arrMatch = route.arrivalCity
+      ?.toLowerCase()
+      .includes(enteredArrivalCity.toLowerCase());
+
+    return (
+      isFuture &&
+      route.status !== 'completed' &&
+      route.selectedVehicle !== 'seeking-driver' &&
+      depMatch &&
+      arrMatch
+    );
+  });
+
+  const sortedRoutes = [...filteredRoutes].sort((a, b) => {
+    return sortByDate
+      ? new Date(a.selectedDateTime) - new Date(b.selectedDateTime)
+      : new Date(b.selectedDateTime) - new Date(a.selectedDateTime);
+  });
+
   if (loading) {
     return (
       <View
@@ -132,113 +112,35 @@ function ViewRoutes({navigation}) {
 
   return (
     <LinearGradient colors={theme.gradient} style={styles.mainContainer}>
-      <TouchableOpacity
-        style={[styles.filterButton, {backgroundColor: theme.primaryButton}]}
-        onPress={toggleFilterModal}>
-        <Text style={styles.filterButtonText}>{t('Filter')}</Text>
-      </TouchableOpacity>
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={[
+            styles.searchInput,
+            {
+              backgroundColor: theme.inputBackground,
+              color: theme.textPrimary,
+            },
+          ]}
+          placeholder={t('From')}
+          placeholderTextColor={theme.textSecondary}
+          value={enteredDepartureCity}
+          onChangeText={setEnteredDepartureCity}
+        />
 
-      {/* Filter Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={showFilterModal}
-        onRequestClose={toggleFilterModal}>
-        <TouchableWithoutFeedback onPress={toggleFilterModal}>
-          <View
-            style={[
-              styles.modalContainer,
-              {backgroundColor: theme.modalOverlay},
-            ]}>
-            {/* Това е съдържанието на модала */}
-            <TouchableWithoutFeedback onPress={() => {}}>
-              <View
-                style={[
-                  styles.modalContent,
-                  {backgroundColor: theme.cardBackground},
-                ]}>
-                <Text style={[styles.modalHeader, {color: theme.textPrimary}]}>
-                  {t('Filter Options')}
-                </Text>
-
-                <TextInput
-                  style={[
-                    styles.input,
-                    {
-                      backgroundColor:
-                        theme.mode === 'dark' ? theme.inputBackground : '#ddd',
-                      color: theme.textPrimary,
-                      textAlign: 'center',
-                    },
-                  ]}
-                  placeholder={t('Departure City')}
-                  placeholderTextColor={
-                    theme.mode === 'dark' ? theme.textSecondary : '#555'
-                  }
-                  value={enteredDepartureCity}
-                  onChangeText={setEnteredDepartureCity}
-                />
-
-                <TextInput
-                  style={[
-                    styles.input,
-                    {
-                      backgroundColor:
-                        theme.mode === 'dark' ? theme.inputBackground : '#ddd',
-                      color: theme.textPrimary,
-                      textAlign: 'center',
-                    },
-                  ]}
-                  placeholder={t('Arrival City')}
-                  placeholderTextColor={
-                    theme.mode === 'dark' ? theme.textSecondary : '#555'
-                  }
-                  value={enteredArrivalCity}
-                  onChangeText={setEnteredArrivalCity}
-                />
-
-                <Pressable
-                  style={[
-                    styles.applyFiltersButton,
-                    {backgroundColor: theme.primaryButton},
-                  ]}
-                  onPress={applyFilters}>
-                  <Text style={styles.buttonText}>{t('Apply Filters')}</Text>
-                </Pressable>
-
-                <Pressable
-                  style={[
-                    styles.sortByDateButton,
-                    {backgroundColor: theme.secondaryButton},
-                  ]}
-                  onPress={() => setSortByDate(!sortByDate)}>
-                  <Text style={styles.buttonText}>
-                    {sortByDate ? t('Sort by Oldest') : t('Sort by Newest')}
-                  </Text>
-                </Pressable>
-
-                <Pressable
-                  style={[
-                    styles.clearFiltersButton,
-                    {backgroundColor: theme.errorButton},
-                  ]}
-                  onPress={clearFilters}>
-                  <Text style={styles.buttonText}>{t('Clear Filters')}</Text>
-                </Pressable>
-
-                <Pressable
-                  style={[
-                    styles.closeModalButton,
-                    {backgroundColor: theme.secondaryButton},
-                  ]}
-                  onPress={toggleFilterModal}>
-                  <Text style={styles.buttonText}>{t('Close')}</Text>
-                </Pressable>
-              </View>
-            </TouchableWithoutFeedback>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
+        <TextInput
+          style={[
+            styles.searchInput,
+            {
+              backgroundColor: theme.inputBackground,
+              color: theme.textPrimary,
+            },
+          ]}
+          placeholder={t('To')}
+          placeholderTextColor={theme.textSecondary}
+          value={enteredArrivalCity}
+          onChangeText={setEnteredArrivalCity}
+        />
+      </View>
 
       <ScrollView
         style={styles.scrollView}
@@ -253,7 +155,8 @@ function ViewRoutes({navigation}) {
           />
         }>
         <View style={styles.routesContainer}>
-          {filteredRoutesState.map((route, index) => {
+          {sortedRoutes.map((route, index) => {
+            console.log('ROUTE:', route);
             const isOwnRoute = route.owner.id === user.id;
             return (
               <TouchableOpacity
@@ -309,6 +212,23 @@ function ViewRoutes({navigation}) {
                 <Text style={[styles.routeInfo, {color: theme.textPrimary}]}>
                   {route.departureCity} → {route.arrivalCity}
                 </Text>
+                <View style={styles.creatorContainer}>
+                  {route.owner?.image ? (
+                    <Image
+                      source={{uri: route.owner.image}}
+                      style={styles.userImage}
+                    />
+                  ) : (
+                    <View style={styles.placeholderImage} />
+                  )}
+
+                  <Text
+                    style={[styles.creatorText, {color: theme.textPrimary}]}>
+                    {t('Created by')}: {route.owner.fName} {route.owner.lName}{' '}
+                    (@
+                    {route.owner.username})
+                  </Text>
+                </View>
               </TouchableOpacity>
             );
           })}
@@ -378,6 +298,42 @@ const createStyles = theme =>
       alignItems: 'center',
     },
     buttonText: {color: '#fff', fontWeight: '600', fontSize: 16},
+    searchContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      margin: 12,
+    },
+
+    searchInput: {
+      flex: 1,
+      padding: 10,
+      borderRadius: 8,
+      marginHorizontal: 5,
+    },
+
+    creatorContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: 8,
+    },
+
+    creatorText: {
+      marginLeft: 8,
+      fontSize: 14,
+    },
+
+    userImage: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+    },
+
+    placeholderImage: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: '#666',
+    },
   });
 
 export default ViewRoutes;
