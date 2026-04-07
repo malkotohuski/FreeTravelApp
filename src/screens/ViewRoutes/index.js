@@ -5,10 +5,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  TouchableWithoutFeedback,
   TextInput,
-  Modal,
-  Pressable,
+  Image,
   RefreshControl,
   ActivityIndicator,
 } from 'react-native';
