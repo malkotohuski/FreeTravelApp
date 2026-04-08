@@ -518,7 +518,7 @@ export const Navigator = () => {
             name="RouteRequest"
             component={RouteRequestScreen}
             options={{
-              title: t('Inquiries'),
+              title: t('Requests'),
               ...screenStyles,
               drawerIcon: ({color, size}) => (
                 <Icons name="routes" size={size} color={color} />

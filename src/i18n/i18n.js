@@ -5380,7 +5380,7 @@ i18next.use(initReactI18next).init({
           'Вие успешно кандидатствахте за този маршрут!',
         'Registration Number': 'Регистрационен номер',
         'Marked Seats': 'Маркирани места',
-        'List of Seekers (Passengers)': 'Списък на търсещите (пътниците)',
+        'List of Seekers (Passengers)': 'Списък на търсещи (пътници)',
         'Send rating': 'Изпрати оценка',
         'Selected Vehicle': 'Избрано превозно средство',
         'Date and time of departure': 'Дата и час на заминаване',

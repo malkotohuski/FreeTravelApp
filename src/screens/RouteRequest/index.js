@@ -285,9 +285,8 @@ function RouteRequestScreen({route, navigation}) {
                 color: theme.textPrimary,
               },
             ]}>
-            {t('Inquiries')}:
+            {t('Requests')}:
           </Text>
-          <Button title={`🔄 ${t('Refresh')}`} onPress={refreshUserData} />
           {renderRoutes()}
         </View>
       </ScrollView>

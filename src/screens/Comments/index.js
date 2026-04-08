@@ -24,7 +24,7 @@ const Comments = ({navigation, route}) => {
   const {t} = useTranslation();
 
   // 🔥 Ако в бъдеще подадеш друг userId
-  const profileUserId = route?.params?.userId || user?.id;
+  const profileUserId = user?.id;
 
   const [ratings, setRatings] = useState([]);
   const [loading, setLoading] = useState(true);

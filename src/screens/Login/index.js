@@ -17,6 +17,7 @@ import i18next from 'i18next';
 import {useAuth} from '../../context/AuthContext';
 import api from '../../api/api';
 import NotificationService from '../../backend-v2/services/NotificationService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Login({navigation, route}) {
   const [email, setEmail] = useState('');
@@ -70,42 +71,30 @@ export default function Login({navigation, route}) {
 
     setIsLoading(true);
     try {
-      // ⚡ login request
       const response = await api.post('/api/auth/login', {email, password});
 
       if (response.status === 200) {
         const user = response.data.user;
+
+        // ⚠ ВАЖНО: токените идват от data.token и data.refreshToken
         const token = response.data.token;
         const refreshToken = response.data.refreshToken;
 
-        // ⚡ Съхраняваме и в AsyncStorage
+        if (!token || !refreshToken) {
+          throw new Error('Token или RefreshToken липсва!');
+        }
+
         await AsyncStorage.setItem('@token', token);
         await AsyncStorage.setItem('@refreshToken', refreshToken);
         await AsyncStorage.setItem('@user', JSON.stringify(user));
 
-        // Обновяваме AuthContext
-        login(user, token, refreshToken);
-
-        // push token, ако има
-        try {
-          const fcmToken = await NotificationService.init();
-          await api.post('/api/register-device', {userId: user.id, fcmToken});
-        } catch (tokenErr) {
-          console.warn('FCM token не може да се запази:', tokenErr);
-        }
-
-        return;
-      } else {
-        Toast.show({
-          type: 'error',
-          text1: t('Email or password is incorrect. Please try again.'),
-        });
+        login(user, token, refreshToken); // update AuthContext
       }
     } catch (error) {
-      // само за грешка при самия login request
+      console.error('Login failed:', error);
       Toast.show({
         type: 'error',
-        text1: t('Email or password is incorrect. Please try again.'),
+        text1: 'Email или password е грешен. Опитай пак.',
       });
     } finally {
       setIsLoading(false);

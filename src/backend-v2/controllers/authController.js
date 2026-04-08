@@ -249,7 +249,7 @@ exports.login = async (req, res) => {
     // ✅ връщане на response
     return res.status(200).json({
       message: 'Login successful!',
-      token, // access token
+      accessToken: token,
       refreshToken, // ново
       user: safeUser,
     });
