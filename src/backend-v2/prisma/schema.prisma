@@ -20,6 +20,7 @@ model User {
   lastConfirmationResend    DateTime?
   isActive                  Boolean         @default(false)
   refreshToken              String? 
+  refreshTokenExpiresAt     DateTime?
   createdAt                 DateTime        @default(now())
   accountStatus             String          @default("active")
   friends                   Json?
