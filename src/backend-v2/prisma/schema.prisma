@@ -43,21 +43,6 @@ model User {
   devices                   UserDevice[]
 }
 
-model Comment {
-  id          Int      @id @default(autoincrement())
-  text        String
-  rating      Int
-  authorId    Int
-  recipientId Int
-  createdAt   DateTime @default(now())
-  routeId     Int?
-  author      User     @relation("GivenComments", fields: [authorId], references: [id])
-  recipient   User     @relation("ReceivedComments", fields: [recipientId], references: [id])
-  route       Route?   @relation(fields: [routeId], references: [id])
-
-  @@index([recipientId])
-}
-
 model Rating {
   id        Int      @id @default(autoincrement())
   routeId   Int
@@ -71,6 +56,21 @@ model Rating {
   route     Route    @relation(fields: [routeId], references: [id])
 
   @@unique([routeId, raterId, ratedId])
+}
+
+model Comment {
+  id          Int      @id @default(autoincrement())
+  text        String
+  rating      Int
+  authorId    Int
+  recipientId Int
+  createdAt   DateTime @default(now())
+  routeId     Int?
+  author      User     @relation("GivenComments", fields: [authorId], references: [id])
+  recipient   User     @relation("ReceivedComments", fields: [recipientId], references: [id])
+  route       Route?   @relation(fields: [routeId], references: [id])
+
+  @@index([recipientId])
 }
 
 model Route {

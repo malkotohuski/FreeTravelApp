@@ -18,17 +18,18 @@ exports.getUserById = async (req, res) => {
         userImage: true,
         averageRating: true,
 
-        // 🔹 Взимаме коментарите към този потребител
-        receivedComments: {
+        // ✅ СМЕНИ receivedComments с receivedRatings
+        receivedRatings: {
           orderBy: {
             createdAt: 'desc',
           },
           select: {
             id: true,
-            text: true,
-            rating: true,
+            comment: true, // полето в Rating модела
+            score: true, // полето в Rating модела
             createdAt: true,
-            author: {
+            rater: {
+              // автора на рейтинга
               select: {
                 id: true,
                 username: true,
@@ -40,12 +41,12 @@ exports.getUserById = async (req, res) => {
 
         _count: {
           select: {
-            receivedComments: true,
+            receivedRatings: true, // ✅ и тук
           },
         },
       },
     });
-
+    console.log('USER DATA:', JSON.stringify(user, null, 2));
     if (!user) {
       return res.status(404).json({message: 'User not found'});
     }

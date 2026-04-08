@@ -77,7 +77,7 @@ export default function Login({navigation, route}) {
         const user = response.data.user;
 
         // ⚠ ВАЖНО: токените идват от data.token и data.refreshToken
-        const token = response.data.token;
+        const token = response.data.accessToken;
         const refreshToken = response.data.refreshToken;
 
         if (!token || !refreshToken) {

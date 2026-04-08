@@ -108,7 +108,7 @@ const UserInfo = ({route, navigation}) => {
     const fetchUserData = async () => {
       try {
         const res = await api.get(`/api/users/${userId}`);
-        console.log('User API data:', res.data);
+        console.log('RESPONSE DATA:', JSON.stringify(res.data, null, 2));
         setUserData(res.data);
       } catch (err) {
         console.error('Грешка при зареждане на потребителя:', err);
@@ -120,8 +120,8 @@ const UserInfo = ({route, navigation}) => {
   }, [userId]);
 
   useEffect(() => {
-    if (userData?.receivedComments) {
-      userData.receivedComments.forEach((_, i) => {
+    if (userData?.receivedRatings) {
+      userData.receivedRatings.forEach((_, i) => {
         fadeAnims[i] = new Animated.Value(0);
       });
       const animations = fadeAnims.map((fadeAnim, index) =>
@@ -165,7 +165,7 @@ const UserInfo = ({route, navigation}) => {
     );
   }
 
-  const {averageRating, receivedComments = []} = userData;
+  const {averageRating, receivedRatings = []} = userData;
 
   const renderComment = (c, index) => {
     const fadeAnim = fadeAnims[index] || new Animated.Value(1);
@@ -270,8 +270,8 @@ const UserInfo = ({route, navigation}) => {
           💬 {t('Comments')}
         </Text>
 
-        {receivedComments.length > 0 ? (
-          receivedComments.map(renderComment)
+        {receivedRatings.length > 0 ? (
+          receivedRatings.map(renderComment)
         ) : (
           <Text
             style={{
