@@ -76,23 +76,25 @@ export default function Login({navigation, route}) {
       if (response.status === 200) {
         const user = response.data.user;
         const token = response.data.token;
+        const refreshToken = response.data.refreshToken;
 
-        login(user, token); // успешен login
+        // ⚡ Съхраняваме и в AsyncStorage
+        await AsyncStorage.setItem('@token', token);
+        await AsyncStorage.setItem('@refreshToken', refreshToken);
+        await AsyncStorage.setItem('@user', JSON.stringify(user));
 
-        // ⚡ save push token (без да блокира login)
+        // Обновяваме AuthContext
+        login(user, token, refreshToken);
+
+        // push token, ако има
         try {
           const fcmToken = await NotificationService.init();
-          await api.post('/api/register-device', {
-            // ✅ правилно URL
-            userId: user.id,
-            fcmToken: fcmToken, // ✅ правилно поле
-          });
-          console.log('FCM token saved:', fcmToken);
+          await api.post('/api/register-device', {userId: user.id, fcmToken});
         } catch (tokenErr) {
           console.warn('FCM token не може да се запази:', tokenErr);
         }
 
-        return; // важно! не продължава към catch
+        return;
       } else {
         Toast.show({
           type: 'error',

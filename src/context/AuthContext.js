@@ -47,10 +47,10 @@ export const AuthProvider = ({children}) => {
 
         if (token && userString) {
           const user = JSON.parse(userString);
+          const refreshToken = await AsyncStorage.getItem('@refreshToken');
 
           api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-          // ✅ тук също трябва да е {user, token}
           dispatch({type: LOGIN, payload: {user, token}});
         }
       } catch (err) {
@@ -62,31 +62,36 @@ export const AuthProvider = ({children}) => {
 
     loadUser();
     // 🧹 Свързваме автоматичния logout при 401
-    setLogoutHandler(() => {
-      dispatch({type: LOGOUT});
+    setLogoutHandler(async () => {
+      // взимаме токена само за логване (не е задължително)
+      const token = await AsyncStorage.getItem('@token');
       console.log('TOKEN FROM STORAGE:', token);
+
+      // чистим всички токени
+      await AsyncStorage.removeItem('@token');
+      await AsyncStorage.removeItem('@refreshToken');
+      await AsyncStorage.removeItem('@user');
+
+      // обновяваме state
+      dispatch({type: LOGOUT});
     });
   }, []);
 
-  const login = async (user, token) => {
-    if (!user || !token) {
-      console.error('Login error: user or token is missing', {user, token});
-      return;
-    }
+  const login = async (user, token, refreshToken) => {
+    dispatch({
+      type: LOGIN,
+      payload: {user, token}, // state ще е обновен
+    });
 
-    try {
-      await AsyncStorage.setItem('@token', token);
-      await AsyncStorage.setItem('@user', JSON.stringify(user));
-
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      dispatch({type: LOGIN, payload: {user, token}});
-    } catch (err) {
-      console.error('Login storage error:', err);
-    }
+    // ⚡ AsyncStorage
+    await AsyncStorage.setItem('@user', JSON.stringify(user));
+    await AsyncStorage.setItem('@token', token);
+    await AsyncStorage.setItem('@refreshToken', refreshToken);
   };
 
   const logout = async () => {
     await AsyncStorage.removeItem('@token');
+    await AsyncStorage.removeItem('@refreshToken');
     await AsyncStorage.removeItem('@user');
     dispatch({type: LOGOUT});
   };

@@ -224,23 +224,33 @@ exports.login = async (req, res) => {
       return res.status(401).json({error: 'Invalid credentials.'});
     }
 
+    // ✅ Генериране на краткосрочен access token (15 мин)
     const token = jwt.sign(
-      {
-        userId: user.id,
-        isAdmin: user.isAdmin,
-      },
-      process.env.JWT_SECRET,
-      {expiresIn: '1d'},
+      {userId: user.id, isAdmin: user.isAdmin},
+      JWT_SECRET,
+      {expiresIn: '15m'},
     );
 
+    // ✅ Генериране на дългосрочен refresh token
+    const refreshToken = crypto.randomBytes(64).toString('hex');
+
+    // ✅ Запис на refresh token в базата
+    await prisma.user.update({
+      where: {id: user.id},
+      data: {refreshToken},
+    });
+
+    // safeUser
     const safeUser = {...user};
     delete safeUser.password;
     delete safeUser.confirmationCode;
     delete safeUser.confirmationCodeExpiresAt;
 
+    // ✅ връщане на response
     return res.status(200).json({
       message: 'Login successful!',
-      token,
+      token, // access token
+      refreshToken, // ново
       user: safeUser,
     });
   } catch (error) {
@@ -248,6 +258,39 @@ exports.login = async (req, res) => {
     return res.status(500).json({
       error: 'Internal server error.',
     });
+  }
+};
+
+exports.refreshToken = async (req, res) => {
+  try {
+    const {refreshToken} = req.body;
+
+    if (!refreshToken) {
+      return res.status(400).json({error: 'Refresh token is required.'});
+    }
+
+    // Намираме потребителя с този refresh token
+    const user = await prisma.user.findFirst({
+      where: {refreshToken},
+    });
+
+    if (!user) {
+      return res.status(401).json({error: 'Invalid refresh token.'});
+    }
+
+    // Генерираме нов access token
+    const newAccessToken = jwt.sign(
+      {userId: user.id, isAdmin: user.isAdmin},
+      JWT_SECRET,
+      {expiresIn: '15m'},
+    );
+
+    return res.status(200).json({
+      accessToken: newAccessToken,
+    });
+  } catch (error) {
+    console.error('Refresh token error:', error);
+    return res.status(500).json({error: 'Internal server error.'});
   }
 };
 

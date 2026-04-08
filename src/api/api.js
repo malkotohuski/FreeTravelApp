@@ -32,16 +32,42 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   response => response,
   async error => {
-    if (error.response && error.response.status === 401) {
-      // token невалиден / изтекъл
-      await AsyncStorage.removeItem('token');
-      await AsyncStorage.removeItem('user');
+    const originalRequest = error.config;
 
-      // извикваме callback от AuthContext
-      if (onLogoutCallback) {
-        onLogoutCallback();
+    // Ако access token е изтекъл
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url.includes('/refresh')
+    ) {
+      originalRequest._retry = true;
+
+      const refreshToken = await AsyncStorage.getItem('@refreshToken');
+      if (!refreshToken) {
+        // няма refresh token → logout
+        await AsyncStorage.removeItem('@token');
+        await AsyncStorage.removeItem('@user');
+        onLogoutCallback?.();
+        return Promise.reject(error);
+      }
+
+      try {
+        // извикваме backend refresh
+        const {data} = await axios.post(`${API_BASE_URL}/api/auth/refresh`, {
+          refreshToken, // пращаш от AsyncStorage
+        });
+        await AsyncStorage.setItem('@token', data.accessToken);
+        originalRequest.headers['Authorization'] = `Bearer ${data.accessToken}`;
+        return api(originalRequest);
+      } catch (err) {
+        await AsyncStorage.removeItem('@token');
+        await AsyncStorage.removeItem('@refreshToken');
+        await AsyncStorage.removeItem('@user');
+        onLogoutCallback?.();
+        return Promise.reject(err);
       }
     }
+
     return Promise.reject(error);
   },
 );
