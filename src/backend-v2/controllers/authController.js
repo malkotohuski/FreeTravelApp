@@ -239,7 +239,10 @@ exports.login = async (req, res) => {
     // ✅ Запис на refresh token в базата
     await prisma.user.update({
       where: {id: user.id},
-      data: {refreshToken: newRefreshToken},
+      data: {
+        refreshToken: newRefreshToken,
+        refreshTokenExpiresAt: new Date(Date.now() + 2 * 60 * 1000), // ✅ 30 дни
+      },
     });
 
     // safeUser
@@ -279,6 +282,13 @@ exports.refreshToken = async (req, res) => {
       return res.status(401).json({error: 'Invalid refresh token.'});
     }
 
+    // ✅ Провери дали е изтекъл
+    if (user.refreshTokenExpiresAt < new Date()) {
+      return res
+        .status(401)
+        .json({error: 'Refresh token expired. Please login again.'});
+    }
+
     // ✅ Нов access token
     const newAccessToken = jwt.sign(
       {userId: user.id, isAdmin: user.isAdmin},
@@ -292,7 +302,10 @@ exports.refreshToken = async (req, res) => {
     // ✅ Запази новия refresh token в базата
     await prisma.user.update({
       where: {id: user.id},
-      data: {refreshToken: newRefreshToken},
+      data: {
+        refreshToken: newRefreshToken,
+        refreshTokenExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // ✅ 30 дни
+      },
     });
 
     return res.status(200).json({
