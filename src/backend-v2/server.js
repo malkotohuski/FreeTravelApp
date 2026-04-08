@@ -27,6 +27,31 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const rateLimit = require('express-rate-limit');
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: {error: 'Too many login attempts. Please try again later.'},
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const refreshLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  message: {error: 'Too many refresh attempts. Please try again later.'},
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use('/api/auth/login', loginLimiter);
+app.use('/api/auth/refresh', refreshLimiter);
+
+// ✅ СЛЕД ТОВА идват routes-ите
+const authRoutes = require('./routes/authRoutes');
+app.use('/api/auth', authRoutes);
+
 console.log('EMAIL_USER:', process.env.EMAIL_USER);
 console.log('EMAIL_PASS:', process.env.EMAIL_PASS);
 console.log(process.env.JWT_SECRET);
