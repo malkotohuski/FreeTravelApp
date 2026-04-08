@@ -32,6 +32,8 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   response => response,
   async error => {
+    console.log('INTERCEPTOR STATUS:', error.response?.status); // ← добави
+    console.log('INTERCEPTOR URL:', error.config?.url);
     const originalRequest = error.config;
 
     // Ако access token е изтекъл
@@ -52,13 +54,24 @@ api.interceptors.response.use(
       }
 
       try {
-        // извикваме backend refresh
         const {data} = await axios.post(`${API_BASE_URL}/api/auth/refresh`, {
-          refreshToken, // пращаш от AsyncStorage
+          refreshToken,
         });
-        await AsyncStorage.setItem('@token', data.accessToken);
-        originalRequest.headers['Authorization'] = `Bearer ${data.accessToken}`;
-        return api(originalRequest);
+
+        const newToken = data.accessToken;
+        const newRefresh = data.refreshToken;
+        await AsyncStorage.setItem('@token', newToken);
+        if (newRefresh) {
+          await AsyncStorage.setItem('@refreshToken', newRefresh); // ✅
+        }
+
+        // ✅ Така е по-сигурно
+        originalRequest.headers = {
+          ...originalRequest.headers,
+          Authorization: `Bearer ${newToken}`,
+        };
+
+        return api(originalRequest); // повтаря заявката
       } catch (err) {
         await AsyncStorage.removeItem('@token');
         await AsyncStorage.removeItem('@refreshToken');

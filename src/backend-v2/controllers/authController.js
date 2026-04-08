@@ -196,6 +196,7 @@ exports.confirmEmail = async (req, res) => {
 //Login----------------------------------------------------------------->>> Вход в системата !!!
 
 exports.login = async (req, res) => {
+  console.log('LOGIN ATTEMPT:', req.body.email);
   try {
     const {email, password} = req.body;
 
@@ -214,6 +215,7 @@ exports.login = async (req, res) => {
     }
 
     if (user.accountStatus !== 'active') {
+      console.log('ACCOUNT STATUS:', user.accountStatus);
       return res.status(403).json({
         error: 'Your account has been deactivated.',
       });
@@ -232,12 +234,12 @@ exports.login = async (req, res) => {
     );
 
     // ✅ Генериране на дългосрочен refresh token
-    const refreshToken = crypto.randomBytes(64).toString('hex');
+    const newRefreshToken = crypto.randomBytes(64).toString('hex');
 
     // ✅ Запис на refresh token в базата
     await prisma.user.update({
       where: {id: user.id},
-      data: {refreshToken},
+      data: {refreshToken: newRefreshToken},
     });
 
     // safeUser
@@ -250,7 +252,7 @@ exports.login = async (req, res) => {
     return res.status(200).json({
       message: 'Login successful!',
       accessToken: token,
-      refreshToken, // ново
+      refreshToken: newRefreshToken,
       user: safeUser,
     });
   } catch (error) {
@@ -269,7 +271,6 @@ exports.refreshToken = async (req, res) => {
       return res.status(400).json({error: 'Refresh token is required.'});
     }
 
-    // Намираме потребителя с този refresh token
     const user = await prisma.user.findFirst({
       where: {refreshToken},
     });
@@ -278,15 +279,25 @@ exports.refreshToken = async (req, res) => {
       return res.status(401).json({error: 'Invalid refresh token.'});
     }
 
-    // Генерираме нов access token
+    // ✅ Нов access token
     const newAccessToken = jwt.sign(
       {userId: user.id, isAdmin: user.isAdmin},
       JWT_SECRET,
       {expiresIn: '15m'},
     );
 
+    // ✅ Нов refresh token (rotating)
+    const newRefreshToken = crypto.randomBytes(64).toString('hex');
+
+    // ✅ Запази новия refresh token в базата
+    await prisma.user.update({
+      where: {id: user.id},
+      data: {refreshToken: newRefreshToken},
+    });
+
     return res.status(200).json({
       accessToken: newAccessToken,
+      refreshToken: newRefreshToken, // ✅ върни го на клиента
     });
   } catch (error) {
     console.error('Refresh token error:', error);

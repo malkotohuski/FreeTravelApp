@@ -8,9 +8,21 @@ router.get(
   authMiddleware,
   notificationController.getNotifications,
 );
-router.put('/notifications/read/:id', notificationController.markAsRead);
-router.patch('/notifications/:id', notificationController.deleteNotification);
-router.post('/notifications', notificationController.createNotificationHandler); // <--- wrapper
+router.put(
+  '/notifications/read/:id',
+  authMiddleware,
+  notificationController.markAsRead,
+);
+router.patch(
+  '/notifications/:id',
+  authMiddleware,
+  notificationController.deleteNotification,
+);
+router.post(
+  '/notifications',
+  authMiddleware,
+  notificationController.createNotificationHandler,
+);
 router.get(
   '/conversation/:conversationId',
   notificationController.getConversation,
