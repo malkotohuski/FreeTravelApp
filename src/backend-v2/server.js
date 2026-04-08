@@ -58,9 +58,6 @@ console.log(process.env.JWT_SECRET);
 console.log(process.env.EMAIL_USER);
 console.log(process.env.DATABASE_URL);
 
-const authRoutes = require('./routes/authRoutes');
-app.use('/api/auth', authRoutes);
-
 app.get('/test', async (req, res) => {
   const users = await prisma.user.findMany();
   res.json(users);
