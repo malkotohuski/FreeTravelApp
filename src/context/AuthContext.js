@@ -90,10 +90,18 @@ export const AuthProvider = ({children}) => {
   };
 
   const logout = async () => {
-    await AsyncStorage.removeItem('@token');
-    await AsyncStorage.removeItem('@refreshToken');
-    await AsyncStorage.removeItem('@user');
-    dispatch({type: LOGOUT});
+    try {
+      // ✅ Изчиства токена в базата
+      await api.post('/api/auth/logout');
+    } catch (error) {
+      // дори да фейлне → продължаваме с logout
+      console.log('Logout API error:', error);
+    } finally {
+      await AsyncStorage.removeItem('@token');
+      await AsyncStorage.removeItem('@refreshToken');
+      await AsyncStorage.removeItem('@user');
+      dispatch({type: LOGOUT});
+    }
   };
 
   const updateUserData = updatedFields => {

@@ -241,7 +241,7 @@ exports.login = async (req, res) => {
       where: {id: user.id},
       data: {
         refreshToken: newRefreshToken,
-        refreshTokenExpiresAt: new Date(Date.now() + 2 * 60 * 1000), // ✅ 30 дни
+        refreshTokenExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // ✅ 30 дни
       },
     });
 
@@ -314,6 +314,23 @@ exports.refreshToken = async (req, res) => {
     });
   } catch (error) {
     console.error('Refresh token error:', error);
+    return res.status(500).json({error: 'Internal server error.'});
+  }
+};
+
+exports.logout = async (req, res) => {
+  try {
+    await prisma.user.update({
+      where: {id: req.user.id},
+      data: {
+        refreshToken: null,
+        refreshTokenExpiresAt: null,
+      },
+    });
+
+    return res.status(200).json({message: 'Logged out successfully.'});
+  } catch (error) {
+    console.error('Logout error:', error);
     return res.status(500).json({error: 'Internal server error.'});
   }
 };
