@@ -314,7 +314,7 @@ export default function Seekers({navigation}) {
                         selectedVehicle: selectedRoute.selectedVehicle,
                         registrationNumber: selectedRoute.registrationNumber,
                         routeDetailsData: selectedRoute,
-                        fromScreen: 'ц',
+                        fromScreen: 'Seekers',
                       });
                     }}>
                     <View style={styles.creatorContainer}>
