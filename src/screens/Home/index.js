@@ -323,15 +323,7 @@ function HomePage({navigation}) {
   const handlerSeekers = () => navigation.navigate('Seekers');
   const handlerRouteViewer = () => navigation.navigate('ViewRoutes');
   const handlerChatScreen = () => {
-    navigation.navigate('ConversationsScreen', {
-      resetChatNotifications: count => {
-        if (count === null) {
-          setChatCount(0);
-        } else {
-          setChatCount(prev => Math.max(0, Number(prev || 0) - count));
-        }
-      },
-    });
+    navigation.navigate('ConversationsScreen');
   };
   const handlerNotificationScreen = async () => {
     try {

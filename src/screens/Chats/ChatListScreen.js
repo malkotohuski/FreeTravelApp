@@ -292,7 +292,7 @@ const ChatScreen = ({route}) => {
             ) : (
               <Image
                 source={{
-                  uri: 'https://res.cloudinary.com/dqxczsig5/image/upload/v1774361343/avatars/bzrmewmud1dlaatajmyf.jpg',
+                  uri: 'https://res.cloudinary.com/dqxczsig5/image/upload/v1774361343/avatars/mazhsnugabcw9spsvm50.jpg',
                 }}
                 style={styles.avatarImage}
               />
@@ -341,7 +341,7 @@ const ChatScreen = ({route}) => {
                         source={{
                           uri:
                             otherUser?.userImage ||
-                            'https://res.cloudinary.com/dqxczsig5/image/upload/v1774361343/avatars/bzrmewmud1dlaatajmyf.jpg',
+                            'https://res.cloudinary.com/dqxczsig5/image/upload/v1774361343/avatars/mazhsnugabcw9spsvm50.jpg',
                         }}
                         style={styles.avatarSmallImage}
                       />

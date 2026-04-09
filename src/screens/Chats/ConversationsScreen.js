@@ -274,7 +274,7 @@ const ConversationsScreen = ({navigation}) => {
                 ) : (
                   <Image
                     source={{
-                      uri: 'https://res.cloudinary.com/dqxczsig5/image/upload/v1774361343/avatars/bzrmewmud1dlaatajmyf.jpg',
+                      uri: 'https://res.cloudinary.com/dqxczsig5/image/upload/v1774361343/avatars/mazhsnugabcw9spsvm50.jpg',
                     }}
                     style={styles.avatarImage}
                   />

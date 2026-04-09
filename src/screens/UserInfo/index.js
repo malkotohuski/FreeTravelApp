@@ -57,6 +57,7 @@ const UserInfo = ({route, navigation}) => {
     selectedVehicle,
     registrationNumber,
     routeDetailsData,
+    fromScreen = 'RouteDetails',
   } = route.params;
 
   const [userData, setUserData] = useState(null);
@@ -69,19 +70,23 @@ const UserInfo = ({route, navigation}) => {
       headerRight: () => (
         <TouchableOpacity
           style={{marginRight: 16}}
-          onPress={() =>
-            navigation.navigate('RouteDetails', {
-              username,
-              userFname,
-              userLname,
-              userId,
-              departureCity,
-              arrivalCity,
-              selectedVehicle,
-              registrationNumber,
-              routeDetailsData,
-            })
-          }>
+          onPress={() => {
+            if (fromScreen === 'Seekers') {
+              navigation.navigate('Seekers');
+            } else {
+              navigation.navigate('RouteDetails', {
+                username,
+                userFname,
+                userLname,
+                userId,
+                departureCity,
+                arrivalCity,
+                selectedVehicle,
+                registrationNumber,
+                routeDetailsData,
+              });
+            }
+          }}>
           <Icon
             name="keyboard-backspace"
             size={26}
