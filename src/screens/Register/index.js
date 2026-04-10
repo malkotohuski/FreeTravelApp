@@ -21,7 +21,6 @@ import TermsModal from '../../componets/TermsModal';
 
 export default function Register({navigation}) {
   const {t} = useTranslation();
-  const {login} = useAuth();
 
   const [name, setName] = useState('');
   const [firstName, setFirstName] = useState('');

@@ -7,14 +7,11 @@ import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
-  Dimensions,
 } from 'react-native';
 import {useTranslation} from 'react-i18next';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useAuth} from '../context/AuthContext';
-
-const {width, height} = Dimensions.get('window'); // За адаптивност на различни екрани
 
 function CustomerDrawer({navigation}) {
   const {t} = useTranslation();
@@ -39,9 +36,9 @@ function CustomerDrawer({navigation}) {
     navigation.navigate('Reporting'); // предаваме userId като параметър
   };
 
-  const handlerRequest = () => {
+  /*   const handlerRequest = () => {
     navigation.navigate('Route request');
-  };
+  }; */
 
   const handlerSettings = () => {
     navigation.navigate('Settings');
@@ -91,14 +88,6 @@ function CustomerDrawer({navigation}) {
                 <Text style={styles.textButtons}>{t('Routes History')}</Text>
               </TouchableOpacity>
             </View>
-            {/*     <View style={styles.topLeft}>
-                <TouchableOpacity style={styles.drawerScreen} onPress={handlerUsersScreen} >
-                    <Icon name="streetview" size={30} color="#0721B6" />
-                    <Text
-                        style={styles.textButtons}
-                    >{t('Users')}</Text>
-                </TouchableOpacity>
-            </View> */}
             <View style={styles.topLeft}>
               <TouchableOpacity
                 style={styles.drawerScreen}
@@ -107,14 +96,14 @@ function CustomerDrawer({navigation}) {
                 <Text style={styles.textButtons}>{t('Reporting')}</Text>
               </TouchableOpacity>
             </View>
-            <View style={styles.topLeft}>
+            {/*             <View style={styles.topLeft}>
               <TouchableOpacity
                 style={styles.drawerScreen}
                 onPress={handlerRequest}>
                 <Icons name="routes" size={30} color="#0721B6" />
                 <Text style={styles.textButtons}>{t('Route request')}</Text>
               </TouchableOpacity>
-            </View>
+            </View> */}
             <View style={styles.topLeft}>
               <TouchableOpacity
                 style={styles.drawerScreen}
