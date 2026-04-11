@@ -3,7 +3,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
-const nodemailer = require('nodemailer');
+const {Resend} = require('resend');
+const resend = new Resend(process.env.RESEND_API_KEY);
 const crypto = require('crypto');
 const sendResetEmail = require('../utils/mailer');
 
@@ -96,28 +97,34 @@ exports.register = async (req, res) => {
       },
     });
 
-    // Email
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      return res.status(500).json({
-        error: 'Email service is not configured.',
-      });
-    }
-
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
     try {
-      await transporter.sendMail({
-        // проняма за Product
-        from: process.env.EMAIL_USER,
+      await resend.emails.send({
+        from: 'noreply@freetravelapp.it.com',
         to: useremail,
-        subject: 'Account Confirmation',
-        text: `Your confirmation code is: ${confirmationCode}`,
+        subject: 'Account Confirmation - FreeTravelApp',
+        html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #f4511e;">Добре дошъл в FreeTravelApp! 🚗</h2>
+        <p>Твоят код за потвърждение е:</p>
+        <div style="
+          font-size: 36px;
+          font-weight: bold;
+          letter-spacing: 8px;
+          color: #f4511e;
+          text-align: center;
+          padding: 20px;
+          background: #f5f5f5;
+          border-radius: 8px;
+          margin: 20px 0;
+        ">
+          ${confirmationCode}
+        </div>
+        <p style="color: #666;">Кодът е валиден 10 минути.</p>
+        <p style="color: #999; font-size: 12px;">
+          Ако не си правил регистрация — игнорирай този имейл.
+        </p>
+      </div>
+    `,
       });
     } catch (err) {
       console.log('Email failed but user created:', err.message);
