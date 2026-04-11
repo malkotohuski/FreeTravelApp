@@ -273,7 +273,7 @@ const ChatScreen = ({route}) => {
     <SafeAreaView style={{flex: 1, backgroundColor: theme.gradient[0]}}>
       <KeyboardAvoidingView
         style={{flex: 1}}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={100}>
         <View
           style={[
