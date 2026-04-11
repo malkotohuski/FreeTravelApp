@@ -19,7 +19,6 @@ async function deleteInactiveAccountsOlderThanOneDay() {
   const ONE_DAY = 24 * 60 * 60 * 1000;
   const yesterday = new Date(Date.now() - ONE_DAY);
 
-  // ✅ Намери потребителите първо
   const inactiveUsers = await prisma.user.findMany({
     where: {
       isActive: false,
@@ -31,14 +30,13 @@ async function deleteInactiveAccountsOlderThanOneDay() {
   const ids = inactiveUsers.map(u => u.id);
   if (ids.length === 0) return;
 
-  // ✅ Изтрий свързаните записи първо
+  // ✅ Правилните имена от schema
   await prisma.report.deleteMany({
     where: {
-      OR: [{reporterId: {in: ids}}, {reportedUserId: {in: ids}}],
+      OR: [{reporterId: {in: ids}}, {reportedId: {in: ids}}],
     },
   });
 
-  // ✅ После изтрий потребителите
   await prisma.user.deleteMany({
     where: {id: {in: ids}},
   });
