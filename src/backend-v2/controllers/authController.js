@@ -149,7 +149,7 @@ exports.register = async (req, res) => {
     });
 
     try {
-      await resend.emails.send({
+      const {data, error} = await resend.emails.send({
         from: 'noreply@freetravelapp.it.com',
         to: useremail,
         subject: 'Account Confirmation - FreeTravelApp',
@@ -177,9 +177,14 @@ exports.register = async (req, res) => {
       </div>
     `,
       });
-      console.log('RESEND RESULT:', JSON.stringify(result));
+
+      if (error) {
+        console.log('RESEND ERROR:', JSON.stringify(error)); // ← ще видим грешката
+      } else {
+        console.log('RESEND SUCCESS:', JSON.stringify(data)); // ← ще видим успеха
+      }
     } catch (err) {
-      console.log('Email failed but user created:', err.message);
+      console.log('RESEND EXCEPTION:', err.message);
     }
 
     const safeUser = {...newUser};
