@@ -150,7 +150,7 @@ exports.register = async (req, res) => {
 
     try {
       const {data, error} = await resend.emails.send({
-        from: 'noreply@freetravelapp.it.com',
+        from: 'onboarding@resend.dev',
         to: useremail,
         subject: 'FreeTravelApp - Confirmation Code',
         html: `
