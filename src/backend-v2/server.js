@@ -26,6 +26,7 @@ const deviceTokenRouter = require('./routes/deviceToken');
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.set('trust proxy', 1);
 
 const rateLimit = require('express-rate-limit');
 

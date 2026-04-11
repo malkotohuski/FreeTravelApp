@@ -19,16 +19,31 @@ async function deleteInactiveAccountsOlderThanOneDay() {
   const ONE_DAY = 24 * 60 * 60 * 1000;
   const yesterday = new Date(Date.now() - ONE_DAY);
 
-  await prisma.user.deleteMany({
+  // ✅ Намери потребителите първо
+  const inactiveUsers = await prisma.user.findMany({
     where: {
       isActive: false,
-      createdAt: {
-        lt: yesterday,
-      },
+      createdAt: {lt: yesterday},
+    },
+    select: {id: true},
+  });
+
+  const ids = inactiveUsers.map(u => u.id);
+  if (ids.length === 0) return;
+
+  // ✅ Изтрий свързаните записи първо
+  await prisma.report.deleteMany({
+    where: {
+      OR: [{reporterId: {in: ids}}, {reportedUserId: {in: ids}}],
     },
   });
 
-  console.log('Inactive accounts older than 1 day deleted.');
+  // ✅ После изтрий потребителите
+  await prisma.user.deleteMany({
+    where: {id: {in: ids}},
+  });
+
+  console.log(`Deleted ${ids.length} inactive accounts.`);
 }
 
 //register----------------------------------------------------------------->>> Регистрация !!!
