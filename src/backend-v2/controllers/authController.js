@@ -177,6 +177,7 @@ exports.register = async (req, res) => {
       </div>
     `,
       });
+      console.log('RESEND RESULT:', JSON.stringify(result));
     } catch (err) {
       console.log('Email failed but user created:', err.message);
     }
