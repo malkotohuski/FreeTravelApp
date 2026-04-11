@@ -30,13 +30,45 @@ async function deleteInactiveAccountsOlderThanOneDay() {
   const ids = inactiveUsers.map(u => u.id);
   if (ids.length === 0) return;
 
-  // ✅ Правилните имена от schema
+  // ✅ Изтривай в правилния ред — от дъщерни към родителски
+
   await prisma.report.deleteMany({
-    where: {
-      OR: [{reporterId: {in: ids}}, {reportedId: {in: ids}}],
-    },
+    where: {OR: [{reporterId: {in: ids}}, {reportedId: {in: ids}}]},
   });
 
+  await prisma.notification.deleteMany({
+    where: {OR: [{senderId: {in: ids}}, {recipientId: {in: ids}}]},
+  });
+
+  await prisma.message.deleteMany({
+    where: {senderId: {in: ids}},
+  });
+
+  await prisma.conversation.deleteMany({
+    where: {OR: [{user1Id: {in: ids}}, {user2Id: {in: ids}}]},
+  });
+
+  await prisma.request.deleteMany({
+    where: {userID: {in: ids}},
+  });
+
+  await prisma.comment.deleteMany({
+    where: {OR: [{authorId: {in: ids}}, {recipientId: {in: ids}}]},
+  });
+
+  await prisma.rating.deleteMany({
+    where: {OR: [{raterId: {in: ids}}, {ratedId: {in: ids}}]},
+  });
+
+  await prisma.route.deleteMany({
+    where: {ownerId: {in: ids}},
+  });
+
+  await prisma.userDevice.deleteMany({
+    where: {userId: {in: ids}},
+  });
+
+  // ✅ Накрая изтриваме потребителите
   await prisma.user.deleteMany({
     where: {id: {in: ids}},
   });

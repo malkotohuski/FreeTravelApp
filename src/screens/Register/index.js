@@ -8,6 +8,7 @@ import {
   Image,
   ScrollView,
   SafeAreaView,
+  KeyboardAvoidingView,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {useCallback} from 'react';
@@ -16,7 +17,6 @@ import styles from './styles';
 import {useTranslation} from 'react-i18next';
 import i18next from 'i18next';
 import ImagePicker from 'react-native-image-crop-picker';
-import {useAuth} from '../../context/AuthContext';
 import TermsModal from '../../componets/TermsModal';
 
 export default function Register({navigation}) {
@@ -180,165 +180,170 @@ export default function Register({navigation}) {
 
   return (
     <SafeAreaView style={{flex: 1}}>
-      <ScrollView contentContainerStyle={{flexGrow: 1}}>
-        <View style={styles.container}>
-          <Image
-            source={require('../../../images/login-background.jpg')}
-            style={styles.backgroundImage}
-          />
-          <View style={{marginTop: 20}}>
-            <View style={styles.languageSwitchContainer}>
+      <KeyboardAvoidingView
+        style={{flex: 1}}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}>
+        <ScrollView contentContainerStyle={{flexGrow: 1}}>
+          <View style={styles.container}>
+            <Image
+              source={require('../../../images/login-background.jpg')}
+              style={styles.backgroundImage}
+            />
+            <View style={{marginTop: 20}}>
+              <View style={styles.languageSwitchContainer}>
+                <TouchableOpacity
+                  style={styles.languageButton}
+                  onPress={() => changeLanguage('en')}>
+                  <Image
+                    source={require('../../../images/eng1-flag.png')}
+                    style={styles.flagImage}
+                  />
+                  <Text style={styles.languageText}>{t('English')}</Text>
+                </TouchableOpacity>
+                <View style={{margin: 60}} />
+                <TouchableOpacity
+                  style={styles.languageButton}
+                  onPress={() => changeLanguage('bg')}>
+                  <Image
+                    source={require('../../../images/bulg-flag.png')}
+                    style={styles.flagImage}
+                  />
+                  <Text style={styles.languageText}>{t('Bulgarian')}</Text>
+                </TouchableOpacity>
+              </View>
               <TouchableOpacity
-                style={styles.languageButton}
-                onPress={() => changeLanguage('en')}>
-                <Image
-                  source={require('../../../images/eng1-flag.png')}
-                  style={styles.flagImage}
-                />
-                <Text style={styles.languageText}>{t('English')}</Text>
-              </TouchableOpacity>
-              <View style={{margin: 60}} />
-              <TouchableOpacity
-                style={styles.languageButton}
-                onPress={() => changeLanguage('bg')}>
-                <Image
-                  source={require('../../../images/bulg-flag.png')}
-                  style={styles.flagImage}
-                />
-                <Text style={styles.languageText}>{t('Bulgarian')}</Text>
+                onPress={handleImagePicker}
+                style={styles.profilePictureContainer}>
+                {profilePicture ? (
+                  <Image
+                    source={{uri: profilePicture}}
+                    style={styles.profilePicture}
+                  />
+                ) : (
+                  <Text style={styles.addPhotoText}>
+                    {t('Add Profile Picture')}
+                  </Text>
+                )}
               </TouchableOpacity>
             </View>
-            <TouchableOpacity
-              onPress={handleImagePicker}
-              style={styles.profilePictureContainer}>
-              {profilePicture ? (
-                <Image
-                  source={{uri: profilePicture}}
-                  style={styles.profilePicture}
-                />
-              ) : (
-                <Text style={styles.addPhotoText}>
-                  {t('Add Profile Picture')}
-                </Text>
-              )}
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.title}>{t('Register here')}:</Text>
-          <TextInput
-            placeholderTextColor={'#F5FDFE'}
-            style={styles.input}
-            placeholder={t('User name')}
-            value={name}
-            onChangeText={text => setName(text)}
-          />
-          <TextInput
-            placeholderTextColor={'#F5FDFE'}
-            style={styles.input}
-            placeholder={t('First name')}
-            value={firstName}
-            onChangeText={text => setFirstName(text)}
-          />
-          <TextInput
-            placeholderTextColor={'#F5FDFE'}
-            style={styles.input}
-            placeholder={t('Last name')}
-            value={lastName}
-            onChangeText={text => setLastName(text)}
-          />
-          <TextInput
-            placeholderTextColor={'#F5FDFE'}
-            style={styles.input}
-            placeholder={t('Email')}
-            value={email}
-            onChangeText={setEmail}
-          />
-          <TextInput
-            placeholderTextColor={'#F5FDFE'}
-            style={styles.input}
-            placeholder={t('Password')}
-            secureTextEntry={true}
-            value={password}
-            onChangeText={text => setPassword(text)}
-          />
-          <TextInput
-            placeholderTextColor={'#F5FDFE'}
-            style={styles.input}
-            placeholder={t('Confirm Password')}
-            secureTextEntry={true}
-            value={confirmPassword}
-            onChangeText={text => setConfirmPassword(text)}
-          />
-          {showConfirmationCodeInput && (
+            <Text style={styles.title}>{t('Register here')}:</Text>
             <TextInput
               placeholderTextColor={'#F5FDFE'}
               style={styles.input}
-              placeholder={t('Confirmation Code')}
-              value={confirmationCode}
-              onChangeText={text => setConfirmationCode(text)}
+              placeholder={t('User name')}
+              value={name}
+              onChangeText={text => setName(text)}
             />
-          )}
-          <View style={styles.buttonsContent}>
-            <TouchableOpacity
-              style={styles.loginButtons}
-              onPress={handleRegister}>
-              <Text style={styles.textButtons}>
-                {!showConfirmationCodeInput
-                  ? t('Continue')
-                  : t('Verify Confirmation Code')}
-              </Text>
-            </TouchableOpacity>
-
-            <View style={{padding: 10}} />
-
-            <TouchableOpacity
-              style={styles.loginButtons}
-              onPress={handlerBackLogin}>
-              <Text style={styles.textButtons}>{t('I have an account')}</Text>
-            </TouchableOpacity>
-
+            <TextInput
+              placeholderTextColor={'#F5FDFE'}
+              style={styles.input}
+              placeholder={t('First name')}
+              value={firstName}
+              onChangeText={text => setFirstName(text)}
+            />
+            <TextInput
+              placeholderTextColor={'#F5FDFE'}
+              style={styles.input}
+              placeholder={t('Last name')}
+              value={lastName}
+              onChangeText={text => setLastName(text)}
+            />
+            <TextInput
+              placeholderTextColor={'#F5FDFE'}
+              style={styles.input}
+              placeholder={t('Email')}
+              value={email}
+              onChangeText={setEmail}
+            />
+            <TextInput
+              placeholderTextColor={'#F5FDFE'}
+              style={styles.input}
+              placeholder={t('Password')}
+              secureTextEntry={true}
+              value={password}
+              onChangeText={text => setPassword(text)}
+            />
+            <TextInput
+              placeholderTextColor={'#F5FDFE'}
+              style={styles.input}
+              placeholder={t('Confirm Password')}
+              secureTextEntry={true}
+              value={confirmPassword}
+              onChangeText={text => setConfirmPassword(text)}
+            />
             {showConfirmationCodeInput && (
+              <TextInput
+                placeholderTextColor={'#F5FDFE'}
+                style={styles.input}
+                placeholder={t('Confirmation Code')}
+                value={confirmationCode}
+                onChangeText={text => setConfirmationCode(text)}
+              />
+            )}
+            <View style={styles.buttonsContent}>
               <TouchableOpacity
                 style={styles.loginButtons}
-                onPress={resendConfirmationCode}>
+                onPress={handleRegister}>
                 <Text style={styles.textButtons}>
-                  {t('Resend confirmation code')}
+                  {!showConfirmationCodeInput
+                    ? t('Continue')
+                    : t('Verify Confirmation Code')}
                 </Text>
               </TouchableOpacity>
-            )}
-            <View style={{marginTop: 20, paddingHorizontal: 10}}>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  fontSize: 14,
-                  color: '#F5FDFE',
-                  lineHeight: 20,
-                }}>
-                {t('byCreatingAccount')}{' '}
-                <Text
-                  style={{color: '#4da6ff', textDecorationLine: 'underline'}}
-                  onPress={() => navigation.navigate('TermsOfServiceScreen')}>
-                  {t('termsOfService')}
-                </Text>{' '}
-                {t('and')}{' '}
-                <Text
-                  style={{color: '#4da6ff', textDecorationLine: 'underline'}}
-                  onPress={() => navigation.navigate('PrivacyPolicyScreen')}>
-                  {t('privacyPolicy')}
-                </Text>
-                .
-              </Text>
-            </View>
 
-            {/* TermsModal */}
-            <TermsModal
-              visible={showTermsModal}
-              type={termsType}
-              isBulgaria={isBulgaria} // <<< добавено
-              onClose={() => setShowTermsModal(false)}
-            />
+              <View style={{padding: 10}} />
+
+              <TouchableOpacity
+                style={styles.loginButtons}
+                onPress={handlerBackLogin}>
+                <Text style={styles.textButtons}>{t('I have an account')}</Text>
+              </TouchableOpacity>
+
+              {showConfirmationCodeInput && (
+                <TouchableOpacity
+                  style={styles.loginButtons}
+                  onPress={resendConfirmationCode}>
+                  <Text style={styles.textButtons}>
+                    {t('Resend confirmation code')}
+                  </Text>
+                </TouchableOpacity>
+              )}
+              <View style={{marginTop: 20, paddingHorizontal: 10}}>
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    fontSize: 14,
+                    color: '#F5FDFE',
+                    lineHeight: 20,
+                  }}>
+                  {t('byCreatingAccount')}{' '}
+                  <Text
+                    style={{color: '#4da6ff', textDecorationLine: 'underline'}}
+                    onPress={() => navigation.navigate('TermsOfServiceScreen')}>
+                    {t('termsOfService')}
+                  </Text>{' '}
+                  {t('and')}{' '}
+                  <Text
+                    style={{color: '#4da6ff', textDecorationLine: 'underline'}}
+                    onPress={() => navigation.navigate('PrivacyPolicyScreen')}>
+                    {t('privacyPolicy')}
+                  </Text>
+                  .
+                </Text>
+              </View>
+
+              {/* TermsModal */}
+              <TermsModal
+                visible={showTermsModal}
+                type={termsType}
+                isBulgaria={isBulgaria} // <<< добавено
+                onClose={() => setShowTermsModal(false)}
+              />
+            </View>
           </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
