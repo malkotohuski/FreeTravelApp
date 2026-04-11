@@ -20,17 +20,28 @@ async function deleteInactiveAccountsOlderThanOneDay() {
   const yesterday = new Date(Date.now() - ONE_DAY);
 
   const inactiveUsers = await prisma.user.findMany({
-    where: {
-      isActive: false,
-      createdAt: {lt: yesterday},
-    },
+    where: {isActive: false, createdAt: {lt: yesterday}},
     select: {id: true},
   });
 
   const ids = inactiveUsers.map(u => u.id);
   if (ids.length === 0) return;
 
-  // ✅ Изтривай в правилния ред — от дъщерни към родителски
+  // 1️⃣ Намери conversations на тези потребители
+  const conversations = await prisma.conversation.findMany({
+    where: {OR: [{user1Id: {in: ids}}, {user2Id: {in: ids}}]},
+    select: {id: true},
+  });
+  const convIds = conversations.map(c => c.id);
+
+  // 2️⃣ Изтрий в правилния ред
+  await prisma.message.deleteMany({
+    where: {conversationId: {in: convIds}}, // ✅ всички messages
+  });
+
+  await prisma.conversation.deleteMany({
+    where: {id: {in: convIds}},
+  });
 
   await prisma.report.deleteMany({
     where: {OR: [{reporterId: {in: ids}}, {reportedId: {in: ids}}]},
@@ -38,14 +49,6 @@ async function deleteInactiveAccountsOlderThanOneDay() {
 
   await prisma.notification.deleteMany({
     where: {OR: [{senderId: {in: ids}}, {recipientId: {in: ids}}]},
-  });
-
-  await prisma.message.deleteMany({
-    where: {senderId: {in: ids}},
-  });
-
-  await prisma.conversation.deleteMany({
-    where: {OR: [{user1Id: {in: ids}}, {user2Id: {in: ids}}]},
   });
 
   await prisma.request.deleteMany({
@@ -60,6 +63,10 @@ async function deleteInactiveAccountsOlderThanOneDay() {
     where: {OR: [{raterId: {in: ids}}, {ratedId: {in: ids}}]},
   });
 
+  await prisma.seekerRequest.deleteMany({
+    where: {userId: {in: ids}},
+  });
+
   await prisma.route.deleteMany({
     where: {ownerId: {in: ids}},
   });
@@ -68,7 +75,6 @@ async function deleteInactiveAccountsOlderThanOneDay() {
     where: {userId: {in: ids}},
   });
 
-  // ✅ Накрая изтриваме потребителите
   await prisma.user.deleteMany({
     where: {id: {in: ids}},
   });
