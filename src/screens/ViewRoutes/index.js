@@ -23,6 +23,8 @@ function ViewRoutes({navigation}) {
 
   const [enteredDepartureCity, setEnteredDepartureCity] = useState('');
   const [enteredArrivalCity, setEnteredArrivalCity] = useState('');
+  const [debouncedDepartureCity, setDebouncedDepartureCity] = useState('');
+  const [debouncedArrivalCity, setDebouncedArrivalCity] = useState('');
   const {user} = useAuth();
   const [sortByDate, setSortByDate] = useState(false);
   const [routes, setRoutes] = useState([]);
@@ -33,6 +35,10 @@ function ViewRoutes({navigation}) {
   const userFnameRequest = user?.fName;
   const userLnameRequest = user?.lName;
   const fullUserInfo = {usernameRequest, userFnameRequest, userLnameRequest};
+  const getCityName = (route, key) =>
+    route?.[key]?.name ||
+    route?.[key === 'departureCityRef' ? 'departureCity' : 'arrivalCity'] ||
+    '';
 
   const handlerSeeView = routeParams => {
     navigation.navigate('RouteDetails', {
@@ -67,6 +73,22 @@ function ViewRoutes({navigation}) {
   }, []);
 
   useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedDepartureCity(enteredDepartureCity);
+    }, 250);
+
+    return () => clearTimeout(timeoutId);
+  }, [enteredDepartureCity]);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedArrivalCity(enteredArrivalCity);
+    }, 250);
+
+    return () => clearTimeout(timeoutId);
+  }, [enteredArrivalCity]);
+
+  useEffect(() => {
     if (navigation?.addListener) {
       const unsubscribe = navigation.addListener('focus', fetchRoutes);
       return unsubscribe;
@@ -74,15 +96,17 @@ function ViewRoutes({navigation}) {
   }, [navigation]);
 
   const filteredRoutes = routes.filter(route => {
+    const departureCityName = getCityName(route, 'departureCityRef');
+    const arrivalCityName = getCityName(route, 'arrivalCityRef');
     const isFuture = new Date(route.selectedDateTime) >= new Date();
 
-    const depMatch = route.departureCity
-      ?.toLowerCase()
-      .includes(enteredDepartureCity.toLowerCase());
+    const depMatch = departureCityName
+      .toLowerCase()
+      .includes(debouncedDepartureCity.toLowerCase());
 
-    const arrMatch = route.arrivalCity
-      ?.toLowerCase()
-      .includes(enteredArrivalCity.toLowerCase());
+    const arrMatch = arrivalCityName
+      .toLowerCase()
+      .includes(debouncedArrivalCity.toLowerCase());
 
     return (
       isFuture &&
@@ -153,9 +177,16 @@ function ViewRoutes({navigation}) {
           />
         }>
         <View style={styles.routesContainer}>
-          {sortedRoutes.map((route, index) => {
+          {sortedRoutes.length === 0 ? (
+            <Text style={[styles.emptyText, {color: theme.textSecondary}]}>
+              {t('No routes found')}
+            </Text>
+          ) : (
+            sortedRoutes.map((route, index) => {
             console.log('ROUTE:', route);
             const isOwnRoute = route.owner.id === user.id;
+            const departureCityName = getCityName(route, 'departureCityRef');
+            const arrivalCityName = getCityName(route, 'arrivalCityRef');
             return (
               <TouchableOpacity
                 key={index}
@@ -173,10 +204,12 @@ function ViewRoutes({navigation}) {
                     markedSeats: route.markedSeats,
                     registrationNumber: route.registrationNumber,
                     selectedDateTime: route.selectedDateTime,
-                    departureCity: route.departureCity,
+                    departureCityId: route.departureCityId,
+                    departureCity: departureCityName,
                     departureStreet: route.departureStreet,
                     departureNumber: route.departureNumber,
-                    arrivalCity: route.arrivalCity,
+                    arrivalCityId: route.arrivalCityId,
+                    arrivalCity: arrivalCityName,
                     arrivalStreet: route.arrivalStreet,
                     arrivalNumber: route.arrivalNumber,
                     routeTitle: route.routeTitle,
@@ -229,7 +262,8 @@ function ViewRoutes({navigation}) {
                 </View>
               </TouchableOpacity>
             );
-          })}
+            })
+          )}
         </View>
       </ScrollView>
     </LinearGradient>
@@ -250,6 +284,11 @@ const createStyles = theme =>
     },
     filterButtonText: {color: '#fff', fontWeight: '700', fontSize: 18},
     routesContainer: {alignItems: 'center', paddingVertical: 10},
+    emptyText: {
+      marginTop: 40,
+      fontSize: 16,
+      textAlign: 'center',
+    },
     routeCard: {
       width: '90%',
       borderRadius: 16,

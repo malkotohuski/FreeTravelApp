@@ -2,6 +2,11 @@ const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 const {sendNotification} = require('./notificationController');
 
+const getRouteCityName = (route, key) =>
+  route?.[key]?.name ||
+  route?.[key === 'departureCityRef' ? 'departureCity' : 'arrivalCity'] ||
+  'Unknown';
+
 // Стартиране на разговор
 exports.startConversation = async (req, res) => {
   const {routeId, user1Id, user2Id} = req.body;
@@ -31,11 +36,18 @@ exports.startConversation = async (req, res) => {
 
     const route = await prisma.route.findUnique({
       where: {id: routeId},
+      include: {
+        departureCityRef: true,
+        arrivalCityRef: true,
+      },
     });
 
     if (!route) {
       return res.status(404).json({error: 'Route not found'});
     }
+
+    const departureCityName = getRouteCityName(route, 'departureCityRef');
+    const arrivalCityName = getRouteCityName(route, 'arrivalCityRef');
 
     // Ако няма → създаваме
     if (!conversation) {
@@ -45,8 +57,8 @@ exports.startConversation = async (req, res) => {
           routeId,
           user1Id,
           user2Id,
-          departureCity: route.departureCity,
-          arrivalCity: route.arrivalCity,
+          departureCity: departureCityName,
+          arrivalCity: arrivalCityName,
         },
       });
 
@@ -55,7 +67,7 @@ exports.startConversation = async (req, res) => {
         data: {
           conversationId: newConversation.id,
           senderId: user1Id, // може и req.user.id ако имаш auth
-          text: `${route.departureCity} → ${route.arrivalCity}`,
+          text: `${departureCityName} → ${arrivalCityName}`,
         },
       });
       // 3️⃣ взимаме conversation с messages + image

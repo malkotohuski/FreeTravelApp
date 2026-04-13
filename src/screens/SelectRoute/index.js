@@ -32,6 +32,8 @@ function SelectRouteScreen({route, navigation}) {
   const [debouncedArrivalSearch, setDebouncedArrivalSearch] = useState('');
   const [departureCities, setDepartureCities] = useState([]);
   const [arrivalCities, setArrivalCities] = useState([]);
+  const [departureLoading, setDepartureLoading] = useState(false);
+  const [arrivalLoading, setArrivalLoading] = useState(false);
 
   const [date, setDate] = useState(new Date());
   const [open, setOpen] = useState(false);
@@ -135,11 +137,13 @@ function SelectRouteScreen({route, navigation}) {
       setDepartureStreet('');
       setDepartureNumber('');
       setDepartureCities([]);
+      setDepartureLoading(false);
       setArrivalCityId(null);
       setArrivalCity(null);
       setArrivalStreet('');
       setArrivalNumber('');
       setArrivalCities([]);
+      setArrivalLoading(false);
       setSelectedDateTime(null);
       setDate(new Date());
       setRouteTitle('');
@@ -171,6 +175,7 @@ function SelectRouteScreen({route, navigation}) {
 
     const loadDepartureCities = async () => {
       try {
+        setDepartureLoading(true);
         const data = await searchCitiesApi(debouncedDepartureSearch);
         if (isActive) {
           setDepartureCities(data);
@@ -179,6 +184,10 @@ function SelectRouteScreen({route, navigation}) {
         console.error('Failed to load departure cities:', error);
         if (isActive) {
           setDepartureCities([]);
+        }
+      } finally {
+        if (isActive) {
+          setDepartureLoading(false);
         }
       }
     };
@@ -199,6 +208,7 @@ function SelectRouteScreen({route, navigation}) {
 
     const loadArrivalCities = async () => {
       try {
+        setArrivalLoading(true);
         const data = await searchCitiesApi(debouncedArrivalSearch);
         if (isActive) {
           setArrivalCities(data);
@@ -207,6 +217,10 @@ function SelectRouteScreen({route, navigation}) {
         console.error('Failed to load arrival cities:', error);
         if (isActive) {
           setArrivalCities([]);
+        }
+      } finally {
+        if (isActive) {
+          setArrivalLoading(false);
         }
       }
     };
@@ -472,6 +486,21 @@ function SelectRouteScreen({route, navigation}) {
                     keyExtractor={item => String(item.id)}
                     keyboardShouldPersistTaps="handled"
                     showsVerticalScrollIndicator={false}
+                    ListEmptyComponent={
+                      departureLoading ? (
+                        <View style={styles.searchStateContainer}>
+                          <Text style={{color: theme.textSecondary}}>
+                            {t('Loading...')}
+                          </Text>
+                        </View>
+                      ) : (
+                        <View style={styles.searchStateContainer}>
+                          <Text style={{color: theme.textSecondary}}>
+                            {t('No cities found')}
+                          </Text>
+                        </View>
+                      )
+                    }
                     renderItem={({item}) => {
                       const isMatch = departureSearchText
                         ? item.name
@@ -566,6 +595,21 @@ function SelectRouteScreen({route, navigation}) {
                     keyExtractor={item => String(item.id)}
                     keyboardShouldPersistTaps="handled"
                     showsVerticalScrollIndicator={false}
+                    ListEmptyComponent={
+                      arrivalLoading ? (
+                        <View style={styles.searchStateContainer}>
+                          <Text style={{color: theme.textSecondary}}>
+                            {t('Loading...')}
+                          </Text>
+                        </View>
+                      ) : (
+                        <View style={styles.searchStateContainer}>
+                          <Text style={{color: theme.textSecondary}}>
+                            {t('No cities found')}
+                          </Text>
+                        </View>
+                      )
+                    }
                     renderItem={({item}) => {
                       const isMatch = arrivalSearchText
                         ? item.name
@@ -763,5 +807,9 @@ const styles = StyleSheet.create({
   cityItem: {
     paddingVertical: 10,
     borderBottomWidth: 1,
+  },
+  searchStateContainer: {
+    paddingVertical: 18,
+    alignItems: 'center',
   },
 });

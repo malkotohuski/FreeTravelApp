@@ -2,6 +2,9 @@ const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 const {sendNotification} = require('./notificationController');
 
+const getRequestCityName = (entity, relationKey, fallbackKey) =>
+  entity?.[relationKey]?.name || entity?.[fallbackKey] || '';
+
 // Създаване на нова заявка
 exports.createRequest = async (req, res) => {
   try {
@@ -54,7 +57,7 @@ exports.createRequest = async (req, res) => {
     if (routeId) {
       route = await prisma.route.findUnique({
         where: {id: routeId},
-        include: {owner: true},
+        include: {owner: true, departureCityRef: true, arrivalCityRef: true},
       });
       if (!route) return res.status(404).json({error: 'Route not found'});
       ownerId = route.owner.id;
@@ -63,7 +66,11 @@ exports.createRequest = async (req, res) => {
     if (seekerRequestId) {
       seeker = await prisma.seekerRequest.findUnique({
         where: {id: seekerRequestId},
-        include: {user: true},
+        include: {
+          user: true,
+          departureCityRef: true,
+          arrivalCityRef: true,
+        },
       });
       if (!seeker)
         return res.status(404).json({error: 'Seeker request not found'});
@@ -71,13 +78,20 @@ exports.createRequest = async (req, res) => {
     }
 
     const resolvedDepartureCityId =
-      route?.departureCityId || departureCityId || null;
-    const resolvedArrivalCityId = route?.arrivalCityId || arrivalCityId || null;
+      route?.departureCityId || seeker?.departureCityId || departureCityId || null;
+    const resolvedArrivalCityId =
+      route?.arrivalCityId || seeker?.arrivalCityId || arrivalCityId || null;
 
     let resolvedDepartureCityName =
-      route?.departureCity || departureCity || seeker?.departureCity || '';
+      getRequestCityName(route, 'departureCityRef', 'departureCity') ||
+      getRequestCityName(seeker, 'departureCityRef', 'departureCity') ||
+      departureCity ||
+      '';
     let resolvedArrivalCityName =
-      route?.arrivalCity || arrivalCity || seeker?.arrivalCity || '';
+      getRequestCityName(route, 'arrivalCityRef', 'arrivalCity') ||
+      getRequestCityName(seeker, 'arrivalCityRef', 'arrivalCity') ||
+      arrivalCity ||
+      '';
 
     if (!resolvedDepartureCityName && resolvedDepartureCityId) {
       const departureCityRecord = await prisma.city.findUnique({
@@ -170,8 +184,22 @@ exports.makeDecision = async (req, res) => {
     const request = await prisma.request.findUnique({
       where: {id: requestId},
       include: {
-        route: {include: {owner: true}},
-        seekerRequest: {include: {user: true}},
+        departureCityRef: true,
+        arrivalCityRef: true,
+        route: {
+          include: {
+            owner: true,
+            departureCityRef: true,
+            arrivalCityRef: true,
+          },
+        },
+        seekerRequest: {
+          include: {
+            user: true,
+            departureCityRef: true,
+            arrivalCityRef: true,
+          },
+        },
       },
     });
 
@@ -204,11 +232,19 @@ exports.makeDecision = async (req, res) => {
     // 3️⃣ Създаване / upsert на conversation, ако е одобрено
     if (decision === 'approved') {
       const departureCity =
+        request.departureCityRef?.name ||
+        request.route?.departureCityRef?.name ||
+        request.seekerRequest?.departureCityRef?.name ||
         request.departureCity ||
         request.seekerRequest?.departureCity ||
         'Unknown';
       const arrivalCity =
-        request.arrivalCity || request.seekerRequest?.arrivalCity || 'Unknown';
+        request.arrivalCityRef?.name ||
+        request.route?.arrivalCityRef?.name ||
+        request.seekerRequest?.arrivalCityRef?.name ||
+        request.arrivalCity ||
+        request.seekerRequest?.arrivalCity ||
+        'Unknown';
 
       if (request.routeId) {
         // Upsert за реален route

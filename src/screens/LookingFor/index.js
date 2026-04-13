@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback, useEffect} from 'react';
 import {
   View,
   Text,
@@ -11,19 +11,20 @@ import {
   ScrollView,
   SafeAreaView,
   TouchableWithoutFeedback,
+  Keyboard,
+  ActivityIndicator,
 } from 'react-native';
 import DatePicker from 'react-native-date-picker';
 import LinearGradient from 'react-native-linear-gradient';
 import {useTranslation} from 'react-i18next';
-import CitySelector from '../../server/Cities/cities';
 import {useFocusEffect} from '@react-navigation/native';
 import {useAuth} from '../../context/AuthContext';
 import {useTheme} from '../../theme/useTheme';
 import api from '../../api/api';
+import {searchCities} from '../../api/cities.api';
 
 function Looking({navigation}) {
   const {t, i18n} = useTranslation();
-  const cities = CitySelector();
   const {user, token} = useAuth();
   const theme = useTheme();
 
@@ -31,20 +32,21 @@ function Looking({navigation}) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
 
+  const [departureCityId, setDepartureCityId] = useState(null);
   const [departureCity, setDepartureCity] = useState(null);
+  const [arrivalCityId, setArrivalCityId] = useState(null);
   const [arrivalCity, setArrivalCity] = useState(null);
   const [departureSearch, setDepartureSearch] = useState('');
   const [arrivalSearch, setArrivalSearch] = useState('');
+  const [debouncedDepartureSearch, setDebouncedDepartureSearch] = useState('');
+  const [debouncedArrivalSearch, setDebouncedArrivalSearch] = useState('');
   const [modalDeparture, setModalDeparture] = useState(false);
   const [modalArrival, setModalArrival] = useState(false);
   const [routeTitle, setRouteTitle] = useState('');
-
-  const [filteredDepartureCities, setFilteredDepartureCities] = useState(
-    cities.slice(0, 7),
-  );
-  const [filteredArrivalCities, setFilteredArrivalCities] = useState(
-    cities.slice(0, 7),
-  );
+  const [filteredDepartureCities, setFilteredDepartureCities] = useState([]);
+  const [filteredArrivalCities, setFilteredArrivalCities] = useState([]);
+  const [departureLoading, setDepartureLoading] = useState(false);
+  const [arrivalLoading, setArrivalLoading] = useState(false);
 
   const [date, setDate] = useState(new Date());
   const [open, setOpen] = useState(false);
@@ -54,19 +56,103 @@ function Looking({navigation}) {
 
   useFocusEffect(
     useCallback(() => {
+      setDepartureCityId(null);
       setDepartureCity(null);
+      setArrivalCityId(null);
       setArrivalCity(null);
       setDepartureSearch('');
       setArrivalSearch('');
+      setDebouncedDepartureSearch('');
+      setDebouncedArrivalSearch('');
+      setFilteredDepartureCities([]);
+      setFilteredArrivalCities([]);
       setSelectedDateTime(null);
       setRouteTitle('');
     }, []),
   );
 
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedDepartureSearch(departureSearch);
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [departureSearch]);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedArrivalSearch(arrivalSearch);
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [arrivalSearch]);
+
+  useEffect(() => {
+    const loadDepartureCities = async () => {
+      if (!modalDeparture) return;
+
+      try {
+        setDepartureLoading(true);
+        const cities = await searchCities(debouncedDepartureSearch);
+        setFilteredDepartureCities(cities);
+      } catch (error) {
+        console.error('Failed to load departure cities:', error);
+        setFilteredDepartureCities([]);
+      } finally {
+        setDepartureLoading(false);
+      }
+    };
+
+    loadDepartureCities();
+  }, [debouncedDepartureSearch, modalDeparture]);
+
+  useEffect(() => {
+    const loadArrivalCities = async () => {
+      if (!modalArrival) return;
+
+      try {
+        setArrivalLoading(true);
+        const cities = await searchCities(debouncedArrivalSearch);
+        setFilteredArrivalCities(cities);
+      } catch (error) {
+        console.error('Failed to load arrival cities:', error);
+        setFilteredArrivalCities([]);
+      } finally {
+        setArrivalLoading(false);
+      }
+    };
+
+    loadArrivalCities();
+  }, [debouncedArrivalSearch, modalArrival]);
+
+  const clearDepartureSearch = () => {
+    setDepartureSearch('');
+    setDebouncedDepartureSearch('');
+    setFilteredDepartureCities([]);
+  };
+
+  const clearArrivalSearch = () => {
+    setArrivalSearch('');
+    setDebouncedArrivalSearch('');
+    setFilteredArrivalCities([]);
+  };
+
+  const closeDepartureModal = () => {
+    Keyboard.dismiss();
+    clearDepartureSearch();
+    setModalDeparture(false);
+  };
+
+  const closeArrivalModal = () => {
+    Keyboard.dismiss();
+    clearArrivalSearch();
+    setModalArrival(false);
+  };
+
   const handleSearch = async () => {
     if (isGenerating || isSubmitting) return;
 
-    if (!departureCity || !arrivalCity) {
+    if (!departureCity || !arrivalCity || !departureCityId || !arrivalCityId) {
       Alert.alert(t('Error'), t('pleaseSelectBothDepartureArrivalCities'));
       return;
     }
@@ -86,7 +172,9 @@ function Looking({navigation}) {
 
     try {
       const response = await api.post('/api/seekers', {
+        departureCityId,
         departureCity,
+        arrivalCityId,
         arrivalCity,
         selectedDateTime,
         routeTitle,
@@ -129,24 +217,16 @@ function Looking({navigation}) {
     }
   };
 
-  const filterCities = (text, setFiltered, setSearch) => {
-    setSearch(text);
-    const filtered = cities.filter(city =>
-      city.label.toLowerCase().includes(text.toLowerCase()),
-    );
-    setFiltered(filtered.slice(0, 7));
-  };
-
-  const renderCityItem = (item, setCity, closeModal, setSearch) => (
+  const renderCityItem = (item, setCityId, setCity, closeModal) => (
     <TouchableOpacity
       style={[styles.cityItem, {borderColor: theme.cardBorder}]}
       onPress={() => {
-        setCity(item.label);
-        closeModal(false);
-        setSearch('');
+        setCityId(item.id);
+        setCity(item.name);
+        closeModal();
       }}>
       <Text style={[styles.cityItemText, {color: theme.textPrimary}]}>
-        {item.label}
+        {item.name}
       </Text>
     </TouchableOpacity>
   );
@@ -177,7 +257,7 @@ function Looking({navigation}) {
           </TouchableOpacity>
 
           <Modal visible={modalDeparture} transparent animationType="slide">
-            <TouchableWithoutFeedback onPress={() => setModalDeparture(false)}>
+            <TouchableWithoutFeedback onPress={closeDepartureModal}>
               <View
                 style={{
                   flex: 1,
@@ -206,26 +286,39 @@ function Looking({navigation}) {
                         },
                       ]}
                       value={departureSearch}
-                      onChangeText={text =>
-                        filterCities(
-                          text,
-                          setFilteredDepartureCities,
-                          setDepartureSearch,
-                        )
-                      }
+                      onBlur={clearDepartureSearch}
+                      onChangeText={setDepartureSearch}
                     />
-                    <FlatList
-                      data={filteredDepartureCities}
-                      keyExtractor={item => item.value}
-                      renderItem={({item}) =>
-                        renderCityItem(
-                          item,
-                          setDepartureCity,
-                          setModalDeparture,
-                          setDepartureSearch,
-                        )
-                      }
-                    />
+                    {departureLoading ? (
+                      <ActivityIndicator
+                        size="small"
+                        color={theme.primaryButton}
+                        style={{marginVertical: 12}}
+                      />
+                    ) : (
+                      <FlatList
+                        data={filteredDepartureCities}
+                        keyExtractor={item => item.id.toString()}
+                        ListEmptyComponent={
+                          <Text
+                            style={{
+                              color: theme.textSecondary,
+                              textAlign: 'center',
+                              paddingVertical: 12,
+                            }}>
+                            {t('No cities found')}
+                          </Text>
+                        }
+                        renderItem={({item}) =>
+                          renderCityItem(
+                            item,
+                            setDepartureCityId,
+                            setDepartureCity,
+                            closeDepartureModal,
+                          )
+                        }
+                      />
+                    )}
                   </View>
                 </TouchableWithoutFeedback>
               </View>
@@ -250,7 +343,7 @@ function Looking({navigation}) {
           </TouchableOpacity>
 
           <Modal visible={modalArrival} transparent animationType="slide">
-            <TouchableWithoutFeedback onPress={() => setModalArrival(false)}>
+            <TouchableWithoutFeedback onPress={closeArrivalModal}>
               <View
                 style={{
                   flex: 1,
@@ -279,26 +372,39 @@ function Looking({navigation}) {
                         },
                       ]}
                       value={arrivalSearch}
-                      onChangeText={text =>
-                        filterCities(
-                          text,
-                          setFilteredArrivalCities,
-                          setArrivalSearch,
-                        )
-                      }
+                      onBlur={clearArrivalSearch}
+                      onChangeText={setArrivalSearch}
                     />
-                    <FlatList
-                      data={filteredArrivalCities}
-                      keyExtractor={item => item.value}
-                      renderItem={({item}) =>
-                        renderCityItem(
-                          item,
-                          setArrivalCity,
-                          setModalArrival,
-                          setArrivalSearch,
-                        )
-                      }
-                    />
+                    {arrivalLoading ? (
+                      <ActivityIndicator
+                        size="small"
+                        color={theme.primaryButton}
+                        style={{marginVertical: 12}}
+                      />
+                    ) : (
+                      <FlatList
+                        data={filteredArrivalCities}
+                        keyExtractor={item => item.id.toString()}
+                        ListEmptyComponent={
+                          <Text
+                            style={{
+                              color: theme.textSecondary,
+                              textAlign: 'center',
+                              paddingVertical: 12,
+                            }}>
+                            {t('No cities found')}
+                          </Text>
+                        }
+                        renderItem={({item}) =>
+                          renderCityItem(
+                            item,
+                            setArrivalCityId,
+                            setArrivalCity,
+                            closeArrivalModal,
+                          )
+                        }
+                      />
+                    )}
                   </View>
                 </TouchableWithoutFeedback>
               </View>

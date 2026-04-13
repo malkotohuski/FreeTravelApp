@@ -145,16 +145,45 @@ exports.getNotifications = async (req, res) => {
       include: {sender: {select: {id: true, username: true}}},
     });
 
-    const formatted = notifications.map(n => ({
-      id: n.id,
-      message: n.message,
-      routeId: n.routeId,
-      senderId: n.senderId,
-      senderUsername: n.sender?.username || null,
-      read: n.read,
-      status: n.status,
-      createdAt: n.createdAt,
-    }));
+    const routeIds = [
+      ...new Set(
+        notifications.map(notification => notification.routeId).filter(Boolean),
+      ),
+    ];
+
+    const routes = routeIds.length
+      ? await prisma.route.findMany({
+          where: {id: {in: routeIds}},
+          include: {
+            departureCityRef: true,
+            arrivalCityRef: true,
+          },
+        })
+      : [];
+
+    const routeMap = new Map(routes.map(route => [route.id, route]));
+
+    const formatted = notifications.map(n => {
+      const route = routeMap.get(n.routeId);
+
+      return {
+        id: n.id,
+        message: n.message,
+        routeId: n.routeId,
+        recipientId: n.recipientId,
+        conversationId: n.conversationId,
+        departureCityId: route?.departureCityId || null,
+        departureCity:
+          route?.departureCityRef?.name || route?.departureCity || null,
+        arrivalCityId: route?.arrivalCityId || null,
+        arrivalCity: route?.arrivalCityRef?.name || route?.arrivalCity || null,
+        senderId: n.senderId,
+        senderUsername: n.sender?.username || null,
+        read: n.read,
+        status: n.status,
+        createdAt: n.createdAt,
+      };
+    });
 
     res.json(formatted);
   } catch (err) {

@@ -7,6 +7,7 @@ import {
   StyleSheet,
   FlatList,
   Modal,
+  ActivityIndicator,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
@@ -24,9 +25,11 @@ const Notifications = ({navigation}) => {
 
   const [notifications, setNotifications] = useState([]);
   const [visibleModalId, setVisibleModalId] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const fetchNotifications = async () => {
     try {
+      setLoading(true);
       const response = await api.get('/api/notifications');
       const activeNotifications = response.data
         .filter(n => n.status === 'active' && !n.conversationId) // ❌ добави !n.conversationId
@@ -42,6 +45,8 @@ const Notifications = ({navigation}) => {
       setNotifications(uniqueNotifications);
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -141,7 +146,9 @@ const Notifications = ({navigation}) => {
           conversationId: conversation.id,
           otherUser,
           routeInfo: {
+            departureCityId: notification.departureCityId,
             departureCity: notification.departureCity,
+            arrivalCityId: notification.arrivalCityId,
             arrivalCity: notification.arrivalCity,
           },
         });
@@ -181,27 +188,32 @@ const Notifications = ({navigation}) => {
           </TouchableOpacity>
         </View>
 
-        <FlatList
-          data={notifications}
-          keyExtractor={item => item.id.toString()}
-          contentContainerStyle={{
-            paddingVertical: 20,
-            paddingHorizontal: 16,
-            flexGrow: 1,
-          }}
-          ListEmptyComponent={
-            <View style={styles.emptyState}>
-              <Icons
-                name="bell-off-outline"
-                size={80}
-                color={theme.textSecondary}
-              />
-              <Text style={[styles.emptyMessage, {color: theme.textSecondary}]}>
-                {t('No new notifications')}
-              </Text>
-            </View>
-          }
-          renderItem={({item}) => (
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={theme.primaryButton} />
+          </View>
+        ) : (
+          <FlatList
+            data={notifications}
+            keyExtractor={item => item.id.toString()}
+            contentContainerStyle={{
+              paddingVertical: 20,
+              paddingHorizontal: 16,
+              flexGrow: 1,
+            }}
+            ListEmptyComponent={
+              <View style={styles.emptyState}>
+                <Icons
+                  name="bell-off-outline"
+                  size={80}
+                  color={theme.textSecondary}
+                />
+                <Text style={[styles.emptyMessage, {color: theme.textSecondary}]}>
+                  {t('No new notifications')}
+                </Text>
+              </View>
+            }
+            renderItem={({item}) => (
             <View
               style={[
                 styles.notification,
@@ -250,8 +262,9 @@ const Notifications = ({navigation}) => {
                 {formatDate(item.createdAt)}
               </Text>
             </View>
-          )}
-        />
+            )}
+          />
+        )}
 
         {/* --- Root level Modal --- */}
         <Modal
@@ -299,6 +312,11 @@ const Notifications = ({navigation}) => {
 
 const styles = StyleSheet.create({
   headerTitle: {color: 'white', fontSize: 20, fontWeight: 'bold'},
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   notificationList: {padding: 16},
   notification: {
     width: '100%', // сега вече заема почти целия контейнер

@@ -10,6 +10,7 @@ import {
   Alert,
   SafeAreaView,
   TextInput,
+  ActivityIndicator,
 } from 'react-native';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useAuth} from '../../context/AuthContext';
@@ -25,6 +26,14 @@ const RouteHistory = ({navigation}) => {
   const [filteredRoutesState, setFilteredRoutesState] = useState([]);
   const [searchDepartureText, setSearchDepartureText] = useState('');
   const [searchArrivalText, setSearchArrivalText] = useState('');
+  const [debouncedDepartureText, setDebouncedDepartureText] = useState('');
+  const [debouncedArrivalText, setDebouncedArrivalText] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  const getCityName = (route, key) =>
+    route?.[key]?.name ||
+    route?.[key === 'departureCityRef' ? 'departureCity' : 'arrivalCity'] ||
+    '';
 
   const getHeaderStyles = () => ({
     flexDirection: 'row',
@@ -38,6 +47,7 @@ const RouteHistory = ({navigation}) => {
   useEffect(() => {
     const fetchRoutes = async () => {
       try {
+        setLoading(true);
         const response = await api.get('/api/routes/my');
 
         const routes = response.data.filter(route => {
@@ -48,6 +58,8 @@ const RouteHistory = ({navigation}) => {
         setFilteredRoutesState(routes);
       } catch (error) {
         console.error('Error fetching routes:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -57,15 +69,31 @@ const RouteHistory = ({navigation}) => {
   }, [user]);
 
   useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedDepartureText(searchDepartureText);
+    }, 250);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchDepartureText]);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedArrivalText(searchArrivalText);
+    }, 250);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchArrivalText]);
+
+  useEffect(() => {
     // Филтрирай маршрути на база на текста за търсене и сортирай по дата
     const filteredRoutes = originalRoutesState
       .filter(route => {
-        const matchesDeparture = route.departureCity
+        const matchesDeparture = getCityName(route, 'departureCityRef')
           ?.toLowerCase()
-          .includes(searchDepartureText.toLowerCase());
-        const matchesArrival = route.arrivalCity
+          .includes(debouncedDepartureText.toLowerCase());
+        const matchesArrival = getCityName(route, 'arrivalCityRef')
           ?.toLowerCase()
-          .includes(searchArrivalText.toLowerCase());
+          .includes(debouncedArrivalText.toLowerCase());
         return matchesDeparture && matchesArrival;
       })
       .sort(
@@ -73,7 +101,7 @@ const RouteHistory = ({navigation}) => {
       ); // Сортирай по най-нова дата
 
     setFilteredRoutesState(filteredRoutes);
-  }, [searchDepartureText, searchArrivalText, originalRoutesState]);
+  }, [debouncedDepartureText, debouncedArrivalText, originalRoutesState]);
 
   const handleDeleteRoute = routeId => {
     Alert.alert(
@@ -180,16 +208,25 @@ const RouteHistory = ({navigation}) => {
             onChangeText={setSearchArrivalText}
           />
         </View>
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#f4511e" />
+          </View>
+        ) : (
         <ScrollView style={styles.scrollView}>
           <View style={styles.container}>
-            {filteredRoutesState.map((route, index) => (
+            {filteredRoutesState.length === 0 ? (
+              <Text style={styles.emptyText}>{t('No routes found')}</Text>
+            ) : (
+              filteredRoutesState.map((route, index) => (
               <TouchableOpacity key={index} style={styles.routeContainer}>
                 <Text style={styles.routeText}>
                   {new Date(route.selectedDateTime).toLocaleString()}{' '}
                   {/* Displaying date without time */}
                 </Text>
                 <Text style={styles.routeText}>
-                  {route.departureCity}-{route.arrivalCity}
+                  {getCityName(route, 'departureCityRef')}-
+                  {getCityName(route, 'arrivalCityRef')}
                 </Text>
                 <View style={styles.buttonContainer}>
                   <TouchableOpacity
@@ -206,9 +243,11 @@ const RouteHistory = ({navigation}) => {
                   </TouchableOpacity>
                 </View>
               </TouchableOpacity>
-            ))}
+              ))
+            )}
           </View>
         </ScrollView>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -254,9 +293,20 @@ const styles = StyleSheet.create({
   scrollView: {
     width: '100%',
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   container: {
     flex: 1,
     alignItems: 'center',
+  },
+  emptyText: {
+    marginTop: 20,
+    fontSize: 16,
+    color: '#fff',
+    textAlign: 'center',
   },
   routeContainer: {
     width: '90%',

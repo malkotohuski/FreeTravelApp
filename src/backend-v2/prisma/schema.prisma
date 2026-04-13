@@ -103,7 +103,9 @@ model Route {
 
 model SeekerRequest {
   id               Int       @id @default(autoincrement())
+  departureCityId  Int?
   departureCity    String
+  arrivalCityId    Int?
   arrivalCity      String
   routeTitle       String
   userId           Int
@@ -117,6 +119,8 @@ model SeekerRequest {
   username         String
   routeId          Int?
   requests         Request[]
+  departureCityRef City?     @relation("SeekerDepartureCity", fields: [departureCityId], references: [id])
+  arrivalCityRef   City?     @relation("SeekerArrivalCity", fields: [arrivalCityId], references: [id])
   route            Route?    @relation(fields: [routeId], references: [id])
   user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -249,6 +253,8 @@ model City {
   arrivingRoutes  Route[] @relation("RouteArrivalCity")
   departureRequests Request[] @relation("RequestDepartureCity")
   arrivalRequests   Request[] @relation("RequestArrivalCity")
+  departureSeekers  SeekerRequest[] @relation("SeekerDepartureCity")
+  arrivalSeekers    SeekerRequest[] @relation("SeekerArrivalCity")
 
   @@index([name])
   @@index([normalizedName])

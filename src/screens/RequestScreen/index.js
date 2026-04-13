@@ -27,6 +27,8 @@ function RouteDetails({route}) {
   const [loading, setLoading] = useState(false);
 
   const requesterUsername = user?.username;
+  const departureCityId = route.params.departureCityId || null;
+  const arrivalCityId = route.params.arrivalCityId || null;
 
   const departureCity = route.params.departureCity;
   const arrivalCity = route.params.arrivalCity;
@@ -108,9 +110,9 @@ function RouteDetails({route}) {
                 userLname: user.lName,
                 userEmail: user.email,
                 userRouteId: route.params?.userId || 0,
-                departureCityId: route.params?.departureCityId || null,
+                departureCityId,
                 departureCity: departureCity || '',
-                arrivalCityId: route.params?.arrivalCityId || null,
+                arrivalCityId,
                 arrivalCity: arrivalCity || '',
                 dataTime: route.params?.selectedDateTime,
                 requestComment: tripRequestText,
@@ -189,7 +191,9 @@ function RouteDetails({route}) {
                 userFname: userFname,
                 userLname: userLname,
                 userEmail: userEmail,
+                departureCityId,
                 departureCity: route.params.departureCity,
+                arrivalCityId,
                 arrivalCity: route.params.arrivalCity,
                 selectedVehicle: route.params.selectedVehicle,
                 registrationNumber: route.params.registrationNumber,

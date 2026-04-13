@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import {
   View,
   Text,
@@ -32,7 +32,14 @@ export default function Seekers({navigation}) {
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [searchDeparture, setSearchDeparture] = useState('');
   const [searchArrival, setSearchArrival] = useState('');
+  const [debouncedSearchDeparture, setDebouncedSearchDeparture] = useState('');
+  const [debouncedSearchArrival, setDebouncedSearchArrival] = useState('');
   const [messageInput, setMessageInput] = useState('');
+
+  const getCityName = (route, key) =>
+    route?.route?.[key]?.name ||
+    route?.[key === 'departureCityRef' ? 'departureCity' : 'arrivalCity'] ||
+    '';
 
   const fetchSeekers = async () => {
     try {
@@ -70,16 +77,32 @@ export default function Seekers({navigation}) {
     }, []),
   );
 
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedSearchDeparture(searchDeparture);
+    }, 250);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchDeparture]);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedSearchArrival(searchArrival);
+    }, 250);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchArrival]);
+
   const filteredRoutes = routes.filter(route => {
     const isActive = !route.status || route.status === 'active';
     const routeDate = new Date(route.selectedDateTime);
     const isFuture = routeDate >= new Date();
-    const depMatch = route.departureCity
+    const depMatch = getCityName(route, 'departureCityRef')
       ?.toLowerCase()
-      .includes(searchDeparture.toLowerCase());
-    const arrMatch = route.arrivalCity
+      .includes(debouncedSearchDeparture.toLowerCase());
+    const arrMatch = getCityName(route, 'arrivalCityRef')
       ?.toLowerCase()
-      .includes(searchArrival.toLowerCase());
+      .includes(debouncedSearchArrival.toLowerCase());
     return isActive && isFuture && depMatch && arrMatch;
   });
 
@@ -113,7 +136,9 @@ export default function Seekers({navigation}) {
                 userFname: user.fName,
                 userLname: user.lName,
                 userEmail: user.email,
+                departureCityId: selectedRoute.departureCityId || null,
                 departureCity: selectedRoute.departureCity,
+                arrivalCityId: selectedRoute.arrivalCityId || null,
                 arrivalCity: selectedRoute.arrivalCity,
                 dataTime: selectedRoute.selectedDateTime,
                 requestComment: messageInput,
@@ -309,7 +334,9 @@ export default function Seekers({navigation}) {
                         userId: selectedRoute.userId,
 
                         // ако имаш тези данни ги подай, ако не – махни ги
+                        departureCityId: selectedRoute.departureCityId,
                         departureCity: selectedRoute.departureCity,
+                        arrivalCityId: selectedRoute.arrivalCityId,
                         arrivalCity: selectedRoute.arrivalCity,
                         selectedVehicle: selectedRoute.selectedVehicle,
                         registrationNumber: selectedRoute.registrationNumber,

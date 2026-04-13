@@ -6,9 +6,21 @@ const prisma = new PrismaClient();
 // CREATE Seeker Request с лимит 3 на ден
 exports.createSeekerRequest = async (req, res) => {
   try {
-    const {departureCity, arrivalCity, selectedDateTime, routeTitle} = req.body;
+    const {
+      departureCityId,
+      departureCity,
+      arrivalCityId,
+      arrivalCity,
+      selectedDateTime,
+      routeTitle,
+    } = req.body;
 
-    if (!departureCity || !arrivalCity || !selectedDateTime || !routeTitle) {
+    if (
+      !departureCityId ||
+      !arrivalCityId ||
+      !selectedDateTime ||
+      !routeTitle
+    ) {
       return res.status(400).json({error: 'Missing required fields'});
     }
 
@@ -16,6 +28,15 @@ exports.createSeekerRequest = async (req, res) => {
 
     const user = await prisma.user.findUnique({where: {id: userId}});
     if (!user) return res.status(404).json({error: 'User not found'});
+
+    const [departureCityRecord, arrivalCityRecord] = await Promise.all([
+      prisma.city.findUnique({where: {id: Number(departureCityId)}}),
+      prisma.city.findUnique({where: {id: Number(arrivalCityId)}}),
+    ]);
+
+    if (!departureCityRecord || !arrivalCityRecord) {
+      return res.status(404).json({error: 'Selected city was not found'});
+    }
 
     // 🔹 Ограничение: максимум 3 заявки на ден
     const startOfDay = new Date();
@@ -43,19 +64,26 @@ exports.createSeekerRequest = async (req, res) => {
       data: {
         ownerId: userId,
         selectedVehicle: 'seeking-driver',
-        departureCity,
-        arrivalCity,
+        departureCityId: departureCityRecord.id,
+        departureCity: departureCityRecord.name,
+        arrivalCityId: arrivalCityRecord.id,
+        arrivalCity: arrivalCityRecord.name,
         selectedDateTime: new Date(selectedDateTime),
         routeTitle,
+      },
+      include: {
+        departureCityRef: true,
+        arrivalCityRef: true,
       },
     });
 
     const seeker = await prisma.seekerRequest.create({
       data: {
         routeId: newRoute.id,
-
-        departureCity,
-        arrivalCity,
+        departureCityId: departureCityRecord.id,
+        departureCity: departureCityRecord.name,
+        arrivalCityId: arrivalCityRecord.id,
+        arrivalCity: arrivalCityRecord.name,
         selectedDateTime: new Date(selectedDateTime),
         routeTitle,
 
@@ -66,9 +94,31 @@ exports.createSeekerRequest = async (req, res) => {
         userEmail: user.email,
         userImage: user.userImage || null,
       },
+      include: {
+        departureCityRef: true,
+        arrivalCityRef: true,
+        route: {
+          include: {
+            departureCityRef: true,
+            arrivalCityRef: true,
+          },
+        },
+      },
     });
 
-    res.status(201).json(seeker);
+    res.status(201).json({
+      ...seeker,
+      departureCityId: seeker.route?.departureCityId || seeker.departureCityId,
+      departureCity:
+        seeker.route?.departureCityRef?.name ||
+        seeker.departureCityRef?.name ||
+        seeker.departureCity,
+      arrivalCityId: seeker.route?.arrivalCityId || seeker.arrivalCityId,
+      arrivalCity:
+        seeker.route?.arrivalCityRef?.name ||
+        seeker.arrivalCityRef?.name ||
+        seeker.arrivalCity,
+    });
   } catch (error) {
     console.error('Create seeker error:', error);
     res.status(500).json({error: 'Server error'});
@@ -79,6 +129,14 @@ exports.getAllSeekers = async (req, res) => {
   try {
     const seekers = await prisma.seekerRequest.findMany({
       include: {
+        route: {
+          include: {
+            departureCityRef: true,
+            arrivalCityRef: true,
+          },
+        },
+        departureCityRef: true,
+        arrivalCityRef: true,
         user: {
           select: {
             id: true,
@@ -92,7 +150,25 @@ exports.getAllSeekers = async (req, res) => {
       orderBy: {createdAt: 'desc'},
     });
 
-    res.json({seekers});
+    res.json({
+      seekers: seekers.map(seeker => ({
+        ...seeker,
+        departureCityId:
+          seeker.route?.departureCityId || seeker.departureCityId || null,
+        departureCity:
+          seeker.route?.departureCityRef?.name ||
+          seeker.departureCityRef?.name ||
+          seeker.route?.departureCity ||
+          seeker.departureCity,
+        arrivalCityId:
+          seeker.route?.arrivalCityId || seeker.arrivalCityId || null,
+        arrivalCity:
+          seeker.route?.arrivalCityRef?.name ||
+          seeker.arrivalCityRef?.name ||
+          seeker.route?.arrivalCity ||
+          seeker.arrivalCity,
+      })),
+    });
   } catch (error) {
     console.error('Get seekers error:', error);
     res.status(500).json({error: 'Server error'});

@@ -1,6 +1,8 @@
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 
+const getCityName = cityRef => cityRef?.name || null;
+
 exports.createRoute = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -73,11 +75,19 @@ exports.createRoute = async (req, res) => {
         selectedDateTime: new Date(route.selectedDateTime),
         routeTitle: route.routeTitle,
       },
+      include: {
+        departureCityRef: true,
+        arrivalCityRef: true,
+      },
     });
 
     return res.status(201).json({
       message: 'Route created successfully',
-      route: newRoute,
+      route: {
+        ...newRoute,
+        departureCity: getCityName(newRoute.departureCityRef) || newRoute.departureCity,
+        arrivalCity: getCityName(newRoute.arrivalCityRef) || newRoute.arrivalCity,
+      },
     });
   } catch (error) {
     console.error('Create route error:', error);
@@ -100,6 +110,8 @@ exports.getActiveRoutes = async (req, res) => {
         selectedDateTime: 'asc',
       },
       include: {
+        departureCityRef: true,
+        arrivalCityRef: true,
         owner: {
           select: {
             id: true,
@@ -113,7 +125,13 @@ exports.getActiveRoutes = async (req, res) => {
       },
     });
 
-    return res.status(200).json(routes);
+    return res.status(200).json(
+      routes.map(route => ({
+        ...route,
+        departureCity: getCityName(route.departureCityRef) || route.departureCity,
+        arrivalCity: getCityName(route.arrivalCityRef) || route.arrivalCity,
+      })),
+    );
   } catch (error) {
     console.error('Get routes error:', error);
     return res.status(500).json({error: 'Internal server error'});
@@ -247,9 +265,19 @@ exports.getMyRoutes = async (req, res) => {
       orderBy: {
         selectedDateTime: 'desc',
       },
+      include: {
+        departureCityRef: true,
+        arrivalCityRef: true,
+      },
     });
 
-    return res.status(200).json(routes);
+    return res.status(200).json(
+      routes.map(route => ({
+        ...route,
+        departureCity: getCityName(route.departureCityRef) || route.departureCity,
+        arrivalCity: getCityName(route.arrivalCityRef) || route.arrivalCity,
+      })),
+    );
   } catch (error) {
     console.error('Get my routes error:', error);
     return res.status(500).json({error: 'Internal server error'});
