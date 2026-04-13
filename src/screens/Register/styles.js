@@ -5,11 +5,9 @@ export default StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    height: '100%',
     backgroundColor: 'grey',
   },
   backgroundImage: {
-    flex: 1,
     width: '100%',
     height: '100%',
     resizeMode: 'cover',

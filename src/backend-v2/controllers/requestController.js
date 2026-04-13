@@ -14,7 +14,9 @@ exports.createRequest = async (req, res) => {
       userLname,
       userEmail,
       userRouteId,
+      departureCityId,
       departureCity,
+      arrivalCityId,
       arrivalCity,
       dataTime,
       requestComment,
@@ -68,6 +70,29 @@ exports.createRequest = async (req, res) => {
       ownerId = seeker.user.id;
     }
 
+    const resolvedDepartureCityId =
+      route?.departureCityId || departureCityId || null;
+    const resolvedArrivalCityId = route?.arrivalCityId || arrivalCityId || null;
+
+    let resolvedDepartureCityName =
+      route?.departureCity || departureCity || seeker?.departureCity || '';
+    let resolvedArrivalCityName =
+      route?.arrivalCity || arrivalCity || seeker?.arrivalCity || '';
+
+    if (!resolvedDepartureCityName && resolvedDepartureCityId) {
+      const departureCityRecord = await prisma.city.findUnique({
+        where: {id: Number(resolvedDepartureCityId)},
+      });
+      resolvedDepartureCityName = departureCityRecord?.name || '';
+    }
+
+    if (!resolvedArrivalCityName && resolvedArrivalCityId) {
+      const arrivalCityRecord = await prisma.city.findUnique({
+        where: {id: Number(resolvedArrivalCityId)},
+      });
+      resolvedArrivalCityName = arrivalCityRecord?.name || '';
+    }
+
     // Създаваме заявката
     const newRequest = await prisma.request.create({
       data: {
@@ -79,8 +104,12 @@ exports.createRequest = async (req, res) => {
         userLname: userLname || '',
         userEmail: userEmail || '',
         userRouteId: userRouteId || 0,
-        departureCity: departureCity || '',
-        arrivalCity: arrivalCity || '',
+        departureCityId: resolvedDepartureCityId
+          ? Number(resolvedDepartureCityId)
+          : null,
+        departureCity: resolvedDepartureCityName,
+        arrivalCityId: resolvedArrivalCityId ? Number(resolvedArrivalCityId) : null,
+        arrivalCity: resolvedArrivalCityName,
         dataTime: parsedDate,
         requestComment: requestComment || '',
         status: 'pending',

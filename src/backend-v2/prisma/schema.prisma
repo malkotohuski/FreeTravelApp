@@ -79,9 +79,11 @@ model Route {
   ownerId            Int
   selectedVehicle    String
   registrationNumber String?
+  departureCityId    Int?
   departureCity      String
   departureStreet    String?
   departureNumber    String?
+  arrivalCityId      Int?
   arrivalCity        String
   arrivalStreet      String?
   arrivalNumber      String?
@@ -93,6 +95,8 @@ model Route {
   comments           Comment[]
   ratings            Rating[]
   requests           Request[]       @relation("RouteRequests")
+  departureCityRef   City?           @relation("RouteDepartureCity", fields: [departureCityId], references: [id])
+  arrivalCityRef     City?           @relation("RouteArrivalCity", fields: [arrivalCityId], references: [id])
   owner              User            @relation("UserRoutes", fields: [ownerId], references: [id])
   seekerRequests     SeekerRequest[]
 }
@@ -153,7 +157,9 @@ model Request {
   userLname       String
   userEmail       String
   userRouteId     Int
+  departureCityId Int?
   departureCity   String
+  arrivalCityId   Int?
   arrivalCity     String
   dataTime        DateTime
   requestComment  String
@@ -167,6 +173,8 @@ model Request {
   seekerRequestId Int?
   route           Route?         @relation("RouteRequests", fields: [routeId], references: [id])
   seekerRequest   SeekerRequest? @relation(fields: [seekerRequestId], references: [id])
+  departureCityRef City?         @relation("RequestDepartureCity", fields: [departureCityId], references: [id])
+  arrivalCityRef   City?         @relation("RequestArrivalCity", fields: [arrivalCityId], references: [id])
   user            User           @relation("UserRequests", fields: [userID], references: [id])
 }
 
@@ -226,6 +234,25 @@ model UserDevice {
   fcmToken  String
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model City {
+  id             Int     @id @default(autoincrement())
+  name           String  @unique
+  normalizedName String
+  countryCode    String  @default("BG")
+  region         String?
+  isActive       Boolean @default(true)
+  popularity     Int     @default(0)
+  createdAt      DateTime @default(now())
+  departingRoutes Route[] @relation("RouteDepartureCity")
+  arrivingRoutes  Route[] @relation("RouteArrivalCity")
+  departureRequests Request[] @relation("RequestDepartureCity")
+  arrivalRequests   Request[] @relation("RequestArrivalCity")
+
+  @@index([name])
+  @@index([normalizedName])
+  @@index([isActive, popularity])
 }
 
 enum ReportStatus {

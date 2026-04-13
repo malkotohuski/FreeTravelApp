@@ -110,6 +110,9 @@ app.use('/api/ratings', ratingRoutes);
 const notificationRoutes = require('./routes/notificationRoutes');
 app.use('/api', notificationRoutes);
 
+const cityRoutes = require('./routes/cityRoutes');
+app.use('/api/cities', cityRoutes);
+
 app.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) {
     return res.status(400).json({error: err.message});

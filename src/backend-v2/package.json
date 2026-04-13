@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
-    "seed": "node prisma/seed.js"
+    "seed": "node prisma/seed.js",
+    "seed:cities": "node prisma/seedCities.js"
   },
   "keywords": [],
   "author": "",

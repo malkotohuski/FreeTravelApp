@@ -183,8 +183,8 @@ export default function Register({navigation}) {
       <KeyboardAvoidingView
         style={{flex: 1}}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}>
-        <ScrollView contentContainerStyle={{flexGrow: 1}}>
+        keyboardVerticalOffset={0}>
+        <ScrollView style={{flex: 1}} contentContainerStyle={{flexGrow: 1}}>
           <View style={styles.container}>
             <Image
               source={require('../../../images/login-background.jpg')}

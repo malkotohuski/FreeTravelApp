@@ -10,6 +10,19 @@ exports.createRoute = async (req, res) => {
       return res.status(400).json({error: 'Missing route data'});
     }
 
+    if (!route.departureCityId || !route.arrivalCityId) {
+      return res.status(400).json({error: 'Departure and arrival city IDs are required'});
+    }
+
+    const [departureCityRecord, arrivalCityRecord] = await Promise.all([
+      prisma.city.findUnique({where: {id: Number(route.departureCityId)}}),
+      prisma.city.findUnique({where: {id: Number(route.arrivalCityId)}}),
+    ]);
+
+    if (!departureCityRecord || !arrivalCityRecord) {
+      return res.status(404).json({error: 'Selected city was not found'});
+    }
+
     // 🔒 Rate limit – 3 маршрута за 1 час
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
 
@@ -32,8 +45,8 @@ exports.createRoute = async (req, res) => {
     const duplicate = await prisma.route.findFirst({
       where: {
         ownerId: userId,
-        departureCity: route.departureCity,
-        arrivalCity: route.arrivalCity,
+        departureCity: departureCityRecord.name,
+        arrivalCity: arrivalCityRecord.name,
         selectedDateTime: new Date(route.selectedDateTime),
       },
     });
@@ -49,10 +62,12 @@ exports.createRoute = async (req, res) => {
         ownerId: userId,
         selectedVehicle: route.selectedVehicle,
         registrationNumber: route.registrationNumber,
-        departureCity: route.departureCity,
+        departureCityId: departureCityRecord.id,
+        departureCity: departureCityRecord.name,
         departureStreet: route.departureStreet,
         departureNumber: route.departureNumber,
-        arrivalCity: route.arrivalCity,
+        arrivalCityId: arrivalCityRecord.id,
+        arrivalCity: arrivalCityRecord.name,
         arrivalStreet: route.arrivalStreet,
         arrivalNumber: route.arrivalNumber,
         selectedDateTime: new Date(route.selectedDateTime),
