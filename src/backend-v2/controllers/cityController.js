@@ -53,15 +53,14 @@ exports.searchCities = async (req, res) => {
             }
           : {}),
       },
-      orderBy: normalizedSearch
-        ? [{popularity: 'desc'}, {name: 'asc'}]
-        : [{popularity: 'desc'}, {name: 'asc'}],
-      take: normalizedSearch ? 20 : 10,
+      orderBy: [{popularity: 'desc'}, {name: 'asc'}],
+      take: normalizedSearch ? 200 : 10,
       select: {
         id: true,
         name: true,
         region: true,
         countryCode: true,
+        popularity: true,
       },
     });
 
