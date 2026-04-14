@@ -4,9 +4,15 @@ const {PrismaClient} = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
-const normalizeCityName = value =>
+const sanitizeCityName = value =>
   value
-    .trim()
+    .replace(/_/g, ' ')
+    .replace(/Ðµ/g, 'е')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const normalizeCityName = value =>
+  sanitizeCityName(value)
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '');
@@ -19,9 +25,9 @@ async function main() {
 
   const source = fs.readFileSync(legacySelectorPath, 'utf8');
   const matches = [...source.matchAll(/t\('([^']+)'\)/g)];
-  const uniqueNames = [...new Set(matches.map(match => match[1].trim()))].filter(
-    Boolean,
-  );
+  const uniqueNames = [
+    ...new Set(matches.map(match => sanitizeCityName(match[1]))),
+  ].filter(Boolean);
 
   const cityRows = uniqueNames.map(name => ({
     name,

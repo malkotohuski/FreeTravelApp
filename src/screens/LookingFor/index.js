@@ -27,6 +27,7 @@ function Looking({navigation}) {
   const {t, i18n} = useTranslation();
   const {user, token} = useAuth();
   const theme = useTheme();
+  const minSearchLength = 2;
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -90,6 +91,13 @@ function Looking({navigation}) {
   useEffect(() => {
     const loadDepartureCities = async () => {
       if (!modalDeparture) return;
+      const trimmedSearch = debouncedDepartureSearch.trim();
+
+      if (trimmedSearch.length > 0 && trimmedSearch.length < minSearchLength) {
+        setFilteredDepartureCities([]);
+        setDepartureLoading(false);
+        return;
+      }
 
       try {
         setDepartureLoading(true);
@@ -109,6 +117,13 @@ function Looking({navigation}) {
   useEffect(() => {
     const loadArrivalCities = async () => {
       if (!modalArrival) return;
+      const trimmedSearch = debouncedArrivalSearch.trim();
+
+      if (trimmedSearch.length > 0 && trimmedSearch.length < minSearchLength) {
+        setFilteredArrivalCities([]);
+        setArrivalLoading(false);
+        return;
+      }
 
       try {
         setArrivalLoading(true);
@@ -294,6 +309,16 @@ function Looking({navigation}) {
                         color={theme.primaryButton}
                         style={{marginVertical: 12}}
                       />
+                    ) : departureSearch.trim().length > 0 &&
+                      departureSearch.trim().length < minSearchLength ? (
+                      <Text
+                        style={{
+                          color: theme.textSecondary,
+                          textAlign: 'center',
+                          paddingVertical: 12,
+                        }}>
+                        {t('Type at least 2 characters')}
+                      </Text>
                     ) : (
                       <FlatList
                         data={filteredDepartureCities}
@@ -380,6 +405,16 @@ function Looking({navigation}) {
                         color={theme.primaryButton}
                         style={{marginVertical: 12}}
                       />
+                    ) : arrivalSearch.trim().length > 0 &&
+                      arrivalSearch.trim().length < minSearchLength ? (
+                      <Text
+                        style={{
+                          color: theme.textSecondary,
+                          textAlign: 'center',
+                          paddingVertical: 12,
+                        }}>
+                        {t('Type at least 2 characters')}
+                      </Text>
                     ) : (
                       <FlatList
                         data={filteredArrivalCities}

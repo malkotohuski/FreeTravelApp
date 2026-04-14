@@ -25,6 +25,7 @@ function SelectRouteScreen({route, navigation}) {
   const {t, i18n} = useTranslation();
   const {selectedVehicle, registrationNumber} = route.params;
   const theme = useTheme();
+  const minSearchLength = 2;
 
   const [departureSearchText, setDepartureSearchText] = useState('');
   const [arrivalSearchText, setArrivalSearchText] = useState('');
@@ -174,6 +175,14 @@ function SelectRouteScreen({route, navigation}) {
     let isActive = true;
 
     const loadDepartureCities = async () => {
+      const trimmedSearch = debouncedDepartureSearch.trim();
+
+      if (trimmedSearch.length > 0 && trimmedSearch.length < minSearchLength) {
+        setDepartureCities([]);
+        setDepartureLoading(false);
+        return;
+      }
+
       try {
         setDepartureLoading(true);
         const data = await searchCitiesApi(debouncedDepartureSearch);
@@ -207,6 +216,14 @@ function SelectRouteScreen({route, navigation}) {
     let isActive = true;
 
     const loadArrivalCities = async () => {
+      const trimmedSearch = debouncedArrivalSearch.trim();
+
+      if (trimmedSearch.length > 0 && trimmedSearch.length < minSearchLength) {
+        setArrivalCities([]);
+        setArrivalLoading(false);
+        return;
+      }
+
       try {
         setArrivalLoading(true);
         const data = await searchCitiesApi(debouncedArrivalSearch);
@@ -493,6 +510,13 @@ function SelectRouteScreen({route, navigation}) {
                             {t('Loading...')}
                           </Text>
                         </View>
+                      ) : departureSearchText.trim().length > 0 &&
+                        departureSearchText.trim().length < minSearchLength ? (
+                        <View style={styles.searchStateContainer}>
+                          <Text style={{color: theme.textSecondary}}>
+                            {t('Type at least 2 characters')}
+                          </Text>
+                        </View>
                       ) : (
                         <View style={styles.searchStateContainer}>
                           <Text style={{color: theme.textSecondary}}>
@@ -600,6 +624,13 @@ function SelectRouteScreen({route, navigation}) {
                         <View style={styles.searchStateContainer}>
                           <Text style={{color: theme.textSecondary}}>
                             {t('Loading...')}
+                          </Text>
+                        </View>
+                      ) : arrivalSearchText.trim().length > 0 &&
+                        arrivalSearchText.trim().length < minSearchLength ? (
+                        <View style={styles.searchStateContainer}>
+                          <Text style={{color: theme.textSecondary}}>
+                            {t('Type at least 2 characters')}
                           </Text>
                         </View>
                       ) : (

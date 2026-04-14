@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node server.js",
     "seed": "node prisma/seed.js",
-    "seed:cities": "node prisma/seedCities.js"
+    "seed:cities": "node prisma/seedCities.js",
+    "cleanup:cities": "node prisma/cleanupCities.js"
   },
   "keywords": [],
   "author": "",
