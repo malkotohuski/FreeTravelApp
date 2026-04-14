@@ -286,7 +286,6 @@ function Looking({navigation}) {
                         },
                       ]}
                       value={departureSearch}
-                      onBlur={clearDepartureSearch}
                       onChangeText={setDepartureSearch}
                     />
                     {departureLoading ? (
@@ -299,6 +298,7 @@ function Looking({navigation}) {
                       <FlatList
                         data={filteredDepartureCities}
                         keyExtractor={item => item.id.toString()}
+                        keyboardShouldPersistTaps="handled"
                         ListEmptyComponent={
                           <Text
                             style={{
@@ -372,7 +372,6 @@ function Looking({navigation}) {
                         },
                       ]}
                       value={arrivalSearch}
-                      onBlur={clearArrivalSearch}
                       onChangeText={setArrivalSearch}
                     />
                     {arrivalLoading ? (
@@ -385,6 +384,7 @@ function Looking({navigation}) {
                       <FlatList
                         data={filteredArrivalCities}
                         keyExtractor={item => item.id.toString()}
+                        keyboardShouldPersistTaps="handled"
                         ListEmptyComponent={
                           <Text
                             style={{

@@ -9,6 +9,24 @@ const normalizeSearch = value =>
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '');
 
+const getCityScore = (city, normalizedSearch) => {
+  const normalizedName = normalizeSearch(city.name);
+
+  if (normalizedName === normalizedSearch) {
+    return 3;
+  }
+
+  if (normalizedName.startsWith(normalizedSearch)) {
+    return 2;
+  }
+
+  if (normalizedName.includes(normalizedSearch)) {
+    return 1;
+  }
+
+  return 0;
+};
+
 exports.searchCities = async (req, res) => {
   const search = (req.query.search || '').trim();
   const normalizedSearch = normalizeSearch(search);
@@ -50,15 +68,16 @@ exports.searchCities = async (req, res) => {
     const rankedCities = normalizedSearch
       ? cities
           .sort((a, b) => {
-            const aStarts = normalizeSearch(a.name).startsWith(normalizedSearch);
-            const bStarts = normalizeSearch(b.name).startsWith(normalizedSearch);
+            const aScore = getCityScore(a, normalizedSearch);
+            const bScore = getCityScore(b, normalizedSearch);
 
-            if (aStarts && !bStarts) {
-              return -1;
+            if (aScore !== bScore) {
+              return bScore - aScore;
             }
 
-            if (!aStarts && bStarts) {
-              return 1;
+            const popularityDiff = (b.popularity || 0) - (a.popularity || 0);
+            if (popularityDiff !== 0) {
+              return popularityDiff;
             }
 
             return a.name.localeCompare(b.name, 'bg');
