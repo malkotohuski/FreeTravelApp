@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useCallback} from 'react';
+﻿import React, {useEffect, useState, useCallback} from 'react';
 import {
   View,
   Text,
@@ -74,7 +74,7 @@ const ConversationsScreen = ({navigation}) => {
                 if (!exists)
                   acc.push({
                     ...c,
-                    messages: [], // винаги празни за нов fetch
+                    messages: [], // Ð²Ð¸Ð½Ð°Ð³Ð¸ Ð¿Ñ€Ð°Ð·Ð½Ð¸ Ð·Ð° Ð½Ð¾Ð² fetch
                     unreadCount: c.unreadCount || 0,
                   });
                 return acc;
@@ -94,12 +94,21 @@ const ConversationsScreen = ({navigation}) => {
   );
 
   useEffect(() => {
-    socket.on('newConversation', conv => {
+    const newConversationHandler = conv => {
       setConversations(prev => {
-        const exists = prev.some(c => c.id === conv.id);
-        if (exists) return prev;
+        const existingIndex = prev.findIndex(c => c.id === conv.id);
+        const nextConversation = {
+          ...conv,
+          messages: conv.messages || [],
+          unreadCount: conv.unreadCount || 0,
+        };
 
-        // Навигация към ChatScreen ако е за текущия потребител
+        if (existingIndex >= 0) {
+          const updated = [...prev];
+          updated.splice(existingIndex, 1);
+          return [nextConversation, ...updated];
+        }
+
         if (conv.user1Id === user.id || conv.user2Id === user.id) {
           navigation.navigate('ChatScreen', {
             conversationId: conv.id,
@@ -107,39 +116,56 @@ const ConversationsScreen = ({navigation}) => {
           });
         }
 
-        return [{...conv, messages: []}, ...prev]; // винаги празни messages
+        return [nextConversation, ...prev];
       });
-    });
-    socket.on('newMessage', ({conversationId, message}) => {
-      setConversations(prev =>
-        prev.map(conv => {
-          if (String(conv.id) !== String(conversationId)) return conv;
+    };
 
-          // Проверка за дубликати
-          const messageExists = conv.messages?.some(m => m.id === message.id);
-          if (messageExists) return conv;
+    const newMessageHandler = ({conversationId, message}) => {
+      setConversations(prev => {
+        const existingIndex = prev.findIndex(
+          conv => String(conv.id) === String(conversationId),
+        );
 
-          const isMyMessage = message.senderId === user.id;
-          const isActiveChat =
-            String(NotificationService.currentConversationId) ===
-            String(conversationId);
+        if (existingIndex === -1) {
+          return prev;
+        }
 
-          return {
-            ...conv,
-            messages: [...(conv.messages || []), message],
-            lastMessage: message,
-            unreadCount:
-              isActiveChat || isMyMessage ? 0 : (conv.unreadCount || 0) + 1,
-          };
-        }),
-      );
-    });
+        const currentConversation = prev[existingIndex];
+        const messageExists = currentConversation.messages?.some(
+          m => m.id === message.id,
+        );
+
+        const isMyMessage = message.senderId === user.id;
+        const isActiveChat =
+          String(NotificationService.getActiveConversation()) ===
+          String(conversationId);
+
+        const updatedConversation = {
+          ...currentConversation,
+          messages: messageExists
+            ? currentConversation.messages || []
+            : [...(currentConversation.messages || []), message],
+          lastMessage: message,
+          unreadCount:
+            isActiveChat || isMyMessage
+              ? 0
+              : (currentConversation.unreadCount || 0) + (messageExists ? 0 : 1),
+        };
+
+        const next = [...prev];
+        next.splice(existingIndex, 1);
+        return [updatedConversation, ...next];
+      });
+    };
+
+    socket.on('newConversation', newConversationHandler);
+    socket.on('newMessage', newMessageHandler);
 
     return () => {
-      socket.off('newConversation');
-      socket.off('newMessage');
+      socket.off('newConversation', newConversationHandler);
+      socket.off('newMessage', newMessageHandler);
     };
-  }, [user.id]);
+  }, [navigation, user.id]);
 
   const loadMore = async () => {
     if (loadingMore) return;
@@ -151,7 +177,7 @@ const ConversationsScreen = ({navigation}) => {
         `/api/conversations/user/${user.id}?skip=${page * LIMIT}&take=${LIMIT}`,
       );
 
-      // ако няма нови – просто спираме
+      // Ð°ÐºÐ¾ Ð½ÑÐ¼Ð° Ð½Ð¾Ð²Ð¸ â€“ Ð¿Ñ€Ð¾ÑÑ‚Ð¾ ÑÐ¿Ð¸Ñ€Ð°Ð¼Ðµ
       if (res.data.length === 0) return;
 
       setConversations(prev => {
@@ -252,7 +278,7 @@ const ConversationsScreen = ({navigation}) => {
                         try {
                           await api.delete(`/api/conversations/${item.id}`);
 
-                          // Скриваме го локално за потребителя
+                          // Ð¡ÐºÑ€Ð¸Ð²Ð°Ð¼Ðµ Ð³Ð¾ Ð»Ð¾ÐºÐ°Ð»Ð½Ð¾ Ð·Ð° Ð¿Ð¾Ñ‚Ñ€ÐµÐ±Ð¸Ñ‚ÐµÐ»Ñ
                           setConversations(prev =>
                             prev.filter(conv => conv.id !== item.id),
                           );
@@ -306,7 +332,7 @@ const ConversationsScreen = ({navigation}) => {
                       },
                     ]}>
                     {lastMessage?.text ||
-                      `${item.departureCity} → ${item.arrivalCity}`}
+                      `${item.departureCity} â†’ ${item.arrivalCity}`}
                   </Text>
 
                   {item.unreadCount > 0 && (
@@ -395,7 +421,7 @@ const styles = StyleSheet.create({
   avatarImage: {
     width: '100%',
     height: '100%',
-    borderRadius: 25, // да съвпада с контейнера
+    borderRadius: 25, // Ð´Ð° ÑÑŠÐ²Ð¿Ð°Ð´Ð° Ñ ÐºÐ¾Ð½Ñ‚ÐµÐ¹Ð½ÐµÑ€Ð°
     resizeMode: 'cover',
   },
 
@@ -468,3 +494,4 @@ const styles = StyleSheet.create({
   },
 });
 export default ConversationsScreen;
+

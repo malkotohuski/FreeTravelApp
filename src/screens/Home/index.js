@@ -1,4 +1,4 @@
-import i18next from 'i18next';
+﻿import i18next from 'i18next';
 import React, {
   useState,
   useEffect,
@@ -51,13 +51,11 @@ function HomePage({navigation}) {
 
     socket.emit('joinUserRoom', user.id);
 
-    console.log('Joining room for user:', user.id);
-
-    socket.on('joinedRoom', room => {
+    const joinedRoomHandler = room => {
       console.log('Joined socket room:', room);
-    });
+    };
 
-    socket.on('newConversation', conv => {
+    const newConversationHandler = conv => {
       const activeConv = NotificationService.getActiveConversation();
 
       if (activeConv && String(activeConv) === String(conv.id)) {
@@ -75,7 +73,6 @@ function HomePage({navigation}) {
           useNativeDriver: false,
         }),
       ]).start();
-      console.log('🔥 newConversation received:', conv);
 
       Vibration.vibrate([0, 150, 70, 150, 70, 150]);
 
@@ -85,21 +82,25 @@ function HomePage({navigation}) {
         return next > 9 ? '9+' : next;
       });
 
-      Toast.show({
-        type: 'success',
-        text1: 'New chat started',
-        text2: `${conv.departureCity} → ${conv.arrivalCity}`,
-        position: 'top',
-        visibilityTime: 7000,
-        autoHide: true,
+        Toast.show({
+          type: 'success',
+          text1: 'New chat started',
+          text2: `${conv.departureCity} -> ${conv.arrivalCity}`,
+          position: 'top',
+          visibilityTime: 7000,
+          autoHide: true,
         topOffset: 60,
       });
-    });
+    };
 
-    socket.on('newMessage', ({conversationId}) => {
+    const newMessageHandler = ({conversationId, message}) => {
       const activeConv = NotificationService.getActiveConversation();
 
       if (String(activeConv) === String(conversationId)) {
+        return;
+      }
+
+      if (message?.senderId === user.id) {
         return;
       }
 
@@ -108,19 +109,23 @@ function HomePage({navigation}) {
         const next = Number(prev || 0) + 1;
         return next > 9 ? '9+' : next;
       });
-    });
+    };
+
+    socket.on('joinedRoom', joinedRoomHandler);
+    socket.on('newConversation', newConversationHandler);
+    socket.on('newMessage', newMessageHandler);
 
     return () => {
-      socket.off('joinedRoom');
-      socket.off('newConversation');
-      socket.off('newMessage');
+      socket.off('joinedRoom', joinedRoomHandler);
+      socket.off('newConversation', newConversationHandler);
+      socket.off('newMessage', newMessageHandler);
     };
-  }, [user?.id]);
+  }, [user?.id, setChatCount, bounceAnim]);
 
   useEffect(() => {
     if (!user?.id) return;
 
-    socket.on('newNotification', notification => {
+    const newNotificationHandler = notification => {
       setNotificationCount(prev => {
         const next = prev + 1;
         return next;
@@ -131,19 +136,21 @@ function HomePage({navigation}) {
         text1: notification.message,
         visibilityTime: 4000,
       }); */
-    });
+    };
 
-    return () => socket.off('newNotification');
+    socket.on('newNotification', newNotificationHandler);
+
+    return () => socket.off('newNotification', newNotificationHandler);
   }, [user?.id]);
 
-  // ─────── Нов useEffect за messagesRead ───────
+  // â”€â”€â”€â”€â”€â”€â”€ ÐÐ¾Ð² useEffect Ð·Ð° messagesRead â”€â”€â”€â”€â”€â”€â”€
   useFocusEffect(
     React.useCallback(() => {
       if (!user?.id) return;
 
       const handler = ({conversationId}) => {
         const activeConv = NotificationService.getActiveConversation();
-        // ❗ Зануляваме брояча само ако текущият чат е активен
+        // â— Ð—Ð°Ð½ÑƒÐ»ÑÐ²Ð°Ð¼Ðµ Ð±Ñ€Ð¾ÑÑ‡Ð° ÑÐ°Ð¼Ð¾ Ð°ÐºÐ¾ Ñ‚ÐµÐºÑƒÑ‰Ð¸ÑÑ‚ Ñ‡Ð°Ñ‚ Ðµ Ð°ÐºÑ‚Ð¸Ð²ÐµÐ½
         if (String(activeConv) === String(conversationId)) {
           setChatCount(0);
         }
@@ -202,7 +209,7 @@ function HomePage({navigation}) {
       glowAnim.setValue(0);
     }
 
-    // 🔥 МНОГО ВАЖНО
+    // ðŸ”¥ ÐœÐÐžÐ“Ðž Ð’ÐÐ–ÐÐž
     return () => {
       if (pulseLoopRef.current) {
         pulseLoopRef.current.stop();
@@ -645,3 +652,4 @@ function HomePage({navigation}) {
 }
 
 export default HomePage;
+
