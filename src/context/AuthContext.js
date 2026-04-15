@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api, {setLogoutHandler} from '../api/api';
+import NotificationService from '../backend-v2/services/NotificationService';
 
 const LOGIN = 'LOGIN';
 const LOGOUT = 'LOGOUT';
@@ -42,16 +43,15 @@ export const AuthProvider = ({children}) => {
     const loadUser = async () => {
       try {
         const token = await AsyncStorage.getItem('@token');
-        console.log('Token:', token);
         const userString = await AsyncStorage.getItem('@user');
 
         if (token && userString) {
           const user = JSON.parse(userString);
-          const refreshToken = await AsyncStorage.getItem('@refreshToken');
 
           api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
           dispatch({type: LOGIN, payload: {user, token}});
+          await NotificationService.syncDeviceToken();
         }
       } catch (err) {
         console.log('Error loading persisted user:', err);
@@ -63,10 +63,6 @@ export const AuthProvider = ({children}) => {
     loadUser();
     // 🧹 Свързваме автоматичния logout при 401
     setLogoutHandler(async () => {
-      // взимаме токена само за логване (не е задължително)
-      const token = await AsyncStorage.getItem('@token');
-      console.log('TOKEN FROM STORAGE:', token);
-
       // чистим всички токени
       await AsyncStorage.removeItem('@token');
       await AsyncStorage.removeItem('@refreshToken');
@@ -78,6 +74,8 @@ export const AuthProvider = ({children}) => {
   }, []);
 
   const login = async (user, token, refreshToken) => {
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
     dispatch({
       type: LOGIN,
       payload: {user, token}, // state ще е обновен
@@ -87,6 +85,7 @@ export const AuthProvider = ({children}) => {
     await AsyncStorage.setItem('@user', JSON.stringify(user));
     await AsyncStorage.setItem('@token', token);
     await AsyncStorage.setItem('@refreshToken', refreshToken);
+    await NotificationService.syncDeviceToken();
   };
 
   const logout = async () => {
@@ -95,7 +94,7 @@ export const AuthProvider = ({children}) => {
       await api.post('/api/auth/logout');
     } catch (error) {
       // дори да фейлне → продължаваме с logout
-      console.log('Logout API error:', error);
+      console.log('Logout API error:', error?.message || error);
     } finally {
       await AsyncStorage.removeItem('@token');
       await AsyncStorage.removeItem('@refreshToken');

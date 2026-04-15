@@ -105,8 +105,8 @@ function HomePage({navigation}) {
 
       setChatCount(prev => {
         if (prev === '9+') return prev;
-
-        setChatCount(prev => prev + 1);
+        const next = Number(prev || 0) + 1;
+        return next > 9 ? '9+' : next;
       });
     });
 

@@ -7,6 +7,20 @@ const getRouteCityName = (route, key) =>
   route?.[key === 'departureCityRef' ? 'departureCity' : 'arrivalCity'] ||
   'Unknown';
 
+const buildConversationPayloads = conversation => {
+  const convForUser1 = {
+    ...conversation,
+    otherUser: conversation.user2,
+  };
+
+  const convForUser2 = {
+    ...conversation,
+    otherUser: conversation.user1,
+  };
+
+  return {convForUser1, convForUser2};
+};
+
 // Стартиране на разговор
 exports.startConversation = async (req, res) => {
   const {routeId, user2Id} = req.body;
@@ -82,15 +96,8 @@ exports.startConversation = async (req, res) => {
       });
 
       // 4️⃣ правим различен обект за всеки user
-      const convForUser1 = {
-        ...fullConversation,
-        otherUser: fullConversation.user2,
-      };
-
-      const convForUser2 = {
-        ...fullConversation,
-        otherUser: fullConversation.user1,
-      };
+      const {convForUser1, convForUser2} =
+        buildConversationPayloads(fullConversation);
 
       // 5️⃣ socket emit
       if (global.io) {
@@ -153,16 +160,6 @@ exports.sendMessage = async (req, res) => {
       return res.status(400).json({error: 'Message too long'});
     }
 
-    // 1️⃣ Създаваме съобщението
-    const message = await prisma.message.create({
-      data: {
-        conversationId,
-        senderId,
-        text,
-        read: false, // важно
-      },
-    });
-
     const conversation = await prisma.conversation.findUnique({
       where: {id: conversationId},
     });
@@ -180,9 +177,29 @@ exports.sendMessage = async (req, res) => {
         ? conversation.user2Id
         : conversation.user1Id;
 
-    // 2️⃣ Emit в реално време
+    // 1️⃣ Създаваме съобщението
+    const message = await prisma.message.create({
+      data: {
+        conversationId,
+        senderId,
+        text,
+        read: false,
+      },
+    });
+
+    // 2️⃣ Emit в реално време към conversation room и user rooms
     if (global.io) {
       global.io.to('conversation_' + conversationId).emit('newMessage', {
+        conversationId,
+        message,
+      });
+
+      global.io.to('user_' + senderId).emit('newMessage', {
+        conversationId,
+        message,
+      });
+
+      global.io.to('user_' + receiverId).emit('newMessage', {
         conversationId,
         message,
       });

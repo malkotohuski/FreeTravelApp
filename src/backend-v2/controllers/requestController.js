@@ -5,6 +5,20 @@ const {sendNotification} = require('./notificationController');
 const getRequestCityName = (entity, relationKey, fallbackKey) =>
   entity?.[relationKey]?.name || entity?.[fallbackKey] || '';
 
+const buildConversationPayloads = conversation => {
+  const convForUser1 = {
+    ...conversation,
+    otherUser: conversation.user2,
+  };
+
+  const convForUser2 = {
+    ...conversation,
+    otherUser: conversation.user1,
+  };
+
+  return {convForUser1, convForUser2};
+};
+
 // Създаване на нова заявка
 exports.createRequest = async (req, res) => {
   try {
@@ -158,7 +172,7 @@ exports.createRequest = async (req, res) => {
         email: requester.email || '',
         comment: requestComment || '',
       },
-      skipPushIfOnline: true,
+      skipPushIfOnline: false,
     });
 
     return res
@@ -244,7 +258,7 @@ exports.makeDecision = async (req, res) => {
       routeId: request.routeId,
       type: 'approval',
       data: {routeId: request.routeId, status: decision},
-      skipPushIfOnline: true,
+      skipPushIfOnline: false,
     });
 
     // 3️⃣ Създаване / upsert на conversation, ако е одобрено
@@ -284,13 +298,25 @@ exports.makeDecision = async (req, res) => {
           },
         });
 
+        const fullConversation = await prisma.conversation.findUnique({
+          where: {id: conversation.id},
+          include: {
+            messages: {orderBy: {createdAt: 'asc'}},
+            user1: {select: {id: true, username: true, userImage: true}},
+            user2: {select: {id: true, username: true, userImage: true}},
+          },
+        });
+
+        const {convForUser1, convForUser2} =
+          buildConversationPayloads(fullConversation);
+
         if (global.io) {
           global.io
             .to('user_' + request.toUserId)
-            .emit('newConversation', conversation);
+            .emit('newConversation', convForUser1);
           global.io
             .to('user_' + request.userID)
-            .emit('newConversation', conversation);
+            .emit('newConversation', convForUser2);
         }
       } else {
         // findFirst + create за seekerRequest
@@ -313,13 +339,25 @@ exports.makeDecision = async (req, res) => {
             },
           });
 
+          const fullConversation = await prisma.conversation.findUnique({
+            where: {id: conversation.id},
+            include: {
+              messages: {orderBy: {createdAt: 'asc'}},
+              user1: {select: {id: true, username: true, userImage: true}},
+              user2: {select: {id: true, username: true, userImage: true}},
+            },
+          });
+
+          const {convForUser1, convForUser2} =
+            buildConversationPayloads(fullConversation);
+
           if (global.io) {
             global.io
               .to('user_' + request.toUserId)
-              .emit('newConversation', conversation);
+              .emit('newConversation', convForUser1);
             global.io
               .to('user_' + request.userID)
-              .emit('newConversation', conversation);
+              .emit('newConversation', convForUser2);
           }
         }
       }

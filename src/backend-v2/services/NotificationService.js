@@ -1,12 +1,13 @@
-import messaging from '@react-native-firebase/messaging';
+﻿import messaging from '@react-native-firebase/messaging';
 import {PermissionsAndroid, Platform} from 'react-native';
-import {navigate} from '../../navigation/NavigationService'; // ✅ само оттук!
+import {navigate} from '../../navigation/NavigationService';
 import Toast from 'react-native-toast-message';
+import api from '../../api/api';
 
 class NotificationService {
   currentConversationId = null;
+  tokenRefreshUnsubscribe = null;
 
-  // 👉 SET активен чат
   setActiveConversation(conversationId) {
     this.currentConversationId = String(conversationId);
   }
@@ -33,20 +34,14 @@ class NotificationService {
     );
   }
 
-  // 👉 NAVIGATION от push
   handleNavigation(data) {
     if (!data) return;
 
     const {screen, conversationId, routeId} = data;
 
-    console.log('📲 PUSH NAVIGATION:', data);
-
     if (screen === 'message' && conversationId) {
       this.setActiveConversation(conversationId);
-
-      navigate('ChatScreen', {
-        conversationId,
-      });
+      navigate('ChatScreen', {conversationId});
     }
 
     if (screen === 'request' && routeId) {
@@ -62,60 +57,98 @@ class NotificationService {
       await messaging().registerDeviceForRemoteMessages();
       const token = await messaging().getToken();
       return token;
-    } catch (err) {
-      console.log('FCM ERROR:', err);
+    } catch (error) {
+      console.log('FCM ERROR:', error);
+      return null;
     }
+  }
+
+  async registerTokenWithBackend(token) {
+    if (!token) {
+      return null;
+    }
+
+    try {
+      await api.post('/api/register-device', {fcmToken: token});
+      return token;
+    } catch (error) {
+      const status = error?.response?.status;
+
+      if (status !== 401 && status !== 403) {
+        console.log('Register device token failed:', error?.message || error);
+      }
+
+      return null;
+    }
+  }
+
+  async syncDeviceToken() {
+    const granted = await this.requestPermission();
+
+    if (!granted) {
+      return null;
+    }
+
+    const token = await this.getFCMToken();
+    await this.registerTokenWithBackend(token);
+    return token;
   }
 
   getToastTitle(type) {
     switch (type) {
       case 'message':
-        return '📩';
+        return 'Message';
       case 'request':
-        return '🚗 You have a new request';
+        return 'You have a new request';
       case 'accept':
-        return '✅ Your request was accepted';
+        return 'Your request was accepted';
       case 'reject':
-        return '❌ Your request was rejected';
+        return 'Your request was rejected';
       case 'rating':
-        return '⭐ You received a new rating';
+        return 'You received a new rating';
       default:
-        return '🔔 Notification';
+        return 'Notification';
     }
   }
 
   async init() {
-    await this.requestPermission();
-    const token = await this.getFCMToken();
+    const token = await this.syncDeviceToken();
 
-    // 🔥 FOREGROUND
+    if (!this.tokenRefreshUnsubscribe) {
+      this.tokenRefreshUnsubscribe = messaging().onTokenRefresh(
+        async newToken => {
+          await this.registerTokenWithBackend(newToken);
+        },
+      );
+    }
+
     messaging().onMessage(async remoteMessage => {
       const {data} = remoteMessage;
 
-      console.log('📲 PUSH RECEIVED (foreground):', data);
+      if (data?.title || data?.body) {
+        Toast.show({
+          type: 'info',
+          text1: data.title || this.getToastTitle(data?.type),
+          text2: data.body || '',
+          position: 'top',
+        });
+      }
 
-      // ❗ Нищо не правим
       return;
     });
 
-    // 👉 BACKGROUND (app е в background)
     messaging().onNotificationOpenedApp(remoteMessage => {
-      console.log('📲 BACKGROUND CLICK');
-
       setTimeout(() => {
         this.handleNavigation(remoteMessage.data);
-      }, 800); // 🔥 малко по-голям delay
+      }, 800);
     });
 
-    // 👉 QUIT STATE (app е бил затворен)
     const initialNotification = await messaging().getInitialNotification();
 
     if (initialNotification) {
-      console.log('📲 OPEN FROM QUIT');
-
       setTimeout(() => {
         this.handleNavigation(initialNotification.data);
-      }, 1500); // 🔥 ключово за Play Store!
+      }, 1500);
     }
 
     return token;
