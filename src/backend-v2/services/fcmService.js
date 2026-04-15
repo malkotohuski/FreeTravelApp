@@ -22,10 +22,19 @@ const sendPush = async (fcmToken, title, body, data = {}) => {
       data,
     };
 
-    return await admin.messaging().send(message);
+    const messageId = await admin.messaging().send(message);
+
+    return {
+      ok: true,
+      messageId,
+    };
   } catch (err) {
     console.error('Push send failed:', err.message);
-    throw err;
+    return {
+      ok: false,
+      code: err.errorInfo?.code || err.code || 'messaging/unknown-error',
+      message: err.message,
+    };
   }
 };
 

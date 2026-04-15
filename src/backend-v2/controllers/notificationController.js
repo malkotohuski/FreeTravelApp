@@ -77,7 +77,7 @@ exports.sendNotification = async ({
           stringifiedData[key] = String(data[key] ?? '');
         }
 
-        await sendPush(userDevice.fcmToken, title, message, {
+        const pushResult = await sendPush(userDevice.fcmToken, title, message, {
           screen: type === 'chat' ? 'message' : type,
           type: String(type || ''),
           routeId: String(routeId || ''),
@@ -86,6 +86,15 @@ exports.sendNotification = async ({
           senderName: String(senderName || ''),
           ...stringifiedData,
         });
+
+        if (
+          !pushResult?.ok &&
+          pushResult?.code === 'messaging/registration-token-not-registered'
+        ) {
+          await prisma.userDevice.deleteMany({
+            where: {fcmToken: userDevice.fcmToken},
+          });
+        }
       }
     }
   };
