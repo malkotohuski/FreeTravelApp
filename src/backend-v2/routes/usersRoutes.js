@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const authenticateJWT = require('../middlewares/authenticateJWT');
+const isAdmin = require('../middlewares/isAdmin');
 const usersController = require('../controllers/usersController');
 const multer = require('multer');
 
 const upload = multer({
   dest: 'tmp/',
-  limits: {fileSize: 5 * 1024 * 1024}, // 5MB
+  limits: {fileSize: 5 * 1024 * 1024},
   fileFilter: (req, file, cb) => {
     if (!file.mimetype.startsWith('image/')) {
       cb(new Error('Only image files are allowed.'));
@@ -25,9 +26,7 @@ router.patch(
   usersController.updateAvatar,
 );
 router.patch('/password', authenticateJWT, usersController.changePassword);
-
-router.get('/', usersController.getAllUsers);
-
+router.get('/', authenticateJWT, isAdmin, usersController.getAllUsers);
 router.patch(
   '/delete-account',
   authenticateJWT,

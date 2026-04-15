@@ -1,7 +1,6 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// callback, който ще се задава от AuthContext
 let onLogoutCallback = null;
 
 const API_BASE_URL = 'https://freetravelapp-production.up.railway.app';
@@ -11,13 +10,9 @@ const api = axios.create({
   timeout: 10000,
 });
 
-/* ===============================
-   REQUEST INTERCEPTOR
-   =============================== */
 api.interceptors.request.use(
   async config => {
     const token = await AsyncStorage.getItem('@token');
-    console.log('Token:', token);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -26,17 +21,11 @@ api.interceptors.request.use(
   error => Promise.reject(error),
 );
 
-/* ===============================
-   RESPONSE INTERCEPTOR
-   =============================== */
 api.interceptors.response.use(
   response => response,
   async error => {
-    console.log('INTERCEPTOR STATUS:', error.response?.status); // ← добави
-    console.log('INTERCEPTOR URL:', error.config?.url);
     const originalRequest = error.config;
 
-    // Ако access token е изтекъл
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
@@ -46,7 +35,6 @@ api.interceptors.response.use(
 
       const refreshToken = await AsyncStorage.getItem('@refreshToken');
       if (!refreshToken) {
-        // няма refresh token → logout
         await AsyncStorage.removeItem('@token');
         await AsyncStorage.removeItem('@user');
         onLogoutCallback?.();
@@ -62,16 +50,15 @@ api.interceptors.response.use(
         const newRefresh = data.refreshToken;
         await AsyncStorage.setItem('@token', newToken);
         if (newRefresh) {
-          await AsyncStorage.setItem('@refreshToken', newRefresh); // ✅
+          await AsyncStorage.setItem('@refreshToken', newRefresh);
         }
 
-        // ✅ Така е по-сигурно
         originalRequest.headers = {
           ...originalRequest.headers,
           Authorization: `Bearer ${newToken}`,
         };
 
-        return api(originalRequest); // повтаря заявката
+        return api(originalRequest);
       } catch (err) {
         await AsyncStorage.removeItem('@token');
         await AsyncStorage.removeItem('@refreshToken');
@@ -85,7 +72,6 @@ api.interceptors.response.use(
   },
 );
 
-// функция, чрез която AuthContext задава callback
 export const setLogoutHandler = callback => {
   onLogoutCallback = callback;
 };

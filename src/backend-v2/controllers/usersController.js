@@ -1,5 +1,16 @@
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
+const cloudinary = require('cloudinary').v2;
+const fs = require('fs');
+const bcrypt = require('bcryptjs');
+
+const SALT_ROUNDS = 10;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUD_API_KEY,
+  api_secret: process.env.CLOUD_API_SECRET,
+});
 
 exports.getUserById = async (req, res) => {
   try {
@@ -17,19 +28,16 @@ exports.getUserById = async (req, res) => {
         lName: true,
         userImage: true,
         averageRating: true,
-
-        // ✅ СМЕНИ receivedComments с receivedRatings
         receivedRatings: {
           orderBy: {
             createdAt: 'desc',
           },
           select: {
             id: true,
-            comment: true, // полето в Rating модела
-            score: true, // полето в Rating модела
+            comment: true,
+            score: true,
             createdAt: true,
             rater: {
-              // автора на рейтинга
               select: {
                 id: true,
                 username: true,
@@ -38,23 +46,22 @@ exports.getUserById = async (req, res) => {
             },
           },
         },
-
         _count: {
           select: {
-            receivedRatings: true, // ✅ и тук
+            receivedRatings: true,
           },
         },
       },
     });
-    console.log('USER DATA:', JSON.stringify(user, null, 2));
+
     if (!user) {
       return res.status(404).json({message: 'User not found'});
     }
 
-    res.json(user);
+    return res.json(user);
   } catch (error) {
     console.error('Get user error:', error);
-    res.status(500).json({error: 'Internal server error.'});
+    return res.status(500).json({error: 'Internal server error.'});
   }
 };
 
@@ -96,31 +103,15 @@ exports.updateProfileData = async (req, res) => {
       },
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       message: 'Profile updated successfully.',
       user: updatedUser,
     });
   } catch (error) {
     console.error('Update profile error:', error);
-    res.status(500).json({error: 'Server error.'});
+    return res.status(500).json({error: 'Server error.'});
   }
 };
-
-const cloudinary = require('cloudinary').v2;
-
-cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.CLOUD_API_KEY,
-  api_secret: process.env.CLOUD_API_SECRET,
-});
-
-console.log('Cloudinary config:', {
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.CLOUD_API_KEY ? '*****' : undefined,
-  api_secret: process.env.CLOUD_API_SECRET ? '*****' : undefined,
-});
-
-const fs = require('fs');
 
 exports.updateAvatar = async (req, res) => {
   try {
@@ -130,19 +121,16 @@ exports.updateAvatar = async (req, res) => {
       return res.status(400).json({error: 'No image file provided.'});
     }
 
-    // 🔹 Взимаме текущия аватар (ако има)
     const user = await prisma.user.findUnique({where: {id: userId}});
 
-    // 🔹 Изтриваме стария аватар от Cloudinary (ако има public_id)
     if (user.userImagePublicId) {
       try {
         await cloudinary.uploader.destroy(user.userImagePublicId);
-      } catch (err) {
-        console.warn('Could not delete old avatar:', err.message);
+      } catch (error) {
+        console.warn('Could not delete old avatar:', error.message);
       }
     }
 
-    // 🔹 Качваме новия аватар
     const result = await cloudinary.uploader.upload(req.file.path, {
       folder: 'avatars',
       transformation: [
@@ -151,10 +139,8 @@ exports.updateAvatar = async (req, res) => {
       ],
     });
 
-    // 🔹 Изтриваме локалния файл
     fs.unlinkSync(req.file.path);
 
-    // 🔹 Записваме новия URL и public_id в базата
     const updatedUser = await prisma.user.update({
       where: {id: userId},
       data: {
@@ -164,18 +150,15 @@ exports.updateAvatar = async (req, res) => {
       select: {id: true, userImage: true, userImagePublicId: true},
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       message: 'Avatar updated successfully.',
       user: updatedUser,
     });
   } catch (error) {
     console.error('Update avatar error:', error);
-    res.status(500).json({error: 'Server error.'});
+    return res.status(500).json({error: 'Server error.'});
   }
 };
-
-const bcrypt = require('bcryptjs');
-const SALT_ROUNDS = 10;
 
 exports.changePassword = async (req, res) => {
   try {
@@ -195,11 +178,14 @@ exports.changePassword = async (req, res) => {
     }
 
     const user = await prisma.user.findUnique({where: {id: userId}});
-    if (!user) return res.status(404).json({error: 'User not found.'});
+    if (!user) {
+      return res.status(404).json({error: 'User not found.'});
+    }
 
     const isMatch = await bcrypt.compare(currentPassword, user.password);
-    if (!isMatch)
+    if (!isMatch) {
       return res.status(400).json({error: 'Current password is incorrect.'});
+    }
 
     if (newPassword.length < 8) {
       return res
@@ -214,16 +200,16 @@ exports.changePassword = async (req, res) => {
       data: {password: hashedPassword},
     });
 
-    res.status(200).json({message: 'Password changed successfully.'});
+    return res.status(200).json({message: 'Password changed successfully.'});
   } catch (error) {
     console.error('Change password error:', error);
-    res.status(500).json({error: 'Server error.'});
+    return res.status(500).json({error: 'Server error.'});
   }
 };
 
 exports.softDeleteAccount = async (req, res) => {
   try {
-    const userId = req.user.id; // 🔥 НЕ взимай userId от body
+    const userId = req.user.id;
 
     const user = await prisma.user.findUnique({
       where: {id: userId},
@@ -250,21 +236,34 @@ exports.softDeleteAccount = async (req, res) => {
       },
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       message: 'Account soft deleted successfully.',
     });
   } catch (error) {
     console.error('Soft delete error:', error);
-    res.status(500).json({error: 'Server error.'});
+    return res.status(500).json({error: 'Server error.'});
   }
 };
 
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await prisma.user.findMany();
-    res.json(users);
+    const users = await prisma.user.findMany({
+      orderBy: {id: 'asc'},
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        fName: true,
+        lName: true,
+        accountStatus: true,
+        isAdmin: true,
+        createdAt: true,
+      },
+    });
+
+    return res.json(users);
   } catch (err) {
     console.error(err);
-    res.status(500).json({error: 'Server error'});
+    return res.status(500).json({error: 'Server error'});
   }
 };

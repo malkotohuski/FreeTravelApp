@@ -4,12 +4,18 @@ const jwt = require('jsonwebtoken');
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 const {Resend} = require('resend');
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY
+  ? new Resend(process.env.RESEND_API_KEY)
+  : null;
 const crypto = require('crypto');
 const sendResetEmail = require('../utils/mailer');
 
 const SALT_ROUNDS = 12;
-const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_change_later';
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET is required');
+}
+
+const JWT_SECRET = process.env.JWT_SECRET;
 
 function generateConfirmationCode() {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -149,11 +155,12 @@ exports.register = async (req, res) => {
     });
 
     try {
-      const {data, error} = await resend.emails.send({
-        from: 'noreply@freetravelapp.it.com',
-        to: useremail,
-        subject: 'FreeTravelApp - Confirmation Code',
-        html: `
+      if (resend) {
+        const {error} = await resend.emails.send({
+          from: 'noreply@freetravelapp.it.com',
+          to: useremail,
+          subject: 'FreeTravelApp - Confirmation Code',
+          html: `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <h2>FreeTravelApp</h2>
       <p>Thank you for registering. Your confirmation code is:</p>
@@ -164,15 +171,14 @@ exports.register = async (req, res) => {
       <p>If you did not create an account, please ignore this email.</p>
     </div>
   `,
-      });
+        });
 
-      if (error) {
-        console.log('RESEND ERROR:', JSON.stringify(error)); // ← ще видим грешката
-      } else {
-        console.log('RESEND SUCCESS:', JSON.stringify(data)); // ← ще видим успеха
+        if (error) {
+          console.error('Confirmation email send failed:', error);
+        }
       }
     } catch (err) {
-      console.log('RESEND EXCEPTION:', err.message);
+      console.error('Confirmation email exception:', err.message);
     }
 
     const safeUser = {...newUser};
@@ -248,7 +254,6 @@ exports.confirmEmail = async (req, res) => {
 //Login----------------------------------------------------------------->>> Вход в системата !!!
 
 exports.login = async (req, res) => {
-  console.log('LOGIN ATTEMPT:', req.body.email);
   try {
     const {email, password} = req.body;
 
@@ -267,7 +272,6 @@ exports.login = async (req, res) => {
     }
 
     if (user.accountStatus !== 'active') {
-      console.log('ACCOUNT STATUS:', user.accountStatus);
       return res.status(403).json({
         error: 'Your account has been deactivated.',
       });
@@ -388,7 +392,6 @@ exports.logout = async (req, res) => {
 };
 
 exports.forgotPassword = async (req, res) => {
-  console.log('✅ forgotPassword called with email:', req.body.email);
   try {
     const {email} = req.body;
 
@@ -418,9 +421,7 @@ exports.forgotPassword = async (req, res) => {
 
     // Изпращане на имейл чрез utils/mailer
     try {
-      console.log('Sending reset code to:', email, 'Code:', plainCode);
       await sendResetEmail(email, plainCode);
-      console.log('Email sent!');
     } catch (err) {
       console.error('Error sending reset email:', err);
     }

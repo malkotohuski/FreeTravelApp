@@ -7,28 +7,51 @@ global.isUserInConversation = (userId, conversationId) => {
   return userCurrentChat.get(Number(userId)) === String(conversationId);
 };
 
+require('dotenv').config();
+
 const {setOnlineUsers} = require('./utils/onlineUsers');
 setOnlineUsers(onlineUsers);
-require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
-
-const {PrismaClient} = require('@prisma/client');
-const prisma = new PrismaClient();
-const authenticateJWT = require('./middlewares/authenticateJWT');
 const multer = require('multer');
-
 const http = require('http');
+const rateLimit = require('express-rate-limit');
 const {Server} = require('socket.io');
+
+const authenticateJWT = require('./middlewares/authenticateJWT');
 const testRoutes = require('./routes/testRoutes');
 const deviceTokenRouter = require('./routes/deviceToken');
 
 const app = express();
-app.use(cors());
+const isProduction = process.env.NODE_ENV === 'production';
+
+const allowedOrigins = (process.env.CORS_ORIGINS || '')
+  .split(',')
+  .map(origin => origin.trim())
+  .filter(Boolean);
+
+if (isProduction && allowedOrigins.length === 0) {
+  throw new Error('CORS_ORIGINS is required in production');
+}
+
+const isOriginAllowed = origin => {
+  return !origin || (!isProduction && allowedOrigins.length === 0) || allowedOrigins.includes(origin);
+};
+
+const corsOptions = {
+  origin(origin, callback) {
+    if (isOriginAllowed(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error('Not allowed by CORS'));
+  },
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.set('trust proxy', 1);
-
-const rateLimit = require('express-rate-limit');
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -49,28 +72,10 @@ const refreshLimiter = rateLimit({
 app.use('/api/auth/login', loginLimiter);
 app.use('/api/auth/refresh', refreshLimiter);
 
-// ✅ СЛЕД ТОВА идват routes-ите
 const authRoutes = require('./routes/authRoutes');
 app.use('/api/auth', authRoutes);
 
-console.log('EMAIL_USER:', process.env.EMAIL_USER);
-console.log('EMAIL_PASS:', process.env.EMAIL_PASS);
-console.log(process.env.JWT_SECRET);
-console.log(process.env.EMAIL_USER);
-console.log(process.env.DATABASE_URL);
-
-app.get('/test', async (req, res) => {
-  const users = await prisma.user.findMany();
-  res.json(users);
-});
-
-app.get('/users', async (req, res) => {
-  const users = await prisma.user.findMany();
-  res.json(users);
-});
-
 app.use('/api', deviceTokenRouter);
-
 app.use('/api/test', testRoutes);
 
 const usersRoutes = require('./routes/usersRoutes');
@@ -88,7 +93,7 @@ app.use('/api', requestRoutes);
 app.get('/api/protected', authenticateJWT, (req, res) => {
   res.json({
     message: 'You have access to this protected route!',
-    userId: req.user.userId,
+    userId: req.user.id,
   });
 });
 
@@ -123,13 +128,19 @@ app.use((err, req, res, next) => {
   }
 
   console.error(err);
-  res.status(500).json({error: 'Server error'});
+  return res.status(500).json({error: 'Server error'});
 });
 
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: '*',
+    origin(origin, callback) {
+      if (isOriginAllowed(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error('Not allowed by CORS'));
+    },
   },
 });
 
@@ -142,52 +153,34 @@ io.on('connection', socket => {
     const room = 'user_' + userId;
 
     socket.join(room);
-
-    // ✅ добавяме user в online map
     onlineUsers.set(Number(userId), socket.id);
 
     console.log(`User ${socket.id} joined room ${room}`);
-    console.log('🟢 ONLINE USERS:', onlineUsers);
-
-    socket.emit('joinedRoom', room);
   });
 
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
 
-    // ✅ махаме user от online map
-    for (let [userId, sId] of onlineUsers.entries()) {
-      if (sId === socket.id) {
+    for (const [userId, socketId] of onlineUsers.entries()) {
+      if (socketId === socket.id) {
         onlineUsers.delete(userId);
         break;
       }
     }
-
-    console.log('🔴 ONLINE USERS:', onlineUsers);
   });
 
-  // 👉 когато user отвори чат
   socket.on('joinConversation', ({userId, conversationId}) => {
     const room = 'conversation_' + conversationId;
 
-    socket.join(room); // 💥 ДОБАВИ ТОВА
-
+    socket.join(room);
     userCurrentChat.set(Number(userId), String(conversationId));
-
-    console.log('💬 USER IN CHAT:', userId, conversationId);
-    console.log('📦 JOINED ROOM:', room);
   });
 
-  // 👉 когато user излезе от чат
   socket.on('leaveConversation', ({userId, conversationId}) => {
     const room = 'conversation_' + conversationId;
 
-    socket.leave(room); // 💥 ДОБАВИ ТОВА
-
+    socket.leave(room);
     userCurrentChat.delete(Number(userId));
-
-    console.log('🚪 USER LEFT CHAT:', userId);
-    console.log('📦 LEFT ROOM:', room);
   });
 });
 
@@ -196,5 +189,3 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log('Server running on port', PORT);
 });
-
-console.log(Object.keys(prisma));

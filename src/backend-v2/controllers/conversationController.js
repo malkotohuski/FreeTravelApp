@@ -9,7 +9,8 @@ const getRouteCityName = (route, key) =>
 
 // Стартиране на разговор
 exports.startConversation = async (req, res) => {
-  const {routeId, user1Id, user2Id} = req.body;
+  const {routeId, user2Id} = req.body;
+  const user1Id = req.user.id;
 
   try {
     if (!user2Id) {
@@ -113,22 +114,36 @@ exports.getMessages = async (req, res) => {
   const conversationId = Number(req.params.id);
 
   try {
+    const conversation = await prisma.conversation.findUnique({
+      where: {id: conversationId},
+      select: {user1Id: true, user2Id: true},
+    });
+
+    if (!conversation) {
+      return res.status(404).json({error: 'Conversation not found'});
+    }
+
+    if (![conversation.user1Id, conversation.user2Id].includes(req.user.id)) {
+      return res.status(403).json({error: 'Access denied'});
+    }
+
     const messages = await prisma.message.findMany({
       where: {conversationId},
       orderBy: {createdAt: 'asc'},
     });
 
-    res.json(messages);
+    return res.json(messages);
   } catch (error) {
     console.error('Get messages error:', error);
-    res.status(500).json({error: 'Server error'});
+    return res.status(500).json({error: 'Server error'});
   }
 };
 
 // Изпращане на съобщение
 exports.sendMessage = async (req, res) => {
   const conversationId = Number(req.params.id);
-  const {senderId, text} = req.body;
+  const {text} = req.body;
+  const senderId = req.user.id;
 
   try {
     if (!text || !text.trim()) {
@@ -156,6 +171,10 @@ exports.sendMessage = async (req, res) => {
       return res.status(404).json({error: 'Conversation not found'});
     }
 
+    if (![conversation.user1Id, conversation.user2Id].includes(senderId)) {
+      return res.status(403).json({error: 'Access denied'});
+    }
+
     const receiverId =
       conversation.user1Id === senderId
         ? conversation.user2Id
@@ -178,10 +197,10 @@ exports.sendMessage = async (req, res) => {
     // 🔥 4️⃣ НЕ правим нотификация за чат! Просто skip
     // await sendNotification(...);  <- премахнато за chat messages
 
-    res.json(message);
+    return res.json(message);
   } catch (error) {
     console.error('Send message error:', error);
-    res.status(500).json({error: 'Server error'});
+    return res.status(500).json({error: 'Server error'});
   }
 };
 
@@ -189,7 +208,7 @@ exports.sendMessage = async (req, res) => {
 exports.getUserConversations = async (req, res) => {
   const skip = Number(req.query.skip) || 0;
   const take = Number(req.query.take) || 20;
-  const userId = Number(req.params.userId);
+  const userId = req.user.id;
   const defaultAvatar =
     'https://res.cloudinary.com/dqxczsig5/image/upload/v1774361343/avatars/bzrmewmud1dlaatajmyf.jpg';
 
@@ -246,10 +265,10 @@ exports.getUserConversations = async (req, res) => {
         };
       }),
     );
-    res.json(conversationsWithExtras);
+    return res.json(conversationsWithExtras);
   } catch (error) {
     console.error('Get user conversations error:', error);
-    res.status(500).json({error: 'Server error'});
+    return res.status(500).json({error: 'Server error'});
   }
 };
 
@@ -257,26 +276,26 @@ exports.getUserConversations = async (req, res) => {
 // В markAsRead
 exports.markAsRead = async (req, res) => {
   const conversationId = Number(req.params.id);
-  const userId = Number(req.body.userId);
+  const userId = req.user.id;
 
   try {
     if (!conversationId || !userId) {
       return res.status(400).json({error: 'Invalid data'});
     }
 
-    const unreadBefore = await prisma.message.findMany({
-      where: {conversationId, senderId: {not: userId}, read: false},
-      select: {id: true, text: true},
+    const conversation = await prisma.conversation.findUnique({
+      where: {id: conversationId},
+      select: {user1Id: true, user2Id: true},
     });
-    console.log(
-      '📌 Unread messages BEFORE markAsRead:',
-      unreadBefore.map(m => m.id),
-    );
-    console.log('🔥 DEBUG:', {
-      conversationId,
-      userId,
-    });
-    console.log('🔥 RUNNING UPDATE MANY');
+
+    if (!conversation) {
+      return res.status(404).json({error: 'Conversation not found'});
+    }
+
+    if (![conversation.user1Id, conversation.user2Id].includes(userId)) {
+      return res.status(403).json({error: 'Access denied'});
+    }
+
     const updated = await prisma.message.updateMany({
       where: {
         conversationId,
@@ -289,20 +308,7 @@ exports.markAsRead = async (req, res) => {
       },
     });
 
-    const unreadAfter = await prisma.message.findMany({
-      where: {conversationId, senderId: {not: userId}, read: false},
-      select: {id: true, text: true},
-    });
-    console.log(
-      '✅ Unread messages AFTER markAsRead:',
-      unreadAfter.map(m => m.id),
-    );
-
     if (global.io) {
-      const conversation = await prisma.conversation.findUnique({
-        where: {id: conversationId},
-      });
-
       const otherUserId =
         conversation.user1Id === userId
           ? conversation.user2Id
@@ -313,10 +319,10 @@ exports.markAsRead = async (req, res) => {
       });
     }
 
-    res.json({updatedCount: updated.count});
+    return res.json({updatedCount: updated.count});
   } catch (error) {
     console.error('Mark messages as read error:', error);
-    res.status(500).json({error: 'Server error'});
+    return res.status(500).json({error: 'Server error'});
   }
 };
 
@@ -351,10 +357,10 @@ exports.deleteConversation = async (req, res) => {
       data: updateData,
     });
 
-    res.json({success: true});
+    return res.json({success: true});
   } catch (err) {
     console.error('Delete conversation failed:', err);
-    res.status(500).json({error: 'Failed to delete conversation'});
+    return res.status(500).json({error: 'Failed to delete conversation'});
   }
 };
 
@@ -368,6 +374,8 @@ exports.getConversationById = async (req, res) => {
         id: true,
         departureCity: true,
         arrivalCity: true,
+        user1Id: true,
+        user2Id: true,
       },
     });
 
@@ -375,9 +383,17 @@ exports.getConversationById = async (req, res) => {
       return res.status(404).json({error: 'Conversation not found'});
     }
 
-    res.json(conversation);
+    if (![conversation.user1Id, conversation.user2Id].includes(req.user.id)) {
+      return res.status(403).json({error: 'Access denied'});
+    }
+
+    return res.json({
+      id: conversation.id,
+      departureCity: conversation.departureCity,
+      arrivalCity: conversation.arrivalCity,
+    });
   } catch (error) {
     console.error('Get conversation error:', error);
-    res.status(500).json({error: 'Server error'});
+    return res.status(500).json({error: 'Server error'});
   }
 };

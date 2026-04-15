@@ -3,9 +3,6 @@ const prisma = new PrismaClient();
 const {sendPush} = require('../services/fcmService');
 const {isUserOnline} = require('../utils/onlineUsers');
 
-/**
- * Helper function за създаване на нотификация и push
- */
 exports.sendNotification = async ({
   recipientId,
   senderId,
@@ -19,13 +16,13 @@ exports.sendNotification = async ({
   data = {},
 }) => {
   if (!recipientId || !senderId || !message) {
-    throw new Error('recipientId, senderId и message са задължителни');
+    throw new Error('recipientId, senderId and message are required');
   }
 
-  // 🔥 Пропускаме чат съобщения → няма да се добавят в Notifications
-  if (type === 'message') return;
+  if (type === 'message') {
+    return null;
+  }
 
-  // 🔹 Проверка за дублираща нотификация
   const existing = await prisma.notification.findFirst({
     where: {
       recipientId: Number(recipientId),
@@ -35,8 +32,8 @@ exports.sendNotification = async ({
     },
   });
 
-  const getNotificationTitle = (type, senderName = '') => {
-    switch (type) {
+  const getNotificationTitle = (notificationType, senderName = '') => {
+    switch (notificationType) {
       case 'message':
         return senderName ? `📩 ${senderName} ти писа` : '📩 Ново съобщение';
       case 'request':
@@ -69,13 +66,13 @@ exports.sendNotification = async ({
             select: {fName: true, lName: true},
           });
           senderName = `${sender?.fName || ''} ${sender?.lName || ''}`.trim();
-        } catch (e) {
-          console.log('Sender fetch error:', e.message);
+        } catch (error) {
+          console.warn('Sender lookup failed:', error.message);
         }
 
         const title = getNotificationTitle(type, senderName);
-
         const stringifiedData = {};
+
         for (const key in data) {
           stringifiedData[key] = String(data[key] ?? '');
         }
@@ -122,20 +119,34 @@ exports.sendNotification = async ({
   return notification;
 };
 
-/**
- * Express wrapper за createNotification
- */
 exports.createNotificationHandler = async (req, res) => {
   try {
-    const notification = await exports.sendNotification(req.body);
-    res.status(201).json(notification);
+    const {recipientId, message, routeId, personalMessage, requester, conversationId, skipPushIfOnline, type, data} = req.body;
+
+    if (!recipientId || !message) {
+      return res.status(400).json({error: 'recipientId and message are required'});
+    }
+
+    const notification = await exports.sendNotification({
+      recipientId,
+      senderId: req.user.id,
+      message,
+      routeId,
+      personalMessage,
+      requester,
+      conversationId,
+      skipPushIfOnline,
+      type,
+      data,
+    });
+
+    return res.status(201).json(notification);
   } catch (error) {
     console.error('Create notification error:', error);
-    res.status(500).json({error: 'Failed to create notification'});
+    return res.status(500).json({error: 'Failed to create notification'});
   }
 };
 
-// Останалите endpoints
 exports.getNotifications = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -163,60 +174,82 @@ exports.getNotifications = async (req, res) => {
 
     const routeMap = new Map(routes.map(route => [route.id, route]));
 
-    const formatted = notifications.map(n => {
-      const route = routeMap.get(n.routeId);
+    const formatted = notifications.map(notification => {
+      const route = routeMap.get(notification.routeId);
 
       return {
-        id: n.id,
-        message: n.message,
-        routeId: n.routeId,
-        recipientId: n.recipientId,
-        conversationId: n.conversationId,
+        id: notification.id,
+        message: notification.message,
+        routeId: notification.routeId,
+        recipientId: notification.recipientId,
+        conversationId: notification.conversationId,
         departureCityId: route?.departureCityId || null,
         departureCity:
           route?.departureCityRef?.name || route?.departureCity || null,
         arrivalCityId: route?.arrivalCityId || null,
         arrivalCity: route?.arrivalCityRef?.name || route?.arrivalCity || null,
-        senderId: n.senderId,
-        senderUsername: n.sender?.username || null,
-        read: n.read,
-        status: n.status,
-        createdAt: n.createdAt,
+        senderId: notification.senderId,
+        senderUsername: notification.sender?.username || null,
+        read: notification.read,
+        status: notification.status,
+        createdAt: notification.createdAt,
       };
     });
 
-    res.json(formatted);
+    return res.json(formatted);
   } catch (err) {
     console.error(err);
-    res.status(500).json({error: 'Failed to fetch notifications'});
+    return res.status(500).json({error: 'Failed to fetch notifications'});
   }
 };
 
 exports.markAsRead = async (req, res) => {
   try {
-    const {id} = req.params;
+    const notificationId = Number(req.params.id);
+
+    const notification = await prisma.notification.findUnique({
+      where: {id: notificationId},
+      select: {id: true, recipientId: true},
+    });
+
+    if (!notification || notification.recipientId !== req.user.id) {
+      return res.status(404).json({error: 'Notification not found'});
+    }
+
     await prisma.notification.update({
-      where: {id: Number(id)},
+      where: {id: notificationId},
       data: {read: true},
     });
-    res.json({message: 'Notification marked as read'});
+
+    return res.json({message: 'Notification marked as read'});
   } catch (err) {
     console.error(err);
-    res.status(500).json({error: 'Failed to update notification'});
+    return res.status(500).json({error: 'Failed to update notification'});
   }
 };
 
 exports.deleteNotification = async (req, res) => {
   try {
-    const {id} = req.params;
-    const notification = await prisma.notification.update({
-      where: {id: Number(id)},
+    const notificationId = Number(req.params.id);
+
+    const notification = await prisma.notification.findUnique({
+      where: {id: notificationId},
+      select: {id: true, recipientId: true},
+    });
+
+    if (!notification || notification.recipientId !== req.user.id) {
+      return res.status(404).json({error: 'Notification not found'});
+    }
+
+    const updatedNotification = await prisma.notification.update({
+      where: {id: notificationId},
       data: {status: 'deleted'},
     });
-    res.status(200).json(notification);
+
+    return res.status(200).json(updatedNotification);
   } catch (error) {
     console.error('Failed to delete notification:', error);
-    res.status(500).json({error: 'Failed to delete notification'});
+    return res.status(500).json({error: 'Failed to delete notification'});
   }
 };
 
@@ -227,9 +260,21 @@ exports.getConversation = async (req, res) => {
       where: {conversationId, status: 'active'},
       orderBy: {createdAt: 'asc'},
     });
-    res.json(messages);
+
+    const canAccessConversation = messages.some(message => {
+      return (
+        message.recipientId === req.user.id ||
+        message.senderId === req.user.id
+      );
+    });
+
+    if (!canAccessConversation) {
+      return res.status(403).json({error: 'Access denied'});
+    }
+
+    return res.json(messages);
   } catch (err) {
     console.error(err);
-    res.status(500).json({error: 'Failed to fetch conversation'});
+    return res.status(500).json({error: 'Failed to fetch conversation'});
   }
 };

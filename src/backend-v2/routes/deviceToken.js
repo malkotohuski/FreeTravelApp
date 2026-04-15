@@ -1,26 +1,39 @@
 const express = require('express');
 const router = express.Router();
 const {PrismaClient} = require('@prisma/client');
+const authenticateJWT = require('../middlewares/authenticateJWT');
 
 const prisma = new PrismaClient();
 
-router.post('/register-device', async (req, res) => {
-  console.log('REGISTER DEVICE BODY:', req.body);
-
+router.post('/register-device', authenticateJWT, async (req, res) => {
   try {
-    const {userId, fcmToken} = req.body;
+    const {fcmToken} = req.body;
 
-    const device = await prisma.userDevice.create({
-      data: {
-        userId: Number(userId),
-        fcmToken: fcmToken,
-      },
+    if (!fcmToken) {
+      return res.status(400).json({error: 'FCM token is required'});
+    }
+
+    const existingDevice = await prisma.userDevice.findFirst({
+      where: {fcmToken},
+      select: {id: true},
     });
 
-    res.json(device);
+    const device = existingDevice
+      ? await prisma.userDevice.update({
+          where: {id: existingDevice.id},
+          data: {userId: req.user.id},
+        })
+      : await prisma.userDevice.create({
+          data: {
+            userId: req.user.id,
+            fcmToken,
+          },
+        });
+
+    return res.json(device);
   } catch (error) {
     console.error(error);
-    res.status(500).json({error: 'Failed to save device token'});
+    return res.status(500).json({error: 'Failed to save device token'});
   }
 });
 

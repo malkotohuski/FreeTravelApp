@@ -106,7 +106,7 @@ exports.createSeekerRequest = async (req, res) => {
       },
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       ...seeker,
       departureCityId: seeker.route?.departureCityId || seeker.departureCityId,
       departureCity:
@@ -121,7 +121,7 @@ exports.createSeekerRequest = async (req, res) => {
     });
   } catch (error) {
     console.error('Create seeker error:', error);
-    res.status(500).json({error: 'Server error'});
+    return res.status(500).json({error: 'Server error'});
   }
 };
 // GET ALL Seekers
@@ -150,7 +150,7 @@ exports.getAllSeekers = async (req, res) => {
       orderBy: {createdAt: 'desc'},
     });
 
-    res.json({
+    return res.json({
       seekers: seekers.map(seeker => ({
         ...seeker,
         departureCityId:
@@ -171,21 +171,40 @@ exports.getAllSeekers = async (req, res) => {
     });
   } catch (error) {
     console.error('Get seekers error:', error);
-    res.status(500).json({error: 'Server error'});
+    return res.status(500).json({error: 'Server error'});
   }
 };
 
 exports.deleteSeeker = async (req, res) => {
   try {
     const id = Number(req.params.id);
+    const seeker = await prisma.seekerRequest.findUnique({
+      where: {id},
+      select: {id: true, userId: true, routeId: true},
+    });
+
+    if (!seeker) {
+      return res.status(404).json({error: 'Seeker route not found'});
+    }
+
+    if (seeker.userId !== req.user.id) {
+      return res.status(403).json({error: 'Unauthorized'});
+    }
 
     await prisma.seekerRequest.delete({
       where: {id},
     });
 
-    res.json({message: 'Seeker route deleted'});
+    if (seeker.routeId) {
+      await prisma.route.updateMany({
+        where: {id: seeker.routeId, ownerId: req.user.id},
+        data: {status: 'deleted'},
+      });
+    }
+
+    return res.json({message: 'Seeker route deleted'});
   } catch (err) {
     console.error('Delete seeker error:', err);
-    res.status(500).json({error: 'Server error'});
+    return res.status(500).json({error: 'Server error'});
   }
 };

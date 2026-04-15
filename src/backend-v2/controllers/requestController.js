@@ -12,10 +12,6 @@ exports.createRequest = async (req, res) => {
     const {
       routeId,
       seekerRequestId,
-      username,
-      userFname,
-      userLname,
-      userEmail,
       userRouteId,
       departureCityId,
       departureCity,
@@ -53,6 +49,19 @@ exports.createRequest = async (req, res) => {
     let route = null;
     let seeker = null;
     let ownerId = null;
+    const requester = await prisma.user.findUnique({
+      where: {id: userId},
+      select: {
+        username: true,
+        fName: true,
+        lName: true,
+        email: true,
+      },
+    });
+
+    if (!requester) {
+      return res.status(404).json({error: 'User not found'});
+    }
 
     if (routeId) {
       route = await prisma.route.findUnique({
@@ -113,10 +122,10 @@ exports.createRequest = async (req, res) => {
         routeId: route ? route.id : null, // Int или null
         seekerRequestId: seeker ? seeker.id : null, // Int или null
         userID: userId,
-        username: username || '',
-        userFname: userFname || '',
-        userLname: userLname || '',
-        userEmail: userEmail || '',
+        username: requester.username || '',
+        userFname: requester.fName || '',
+        userLname: requester.lName || '',
+        userEmail: requester.email || '',
         userRouteId: userRouteId || 0,
         departureCityId: resolvedDepartureCityId
           ? Number(resolvedDepartureCityId)
@@ -135,7 +144,7 @@ exports.createRequest = async (req, res) => {
     await sendNotification({
       recipientId: ownerId,
       senderId: userId,
-      message: `${username || 'Someone'} is interested in your route`,
+      message: `${requester.username || 'Someone'} is interested in your route`,
       routeId: route?.id || null, // <--- тук е промяната
       type: 'request',
       data: {
@@ -143,32 +152,38 @@ exports.createRequest = async (req, res) => {
         type: 'request',
         routeId: route?.id || null, // <--- също така
         requesterId: userId, // Number вече, не String
-        username: username || '',
-        fName: userFname || '',
-        lName: userLname || '',
-        email: userEmail || '',
+        username: requester.username || '',
+        fName: requester.fName || '',
+        lName: requester.lName || '',
+        email: requester.email || '',
         comment: requestComment || '',
       },
       skipPushIfOnline: true,
     });
 
-    res
+    return res
       .status(201)
       .json({message: 'Request created successfully', request: newRequest});
   } catch (err) {
     console.error('Create request error:', err);
-    res.status(500).json({error: 'Failed to create request.'});
+    return res.status(500).json({error: 'Failed to create request.'});
   }
 };
 
 // Взимане на всички заявки
 exports.getAllRequests = async (req, res) => {
   try {
-    const requests = await prisma.request.findMany();
-    res.json(requests);
+    const userId = req.user.id;
+    const requests = await prisma.request.findMany({
+      where: {
+        OR: [{userID: userId}, {toUserId: userId}],
+      },
+      orderBy: {createdAt: 'desc'},
+    });
+    return res.json(requests);
   } catch (err) {
     console.error(err);
-    res.status(500).json({error: 'Failed to fetch requests.'});
+    return res.status(500).json({error: 'Failed to fetch requests.'});
   }
 };
 
@@ -204,6 +219,9 @@ exports.makeDecision = async (req, res) => {
     });
 
     if (!request) return res.status(404).json({error: 'Request not found.'});
+    if (request.toUserId !== req.user.id) {
+      return res.status(403).json({error: 'Unauthorized'});
+    }
     if (request.status !== 'pending')
       return res
         .status(400)
@@ -307,13 +325,13 @@ exports.makeDecision = async (req, res) => {
       }
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       message: `Request ${decision} successfully`,
       request: updatedRequest,
     });
   } catch (err) {
     console.error('Decision error:', err);
-    res.status(500).json({error: 'Internal server error.'});
+    return res.status(500).json({error: 'Internal server error.'});
   }
 };
 
@@ -324,13 +342,22 @@ exports.markAsRead = async (req, res) => {
     return res.status(400).json({message: 'Invalid request ID'});
 
   try {
+    const request = await prisma.request.findUnique({
+      where: {id: requestId},
+      select: {id: true, toUserId: true, userID: true},
+    });
+
+    if (!request || ![request.toUserId, request.userID].includes(req.user.id)) {
+      return res.status(404).json({message: 'Request not found'});
+    }
+
     const updated = await prisma.request.update({
       where: {id: requestId},
       data: {read: true},
     });
-    res.json(updated);
+    return res.json(updated);
   } catch (err) {
     console.error('Mark as read failed:', err);
-    res.status(500).json({message: 'Failed to mark as read'});
+    return res.status(500).json({message: 'Failed to mark as read'});
   }
 };

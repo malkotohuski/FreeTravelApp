@@ -25,6 +25,7 @@ router.post(
 );
 router.get(
   '/conversation/:conversationId',
+  authMiddleware,
   notificationController.getConversation,
 );
 

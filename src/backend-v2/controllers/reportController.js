@@ -93,7 +93,7 @@ exports.sendReport = async (req, res) => {
       return res.status(404).json({error: 'User not found.'});
     }
 
-    if (reportedUser.id === req.user.userId) {
+    if (reportedUser.id === req.user.id) {
       return res.status(400).json({error: 'You cannot report yourself.'});
     }
 
