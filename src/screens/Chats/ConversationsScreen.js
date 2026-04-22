@@ -79,7 +79,7 @@ const ConversationsScreen = ({navigation}) => {
       const intervalId = setInterval(() => {
         fetchConversations();
         refreshChatCount();
-      }, 2500);
+      }, 10000);
 
       return () => {
         clearTimeout(delayedRefreshId);

@@ -72,3 +72,9 @@ dependencies {
         implementation jscFlavor
     }
 }
+
+tasks.configureEach { task ->
+    if (task.name.startsWith("generate") && task.name.endsWith("LintReportModel")) {
+        task.dependsOn("copyReactNativeVectorIconFonts")
+    }
+}

@@ -181,7 +181,7 @@ function HomePage({navigation}) {
       refreshChatCount();
       const intervalId = setInterval(() => {
         refreshChatCount();
-      }, 2500);
+      }, 15000);
 
       return () => clearInterval(intervalId);
     }, [refreshChatCount]),

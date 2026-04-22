@@ -140,9 +140,7 @@ const ChatScreen = ({route}) => {
 
       const intervalId = setInterval(() => {
         syncMessages();
-        markConversationDelivered();
-        markConversationRead();
-      }, 2500);
+      }, 10000);
 
       return () => {
         markConversationRead();
