@@ -1,6 +1,7 @@
 ﻿const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 const {sendNotification} = require('./notificationController');
+const {isUserOnline} = require('../utils/onlineUsers');
 
 const getRouteCityName = (route, key) =>
   route?.[key]?.name ||
@@ -198,6 +199,8 @@ exports.sendMessage = async (req, res) => {
       conversation.user1Id === senderId
         ? conversation.user2Id
         : conversation.user1Id;
+    const receiverOnline = isUserOnline(receiverId);
+    const deliveredAt = receiverOnline ? new Date() : null;
 
     // 1ï¸âƒ£ Ð¡ÑŠÐ·Ð´Ð°Ð²Ð°Ð¼Ðµ ÑÑŠÐ¾Ð±Ñ‰ÐµÐ½Ð¸ÐµÑ‚Ð¾
     const message = await prisma.message.create({
@@ -206,7 +209,7 @@ exports.sendMessage = async (req, res) => {
         senderId,
         text,
         read: false,
-        deliveredAt: null,
+        deliveredAt,
       },
     });
 
@@ -226,6 +229,12 @@ exports.sendMessage = async (req, res) => {
         conversationId,
         message,
       });
+
+      if (receiverOnline) {
+        global.io.to('user_' + senderId).emit('messagesDelivered', {
+          conversationId,
+        });
+      }
     }
 
     // 3ï¸âƒ£ Auto-restore conversation, Ð°ÐºÐ¾ Ð½ÑÐºÐ¾Ð¹ Ðµ ÑÐºÑ€Ð¸Ð»
@@ -489,4 +498,5 @@ exports.getConversationById = async (req, res) => {
     return res.status(500).json({error: 'Server error'});
   }
 };
+
 
