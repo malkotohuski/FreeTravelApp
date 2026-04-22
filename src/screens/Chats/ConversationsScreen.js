@@ -69,12 +69,22 @@ const ConversationsScreen = ({navigation}) => {
   useFocusEffect(
     React.useCallback(() => {
       fetchConversations();
+      refreshChatCount();
+
+      const delayedRefreshId = setTimeout(() => {
+        fetchConversations();
+        refreshChatCount();
+      }, 400);
+
       const intervalId = setInterval(() => {
         fetchConversations();
         refreshChatCount();
       }, 2500);
 
-      return () => clearInterval(intervalId);
+      return () => {
+        clearTimeout(delayedRefreshId);
+        clearInterval(intervalId);
+      };
     }, [fetchConversations, refreshChatCount]),
   );
 

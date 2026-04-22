@@ -59,32 +59,38 @@ const ChatScreen = ({route}) => {
     }
   }, [conversationId]);
 
+  const markConversationRead = useCallback(async () => {
+    if (!conversationId || !user?.id) {
+      return;
+    }
+
+    try {
+      await api.put(`/api/conversations/${conversationId}/read`, {
+        userId: user.id,
+      });
+      await refreshChatCount();
+    } catch (error) {
+      console.error(error);
+    }
+  }, [conversationId, refreshChatCount, user?.id]);
+
   useFocusEffect(
     React.useCallback(() => {
       NotificationService.setActiveConversation(conversationId);
-      const markRead = async () => {
-        try {
-          await api.put(`/api/conversations/${conversationId}/read`, {
-            userId: user.id,
-          });
-          await refreshChatCount();
-        } catch (error) {
-          console.error(error);
-        }
-      };
 
-      markRead();
+      markConversationRead();
 
       const intervalId = setInterval(() => {
         syncMessages();
-        refreshChatCount();
+        markConversationRead();
       }, 2500);
 
       return () => {
+        markConversationRead();
         NotificationService.currentConversationId = null;
         clearInterval(intervalId);
       };
-    }, [conversationId, refreshChatCount, syncMessages, user.id]),
+    }, [conversationId, markConversationRead, syncMessages]),
   );
 
   useEffect(() => {
@@ -144,10 +150,7 @@ const ChatScreen = ({route}) => {
         return [...prev, message];
       });
 
-      api.put(`/api/conversations/${convId}/read`, {
-        userId: user.id,
-      });
-      refreshChatCount();
+      markConversationRead();
 
       setTimeout(() => {
         flatListRef.current?.scrollToEnd({animated: true});
@@ -157,7 +160,7 @@ const ChatScreen = ({route}) => {
     socket.on('newMessage', handler);
 
     return () => socket.off('newMessage', handler);
-  }, [conversationId, refreshChatCount, user.id]);
+  }, [conversationId, markConversationRead]);
 
   useEffect(() => {
     const handler = ({conversationId: convId}) => {
