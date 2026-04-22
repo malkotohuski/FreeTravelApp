@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useCallback, useRef} from 'react';
+﻿import React, {useEffect, useState, useCallback, useRef} from 'react';
 import {
   View,
   Text,
@@ -32,30 +32,63 @@ const ChatScreen = ({route}) => {
   const theme = useTheme();
 
   const [conversationInfo, setConversationInfo] = useState(null);
-  const {setChatCount, setActiveConversation} = useChat();
+  const {refreshChatCount, setActiveConversation} = useChat();
 
   const flatListRef = useRef(null);
 
+  const syncMessages = useCallback(async () => {
+    if (!conversationId) {
+      return;
+    }
+
+    try {
+      const res = await api.get(`/api/conversations/${conversationId}/messages`);
+
+      setMessages(prev => {
+        const prevIds = new Set(prev.map(message => message.id));
+        const nextMessages = res.data.filter(message => !prevIds.has(message.id));
+
+        if (nextMessages.length === 0 && prev.length === res.data.length) {
+          return prev;
+        }
+
+        return res.data;
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }, [conversationId]);
+
   useFocusEffect(
     React.useCallback(() => {
-      setChatCount(0);
       NotificationService.setActiveConversation(conversationId);
-      // 🔥 ако прави проблем да стане ---> setChatCount(prev => Math.max(0, prev - 1));
+      const markRead = async () => {
+        try {
+          await api.put(`/api/conversations/${conversationId}/read`, {
+            userId: user.id,
+          });
+          await refreshChatCount();
+        } catch (error) {
+          console.error(error);
+        }
+      };
 
-      api.put(`/api/conversations/${conversationId}/read`, {
-        userId: user.id,
-      });
+      markRead();
 
-      socket.emit('messagesRead', {conversationId});
+      const intervalId = setInterval(() => {
+        syncMessages();
+        refreshChatCount();
+      }, 2500);
 
       return () => {
         NotificationService.currentConversationId = null;
+        clearInterval(intervalId);
       };
-    }, [conversationId]),
+    }, [conversationId, refreshChatCount, syncMessages, user.id]),
   );
 
   useEffect(() => {
-    setMessages([]); // ❌ премахваме старите съобщения веднага
+    setMessages([]); // âŒ Ð¿Ñ€ÐµÐ¼Ð°Ñ…Ð²Ð°Ð¼Ðµ ÑÑ‚Ð°Ñ€Ð¸Ñ‚Ðµ ÑÑŠÐ¾Ð±Ñ‰ÐµÐ½Ð¸Ñ Ð²ÐµÐ´Ð½Ð°Ð³Ð°
     setLoadingMessages(true);
   }, [conversationId]);
 
@@ -80,7 +113,7 @@ const ChatScreen = ({route}) => {
 
   useEffect(() => {
     const reconnectHandler = () => {
-      console.log('🔁 RECONNECTED → join пак');
+      console.log('ðŸ” RECONNECTED - join Ð¿Ð°Ðº');
 
       socket.emit('joinConversation', {
         userId: user.id,
@@ -99,14 +132,14 @@ const ChatScreen = ({route}) => {
     socket.emit('joinUserRoom', user.id);
   }, [user?.id]);
 
-  // 🔹 Ново съобщение
+  // ðŸ”¹ ÐÐ¾Ð²Ð¾ ÑÑŠÐ¾Ð±Ñ‰ÐµÐ½Ð¸Ðµ
   useEffect(() => {
     const handler = ({conversationId: convId, message}) => {
-      // Добавяме съобщението само ако е за текущия conversationId
+      // Ð”Ð¾Ð±Ð°Ð²ÑÐ¼Ðµ ÑÑŠÐ¾Ð±Ñ‰ÐµÐ½Ð¸ÐµÑ‚Ð¾ ÑÐ°Ð¼Ð¾ Ð°ÐºÐ¾ Ðµ Ð·Ð° Ñ‚ÐµÐºÑƒÑ‰Ð¸Ñ conversationId
       if (String(convId) !== String(conversationId)) return;
 
       setMessages(prev => {
-        // проверка за дубликати
+        // Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð·Ð° Ð´ÑƒÐ±Ð»Ð¸ÐºÐ°Ñ‚Ð¸
         if (prev.some(msg => msg.id === message.id)) return prev;
         return [...prev, message];
       });
@@ -114,6 +147,7 @@ const ChatScreen = ({route}) => {
       api.put(`/api/conversations/${convId}/read`, {
         userId: user.id,
       });
+      refreshChatCount();
 
       setTimeout(() => {
         flatListRef.current?.scrollToEnd({animated: true});
@@ -123,13 +157,13 @@ const ChatScreen = ({route}) => {
     socket.on('newMessage', handler);
 
     return () => socket.off('newMessage', handler);
-  }, [conversationId, user.id]);
+  }, [conversationId, refreshChatCount, user.id]);
 
   useEffect(() => {
     const handler = ({conversationId: convId}) => {
       if (String(convId) !== String(conversationId)) return;
 
-      // маркираме МОИТЕ съобщения като прочетени
+      // Ð¼Ð°Ñ€ÐºÐ¸Ñ€Ð°Ð¼Ðµ ÐœÐžÐ˜Ð¢Ð• ÑÑŠÐ¾Ð±Ñ‰ÐµÐ½Ð¸Ñ ÐºÐ°Ñ‚Ð¾ Ð¿Ñ€Ð¾Ñ‡ÐµÑ‚ÐµÐ½Ð¸
       setMessages(prev =>
         prev.map(msg =>
           msg.senderId === user.id ? {...msg, read: true} : msg,
@@ -161,18 +195,11 @@ const ChatScreen = ({route}) => {
 
   useEffect(() => {
     const fetchMessages = async () => {
-      if (!conversationId) return;
-
       try {
-        const res = await api.get(
-          `/api/conversations/${conversationId}/messages`,
-        );
-        setMessages(res.data);
+        await syncMessages();
         NotificationService.setActiveConversation(conversationId);
-      } catch (err) {
-        console.error(err);
       } finally {
-        setLoadingMessages(false); // 🔹 край на loader-а
+        setLoadingMessages(false); // ðŸ”¹ ÐºÑ€Ð°Ð¹ Ð½Ð° loader-Ð°
         setTimeout(() => {
           flatListRef.current?.scrollToEnd({animated: true});
         }, 100);
@@ -180,7 +207,7 @@ const ChatScreen = ({route}) => {
     };
 
     fetchMessages();
-  }, [conversationId]);
+  }, [conversationId, syncMessages]);
 
   const sendMessage = async () => {
     if (!text.trim()) return;
@@ -221,7 +248,7 @@ const ChatScreen = ({route}) => {
     const isThisYear = messageDate.getFullYear() === now.getFullYear();
 
     if (isToday) {
-      // Днес -> показваме само час и минути
+      // Ð”Ð½ÐµÑ -> Ð¿Ð¾ÐºÐ°Ð·Ð²Ð°Ð¼Ðµ ÑÐ°Ð¼Ð¾ Ñ‡Ð°Ñ Ð¸ Ð¼Ð¸Ð½ÑƒÑ‚Ð¸
       return messageDate.toLocaleTimeString('bg-BG', {
         hour: '2-digit',
         minute: '2-digit',
@@ -230,9 +257,9 @@ const ChatScreen = ({route}) => {
     }
 
     if (isYesterday) {
-      // Вчера -> показваме "Вчера" + час и минути
+      // Ð’Ñ‡ÐµÑ€Ð° -> Ð¿Ð¾ÐºÐ°Ð·Ð²Ð°Ð¼Ðµ "Ð’Ñ‡ÐµÑ€Ð°" + Ñ‡Ð°Ñ Ð¸ Ð¼Ð¸Ð½ÑƒÑ‚Ð¸
       return (
-        'Вчера ' +
+        'Ð’Ñ‡ÐµÑ€Ð° ' +
         messageDate.toLocaleTimeString('bg-BG', {
           hour: '2-digit',
           minute: '2-digit',
@@ -242,7 +269,7 @@ const ChatScreen = ({route}) => {
     }
 
     if (isThisYear) {
-      // Тази година -> показваме ден, месец и час
+      // Ð¢Ð°Ð·Ð¸ Ð³Ð¾Ð´Ð¸Ð½Ð° -> Ð¿Ð¾ÐºÐ°Ð·Ð²Ð°Ð¼Ðµ Ð´ÐµÐ½, Ð¼ÐµÑÐµÑ† Ð¸ Ñ‡Ð°Ñ
       return (
         messageDate.toLocaleDateString('bg-BG', {
           day: '2-digit',
@@ -257,7 +284,7 @@ const ChatScreen = ({route}) => {
       );
     }
 
-    // Преди тази година -> показваме пълна дата + час
+    // ÐŸÑ€ÐµÐ´Ð¸ Ñ‚Ð°Ð·Ð¸ Ð³Ð¾Ð´Ð¸Ð½Ð° -> Ð¿Ð¾ÐºÐ°Ð·Ð²Ð°Ð¼Ðµ Ð¿ÑŠÐ»Ð½Ð° Ð´Ð°Ñ‚Ð° + Ñ‡Ð°Ñ
     return (
       messageDate.toLocaleDateString('bg-BG') +
       ' ' +
@@ -306,7 +333,7 @@ const ChatScreen = ({route}) => {
 
             <Text style={[styles.routeText, {color: theme.highlight}]}>
               {conversationInfo
-                ? `${conversationInfo.departureCity} → ${conversationInfo.arrivalCity}`
+                ? `${conversationInfo.departureCity} - ${conversationInfo.arrivalCity}`
                 : ''}
             </Text>
           </View>
@@ -382,7 +409,7 @@ const ChatScreen = ({route}) => {
                           style={{
                             marginLeft: 6,
                             fontSize: 11,
-                            color: 'rgba(255,255,255,0.7)',----> тикчета за прочетено
+                            color: 'rgba(255,255,255,0.7)',----> Ñ‚Ð¸ÐºÑ‡ÐµÑ‚Ð° Ð·Ð° Ð¿Ñ€Ð¾Ñ‡ÐµÑ‚ÐµÐ½Ð¾
                           }}>
   
                         </Text>
@@ -546,3 +573,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 });
+

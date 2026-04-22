@@ -1,4 +1,4 @@
-import React, {useState, useContext, useCallback, useEffect} from 'react';
+﻿import React, {useState, useContext, useCallback, useEffect} from 'react';
 import {
   View,
   Text,
@@ -32,7 +32,7 @@ const Notifications = ({navigation}) => {
       setLoading(true);
       const response = await api.get('/api/notifications');
       const activeNotifications = response.data
-        .filter(n => n.status === 'active' && !n.conversationId) // ❌ добави !n.conversationId
+        .filter(n => n.status === 'active' && !n.conversationId) // âŒ Ð´Ð¾Ð±Ð°Ð²Ð¸ !n.conversationId
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
       const uniqueNotifications = activeNotifications.filter(
@@ -56,20 +56,20 @@ const Notifications = ({navigation}) => {
     }, []),
   );
 
-  // --- SOCKET LISTENER за нови уведомления ---
+  // --- SOCKET LISTENER Ð·Ð° Ð½Ð¾Ð²Ð¸ ÑƒÐ²ÐµÐ´Ð¾Ð¼Ð»ÐµÐ½Ð¸Ñ ---
   useEffect(() => {
     if (!user?.id) return;
 
     socket.emit('joinUserRoom', user.id);
 
-    socket.on('newNotification', notification => {
-      // ❌ Пропускаме chat-съобщения
+    const newNotificationHandler = notification => {
       if (notification.conversationId) return;
-
       setNotifications(prev => [notification, ...prev]);
-    });
+    };
 
-    return () => socket.off('newNotification');
+    socket.on('newNotification', newNotificationHandler);
+
+    return () => socket.off('newNotification', newNotificationHandler);
   }, [user?.id]);
 
   const formatDate = dateString => {
@@ -105,7 +105,7 @@ const Notifications = ({navigation}) => {
 
       // RATE
       if (
-        message.includes('оцени пътуването') ||
+        message.includes('Ð¾Ñ†ÐµÐ½Ð¸ Ð¿ÑŠÑ‚ÑƒÐ²Ð°Ð½ÐµÑ‚Ð¾') ||
         message.includes('rate the trip') ||
         message.includes('rate your passenger')
       ) {
@@ -125,7 +125,7 @@ const Notifications = ({navigation}) => {
         navigation.navigate('RouteRequest', {fromNotification: true});
       }
 
-      // APPROVED → CHAT
+      // APPROVED â†’ CHAT
       else if (
         message.includes('approved') &&
         notification.recipientId === user.id
@@ -177,7 +177,7 @@ const Notifications = ({navigation}) => {
     backgroundColor: theme.firstButton,
   });
 
-  // Вътре във Notifications
+  // Ð’ÑŠÑ‚Ñ€Ðµ Ð²ÑŠÐ² Notifications
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: theme.gradient[0]}}>
       <View style={{flex: 1}}>
@@ -241,7 +241,7 @@ const Notifications = ({navigation}) => {
                   {isNewNotification(item.createdAt) ? t('New') : t('Earlier')}
                 </Text>
 
-                {/* Дотс бутон */}
+                {/* Ð”Ð¾Ñ‚Ñ Ð±ÑƒÑ‚Ð¾Ð½ */}
                 <TouchableOpacity
                   onPress={() => setVisibleModalId(item.id)}
                   style={{padding: 8}}>
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
   },
   notificationList: {padding: 16},
   notification: {
-    width: '100%', // сега вече заема почти целия контейнер
+    width: '100%', // ÑÐµÐ³Ð° Ð²ÐµÑ‡Ðµ Ð·Ð°ÐµÐ¼Ð° Ð¿Ð¾Ñ‡Ñ‚Ð¸ Ñ†ÐµÐ»Ð¸Ñ ÐºÐ¾Ð½Ñ‚ÐµÐ¹Ð½ÐµÑ€
     paddingVertical: 14,
     paddingHorizontal: 16,
     borderRadius: 12,
@@ -377,7 +377,7 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: 'center',
     elevation: 5,
-    backgroundColor: 'white', // ще override-нем с theme.cardBackground
+    backgroundColor: 'white', // Ñ‰Ðµ override-Ð½ÐµÐ¼ Ñ theme.cardBackground
   },
   modalTitle: {fontSize: 18, fontWeight: 'bold', marginBottom: 10},
   modalMessage: {fontSize: 16, marginBottom: 20, textAlign: 'center'},
@@ -392,3 +392,5 @@ const styles = StyleSheet.create({
 });
 
 export default Notifications;
+
+

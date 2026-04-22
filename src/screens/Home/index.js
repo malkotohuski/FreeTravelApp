@@ -38,7 +38,7 @@ function HomePage({navigation}) {
   const [isBulgaria, setisBulgaria] = useState(false);
   const [notificationCount, setNotificationCount] = useState(0);
   const [reqestsCount, setReqestsCount] = useState(0);
-  const {chatCount, setChatCount} = useChat();
+  const {chatCount, refreshChatCount} = useChat();
 
   const loginUser = user?.username;
 
@@ -46,82 +46,7 @@ function HomePage({navigation}) {
   const glowAnim = useRef(new Animated.Value(0)).current;
   const bounceAnim = useRef(new Animated.Value(0)).current;
 
-  useEffect(() => {
-    if (!user?.id) return;
-
-    socket.emit('joinUserRoom', user.id);
-
-    const joinedRoomHandler = room => {
-      console.log('Joined socket room:', room);
-    };
-
-    const newConversationHandler = conv => {
-      const activeConv = NotificationService.getActiveConversation();
-
-      if (activeConv && String(activeConv) === String(conv.id)) {
-        return;
-      }
-      Animated.sequence([
-        Animated.timing(bounceAnim, {
-          toValue: -16,
-          duration: 200,
-          useNativeDriver: false,
-        }),
-        Animated.spring(bounceAnim, {
-          toValue: 0,
-          friction: 3,
-          useNativeDriver: false,
-        }),
-      ]).start();
-
-      Vibration.vibrate([0, 150, 70, 150, 70, 150]);
-
-      setChatCount(prev => {
-        if (prev === '9+') return prev;
-        const next = Number(prev || 0) + 1;
-        return next > 9 ? '9+' : next;
-      });
-
-        Toast.show({
-          type: 'success',
-          text1: 'New chat started',
-          text2: `${conv.departureCity} -> ${conv.arrivalCity}`,
-          position: 'top',
-          visibilityTime: 7000,
-          autoHide: true,
-        topOffset: 60,
-      });
-    };
-
-    const newMessageHandler = ({conversationId, message}) => {
-      const activeConv = NotificationService.getActiveConversation();
-
-      if (String(activeConv) === String(conversationId)) {
-        return;
-      }
-
-      if (message?.senderId === user.id) {
-        return;
-      }
-
-      setChatCount(prev => {
-        if (prev === '9+') return prev;
-        const next = Number(prev || 0) + 1;
-        return next > 9 ? '9+' : next;
-      });
-    };
-
-    socket.on('joinedRoom', joinedRoomHandler);
-    socket.on('newConversation', newConversationHandler);
-    socket.on('newMessage', newMessageHandler);
-
-    return () => {
-      socket.off('joinedRoom', joinedRoomHandler);
-      socket.off('newConversation', newConversationHandler);
-      socket.off('newMessage', newMessageHandler);
-    };
-  }, [user?.id, setChatCount, bounceAnim]);
-
+  
   useEffect(() => {
     if (!user?.id) return;
 
@@ -144,26 +69,7 @@ function HomePage({navigation}) {
   }, [user?.id]);
 
   // â”€â”€â”€â”€â”€â”€â”€ ÐÐ¾Ð² useEffect Ð·Ð° messagesRead â”€â”€â”€â”€â”€â”€â”€
-  useFocusEffect(
-    React.useCallback(() => {
-      if (!user?.id) return;
-
-      const handler = ({conversationId}) => {
-        const activeConv = NotificationService.getActiveConversation();
-        // â— Ð—Ð°Ð½ÑƒÐ»ÑÐ²Ð°Ð¼Ðµ Ð±Ñ€Ð¾ÑÑ‡Ð° ÑÐ°Ð¼Ð¾ Ð°ÐºÐ¾ Ñ‚ÐµÐºÑƒÑ‰Ð¸ÑÑ‚ Ñ‡Ð°Ñ‚ Ðµ Ð°ÐºÑ‚Ð¸Ð²ÐµÐ½
-        if (String(activeConv) === String(conversationId)) {
-          setChatCount(0);
-        }
-      };
-
-      socket.on('messagesRead', handler);
-
-      return () => {
-        socket.off('messagesRead', handler);
-      };
-    }, [user?.id]),
-  );
-
+  
   const pulseLoopRef = useRef(null);
 
   useEffect(() => {
@@ -270,34 +176,15 @@ function HomePage({navigation}) {
       fetchRequests();
     }, [user?.id]),
   );
-
-  // =================== Polling for new chat messages ===================
   useFocusEffect(
     useCallback(() => {
-      const fetchUnread = async () => {
-        try {
-          const res = await api.get(`/api/conversations/user/${user.id}`);
+      refreshChatCount();
+      const intervalId = setInterval(() => {
+        refreshChatCount();
+      }, 2500);
 
-          let totalUnread = 0;
-
-          res.data.forEach(conv => {
-            if (conv.unreadCount > 0) {
-              totalUnread += conv.unreadCount;
-            }
-          });
-
-          const activeConv = NotificationService.getActiveConversation();
-
-          if (activeConv) return;
-
-          setChatCount(totalUnread > 9 ? '9+' : totalUnread);
-        } catch (err) {
-          console.error(err);
-        }
-      };
-
-      fetchUnread();
-    }, [user?.id]),
+      return () => clearInterval(intervalId);
+    }, [refreshChatCount]),
   );
 
   // =================== Language switch ===================
@@ -652,4 +539,5 @@ function HomePage({navigation}) {
 }
 
 export default HomePage;
+
 

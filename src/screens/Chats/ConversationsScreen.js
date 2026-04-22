@@ -24,19 +24,27 @@ const ConversationsScreen = ({navigation}) => {
   const [page, setPage] = useState(0);
   const [loadingMore, setLoadingMore] = useState(false);
   const LIMIT = 20;
-  const {setChatCount} = useChat();
+  const {refreshChatCount} = useChat();
 
   const theme = useTheme();
 
-  useEffect(() => {
-    let total = 0;
-
-    conversations.forEach(conv => {
-      total += conv.unreadCount || 0;
-    });
-
-    setChatCount(total);
-  }, [conversations]);
+  const fetchConversations = useCallback(async () => {
+    try {
+      const res = await api.get(
+        `/api/conversations/user/${user.id}?skip=0&take=${LIMIT}`,
+      );
+      setConversations(
+        res.data.map(c => ({
+          ...c,
+          messages: c.messages || [],
+          unreadCount: c.unreadCount || 0,
+        })),
+      );
+      setPage(1);
+    } catch (err) {
+      console.error(err);
+    }
+  }, [LIMIT, user.id]);
 
   useEffect(() => {
     const handler = ({conversationId}) => {
@@ -60,37 +68,14 @@ const ConversationsScreen = ({navigation}) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      const fetchConversations = async () => {
-        try {
-          const res = await api.get(
-            `/api/conversations/user/${user.id}?skip=0&take=${LIMIT}`,
-          );
-
-          setConversations(prev => {
-            const merged = res.data.reduce(
-              (acc, c) => {
-                const exists = acc.some(e => e.id === c.id);
-
-                if (!exists)
-                  acc.push({
-                    ...c,
-                    messages: [], // Ð²Ð¸Ð½Ð°Ð³Ð¸ Ð¿Ñ€Ð°Ð·Ð½Ð¸ Ð·Ð° Ð½Ð¾Ð² fetch
-                    unreadCount: c.unreadCount || 0,
-                  });
-                return acc;
-              },
-              [...prev],
-            );
-
-            return merged;
-          });
-        } catch (err) {
-          console.error(err);
-        }
-      };
-
       fetchConversations();
-    }, [user.id]),
+      const intervalId = setInterval(() => {
+        fetchConversations();
+        refreshChatCount();
+      }, 2500);
+
+      return () => clearInterval(intervalId);
+    }, [fetchConversations, refreshChatCount]),
   );
 
   useEffect(() => {
@@ -264,6 +249,7 @@ const ConversationsScreen = ({navigation}) => {
                     conv.id === item.id ? {...conv, unreadCount: 0} : conv,
                   ),
                 );
+                refreshChatCount();
               }}
               onLongPress={() => {
                 Alert.alert(
@@ -332,7 +318,7 @@ const ConversationsScreen = ({navigation}) => {
                       },
                     ]}>
                     {lastMessage?.text ||
-                      `${item.departureCity} â†’ ${item.arrivalCity}`}
+                      `${item.departureCity} - ${item.arrivalCity}`}
                   </Text>
 
                   {item.unreadCount > 0 && (

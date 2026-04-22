@@ -1,4 +1,4 @@
-const {PrismaClient} = require('@prisma/client');
+﻿const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 const {sendNotification} = require('./notificationController');
 
@@ -21,7 +21,7 @@ const buildConversationPayloads = conversation => {
   return {convForUser1, convForUser2};
 };
 
-// Стартиране на разговор
+// Ð¡Ñ‚Ð°Ñ€Ñ‚Ð¸Ñ€Ð°Ð½Ðµ Ð½Ð° Ñ€Ð°Ð·Ð³Ð¾Ð²Ð¾Ñ€
 exports.startConversation = async (req, res) => {
   const {routeId, user2Id} = req.body;
   const user1Id = req.user.id;
@@ -33,7 +33,7 @@ exports.startConversation = async (req, res) => {
         .json({error: 'Cannot start chat: senderId missing'});
     }
 
-    // Проверка за съществуващ разговор
+    // ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð·Ð° ÑÑŠÑ‰ÐµÑÑ‚Ð²ÑƒÐ²Ð°Ñ‰ Ñ€Ð°Ð·Ð³Ð¾Ð²Ð¾Ñ€
     let conversation = await prisma.conversation.findFirst({
       where: {
         routeId,
@@ -64,9 +64,9 @@ exports.startConversation = async (req, res) => {
     const departureCityName = getRouteCityName(route, 'departureCityRef');
     const arrivalCityName = getRouteCityName(route, 'arrivalCityRef');
 
-    // Ако няма → създаваме
+    // ÐÐºÐ¾ Ð½ÑÐ¼Ð° - ÑÑŠÐ·Ð´Ð°Ð²Ð°Ð¼Ðµ
     if (!conversation) {
-      // 1️⃣ създаваме conversation
+      // 1ï¸âƒ£ ÑÑŠÐ·Ð´Ð°Ð²Ð°Ð¼Ðµ conversation
       const newConversation = await prisma.conversation.create({
         data: {
           routeId,
@@ -77,15 +77,15 @@ exports.startConversation = async (req, res) => {
         },
       });
 
-      // 2️⃣ създаваме първо съобщение (ВАЖНО 🔥)
+      // 2ï¸âƒ£ ÑÑŠÐ·Ð´Ð°Ð²Ð°Ð¼Ðµ Ð¿ÑŠÑ€Ð²Ð¾ ÑÑŠÐ¾Ð±Ñ‰ÐµÐ½Ð¸Ðµ (Ð’ÐÐ–ÐÐž ðŸ”¥)
       await prisma.message.create({
         data: {
           conversationId: newConversation.id,
-          senderId: user1Id, // може и req.user.id ако имаш auth
-          text: `${departureCityName} → ${arrivalCityName}`,
+          senderId: user1Id, // Ð¼Ð¾Ð¶Ðµ Ð¸ req.user.id Ð°ÐºÐ¾ Ð¸Ð¼Ð°Ñˆ auth
+          text: `${departureCityName} - ${arrivalCityName}`,
         },
       });
-      // 3️⃣ взимаме conversation с messages + image
+      // 3ï¸âƒ£ Ð²Ð·Ð¸Ð¼Ð°Ð¼Ðµ conversation Ñ messages + image
       const fullConversation = await prisma.conversation.findUnique({
         where: {id: newConversation.id},
         include: {
@@ -95,17 +95,17 @@ exports.startConversation = async (req, res) => {
         },
       });
 
-      // 4️⃣ правим различен обект за всеки user
+      // 4ï¸âƒ£ Ð¿Ñ€Ð°Ð²Ð¸Ð¼ Ñ€Ð°Ð·Ð»Ð¸Ñ‡ÐµÐ½ Ð¾Ð±ÐµÐºÑ‚ Ð·Ð° Ð²ÑÐµÐºÐ¸ user
       const {convForUser1, convForUser2} =
         buildConversationPayloads(fullConversation);
 
-      // 5️⃣ socket emit
+      // 5ï¸âƒ£ socket emit
       if (global.io) {
         global.io.to('user_' + user1Id).emit('newConversation', convForUser1);
         global.io.to('user_' + user2Id).emit('newConversation', convForUser2);
       }
 
-      // важно
+      // Ð²Ð°Ð¶Ð½Ð¾
       conversation = fullConversation;
     }
 
@@ -116,7 +116,7 @@ exports.startConversation = async (req, res) => {
   }
 };
 
-// Вземане на съобщения
+// Ð’Ð·ÐµÐ¼Ð°Ð½Ðµ Ð½Ð° ÑÑŠÐ¾Ð±Ñ‰ÐµÐ½Ð¸Ñ
 exports.getMessages = async (req, res) => {
   const conversationId = Number(req.params.id);
 
@@ -146,7 +146,7 @@ exports.getMessages = async (req, res) => {
   }
 };
 
-// Изпращане на съобщение
+// Ð˜Ð·Ð¿Ñ€Ð°Ñ‰Ð°Ð½Ðµ Ð½Ð° ÑÑŠÐ¾Ð±Ñ‰ÐµÐ½Ð¸Ðµ
 exports.sendMessage = async (req, res) => {
   const conversationId = Number(req.params.id);
   const {text} = req.body;
@@ -177,7 +177,7 @@ exports.sendMessage = async (req, res) => {
         ? conversation.user2Id
         : conversation.user1Id;
 
-    // 1️⃣ Създаваме съобщението
+    // 1ï¸âƒ£ Ð¡ÑŠÐ·Ð´Ð°Ð²Ð°Ð¼Ðµ ÑÑŠÐ¾Ð±Ñ‰ÐµÐ½Ð¸ÐµÑ‚Ð¾
     const message = await prisma.message.create({
       data: {
         conversationId,
@@ -187,7 +187,7 @@ exports.sendMessage = async (req, res) => {
       },
     });
 
-    // 2️⃣ Emit в реално време към conversation room и user rooms
+    // 2ï¸âƒ£ Emit Ð² Ñ€ÐµÐ°Ð»Ð½Ð¾ Ð²Ñ€ÐµÐ¼Ðµ ÐºÑŠÐ¼ conversation room Ð¸ user rooms
     if (global.io) {
       global.io.to('conversation_' + conversationId).emit('newMessage', {
         conversationId,
@@ -205,14 +205,14 @@ exports.sendMessage = async (req, res) => {
       });
     }
 
-    // 3️⃣ Auto-restore conversation, ако някой е скрил
+    // 3ï¸âƒ£ Auto-restore conversation, Ð°ÐºÐ¾ Ð½ÑÐºÐ¾Ð¹ Ðµ ÑÐºÑ€Ð¸Ð»
     await prisma.conversation.update({
       where: {id: conversationId},
       data: {hiddenByUser1: false, hiddenByUser2: false},
     });
 
-    // 🔥 4️⃣ НЕ правим нотификация за чат! Просто skip
-    // await sendNotification(...);  <- премахнато за chat messages
+    // ðŸ”¥ 4ï¸âƒ£ ÐÐ• Ð¿Ñ€Ð°Ð²Ð¸Ð¼ Ð½Ð¾Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ†Ð¸Ñ Ð·Ð° Ñ‡Ð°Ñ‚! ÐŸÑ€Ð¾ÑÑ‚Ð¾ skip
+    // await sendNotification(...);  <- Ð¿Ñ€ÐµÐ¼Ð°Ñ…Ð½Ð°Ñ‚Ð¾ Ð·Ð° chat messages
 
     return res.json(message);
   } catch (error) {
@@ -221,7 +221,7 @@ exports.sendMessage = async (req, res) => {
   }
 };
 
-// Вземане на разговори за потребител
+// Ð’Ð·ÐµÐ¼Ð°Ð½Ðµ Ð½Ð° Ñ€Ð°Ð·Ð³Ð¾Ð²Ð¾Ñ€Ð¸ Ð·Ð° Ð¿Ð¾Ñ‚Ñ€ÐµÐ±Ð¸Ñ‚ÐµÐ»
 exports.getUserConversations = async (req, res) => {
   const skip = Number(req.query.skip) || 0;
   const take = Number(req.query.take) || 20;
@@ -263,7 +263,7 @@ exports.getUserConversations = async (req, res) => {
 
         const safeOtherUser = otherUser || {
           id: otherUserId,
-          username: 'Потребител',
+          username: 'ÐŸÐ¾Ñ‚Ñ€ÐµÐ±Ð¸Ñ‚ÐµÐ»',
           userImage: defaultAvatar,
         };
 
@@ -289,8 +289,8 @@ exports.getUserConversations = async (req, res) => {
   }
 };
 
-// Маркиране на съобщения като прочетени
-// В markAsRead
+// ÐœÐ°Ñ€ÐºÐ¸Ñ€Ð°Ð½Ðµ Ð½Ð° ÑÑŠÐ¾Ð±Ñ‰ÐµÐ½Ð¸Ñ ÐºÐ°Ñ‚Ð¾ Ð¿Ñ€Ð¾Ñ‡ÐµÑ‚ÐµÐ½Ð¸
+// Ð’ markAsRead
 exports.markAsRead = async (req, res) => {
   const conversationId = Number(req.params.id);
   const userId = req.user.id;
@@ -345,7 +345,7 @@ exports.markAsRead = async (req, res) => {
 
 exports.deleteConversation = async (req, res) => {
   const conversationId = Number(req.params.id);
-  const userId = req.user.id; // идва от твоя JWT middleware
+  const userId = req.user.id; // Ð¸Ð´Ð²Ð° Ð¾Ñ‚ Ñ‚Ð²Ð¾Ñ JWT middleware
 
   try {
     const conversation = await prisma.conversation.findUnique({
@@ -356,7 +356,7 @@ exports.deleteConversation = async (req, res) => {
       return res.status(404).json({error: 'Conversation not found'});
     }
 
-    // Проверяваме кой потребител изтрива
+    // ÐŸÑ€Ð¾Ð²ÐµÑ€ÑÐ²Ð°Ð¼Ðµ ÐºÐ¾Ð¹ Ð¿Ð¾Ñ‚Ñ€ÐµÐ±Ð¸Ñ‚ÐµÐ» Ð¸Ð·Ñ‚Ñ€Ð¸Ð²Ð°
     let updateData = {};
     if (conversation.user1Id === userId) {
       updateData.hiddenByUser1 = true;
@@ -368,7 +368,7 @@ exports.deleteConversation = async (req, res) => {
         .json({error: 'You are not part of this conversation'});
     }
 
-    // Актуализираме soft delete флага
+    // ÐÐºÑ‚ÑƒÐ°Ð»Ð¸Ð·Ð¸Ñ€Ð°Ð¼Ðµ soft delete Ñ„Ð»Ð°Ð³Ð°
     await prisma.conversation.update({
       where: {id: conversationId},
       data: updateData,
@@ -414,3 +414,4 @@ exports.getConversationById = async (req, res) => {
     return res.status(500).json({error: 'Server error'});
   }
 };
+
