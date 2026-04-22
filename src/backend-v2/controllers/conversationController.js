@@ -134,6 +134,28 @@ exports.getMessages = async (req, res) => {
       return res.status(403).json({error: 'Access denied'});
     }
 
+    const delivered = await prisma.message.updateMany({
+      where: {
+        conversationId,
+        senderId: {not: req.user.id},
+        deliveredAt: null,
+      },
+      data: {
+        deliveredAt: new Date(),
+      },
+    });
+
+    if (delivered.count > 0 && global.io) {
+      const otherUserId =
+        conversation.user1Id === req.user.id
+          ? conversation.user2Id
+          : conversation.user1Id;
+
+      global.io.to('user_' + otherUserId).emit('messagesDelivered', {
+        conversationId,
+        });
+      }
+
     const messages = await prisma.message.findMany({
       where: {conversationId},
       orderBy: {createdAt: 'asc'},
@@ -184,6 +206,7 @@ exports.sendMessage = async (req, res) => {
         senderId,
         text,
         read: false,
+        deliveredAt: null,
       },
     });
 
@@ -322,6 +345,7 @@ exports.markAsRead = async (req, res) => {
       data: {
         read: true,
         readAt: new Date(),
+        deliveredAt: new Date(),
       },
     });
 
@@ -339,6 +363,57 @@ exports.markAsRead = async (req, res) => {
     return res.json({updatedCount: updated.count});
   } catch (error) {
     console.error('Mark messages as read error:', error);
+    return res.status(500).json({error: 'Server error'});
+  }
+};
+
+exports.markAsDelivered = async (req, res) => {
+  const conversationId = Number(req.params.id);
+  const userId = req.user.id;
+
+  try {
+    if (!conversationId || !userId) {
+      return res.status(400).json({error: 'Invalid data'});
+    }
+
+    const conversation = await prisma.conversation.findUnique({
+      where: {id: conversationId},
+      select: {user1Id: true, user2Id: true},
+    });
+
+    if (!conversation) {
+      return res.status(404).json({error: 'Conversation not found'});
+    }
+
+    if (![conversation.user1Id, conversation.user2Id].includes(userId)) {
+      return res.status(403).json({error: 'Access denied'});
+    }
+
+    const updated = await prisma.message.updateMany({
+      where: {
+        conversationId,
+        senderId: {not: userId},
+        deliveredAt: null,
+      },
+      data: {
+        deliveredAt: new Date(),
+      },
+    });
+
+    if (updated.count > 0 && global.io) {
+      const otherUserId =
+        conversation.user1Id === userId
+          ? conversation.user2Id
+          : conversation.user1Id;
+
+      global.io.to('user_' + otherUserId).emit('messagesDelivered', {
+        conversationId,
+      });
+    }
+
+    return res.json({updatedCount: updated.count});
+  } catch (error) {
+    console.error('Mark messages as delivered error:', error);
     return res.status(500).json({error: 'Server error'});
   }
 };

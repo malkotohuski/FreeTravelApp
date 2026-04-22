@@ -224,13 +224,14 @@ model Message {
   senderId       Int
   text           String
   createdAt      DateTime     @default(now())
-  read           Boolean      @default(false)
-  conversation   Conversation @relation(fields: [conversationId], references: [id])
-  sender         User         @relation("SenderMessages", fields: [senderId], references: [id])
-  readAt         DateTime?
-  @@index([conversationId])
-  @@index([senderId])
-}
+    read           Boolean      @default(false)
+    conversation   Conversation @relation(fields: [conversationId], references: [id])
+    sender         User         @relation("SenderMessages", fields: [senderId], references: [id])
+    readAt         DateTime?
+    deliveredAt    DateTime?
+    @@index([conversationId])
+    @@index([senderId])
+  }
 
 model UserDevice {
   id        Int      @id @default(autoincrement())

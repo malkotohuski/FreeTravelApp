@@ -25,6 +25,11 @@ router.post(
   conversationController.sendMessage,
 );
 router.put('/:id/read', authenticateJWT, conversationController.markAsRead);
+router.put(
+  '/:id/delivered',
+  authenticateJWT,
+  conversationController.markAsDelivered,
+);
 router.delete(
   '/:id',
   authenticateJWT,

@@ -35,6 +35,7 @@ const ChatScreen = ({route}) => {
   const {refreshChatCount, setActiveConversation} = useChat();
 
   const flatListRef = useRef(null);
+  const deliveredEndpointAvailableRef = useRef(true);
 
   const syncMessages = useCallback(async () => {
     if (!conversationId) {
@@ -74,23 +75,60 @@ const ChatScreen = ({route}) => {
     }
   }, [conversationId, refreshChatCount, user?.id]);
 
+  const markConversationDelivered = useCallback(async () => {
+    if (!conversationId || !user?.id || !deliveredEndpointAvailableRef.current) {
+      return;
+    }
+
+    try {
+      await api.put(`/api/conversations/${conversationId}/delivered`);
+    } catch (error) {
+      if (error?.response?.status === 404) {
+        deliveredEndpointAvailableRef.current = false;
+        return;
+      }
+
+      console.error(error);
+    }
+  }, [conversationId, user?.id]);
+
+  const getMessageStatus = item => {
+    if (item.read) {
+      return {icon: '✓✓', color: '#4fc3f7'};
+    }
+
+    if (item.deliveredAt) {
+      return {icon: '✓✓', color: 'rgba(255,255,255,0.7)'};
+    }
+
+    return {icon: '✓', color: 'rgba(255,255,255,0.55)'};
+  };
+
   useFocusEffect(
     React.useCallback(() => {
       NotificationService.setActiveConversation(conversationId);
 
       markConversationRead();
+      markConversationDelivered();
 
       const intervalId = setInterval(() => {
         syncMessages();
+        markConversationDelivered();
         markConversationRead();
       }, 2500);
 
       return () => {
         markConversationRead();
+        markConversationDelivered();
         NotificationService.currentConversationId = null;
         clearInterval(intervalId);
       };
-    }, [conversationId, markConversationRead, syncMessages]),
+    }, [
+      conversationId,
+      markConversationDelivered,
+      markConversationRead,
+      syncMessages,
+    ]),
   );
 
   useEffect(() => {
@@ -144,6 +182,8 @@ const ChatScreen = ({route}) => {
       // Ð”Ð¾Ð±Ð°Ð²ÑÐ¼Ðµ ÑÑŠÐ¾Ð±Ñ‰ÐµÐ½Ð¸ÐµÑ‚Ð¾ ÑÐ°Ð¼Ð¾ Ð°ÐºÐ¾ Ðµ Ð·Ð° Ñ‚ÐµÐºÑƒÑ‰Ð¸Ñ conversationId
       if (String(convId) !== String(conversationId)) return;
 
+      markConversationDelivered();
+
       setMessages(prev => {
         // Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð·Ð° Ð´ÑƒÐ±Ð»Ð¸ÐºÐ°Ñ‚Ð¸
         if (prev.some(msg => msg.id === message.id)) return prev;
@@ -160,7 +200,25 @@ const ChatScreen = ({route}) => {
     socket.on('newMessage', handler);
 
     return () => socket.off('newMessage', handler);
-  }, [conversationId, markConversationRead]);
+  }, [conversationId, markConversationDelivered, markConversationRead]);
+
+  useEffect(() => {
+    const handler = ({conversationId: convId}) => {
+      if (String(convId) !== String(conversationId)) return;
+
+      setMessages(prev =>
+        prev.map(msg =>
+          msg.senderId === user.id && !msg.deliveredAt
+            ? {...msg, deliveredAt: new Date().toISOString()}
+            : msg,
+        ),
+      );
+    };
+
+    socket.on('messagesDelivered', handler);
+
+    return () => socket.off('messagesDelivered', handler);
+  }, [conversationId, user.id]);
 
   useEffect(() => {
     const handler = ({conversationId: convId}) => {
@@ -169,7 +227,14 @@ const ChatScreen = ({route}) => {
       // Ð¼Ð°Ñ€ÐºÐ¸Ñ€Ð°Ð¼Ðµ ÐœÐžÐ˜Ð¢Ð• ÑÑŠÐ¾Ð±Ñ‰ÐµÐ½Ð¸Ñ ÐºÐ°Ñ‚Ð¾ Ð¿Ñ€Ð¾Ñ‡ÐµÑ‚ÐµÐ½Ð¸
       setMessages(prev =>
         prev.map(msg =>
-          msg.senderId === user.id ? {...msg, read: true} : msg,
+          msg.senderId === user.id
+            ? {
+                ...msg,
+                read: true,
+                readAt: msg.readAt || new Date().toISOString(),
+                deliveredAt: msg.deliveredAt || new Date().toISOString(),
+              }
+            : msg,
         ),
       );
     };
@@ -200,6 +265,7 @@ const ChatScreen = ({route}) => {
     const fetchMessages = async () => {
       try {
         await syncMessages();
+        await markConversationDelivered();
         NotificationService.setActiveConversation(conversationId);
       } finally {
         setLoadingMessages(false); // ðŸ”¹ ÐºÑ€Ð°Ð¹ Ð½Ð° loader-Ð°
@@ -210,7 +276,7 @@ const ChatScreen = ({route}) => {
     };
 
     fetchMessages();
-  }, [conversationId, syncMessages]);
+  }, [conversationId, markConversationDelivered, syncMessages]);
 
   const sendMessage = async () => {
     if (!text.trim()) return;
@@ -355,6 +421,7 @@ const ChatScreen = ({route}) => {
             keyExtractor={item => item.id.toString()}
             renderItem={({item}) => {
               const isMe = item.senderId === user.id;
+              const status = getMessageStatus(item);
               return (
                 <View
                   style={[
@@ -407,16 +474,17 @@ const ChatScreen = ({route}) => {
                         {formatDate(item.createdAt)}
                       </Text>
 
-                      {/*  {isMe && item.read && (
+                      {isMe && (
                         <Text
                           style={{
                             marginLeft: 6,
                             fontSize: 11,
-                            color: 'rgba(255,255,255,0.7)',----> Ñ‚Ð¸ÐºÑ‡ÐµÑ‚Ð° Ð·Ð° Ð¿Ñ€Ð¾Ñ‡ÐµÑ‚ÐµÐ½Ð¾
+                            color: status.color,
+                            fontWeight: '700',
                           }}>
-  
+                          {status.icon}
                         </Text>
-                      )} */}
+                      )}
                     </View>
                   </View>
                 </View>

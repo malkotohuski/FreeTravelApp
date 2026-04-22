@@ -4,6 +4,7 @@
   useContext,
   useEffect,
   useCallback,
+  useRef,
 } from 'react';
 import Toast from 'react-native-toast-message';
 import socket from '../socket/socket';
@@ -17,6 +18,7 @@ export const ChatProvider = ({children}) => {
   const {user, isAuthenticated} = useAuth();
   const [chatCount, setChatCount] = useState(0);
   const [activeConversation, setActiveConversation] = useState(null);
+  const deliveredEndpointAvailableRef = useRef(true);
 
   const refreshChatCount = useCallback(async () => {
     if (!user?.id || !isAuthenticated) {
@@ -69,6 +71,23 @@ export const ChatProvider = ({children}) => {
 
     const newMessageHandler = ({conversationId, message}) => {
       const currentActive = NotificationService.getActiveConversation();
+
+      if (message?.senderId !== user.id) {
+        if (!deliveredEndpointAvailableRef.current) {
+          return;
+        }
+
+        api
+          .put(`/api/conversations/${conversationId}/delivered`)
+          .catch(error => {
+            if (error?.response?.status === 404) {
+              deliveredEndpointAvailableRef.current = false;
+              return;
+            }
+
+            console.error('Failed to mark message delivered:', error);
+          });
+      }
 
       if (String(currentActive) === String(conversationId)) {
         return;
