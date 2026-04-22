@@ -9,6 +9,8 @@ global.isUserInConversation = (userId, conversationId) => {
 
 require('dotenv').config();
 
+const {PrismaClient} = require('@prisma/client');
+const prisma = new PrismaClient();
 const {setOnlineUsers} = require('./utils/onlineUsers');
 setOnlineUsers(onlineUsers);
 
@@ -181,6 +183,54 @@ io.on('connection', socket => {
 
     socket.leave(room);
     userCurrentChat.delete(Number(userId));
+  });
+
+  socket.on('messageDelivered', async ({conversationId, messageId, userId}) => {
+    try {
+      const parsedConversationId = Number(conversationId);
+      const parsedMessageId = Number(messageId);
+      const parsedUserId = Number(userId);
+
+      if (!parsedConversationId || !parsedMessageId || !parsedUserId) {
+        return;
+      }
+
+      const message = await prisma.message.findFirst({
+        where: {
+          id: parsedMessageId,
+          conversationId: parsedConversationId,
+          senderId: {not: parsedUserId},
+        },
+        include: {
+          conversation: {
+            select: {user1Id: true, user2Id: true},
+          },
+        },
+      });
+
+      if (
+        !message ||
+        ![message.conversation.user1Id, message.conversation.user2Id].includes(
+          parsedUserId,
+        )
+      ) {
+        return;
+      }
+
+      if (!message.deliveredAt) {
+        await prisma.message.update({
+          where: {id: parsedMessageId},
+          data: {deliveredAt: new Date()},
+        });
+      }
+
+      io.to('user_' + message.senderId).emit('messagesDelivered', {
+        conversationId: parsedConversationId,
+        messageId: parsedMessageId,
+      });
+    } catch (error) {
+      console.error('messageDelivered socket error:', error);
+    }
   });
 });
 

@@ -73,6 +73,12 @@ export const ChatProvider = ({children}) => {
       const currentActive = NotificationService.getActiveConversation();
 
       if (message?.senderId !== user.id) {
+        socket.emit('messageDelivered', {
+          conversationId,
+          messageId: message.id,
+          userId: user.id,
+        });
+
         if (!deliveredEndpointAvailableRef.current) {
           return;
         }

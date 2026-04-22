@@ -209,6 +209,14 @@ const ChatScreen = ({route}) => {
       // Ð”Ð¾Ð±Ð°Ð²ÑÐ¼Ðµ ÑÑŠÐ¾Ð±Ñ‰ÐµÐ½Ð¸ÐµÑ‚Ð¾ ÑÐ°Ð¼Ð¾ Ð°ÐºÐ¾ Ðµ Ð·Ð° Ñ‚ÐµÐºÑƒÑ‰Ð¸Ñ conversationId
       if (String(convId) !== String(conversationId)) return;
 
+      if (message?.senderId !== user.id) {
+        socket.emit('messageDelivered', {
+          conversationId: convId,
+          messageId: message.id,
+          userId: user.id,
+        });
+      }
+
       markConversationDelivered();
 
       setMessages(prev => {
@@ -230,12 +238,14 @@ const ChatScreen = ({route}) => {
   }, [conversationId, markConversationDelivered, markConversationRead]);
 
   useEffect(() => {
-    const handler = ({conversationId: convId}) => {
+    const handler = ({conversationId: convId, messageId}) => {
       if (String(convId) !== String(conversationId)) return;
 
       setMessages(prev =>
         prev.map(msg =>
-          msg.senderId === user.id && !msg.deliveredAt
+          msg.senderId === user.id &&
+          (!messageId || msg.id === Number(messageId)) &&
+          !msg.deliveredAt
             ? {...msg, deliveredAt: new Date().toISOString()}
             : msg,
         ),
@@ -246,6 +256,14 @@ const ChatScreen = ({route}) => {
 
     return () => socket.off('messagesDelivered', handler);
   }, [conversationId, user.id]);
+
+  useEffect(() => {
+    if (messages.length === 0) return;
+
+    setTimeout(() => {
+      flatListRef.current?.scrollToEnd({animated: true});
+    }, 80);
+  }, [messages.length]);
 
   useEffect(() => {
     const handler = ({conversationId: convId}) => {
