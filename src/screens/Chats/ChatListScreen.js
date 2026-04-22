@@ -46,10 +46,24 @@ const ChatScreen = ({route}) => {
       const res = await api.get(`/api/conversations/${conversationId}/messages`);
 
       setMessages(prev => {
-        const prevIds = new Set(prev.map(message => message.id));
-        const nextMessages = res.data.filter(message => !prevIds.has(message.id));
+        const previousById = new Map(
+          prev.map(message => [message.id, message]),
+        );
+        const hasChanges =
+          prev.length !== res.data.length ||
+          res.data.some(message => {
+            const previous = previousById.get(message.id);
 
-        if (nextMessages.length === 0 && prev.length === res.data.length) {
+            return (
+              !previous ||
+              previous.text !== message.text ||
+              previous.read !== message.read ||
+              previous.readAt !== message.readAt ||
+              previous.deliveredAt !== message.deliveredAt
+            );
+          });
+
+        if (!hasChanges) {
           return prev;
         }
 
@@ -69,6 +83,19 @@ const ChatScreen = ({route}) => {
       await api.put(`/api/conversations/${conversationId}/read`, {
         userId: user.id,
       });
+      const now = new Date().toISOString();
+      setMessages(prev =>
+        prev.map(message =>
+          message.senderId !== user.id
+            ? {
+                ...message,
+                read: true,
+                readAt: message.readAt || now,
+                deliveredAt: message.deliveredAt || now,
+              }
+            : message,
+        ),
+      );
       await refreshChatCount();
     } catch (error) {
       console.error(error);
