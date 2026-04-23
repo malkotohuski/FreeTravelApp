@@ -77,6 +77,7 @@ local.properties
 #
 node_modules/
 .env
+.env.*
 npm-debug.log
 yarn-error.log
 
@@ -93,6 +94,9 @@ yarn-error.log
 **/fastlane/test_output
 # Firebase / Google service accounts
 **/freetravelapp-*-firebase-adminsdk-*.json
+**/*firebase-adminsdk*.json
+src/backend-v2/.env
+src/server/.env
 
 # Bundle artifact
 *.jsbundle
@@ -118,4 +122,11 @@ yarn-error.log
 # Android keystore и properties
 *.jks
 keystore.properties
+android/app/keystore.properties
+src/backend-v2/tmp/
+
+# Local crash dumps / temporary backups
+hs_err_pid*
+*.stackdump
+*backup*
 

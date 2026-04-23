@@ -19,7 +19,14 @@ def jscFlavor = 'org.webkit:android-jsc:+'
 // Тук се зареждат паролите от keystore.properties
 def keystorePropertiesFile = file("keystore.properties")
 def keystoreProperties = new Properties()
-keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+def releaseStoreFile = keystoreProperties['MYAPP_UPLOAD_STORE_FILE'] ?: System.getenv('MYAPP_UPLOAD_STORE_FILE')
+def releaseStorePassword = keystoreProperties['MYAPP_UPLOAD_STORE_PASSWORD'] ?: System.getenv('MYAPP_UPLOAD_STORE_PASSWORD')
+def releaseKeyAlias = keystoreProperties['MYAPP_UPLOAD_KEY_ALIAS'] ?: System.getenv('MYAPP_UPLOAD_KEY_ALIAS')
+def releaseKeyPassword = keystoreProperties['MYAPP_UPLOAD_KEY_PASSWORD'] ?: System.getenv('MYAPP_UPLOAD_KEY_PASSWORD')
 
 android {
     ndkVersion rootProject.ext.ndkVersion
@@ -44,10 +51,18 @@ android {
         }
 
         release {
-            storeFile file(keystoreProperties['MYAPP_UPLOAD_STORE_FILE'])
-            storePassword keystoreProperties['MYAPP_UPLOAD_STORE_PASSWORD']
-            keyAlias keystoreProperties['MYAPP_UPLOAD_KEY_ALIAS']
-            keyPassword keystoreProperties['MYAPP_UPLOAD_KEY_PASSWORD']
+            if (releaseStoreFile) {
+                storeFile file(releaseStoreFile)
+            }
+            if (releaseStorePassword) {
+                storePassword releaseStorePassword
+            }
+            if (releaseKeyAlias) {
+                keyAlias releaseKeyAlias
+            }
+            if (releaseKeyPassword) {
+                keyPassword releaseKeyPassword
+            }
         }
     }
 

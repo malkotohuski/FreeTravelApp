@@ -20,7 +20,7 @@ const normalizeCityName = value =>
 async function main() {
   const legacySelectorPath = path.resolve(
     __dirname,
-    '../../server/Cities/cities.js',
+    './data/cities.js',
   );
 
   const source = fs.readFileSync(legacySelectorPath, 'utf8');
