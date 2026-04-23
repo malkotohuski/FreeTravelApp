@@ -4,6 +4,7 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  Pressable,
   SafeAreaView,
   Alert,
   ScrollView,
@@ -181,151 +182,153 @@ function RouteRequestScreen({route, navigation}) {
         <KeyboardAvoidingView
           style={styles.modalKeyboardView}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-            <View style={styles.modalOverlay}>
-              <TouchableWithoutFeedback accessible={false}>
-                <View
-                  style={[
-                    styles.modalContainer,
-                    {
-                      backgroundColor: theme.cardBackground,
-                      borderColor: theme.cardBorder,
-                    },
-                  ]}>
-                  {selectedRequest && (
-                    <>
-                      <Text
-                        style={[styles.modalTitle, {color: theme.textPrimary}]}>
-                        {t('Request from')}: {selectedRequest.userFname}{' '}
-                        {selectedRequest.userLname}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.modalText,
-                          {color: theme.textSecondary},
-                        ]}>
-                        {t('Direction')}: {selectedRequest.departureCity} -{' '}
-                        {selectedRequest.arrivalCity}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.modalText,
-                          {color: theme.textSecondary},
-                        ]}>
-                        {t('Date/Time')}:{' '}
-                        {new Date(selectedRequest.dataTime).toLocaleString(
-                          'bg-BG',
-                        )}
-                      </Text>
-                      <Text style={[styles.modalText, {marginTop: 10}]}>
-                        {t('Comment')}:
-                      </Text>
-                      <Text
-                        style={[
-                          styles.modalComment,
-                          {
-                            color: theme.textSecondary,
-                            borderLeftColor: theme.cardBorder,
-                          },
-                        ]}>
-                        {`"${
-                          selectedRequest.requestComment ||
-                          t('No comment provided.')
-                        }"`}
-                      </Text>
+          <View style={styles.modalOverlay}>
+            <Pressable
+              style={StyleSheet.absoluteFill}
+              onPress={Keyboard.dismiss}
+            />
+            <TouchableWithoutFeedback accessible={false}>
+              <View
+                style={[
+                  styles.modalContainer,
+                  {
+                    backgroundColor: theme.cardBackground,
+                    borderColor: theme.cardBorder,
+                  },
+                ]}>
+                {selectedRequest && (
+                  <>
+                    <Text
+                      style={[styles.modalTitle, {color: theme.textPrimary}]}>
+                      {t('Request from')}: {selectedRequest.userFname}{' '}
+                      {selectedRequest.userLname}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.modalText,
+                        {color: theme.textSecondary},
+                      ]}>
+                      {t('Direction')}: {selectedRequest.departureCity} -{' '}
+                      {selectedRequest.arrivalCity}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.modalText,
+                        {color: theme.textSecondary},
+                      ]}>
+                      {t('Date/Time')}:{' '}
+                      {new Date(selectedRequest.dataTime).toLocaleString(
+                        'bg-BG',
+                      )}
+                    </Text>
+                    <Text style={[styles.modalText, {marginTop: 10}]}>
+                      {t('Comment')}:
+                    </Text>
+                    <Text
+                      style={[
+                        styles.modalComment,
+                        {
+                          color: theme.textSecondary,
+                          borderLeftColor: theme.cardBorder,
+                        },
+                      ]}>
+                      {`"${
+                        selectedRequest.requestComment ||
+                        t('No comment provided.')
+                      }"`}
+                    </Text>
 
-                      <Text style={[styles.modalText, {marginTop: 15}]}>
-                        {t('Personal message (optional)')}:
-                      </Text>
+                    <Text style={[styles.modalText, {marginTop: 15}]}>
+                      {t('Personal message (optional)')}:
+                    </Text>
 
-                      <TextInput
+                    <TextInput
+                      style={[
+                        styles.messageInput,
+                        {
+                          backgroundColor: theme.inputBackground,
+                          borderColor: theme.inputBorder,
+                          color: theme.textPrimary,
+                        },
+                      ]}
+                      placeholder={t('Write a message...')}
+                      placeholderTextColor={theme.placeholder}
+                      value={decisionMessage}
+                      onChangeText={setDecisionMessage}
+                      multiline
+                      blurOnSubmit={false}
+                    />
+
+                    <TouchableOpacity
+                      style={[
+                        styles.modalButton,
+                        {backgroundColor: '#007AFF'},
+                      ]}
+                      onPress={() => {
+                        Keyboard.dismiss();
+                        setModalVisible(false);
+                        navigation.navigate('UserDetails', {
+                          userId: selectedRequest.userID,
+                        });
+                      }}>
+                      <Text style={styles.modalButtonText}>
+                        {t('More info about')} {selectedRequest.username}
+                      </Text>
+                    </TouchableOpacity>
+
+                    <View style={styles.modalButtons}>
+                      <TouchableOpacity
                         style={[
-                          styles.messageInput,
+                          styles.modalButton,
                           {
-                            backgroundColor: theme.inputBackground,
-                            borderColor: theme.inputBorder,
-                            color: theme.textPrimary,
+                            backgroundColor: '#4CAF50',
+                            opacity: isProcessing ? 0.6 : 1,
                           },
                         ]}
-                        placeholder={t('Write a message...')}
-                        placeholderTextColor={theme.placeholder}
-                        value={decisionMessage}
-                        onChangeText={setDecisionMessage}
-                        multiline
-                        blurOnSubmit={false}
-                      />
+                        disabled={isProcessing}
+                        onPress={() => {
+                          Keyboard.dismiss();
+                          setModalVisible(false);
+                          handleDecision(selectedRequest.id, 'approved');
+                        }}>
+                        <Text style={styles.modalButtonText}>
+                          {isProcessing ? t('Processing') : t('Approve')}
+                        </Text>
+                      </TouchableOpacity>
 
                       <TouchableOpacity
                         style={[
                           styles.modalButton,
-                          {backgroundColor: '#007AFF'},
+                          {
+                            backgroundColor: '#5a120dff',
+                            opacity: isProcessing ? 0.6 : 1,
+                          },
                         ]}
+                        disabled={isProcessing}
                         onPress={() => {
                           Keyboard.dismiss();
                           setModalVisible(false);
-                          navigation.navigate('UserDetails', {
-                            userId: selectedRequest.userID,
-                          });
+                          handleDecision(selectedRequest.id, 'rejected');
                         }}>
                         <Text style={styles.modalButtonText}>
-                          {t('More info about')} {selectedRequest.username}
+                          {isProcessing ? t('Processing') : t('Reject')}
                         </Text>
                       </TouchableOpacity>
 
-                      <View style={styles.modalButtons}>
-                        <TouchableOpacity
-                          style={[
-                            styles.modalButton,
-                            {
-                              backgroundColor: '#4CAF50',
-                              opacity: isProcessing ? 0.6 : 1,
-                            },
-                          ]}
-                          disabled={isProcessing}
-                          onPress={() => {
-                            Keyboard.dismiss();
-                            setModalVisible(false);
-                            handleDecision(selectedRequest.id, 'approved');
-                          }}>
-                          <Text style={styles.modalButtonText}>
-                            {isProcessing ? t('Processing') : t('Approve')}
-                          </Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                          style={[
-                            styles.modalButton,
-                            {
-                              backgroundColor: '#5a120dff',
-                              opacity: isProcessing ? 0.6 : 1,
-                            },
-                          ]}
-                          disabled={isProcessing}
-                          onPress={() => {
-                            Keyboard.dismiss();
-                            setModalVisible(false);
-                            handleDecision(selectedRequest.id, 'rejected');
-                          }}>
-                          <Text style={styles.modalButtonText}>
-                            {isProcessing ? t('Processing') : t('Reject')}
-                          </Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                          style={[styles.modalButton, {backgroundColor: '#888'}]}
-                          onPress={() => {
-                            Keyboard.dismiss();
-                            setModalVisible(false);
-                          }}>
-                          <Text style={styles.modalButtonText}>{t('Back')}</Text>
-                        </TouchableOpacity>
-                      </View>
-                    </>
-                  )}
-                </View>
-              </TouchableWithoutFeedback>
-            </View>
-          </TouchableWithoutFeedback>
+                      <TouchableOpacity
+                        style={[styles.modalButton, {backgroundColor: '#888'}]}
+                        onPress={() => {
+                          Keyboard.dismiss();
+                          setModalVisible(false);
+                        }}>
+                        <Text style={styles.modalButtonText}>{t('Back')}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </>
+                )}
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
         </KeyboardAvoidingView>
       </Modal>
       <ScrollView contentContainerStyle={styles.scrollViewContainer}>
