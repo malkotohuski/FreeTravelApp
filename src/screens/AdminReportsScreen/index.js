@@ -5,6 +5,7 @@ import {
   Image,
   Linking,
   SafeAreaView,
+  Share,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,12 +13,18 @@ import {
   View,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import api from '../../api/api';
 import {useAuth} from '../../context/AuthContext';
 import {useTheme} from '../../theme/useTheme';
 
 const STATUS_OPTIONS = ['PENDING', 'RESOLVED', 'REJECTED'];
+const FILTER_OPTIONS = ['PENDING', 'ALL'];
+
+const STATUS_BADGE_COLORS = {
+  PENDING: '#f59e0b',
+  RESOLVED: '#16a34a',
+  REJECTED: '#dc2626',
+};
 
 const formatDate = value => {
   try {
@@ -33,6 +40,7 @@ const AdminReportsScreen = ({navigation}) => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
+  const [activeFilter, setActiveFilter] = useState('PENDING');
 
   const fetchReports = useCallback(async () => {
     if (!user?.isAdmin) {
@@ -94,6 +102,32 @@ const AdminReportsScreen = ({navigation}) => {
     }
   };
 
+  const shareImageLink = async imageUrl => {
+    try {
+      await Share.share({
+        message: imageUrl,
+      });
+    } catch (error) {
+      Alert.alert('Error', 'Could not share image link.');
+    }
+  };
+
+  const openReporterProfile = report => {
+    if (!report.reporter?.id) {
+      Alert.alert('Error', 'Reporter profile is not available.');
+      return;
+    }
+
+    navigation.navigate('UserDetails', {
+      userId: report.reporter.id,
+    });
+  };
+
+  const visibleReports =
+    activeFilter === 'PENDING'
+      ? reports.filter(report => report.status === 'PENDING')
+      : reports;
+
   if (!user?.isAdmin) {
     return (
       <SafeAreaView
@@ -107,33 +141,51 @@ const AdminReportsScreen = ({navigation}) => {
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: theme.gradient[0]}}>
-      <View
-        style={[
-          styles.header,
-          {
-            backgroundColor: theme.firstButton,
-          },
-        ]}>
-        <Text style={styles.headerTitle}>Admin Reports</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-          <Icon name="keyboard-backspace" size={24} color="#fff" />
-        </TouchableOpacity>
-      </View>
-
       {loading ? (
         <View style={styles.centered}>
           <ActivityIndicator size="large" color={theme.primaryButton} />
         </View>
       ) : (
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          {reports.length === 0 ? (
+          <View style={styles.filterRow}>
+            {FILTER_OPTIONS.map(option => {
+              const isActive = activeFilter === option;
+
+              return (
+                <TouchableOpacity
+                  key={option}
+                  style={[
+                    styles.filterButton,
+                    {
+                      backgroundColor: isActive
+                        ? theme.primaryButton
+                        : theme.inputBackground,
+                      borderColor: theme.cardBorder,
+                    },
+                  ]}
+                  onPress={() => setActiveFilter(option)}>
+                  <Text
+                    style={[
+                      styles.filterButtonText,
+                      {color: isActive ? '#fff' : theme.textPrimary},
+                    ]}>
+                    {option === 'PENDING' ? 'Pending only' : 'All reports'}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          {visibleReports.length === 0 ? (
             <View style={styles.centered}>
               <Text style={[styles.emptyText, {color: theme.textSecondary}]}>
-                No reports yet.
+                {activeFilter === 'PENDING'
+                  ? 'No pending reports.'
+                  : 'No reports yet.'}
               </Text>
             </View>
           ) : (
-            reports.map(report => (
+            visibleReports.map(report => (
               <View
                 key={report.id}
                 style={[
@@ -155,9 +207,32 @@ const AdminReportsScreen = ({navigation}) => {
                 <Text style={[styles.cardMeta, {color: theme.textSecondary}]}>
                   Created: {formatDate(report.createdAt)}
                 </Text>
-                <Text style={[styles.statusText, {color: theme.textPrimary}]}>
-                  Status: {report.status}
-                </Text>
+                <View style={styles.topRow}>
+                  <View
+                    style={[
+                      styles.statusBadge,
+                      {
+                        backgroundColor:
+                          STATUS_BADGE_COLORS[report.status] || theme.primaryButton,
+                      },
+                    ]}>
+                    <Text style={styles.statusBadgeText}>{report.status}</Text>
+                  </View>
+                  <TouchableOpacity
+                    style={[
+                      styles.profileButton,
+                      {borderColor: theme.cardBorder},
+                    ]}
+                    onPress={() => openReporterProfile(report)}>
+                    <Text
+                      style={[
+                        styles.profileButtonText,
+                        {color: theme.textPrimary},
+                      ]}>
+                      Open reporter profile
+                    </Text>
+                  </TouchableOpacity>
+                </View>
                 <Text style={[styles.reportText, {color: theme.textPrimary}]}>
                   {report.text}
                 </Text>
@@ -175,6 +250,23 @@ const AdminReportsScreen = ({navigation}) => {
                       ]}
                       onPress={() => openImage(report.image)}>
                       <Text style={styles.linkButtonText}>Open image</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[
+                        styles.secondaryLinkButton,
+                        {
+                          backgroundColor: theme.inputBackground,
+                          borderColor: theme.cardBorder,
+                        },
+                      ]}
+                      onPress={() => shareImageLink(report.image)}>
+                      <Text
+                        style={[
+                          styles.secondaryLinkButtonText,
+                          {color: theme.textPrimary},
+                        ]}>
+                        Share image link
+                      </Text>
                     </TouchableOpacity>
                   </View>
                 ) : null}
@@ -224,21 +316,25 @@ const AdminReportsScreen = ({navigation}) => {
 };
 
 const styles = StyleSheet.create({
-  header: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  headerTitle: {
-    color: '#fff',
-    fontSize: 22,
-    fontWeight: 'bold',
-  },
   scrollContent: {
     padding: 16,
     paddingBottom: 32,
+  },
+  filterRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 16,
+    flexWrap: 'wrap',
+  },
+  filterButton: {
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+  },
+  filterButtonText: {
+    fontSize: 13,
+    fontWeight: '700',
   },
   centered: {
     flex: 1,
@@ -267,11 +363,34 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginBottom: 4,
   },
-  statusText: {
-    fontSize: 14,
-    fontWeight: '700',
-    marginTop: 8,
+  topRow: {
+    marginTop: 10,
     marginBottom: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 10,
+    flexWrap: 'wrap',
+  },
+  statusBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 999,
+  },
+  statusBadgeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  profileButton: {
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  profileButtonText: {
+    fontSize: 12,
+    fontWeight: '700',
   },
   reportText: {
     fontSize: 15,
@@ -291,9 +410,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 10,
+    marginBottom: 8,
   },
   linkButtonText: {
     color: '#fff',
+    fontWeight: '600',
+  },
+  secondaryLinkButton: {
+    alignSelf: 'flex-start',
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  secondaryLinkButtonText: {
     fontWeight: '600',
   },
   actionsRow: {
