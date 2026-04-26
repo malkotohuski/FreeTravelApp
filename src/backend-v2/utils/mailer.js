@@ -18,7 +18,7 @@ function getBaseTemplate({title, intro, body, footer}) {
         <p style="font-size: 14px; line-height: 1.6; color: #666; margin-top: 24px;">${footer}</p>
         <hr style="margin: 24px 0; border: 0; border-top: 1px solid #e5e7eb;" />
         <p style="font-size: 12px; color: #999; margin: 0;">
-          © ${new Date().getFullYear()} ${APP_NAME}. All rights reserved.
+          Copyright ${new Date().getFullYear()} ${APP_NAME}. All rights reserved.
         </p>
       </div>
     </div>
@@ -92,6 +92,65 @@ async function sendResetEmail(to, code) {
   });
 }
 
+async function sendReportReceivedEmail(report, reporterEmail) {
+  const html = getBaseTemplate({
+    title: 'Report Received',
+    intro: `Hello ${report.reporter.username},`,
+    body: `
+      <p style="font-size: 15px; line-height: 1.6; color: #444;">
+        Your report has been received and is now under review.
+      </p>
+      <div style="margin: 20px 0; padding: 16px; background: #f8fafc; border-radius: 10px;">
+        <p style="margin: 0 0 8px;"><strong>Report ID:</strong> ${report.id}</p>
+        <p style="margin: 0 0 8px;"><strong>Reported User:</strong> ${report.reported.username}</p>
+        <p style="margin: 0;"><strong>Status:</strong> <span style="color: #6b7280; font-weight: bold;">${report.status}</span></p>
+      </div>
+    `,
+    footer:
+      'We will review the case and get back to you as soon as possible.',
+  });
+
+  await sendEmail({
+    to: reporterEmail,
+    subject: `${APP_NAME} - Report #${report.id} Received`,
+    html,
+    text: `Your report #${report.id} has been received and is under review.`,
+  });
+}
+
+async function sendAdminReportEmail(report) {
+  const adminEmail = process.env.REPORTS_EMAIL || 'appfreetravel@gmail.com';
+  const imageSection = report.image
+    ? `<p style="margin: 0;"><strong>Attachment:</strong> <a href="${report.image}" target="_blank" rel="noreferrer">Open image</a></p>`
+    : `<p style="margin: 0;"><strong>Attachment:</strong> No image provided</p>`;
+
+  const html = getBaseTemplate({
+    title: 'New User Report',
+    intro: 'A new report has been submitted in FreeTravelApp.',
+    body: `
+      <div style="margin: 20px 0; padding: 16px; background: #f8fafc; border-radius: 10px;">
+        <p style="margin: 0 0 8px;"><strong>Report ID:</strong> ${report.id}</p>
+        <p style="margin: 0 0 8px;"><strong>Reporter:</strong> ${report.reporter.username} (${report.reporter.email})</p>
+        <p style="margin: 0 0 8px;"><strong>Reported User:</strong> ${report.reported.username} (${report.reported.email})</p>
+        <p style="margin: 0 0 8px;"><strong>Status:</strong> ${report.status}</p>
+        ${imageSection}
+      </div>
+      <div style="margin-top: 20px; padding: 16px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 10px;">
+        <p style="margin: 0; white-space: pre-wrap; color: #374151;"><strong>Report text:</strong></p>
+        <p style="margin: 10px 0 0; white-space: pre-wrap; color: #374151;">${report.text}</p>
+      </div>
+    `,
+    footer: 'Review the report in the admin flow and update the status when ready.',
+  });
+
+  await sendEmail({
+    to: adminEmail,
+    subject: `${APP_NAME} - New Report #${report.id}`,
+    html,
+    text: `New report #${report.id} from ${report.reporter.username} against ${report.reported.username}.`,
+  });
+}
+
 async function sendReportStatusEmail(report, reporterEmail) {
   let message;
   let statusColor;
@@ -131,7 +190,9 @@ async function sendReportStatusEmail(report, reporterEmail) {
 }
 
 module.exports = {
+  sendAdminReportEmail,
   sendConfirmationEmail,
+  sendReportReceivedEmail,
   sendResetEmail,
   sendReportStatusEmail,
 };

@@ -1,6 +1,17 @@
 const {PrismaClient} = require('@prisma/client');
+const cloudinary = require('cloudinary').v2;
 const prisma = new PrismaClient();
-const {sendReportStatusEmail} = require('../utils/mailer');
+const {
+  sendAdminReportEmail,
+  sendReportReceivedEmail,
+  sendReportStatusEmail,
+} = require('../utils/mailer');
+
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUD_API_KEY,
+  api_secret: process.env.CLOUD_API_SECRET,
+});
 
 // POST /api/report
 exports.sendReport = async (req, res) => {
@@ -41,18 +52,42 @@ exports.sendReport = async (req, res) => {
         .json({error: 'You can only submit 3 reports per day.'});
     }
 
+    let uploadedImageUrl = null;
+
+    if (image) {
+      const uploadResult = await cloudinary.uploader.upload(image, {
+        folder: 'reports',
+        transformation: [{fetch_format: 'auto', quality: 'auto'}],
+      });
+      uploadedImageUrl = uploadResult.secure_url;
+    }
+
     const report = await prisma.report.create({
       data: {
         text,
-        image: image || null,
+        image: uploadedImageUrl,
         reporterId: req.user.id,
         reportedId: reportedUser.id,
       },
+      include: {
+        reporter: {select: {id: true, username: true, email: true}},
+        reported: {select: {id: true, username: true, email: true}},
+      },
     });
+
+    try {
+      await Promise.all([
+        sendAdminReportEmail(report),
+        sendReportReceivedEmail(report, report.reporter.email),
+      ]);
+    } catch (mailError) {
+      console.error('Report mail send error:', mailError);
+    }
 
     return res.status(201).json({
       message: 'Report submitted successfully.',
       reportId: report.id,
+      image: report.image,
     });
   } catch (err) {
     console.error('Report error:', err);

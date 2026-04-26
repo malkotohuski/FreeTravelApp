@@ -31,8 +31,11 @@ const ReportingScreen = ({navigation}) => {
   const chooseMedia = async () => {
     try {
       const media = await ImagePicker.openPicker({
-        mediaType: 'any',
+        mediaType: 'photo',
         includeBase64: true,
+        compressImageQuality: 0.7,
+        maxWidth: 1600,
+        maxHeight: 1600,
       });
 
       if (media.data) {
@@ -127,16 +130,10 @@ const ReportingScreen = ({navigation}) => {
 
         {profilePicture && (
           <View style={styles.previewContainer}>
-            {profilePicture.startsWith('data:video') ? (
-              <Text style={[styles.previewText, {color: theme.textPrimary}]}>
-                📹 {t('Video selected (preview not available)')}
-              </Text>
-            ) : (
-              <Image
-                source={{uri: profilePicture}}
-                style={styles.attachmentPreview}
-              />
-            )}
+            <Image
+              source={{uri: profilePicture}}
+              style={styles.attachmentPreview}
+            />
           </View>
         )}
 
