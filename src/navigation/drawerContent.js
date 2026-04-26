@@ -19,6 +19,7 @@ import Comments from '../screens/Comments';
 import Confirm from '../screens/Confirm';
 import ViewRoutes from '../screens/ViewRoutes';
 import ReportingScreen from '../screens/ReportingScreen';
+import AdminReportsScreen from '../screens/AdminReportsScreen';
 import RouteRequestScreen from '../screens/RouteRequest';
 import AccountManager from '../screens/AccountManager';
 import Messages from '../screens/Chats/Messages';
@@ -50,7 +51,7 @@ const Drawer = createDrawerNavigator();
 export const Navigator = () => {
   const {t} = useTranslation();
   const {darkMode} = useContext(DarkModeContext);
-  const {isAuthenticated, loading} = useAuth();
+  const {isAuthenticated, loading, user} = useAuth();
 
   if (loading) {
     return null; // или <SplashScreen />
@@ -491,6 +492,17 @@ export const Navigator = () => {
               },
             })}
           />
+          {user?.isAdmin ? (
+            <Drawer.Screen
+              name="AdminReports"
+              component={AdminReportsScreen}
+              options={{
+                title: 'Admin Reports',
+                ...screenStyles,
+                drawerItemStyle: {display: 'none'},
+              }}
+            />
+          ) : null}
           <Drawer.Screen
             name="Comments"
             component={Comments}

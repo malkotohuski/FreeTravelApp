@@ -27,9 +27,23 @@ router.get('/admin/all', authenticateJWT, isAdmin, async (req, res) => {
   }
 });
 
+router.get(
+  '/reports/admin/all',
+  authenticateJWT,
+  isAdmin,
+  reportController.getAllReports,
+);
+
 // PATCH /api/report/:id/status - admin only
 router.patch(
   '/:id/status',
+  authenticateJWT,
+  isAdmin,
+  reportController.updateReportStatus,
+);
+
+router.patch(
+  '/reports/:id/status',
   authenticateJWT,
   isAdmin,
   reportController.updateReportStatus,

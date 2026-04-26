@@ -17,7 +17,7 @@ function CustomerDrawer({navigation}) {
   const {t} = useTranslation();
   const {user} = useAuth();
   const noImage = require('../../images/emptyUserImage.png');
-  const profilePicture = user?.userImage; // userImage е директно в user
+  const profilePicture = user?.userImage; // userImage ÃÂµ ÃÂ´ÃÂ¸Ã‘â‚¬ÃÂµÃÂºÃ‘â€šÃÂ½ÃÂ¾ ÃÂ² user
   const username = user?.username;
 
   const handlerAccountScreen = () => {
@@ -33,7 +33,11 @@ function CustomerDrawer({navigation}) {
   };
 
   const handlerReporting = () => {
-    navigation.navigate('Reporting'); // предаваме userId като параметър
+    navigation.navigate('Reporting'); // ÃÂ¿Ã‘â‚¬ÃÂµÃÂ´ÃÂ°ÃÂ²ÃÂ°ÃÂ¼ÃÂµ userId ÃÂºÃÂ°Ã‘â€šÃÂ¾ ÃÂ¿ÃÂ°Ã‘â‚¬ÃÂ°ÃÂ¼ÃÂµÃ‘â€šÃ‘Å Ã‘â‚¬
+  };
+
+  const handlerAdminReports = () => {
+    navigation.navigate('AdminReports');
   };
 
   /*   const handlerRequest = () => {
@@ -54,7 +58,7 @@ function CustomerDrawer({navigation}) {
       <ScrollView
         contentContainerStyle={{flexGrow: 1}}
         style={{flex: 1, backgroundColor: 'grey'}}
-        showsVerticalScrollIndicator={false} // Скрива скрол индикатора (по желание)
+        showsVerticalScrollIndicator={false} // ÃÂ¡ÃÂºÃ‘â‚¬ÃÂ¸ÃÂ²ÃÂ° Ã‘ÂÃÂºÃ‘â‚¬ÃÂ¾ÃÂ» ÃÂ¸ÃÂ½ÃÂ´ÃÂ¸ÃÂºÃÂ°Ã‘â€šÃÂ¾Ã‘â‚¬ÃÂ° (ÃÂ¿ÃÂ¾ ÃÂ¶ÃÂµÃÂ»ÃÂ°ÃÂ½ÃÂ¸ÃÂµ)
       >
         <View style={styles.mainContainer}>
           <Image
@@ -96,6 +100,16 @@ function CustomerDrawer({navigation}) {
                 <Text style={styles.textButtons}>{t('Reporting')}</Text>
               </TouchableOpacity>
             </View>
+            {user?.isAdmin ? (
+              <View style={styles.topLeft}>
+                <TouchableOpacity
+                  style={styles.drawerScreen}
+                  onPress={handlerAdminReports}>
+                  <Icons name="shield-account" size={30} color="#0721B6" />
+                  <Text style={styles.textButtons}>Admin Reports</Text>
+                </TouchableOpacity>
+              </View>
+            ) : null}
             {/*             <View style={styles.topLeft}>
               <TouchableOpacity
                 style={styles.drawerScreen}
@@ -161,7 +175,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
-    overflow: 'hidden', // предотвратява излизането на съдържание
+    overflow: 'hidden', // ÃÂ¿Ã‘â‚¬ÃÂµÃÂ´ÃÂ¾Ã‘â€šÃÂ²Ã‘â‚¬ÃÂ°Ã‘â€šÃ‘ÂÃÂ²ÃÂ° ÃÂ¸ÃÂ·ÃÂ»ÃÂ¸ÃÂ·ÃÂ°ÃÂ½ÃÂµÃ‘â€šÃÂ¾ ÃÂ½ÃÂ° Ã‘ÂÃ‘Å ÃÂ´Ã‘Å Ã‘â‚¬ÃÂ¶ÃÂ°ÃÂ½ÃÂ¸ÃÂµ
   },
   userImage: {
     width: 45,
@@ -176,9 +190,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginLeft: 10,
-    flexShrink: 1, // ограничава размера на текста
-    flexWrap: 'wrap', // пренася текста на нов ред, ако е нужно
-    maxWidth: '75%', // задава максимална ширина за текста
+    flexShrink: 1, // ÃÂ¾ÃÂ³Ã‘â‚¬ÃÂ°ÃÂ½ÃÂ¸Ã‘â€¡ÃÂ°ÃÂ²ÃÂ° Ã‘â‚¬ÃÂ°ÃÂ·ÃÂ¼ÃÂµÃ‘â‚¬ÃÂ° ÃÂ½ÃÂ° Ã‘â€šÃÂµÃÂºÃ‘ÂÃ‘â€šÃÂ°
+    flexWrap: 'wrap', // ÃÂ¿Ã‘â‚¬ÃÂµÃÂ½ÃÂ°Ã‘ÂÃ‘Â Ã‘â€šÃÂµÃÂºÃ‘ÂÃ‘â€šÃÂ° ÃÂ½ÃÂ° ÃÂ½ÃÂ¾ÃÂ² Ã‘â‚¬ÃÂµÃÂ´, ÃÂ°ÃÂºÃÂ¾ ÃÂµ ÃÂ½Ã‘Æ’ÃÂ¶ÃÂ½ÃÂ¾
+    maxWidth: '75%', // ÃÂ·ÃÂ°ÃÂ´ÃÂ°ÃÂ²ÃÂ° ÃÂ¼ÃÂ°ÃÂºÃ‘ÂÃÂ¸ÃÂ¼ÃÂ°ÃÂ»ÃÂ½ÃÂ° Ã‘Ë†ÃÂ¸Ã‘â‚¬ÃÂ¸ÃÂ½ÃÂ° ÃÂ·ÃÂ° Ã‘â€šÃÂµÃÂºÃ‘ÂÃ‘â€šÃÂ°
   },
   topLeft: {
     flex: 1,
@@ -194,11 +208,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontSize: 24,
     fontWeight: 'bold',
-    borderWidth: 2, // Премахване на границата
+    borderWidth: 2, // ÃÅ¸Ã‘â‚¬ÃÂµÃÂ¼ÃÂ°Ã‘â€¦ÃÂ²ÃÂ°ÃÂ½ÃÂµ ÃÂ½ÃÂ° ÃÂ³Ã‘â‚¬ÃÂ°ÃÂ½ÃÂ¸Ã‘â€ ÃÂ°Ã‘â€šÃÂ°
     backgroundColor: 'rgba(255, 255, 255, 0.4)',
     width: '100%',
     flexDirection: 'row',
-    borderRadius: 15, // Закръглени ръбове
+    borderRadius: 15, // Ãâ€”ÃÂ°ÃÂºÃ‘â‚¬Ã‘Å ÃÂ³ÃÂ»ÃÂµÃÂ½ÃÂ¸ Ã‘â‚¬Ã‘Å ÃÂ±ÃÂ¾ÃÂ²ÃÂµ
   },
   textButtons: {
     marginLeft: 5, // adjust as needed
