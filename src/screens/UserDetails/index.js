@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+﻿import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -10,13 +10,12 @@ import {
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useTranslation} from 'react-i18next';
 import {useRoute} from '@react-navigation/native';
-
-const API_BASE_URL = 'http://10.0.2.2:3000';
+import api from '../../api/api';
 
 function UserDetailsScreen() {
   const {t} = useTranslation();
   const route = useRoute();
-  const {userId} = route.params;
+  const {userId} = route.params || {};
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -36,11 +35,14 @@ function UserDetailsScreen() {
 
   useEffect(() => {
     const fetchUser = async () => {
+      if (!userId) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
       try {
-        console.log('Fetching user from:', `${API_BASE_URL}/users/${userId}`);
-        const res = await fetch(`${API_BASE_URL}/api/users/${userId}`);
-        if (!res.ok) throw new Error('Failed to fetch user');
-        const data = await res.json();
+        const {data} = await api.get(`/api/users/${userId}`);
         setUser(data);
       } catch (err) {
         console.error('Error fetching user:', err);
@@ -267,3 +269,4 @@ const styles = StyleSheet.create({
 });
 
 export default UserDetailsScreen;
+
