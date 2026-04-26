@@ -4,6 +4,12 @@ export const navigationRef = createNavigationContainerRef();
 
 let pendingNavigation = null;
 let routeHistory = [];
+const blockedBackTargets = new Set([
+  'WelcomeScreen',
+  'Login',
+  'Register',
+  'ResetPassword',
+]);
 
 export function navigate(name, params) {
   if (navigationRef.isReady()) {
@@ -28,7 +34,18 @@ export function trackCurrentRoute() {
     return;
   }
 
-  if (routeHistory[routeHistory.length - 1] !== currentName) {
+  const lastRouteName = routeHistory[routeHistory.length - 1];
+  const previousRouteName = routeHistory[routeHistory.length - 2];
+
+  if (lastRouteName === currentName) {
+    return;
+  }
+
+  // Treat navigation back to the previous screen as a stack pop,
+  // not as a brand new forward navigation entry.
+  if (previousRouteName === currentName) {
+    routeHistory.pop();
+  } else {
     routeHistory.push(currentName);
   }
 
@@ -44,7 +61,7 @@ export function getPreviousRouteName(currentRouteName) {
     if (
       routeName &&
       routeName !== currentRouteName &&
-      routeName !== 'WelcomeScreen'
+      !blockedBackTargets.has(routeName)
     ) {
       return routeName;
     }

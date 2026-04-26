@@ -46,6 +46,23 @@ export const ChatProvider = ({children}) => {
 
   useEffect(() => {
     if (!user?.id || !isAuthenticated) {
+      return undefined;
+    }
+
+    const joinUserRoom = () => {
+      socket.emit('joinUserRoom', user.id);
+    };
+
+    joinUserRoom();
+    socket.on('connect', joinUserRoom);
+
+    return () => {
+      socket.off('connect', joinUserRoom);
+    };
+  }, [isAuthenticated, user?.id]);
+
+  useEffect(() => {
+    if (!user?.id || !isAuthenticated) {
       return;
     }
 
