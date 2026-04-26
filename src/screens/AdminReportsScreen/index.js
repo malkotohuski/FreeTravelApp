@@ -112,14 +112,14 @@ const AdminReportsScreen = ({navigation}) => {
     }
   };
 
-  const openReporterProfile = report => {
-    if (!report.reporter?.id) {
-      Alert.alert('Error', 'Reporter profile is not available.');
+  const openUserProfile = (userId, label) => {
+    if (!userId) {
+      Alert.alert('Error', `${label} profile is not available.`);
       return;
     }
 
     navigation.navigate('UserDetails', {
-      userId: report.reporter.id,
+      userId,
     });
   };
 
@@ -218,20 +218,40 @@ const AdminReportsScreen = ({navigation}) => {
                     ]}>
                     <Text style={styles.statusBadgeText}>{report.status}</Text>
                   </View>
-                  <TouchableOpacity
-                    style={[
-                      styles.profileButton,
-                      {borderColor: theme.cardBorder},
-                    ]}
-                    onPress={() => openReporterProfile(report)}>
-                    <Text
+                  <View style={styles.profileButtonsRow}>
+                    <TouchableOpacity
                       style={[
-                        styles.profileButtonText,
-                        {color: theme.textPrimary},
-                      ]}>
-                      Open reporter profile
-                    </Text>
-                  </TouchableOpacity>
+                        styles.profileButton,
+                        {borderColor: theme.cardBorder},
+                      ]}
+                      onPress={() =>
+                        openUserProfile(report.reporter?.id, 'Reporter')
+                      }>
+                      <Text
+                        style={[
+                          styles.profileButtonText,
+                          {color: theme.textPrimary},
+                        ]}>
+                        Open reporter profile
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[
+                        styles.profileButton,
+                        {borderColor: theme.cardBorder},
+                      ]}
+                      onPress={() =>
+                        openUserProfile(report.reported?.id, 'Reported user')
+                      }>
+                      <Text
+                        style={[
+                          styles.profileButtonText,
+                          {color: theme.textPrimary},
+                        ]}>
+                        Open reported profile
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
                 <Text style={[styles.reportText, {color: theme.textPrimary}]}>
                   {report.text}
@@ -387,6 +407,12 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     paddingHorizontal: 12,
     paddingVertical: 8,
+  },
+  profileButtonsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    justifyContent: 'flex-end',
   },
   profileButtonText: {
     fontSize: 12,
