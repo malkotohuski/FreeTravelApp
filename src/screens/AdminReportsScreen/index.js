@@ -120,6 +120,7 @@ const AdminReportsScreen = ({navigation}) => {
 
     navigation.navigate('UserDetails', {
       userId,
+      fromScreen: 'AdminReports',
     });
   };
 

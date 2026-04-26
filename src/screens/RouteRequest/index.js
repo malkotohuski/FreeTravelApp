@@ -269,6 +269,7 @@ function RouteRequestScreen({route, navigation}) {
                         setModalVisible(false);
                         navigation.navigate('UserDetails', {
                           userId: selectedRequest.userID,
+                          fromScreen: 'RouteRequest',
                         });
                       }}>
                       <Text style={styles.modalButtonText}>

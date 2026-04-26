@@ -269,8 +269,10 @@ export const Navigator = () => {
               ...screenStyles,
               drawerItemStyle: {display: 'none'},
             }}
-            listeners={({navigation}) => ({
+            listeners={({navigation, route}) => ({
               focus: () => {
+                const fallbackScreen = route.params?.fromScreen || 'Home';
+
                 navigation.setOptions({
                   headerRight: () => (
                     <TouchableOpacity
@@ -279,7 +281,7 @@ export const Navigator = () => {
                         flexDirection: 'row',
                         alignItems: 'center',
                       }}
-                      onPress={() => navigateBack(navigation, 'Home')}>
+                      onPress={() => navigation.navigate(fallbackScreen)}>
                       <Icons
                         name="keyboard-backspace"
                         size={24}
