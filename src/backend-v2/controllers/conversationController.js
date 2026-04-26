@@ -233,6 +233,7 @@ exports.sendMessage = async (req, res) => {
       if (receiverOnline) {
         global.io.to('user_' + senderId).emit('messagesDelivered', {
           conversationId,
+          messageId: message.id,
         });
       }
     }

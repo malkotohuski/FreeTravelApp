@@ -10,8 +10,9 @@ import {
   Pressable,
   SafeAreaView,
   Linking,
+  TouchableOpacity,
 } from 'react-native';
-import {ListItem, Icon} from 'react-native-elements';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import {useTranslation} from 'react-i18next';
 import {DarkModeContext} from '../../navigation/DarkModeContext';
 import {useNavigation} from '@react-navigation/native';
@@ -136,33 +137,46 @@ const SettingsScreen = () => {
     switch (item.type) {
       case 'link':
         return (
-          <ListItem
+          <TouchableOpacity
             key={item.id}
-            containerStyle={getListItemContainerStyle()}
+            style={getListItemContainerStyle()}
+            activeOpacity={0.8}
             onPress={() => handleLinkPress(item.id)}>
-            <Icon name={item.icon} color={item.color} />
-            <ListItem.Content>
-              <ListItem.Title style={getTextStyle()}>
-                {item.label}
-              </ListItem.Title>
-            </ListItem.Content>
-            <ListItem.Chevron />
-          </ListItem>
+            <View style={styles.listItemInner}>
+              <View style={styles.listItemLeading}>
+                <Icon name={item.icon} size={22} color={item.color} />
+              </View>
+              <View style={styles.listItemContent}>
+                <Text style={[styles.listItemTitle, getTextStyle()]}>
+                  {item.label}
+                </Text>
+              </View>
+              <Icon
+                name="chevron-right"
+                size={22}
+                color={darkMode ? '#E0E0E0' : '#666'}
+              />
+            </View>
+          </TouchableOpacity>
         );
       case 'toggle':
         return (
-          <ListItem key={item.id} containerStyle={getListItemContainerStyle()}>
-            <Icon name={item.icon} color={item.color} />
-            <ListItem.Content>
-              <ListItem.Title style={getTextStyle()}>
-                {item.label}
-              </ListItem.Title>
-            </ListItem.Content>
-            <Switch
-              value={!!toggleValues[item.id]}
-              onValueChange={() => handleToggleSwitch(item.id)}
-            />
-          </ListItem>
+          <View key={item.id} style={getListItemContainerStyle()}>
+            <View style={styles.listItemInner}>
+              <View style={styles.listItemLeading}>
+                <Icon name={item.icon} size={22} color={item.color} />
+              </View>
+              <View style={styles.listItemContent}>
+                <Text style={[styles.listItemTitle, getTextStyle()]}>
+                  {item.label}
+                </Text>
+              </View>
+              <Switch
+                value={!!toggleValues[item.id]}
+                onValueChange={() => handleToggleSwitch(item.id)}
+              />
+            </View>
+          </View>
         );
       default:
         return null;
@@ -400,6 +414,22 @@ const styles = StyleSheet.create({
   listItemContainer: {
     borderBottomWidth: 1,
     padding: 10,
+  },
+  listItemInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  listItemLeading: {
+    width: 28,
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  listItemContent: {
+    flex: 1,
+  },
+  listItemTitle: {
+    fontSize: 16,
+    fontWeight: '500',
   },
   modalBackground: {
     flex: 1,

@@ -36,6 +36,7 @@ const ChatScreen = ({route}) => {
 
   const flatListRef = useRef(null);
   const deliveredEndpointAvailableRef = useRef(true);
+  const pendingDeliveredMessageIdsRef = useRef(new Set());
 
   const syncMessages = useCallback(async () => {
     if (!conversationId) {
@@ -67,12 +68,12 @@ const ChatScreen = ({route}) => {
           return prev;
         }
 
-        return res.data;
+        return res.data.map(applyPendingDeliveredState);
       });
     } catch (error) {
       console.error(error);
     }
-  }, [conversationId]);
+  }, [applyPendingDeliveredState, conversationId]);
 
   const markConversationRead = useCallback(async () => {
     if (!conversationId || !user?.id) {
@@ -130,6 +131,25 @@ const ChatScreen = ({route}) => {
 
     return {icon: '✓', color: 'rgba(255,255,255,0.55)'};
   };
+
+  const applyPendingDeliveredState = useCallback(message => {
+    if (!message) {
+      return message;
+    }
+
+    if (
+      pendingDeliveredMessageIdsRef.current.has(message.id) &&
+      !message.deliveredAt
+    ) {
+      pendingDeliveredMessageIdsRef.current.delete(message.id);
+      return {
+        ...message,
+        deliveredAt: new Date().toISOString(),
+      };
+    }
+
+    return message;
+  }, []);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -193,14 +213,6 @@ const ChatScreen = ({route}) => {
     return () => socket.off('connect', reconnectHandler);
   }, [conversationId, user.id]);
 
-  useEffect(() => {
-    if (!user?.id) {
-      return;
-    }
-
-    socket.emit('joinUserRoom', user.id);
-  }, [user?.id]);
-
   // ðŸ”¹ ÐÐ¾Ð²Ð¾ ÑÑŠÐ¾Ð±Ñ‰ÐµÐ½Ð¸Ðµ
   useEffect(() => {
     const handler = ({conversationId: convId, message}) => {
@@ -224,7 +236,7 @@ const ChatScreen = ({route}) => {
         if (prev.some(msg => msg.id === message.id)) {
           return prev;
         }
-        return [...prev, message];
+        return [...prev, applyPendingDeliveredState(message)];
       });
 
       markConversationRead();
@@ -237,7 +249,13 @@ const ChatScreen = ({route}) => {
     socket.on('newMessage', handler);
 
     return () => socket.off('newMessage', handler);
-  }, [conversationId, markConversationDelivered, markConversationRead, user.id]);
+  }, [
+    applyPendingDeliveredState,
+    conversationId,
+    markConversationDelivered,
+    markConversationRead,
+    user.id,
+  ]);
 
   useEffect(() => {
     const handler = ({conversationId: convId, messageId}) => {
@@ -245,15 +263,29 @@ const ChatScreen = ({route}) => {
         return;
       }
 
+      const parsedMessageId = messageId ? Number(messageId) : null;
+      let matchedMessage = false;
+
       setMessages(prev =>
-        prev.map(msg =>
-          msg.senderId === user.id &&
-          (!messageId || msg.id === Number(messageId)) &&
-          !msg.deliveredAt
-            ? {...msg, deliveredAt: new Date().toISOString()}
-            : msg,
-        ),
+        prev.map(msg => {
+          const shouldUpdate =
+            msg.senderId === user.id &&
+            (!parsedMessageId || msg.id === parsedMessageId) &&
+            !msg.deliveredAt;
+
+          if (!shouldUpdate) {
+            return msg;
+          }
+
+          matchedMessage = true;
+
+          return {...msg, deliveredAt: new Date().toISOString()};
+        }),
       );
+
+      if (parsedMessageId && !matchedMessage) {
+        pendingDeliveredMessageIdsRef.current.add(parsedMessageId);
+      }
     };
 
     socket.on('messagesDelivered', handler);
@@ -369,7 +401,7 @@ const ChatScreen = ({route}) => {
 
       setMessages(prev => {
         if (prev.some(msg => msg.id === res.data.id)) return prev;
-        return [...prev, res.data];
+        return [...prev, applyPendingDeliveredState(res.data)];
       });
 
       setTimeout(() => {
