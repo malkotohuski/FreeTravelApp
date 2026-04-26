@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react';
+﻿import React, {useState, useCallback} from 'react';
 import {
   View,
   Text,
@@ -28,7 +28,7 @@ const ReportBugScreen = () => {
   const systemVersion = DeviceInfo.getSystemVersion();
   const deviceModel = DeviceInfo.getModel();
 
-  // Reset полета при влизане в екрана
+  // Reset Ð¿Ð¾Ð»ÐµÑ‚Ð° Ð¿Ñ€Ð¸ Ð²Ð»Ð¸Ð·Ð°Ð½Ðµ Ð² ÐµÐºÑ€Ð°Ð½Ð°
   useFocusEffect(
     useCallback(() => {
       setTitle('');
@@ -41,14 +41,14 @@ const ReportBugScreen = () => {
   const pickImage = async () => {
     const result = await launchImageLibrary({
       mediaType: 'photo',
-      quality: 0.5, // по-ниска качественост → по-малък размер
+      quality: 0.5, // Ð¿Ð¾-Ð½Ð¸ÑÐºÐ° ÐºÐ°Ñ‡ÐµÑÑ‚Ð²ÐµÐ½Ð¾ÑÑ‚ â†’ Ð¿Ð¾-Ð¼Ð°Ð»ÑŠÐº Ñ€Ð°Ð·Ð¼ÐµÑ€
       includeBase64: true,
     });
 
     if (!result.didCancel && result.assets?.length) {
       const asset = result.assets[0];
 
-      // Проверка дали Base64 не е твърде голямо
+      // ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð´Ð°Ð»Ð¸ Base64 Ð½Ðµ Ðµ Ñ‚Ð²ÑŠÑ€Ð´Ðµ Ð³Ð¾Ð»ÑÐ¼Ð¾
       const base64SizeKB = (asset.base64.length * (3 / 4)) / 1024; // approx KB
       if (base64SizeKB > 1000) {
         // >1 MB
@@ -75,7 +75,7 @@ const ReportBugScreen = () => {
       title: title.trim(),
       description: description.trim(),
       steps: steps.trim(),
-      image: screenshots.length ? screenshots[0].base64 : null, // ⚡ използваме "image"
+      image: screenshots.length ? screenshots[0].base64 : null, // âš¡ Ð¸Ð·Ð¿Ð¾Ð»Ð·Ð²Ð°Ð¼Ðµ "image"
       appVersion,
       platform: Platform.OS,
       systemVersion,
@@ -90,14 +90,14 @@ const ReportBugScreen = () => {
       setSteps('');
       setScreenshots([]);
     } catch (error) {
-      console.log('Bug submit error:', error.response || error);
+      console.error('Bug submit error:', error?.response?.data || error);
 
-      // Проверка за лимит съобщение
+      // ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð·Ð° Ð»Ð¸Ð¼Ð¸Ñ‚ ÑÑŠÐ¾Ð±Ñ‰ÐµÐ½Ð¸Ðµ
       if (
         error.response?.data?.error ===
         'You can only submit 2 bug reports per day'
       ) {
-        Alert.alert(t('Error'), t('dailyLimitReached')); // добавяш t('dailyLimitReached') в i18n
+        Alert.alert(t('Error'), t('dailyLimitReached')); // Ð´Ð¾Ð±Ð°Ð²ÑÑˆ t('dailyLimitReached') Ð² i18n
       } else {
         Alert.alert(t('error'), t('bugSendFailed'));
       }
@@ -192,3 +192,4 @@ const styles = StyleSheet.create({
 });
 
 export default ReportBugScreen;
+

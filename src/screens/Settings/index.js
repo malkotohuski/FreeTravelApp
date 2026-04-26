@@ -14,7 +14,6 @@ import {
 import {ListItem, Icon} from 'react-native-elements';
 import {useTranslation} from 'react-i18next';
 import {DarkModeContext} from '../../navigation/DarkModeContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
 import {useAuth} from '../../context/AuthContext';
 import api from '../../api/api';
@@ -24,15 +23,7 @@ const SettingsScreen = () => {
   const {darkMode, toggleDarkMode} = useContext(DarkModeContext);
   const navigation = useNavigation();
   const {t, i18n} = useTranslation();
-  const {logout, user} = useAuth();
-  const userId = user?.id;
-  console.log('USER ID:', userId);
-
-  useEffect(() => {
-    AsyncStorage.getItem('user').then(v => {
-      console.log('STORED USER:', v);
-    });
-  }, []);
+  const {logout} = useAuth();
 
   // Суичове за различни настройки
   const [toggleValues, setToggleValues] = useState({
@@ -72,8 +63,6 @@ const SettingsScreen = () => {
         {text: 'OK', onPress: () => navigation.navigate('Login')},
       ]);
     } catch (error) {
-      console.log('FULL DELETE ERROR RESPONSE:', error.response);
-      console.log('FULL DELETE ERROR:', error);
       Alert.alert(
         'Error',
         error.response?.data?.error || 'Unable to delete account.',
@@ -120,7 +109,7 @@ const SettingsScreen = () => {
         );
         break;
       default:
-        console.log('Pressed', id);
+        break;
     }
   };
 

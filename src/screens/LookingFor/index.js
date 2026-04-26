@@ -216,8 +216,6 @@ function Looking({navigation}) {
         {cancelable: false},
       );
     } catch (error) {
-      console.log('FULL ERROR:', error);
-
       if (error.response?.status === 429) {
         Alert.alert(t('limitReached'), t('youHaveReachedMaximum'));
       } else {

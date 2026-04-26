@@ -67,9 +67,6 @@ const AddFriendScreen = ({navigation}) => {
         userId: currentUserId,
         friendId: selectedUser.id,
       })
-      .then(response => {
-        console.log('Friend request approved successfully:', response.data);
-      })
       .catch(error => {
         console.error('Error approving friend request:', error);
       });

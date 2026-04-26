@@ -169,7 +169,7 @@ const ChatScreen = ({route}) => {
       setActiveConversation(null);
       NotificationService.setActiveConversation(null);
     };
-  }, [conversationId]);
+  }, [conversationId, setActiveConversation]);
 
   useEffect(() => {
     socket.emit('joinConversation', {userId: user.id, conversationId});
@@ -178,12 +178,10 @@ const ChatScreen = ({route}) => {
         userId: user.id,
         conversationId,
       });
-  }, [conversationId]);
+  }, [conversationId, user.id]);
 
   useEffect(() => {
     const reconnectHandler = () => {
-      console.log('ðŸ” RECONNECTED - join Ð¿Ð°Ðº');
-
       socket.emit('joinConversation', {
         userId: user.id,
         conversationId,
@@ -196,7 +194,9 @@ const ChatScreen = ({route}) => {
   }, [conversationId, user.id]);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      return;
+    }
 
     socket.emit('joinUserRoom', user.id);
   }, [user?.id]);
@@ -205,7 +205,9 @@ const ChatScreen = ({route}) => {
   useEffect(() => {
     const handler = ({conversationId: convId, message}) => {
       // Ð”Ð¾Ð±Ð°Ð²ÑÐ¼Ðµ ÑÑŠÐ¾Ð±Ñ‰ÐµÐ½Ð¸ÐµÑ‚Ð¾ ÑÐ°Ð¼Ð¾ Ð°ÐºÐ¾ Ðµ Ð·Ð° Ñ‚ÐµÐºÑƒÑ‰Ð¸Ñ conversationId
-      if (String(convId) !== String(conversationId)) return;
+      if (String(convId) !== String(conversationId)) {
+        return;
+      }
 
       if (message?.senderId !== user.id) {
         socket.emit('messageDelivered', {
@@ -219,7 +221,9 @@ const ChatScreen = ({route}) => {
 
       setMessages(prev => {
         // Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð·Ð° Ð´ÑƒÐ±Ð»Ð¸ÐºÐ°Ñ‚Ð¸
-        if (prev.some(msg => msg.id === message.id)) return prev;
+        if (prev.some(msg => msg.id === message.id)) {
+          return prev;
+        }
         return [...prev, message];
       });
 
@@ -233,11 +237,13 @@ const ChatScreen = ({route}) => {
     socket.on('newMessage', handler);
 
     return () => socket.off('newMessage', handler);
-  }, [conversationId, markConversationDelivered, markConversationRead]);
+  }, [conversationId, markConversationDelivered, markConversationRead, user.id]);
 
   useEffect(() => {
     const handler = ({conversationId: convId, messageId}) => {
-      if (String(convId) !== String(conversationId)) return;
+      if (String(convId) !== String(conversationId)) {
+        return;
+      }
 
       setMessages(prev =>
         prev.map(msg =>
@@ -256,7 +262,9 @@ const ChatScreen = ({route}) => {
   }, [conversationId, user.id]);
 
   useEffect(() => {
-    if (messages.length === 0) return;
+    if (messages.length === 0) {
+      return;
+    }
 
     setTimeout(() => {
       flatListRef.current?.scrollToEnd({animated: true});

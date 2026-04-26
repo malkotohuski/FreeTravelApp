@@ -150,20 +150,14 @@ const io = new Server(server, {
 global.io = io;
 
 io.on('connection', socket => {
-  console.log('User connected:', socket.id);
-
   socket.on('joinUserRoom', userId => {
     const room = 'user_' + userId;
 
     socket.join(room);
     onlineUsers.set(Number(userId), socket.id);
-
-    console.log(`User ${socket.id} joined room ${room}`);
   });
 
   socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
-
     for (const [userId, socketId] of onlineUsers.entries()) {
       if (socketId === socket.id) {
         onlineUsers.delete(userId);

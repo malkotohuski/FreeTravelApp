@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -43,11 +43,20 @@ const Comments = ({navigation, route}) => {
     });
   };
 
-  useEffect(() => {
-    fetchRatings();
-  }, []);
+  const animateCards = useCallback(() => {
+    const animations = fadeAnims.map((fadeAnim, index) =>
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 500,
+        delay: index * 120,
+        useNativeDriver: true,
+      }),
+    );
 
-  const fetchRatings = async () => {
+    Animated.stagger(100, animations).start();
+  }, [fadeAnims]);
+
+  const fetchRatings = useCallback(async () => {
     try {
       const res = await api.get(`api/users/${profileUserId}`);
       const receivedRatings = res.data.receivedRatings || [];
@@ -62,24 +71,15 @@ const Comments = ({navigation, route}) => {
 
       animateCards();
     } catch (error) {
-      console.log('Fetch ratings error:', error);
+      console.error('Fetch ratings error:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [animateCards, fadeAnims, profileUserId]);
 
-  const animateCards = () => {
-    const animations = fadeAnims.map((fadeAnim, index) =>
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 500,
-        delay: index * 120,
-        useNativeDriver: true,
-      }),
-    );
-
-    Animated.stagger(100, animations).start();
-  };
+  useEffect(() => {
+    fetchRatings();
+  }, [fetchRatings]);
 
   const renderComment = (item, index) => {
     const fadeAnim = fadeAnims[index];

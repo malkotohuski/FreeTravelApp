@@ -57,15 +57,10 @@ function RouteRequestScreen({route, navigation}) {
   const [modalVisible, setModalVisible] = useState(false);
   const theme = useTheme();
 
-  useEffect(() => {
-    console.log('ROUTE PARAMS:', route.params);
-  }, []);
-
   useFocusEffect(
     useCallback(() => {
-      console.log('SCREEN FOCUSED -> REFRESH');
       refreshUserData();
-    }, []),
+    }, [refreshUserData]),
   );
 
   useEffect(() => {

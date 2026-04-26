@@ -117,7 +117,6 @@ const RouteHistory = ({navigation}) => {
           onPress: async () => {
             try {
               await api.patch(`/api/routes/${routeId}/delete`);
-              console.log('Deleted route:', routeId);
               const updatedRoutes = originalRoutesState.filter(
                 route => route.id !== routeId,
               );

@@ -87,7 +87,7 @@ const RateUserScreen = ({navigation}) => {
 
               navigation.navigate('Home');
             } catch (error) {
-              console.log('Rating error:', error.response?.data);
+              console.error('Rating error:', error.response?.data || error);
 
               if (error.response?.status === 400) {
                 Toast.show({

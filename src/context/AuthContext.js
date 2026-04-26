@@ -54,7 +54,7 @@ export const AuthProvider = ({children}) => {
           await NotificationService.syncDeviceToken();
         }
       } catch (err) {
-        console.log('Error loading persisted user:', err);
+        console.error('Error loading persisted user:', err);
       } finally {
         setLoading(false);
       }
@@ -106,7 +106,7 @@ export const AuthProvider = ({children}) => {
     try {
       await api.post('/api/auth/logout');
     } catch (error) {
-      console.log('Logout API error:', error?.message || error);
+      console.error('Logout API error:', error?.message || error);
     } finally {
       await AsyncStorage.removeItem('@token');
       await AsyncStorage.removeItem('@refreshToken');

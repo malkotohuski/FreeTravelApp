@@ -1,4 +1,4 @@
-import React, {
+﻿import React, {
   useEffect,
   useState,
   useLayoutEffect,
@@ -101,6 +101,7 @@ const UserInfo = ({route, navigation}) => {
     });
   }, [
     navigation,
+    fromScreen,
     username,
     userFname,
     userLname,
@@ -119,10 +120,9 @@ const UserInfo = ({route, navigation}) => {
     const fetchUserData = async () => {
       try {
         const res = await api.get(`/api/users/${userId}`);
-        console.log('RESPONSE DATA:', JSON.stringify(res.data, null, 2));
         setUserData(res.data);
       } catch (err) {
-        console.error('Грешка при зареждане на потребителя:', err);
+        console.error('Error loading user:', err);
       } finally {
         setLoading(false);
       }
@@ -145,7 +145,7 @@ const UserInfo = ({route, navigation}) => {
       );
       Animated.stagger(100, animations).start();
     }
-  }, [userData]);
+  }, [fadeAnims, userData]);
 
   if (loading) {
     return (
@@ -170,7 +170,7 @@ const UserInfo = ({route, navigation}) => {
           {backgroundColor: darkMode ? '#1c1c1c' : '#fff'},
         ]}>
         <Text style={{color: 'red', fontSize: 18}}>
-          Потребителят не беше намерен.
+          ÐŸÐ¾Ñ‚Ñ€ÐµÐ±Ð¸Ñ‚ÐµÐ»ÑÑ‚ Ð½Ðµ Ð±ÐµÑˆÐµ Ð½Ð°Ð¼ÐµÑ€ÐµÐ½.
         </Text>
       </View>
     );
@@ -223,7 +223,7 @@ const UserInfo = ({route, navigation}) => {
                 styles.username,
                 {color: darkMode ? '#ffa726' : '#f4511e', marginLeft: 10},
               ]}>
-              {author.username || 'Анонимен'}
+              {author.username || 'ÐÐ½Ð¾Ð½Ð¸Ð¼ÐµÐ½'}
             </Text>
           </View>
           <Text style={{color: darkMode ? '#ccc' : '#666', fontSize: 12}}>
@@ -278,7 +278,7 @@ const UserInfo = ({route, navigation}) => {
 
         <Text
           style={[styles.commentsHeader, {color: darkMode ? '#fff' : '#000'}]}>
-          💬 {t('Comments')}
+          ðŸ’¬ {t('Comments')}
         </Text>
 
         {receivedRatings.length > 0 ? (
@@ -290,7 +290,7 @@ const UserInfo = ({route, navigation}) => {
               marginTop: 20,
               color: darkMode ? '#ccc' : '#080808',
             }}>
-            Няма налични коментари.
+            ÐÑÐ¼Ð° Ð½Ð°Ð»Ð¸Ñ‡Ð½Ð¸ ÐºÐ¾Ð¼ÐµÐ½Ñ‚Ð°Ñ€Ð¸.
           </Text>
         )}
       </ScrollView>
@@ -340,3 +340,4 @@ const styles = StyleSheet.create({
 });
 
 export default UserInfo;
+

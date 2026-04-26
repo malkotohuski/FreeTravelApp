@@ -46,7 +46,6 @@ function CustomerDrawer({navigation}) {
 
   const handlerSettings = () => {
     navigation.navigate('Settings');
-    console.log('Settings clicked !!!');
   };
 
   const handlerLogout = () => {

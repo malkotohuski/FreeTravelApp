@@ -30,7 +30,7 @@ export default function ContactUsScreen() {
     const email = 'appfreetravel@gmail.com';
     const url = `mailto:${email}?subject=${subject}`;
 
-    Linking.openURL(url).catch(err => console.log('Error opening email:', err));
+    Linking.openURL(url).catch(err => console.error('Error opening email:', err));
   };
 
   return (

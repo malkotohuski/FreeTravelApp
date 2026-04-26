@@ -7,11 +7,9 @@ const socket = io('https://freetravelapp-production.up.railway.app', {
 });
 
 socket.on('connect', () => {
-  console.log('SOCKET CONNECTED:', socket.id);
 });
 
 socket.on('disconnect', () => {
-  console.log('SOCKET DISCONNECTED');
 });
 
 export default socket;

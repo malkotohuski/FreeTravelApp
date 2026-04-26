@@ -1,5 +1,5 @@
-import 'react-native-gesture-handler';
-import React, {useEffect, useState} from 'react';
+﻿import 'react-native-gesture-handler';
+import React, {useEffect} from 'react';
 import './src/i18n/i18n';
 
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -20,10 +20,7 @@ import NotificationService from './src/backend-v2/services/NotificationService';
 import Toast from 'react-native-toast-message';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
   useEffect(() => {
-    // 🔥 init push само веднъж
     NotificationService.init();
   }, []);
 
@@ -35,11 +32,10 @@ function App() {
             <NavigationContainer
               ref={navigationRef}
               onReady={() => {
-                console.log('✅ Navigation ready');
-                handlePendingNavigation(); // 💥 ТОВА Е FIX-а
+                handlePendingNavigation();
               }}>
               <RouteProvider>
-                <Navigator isLoggedIn={isLoggedIn} />
+                <Navigator />
               </RouteProvider>
             </NavigationContainer>
           </ChatProvider>

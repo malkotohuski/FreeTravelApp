@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback} from 'react';
+﻿import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   Text,
@@ -55,7 +55,7 @@ function ViewRoutes({navigation}) {
     try {
       setLoading(true);
       const response = await api.get('api/routes');
-      // филтрираме само маршрути, които НЕ са seeking-driver
+      // Ñ„Ð¸Ð»Ñ‚Ñ€Ð¸Ñ€Ð°Ð¼Ðµ ÑÐ°Ð¼Ð¾ Ð¼Ð°Ñ€ÑˆÑ€ÑƒÑ‚Ð¸, ÐºÐ¾Ð¸Ñ‚Ð¾ ÐÐ• ÑÐ° seeking-driver
       const offeredRoutes = response.data.filter(
         route => route.selectedVehicle !== 'seeking-driver',
       );
@@ -183,7 +183,6 @@ function ViewRoutes({navigation}) {
             </Text>
           ) : (
             sortedRoutes.map((route, index) => {
-            console.log('ROUTE:', route);
             const isOwnRoute = route.owner.id === user.id;
             const departureCityName = getCityName(route, 'departureCityRef');
             const arrivalCityName = getCityName(route, 'arrivalCityRef');
@@ -241,7 +240,7 @@ function ViewRoutes({navigation}) {
                     : ''}
                 </Text>
                 <Text style={[styles.routeInfo, {color: theme.textPrimary}]}>
-                  {route.departureCity} → {route.arrivalCity}
+                  {route.departureCity} â†’ {route.arrivalCity}
                 </Text>
                 <View style={styles.creatorContainer}>
                   {route.owner?.userImage ? (
@@ -374,3 +373,4 @@ const createStyles = theme =>
   });
 
 export default ViewRoutes;
+

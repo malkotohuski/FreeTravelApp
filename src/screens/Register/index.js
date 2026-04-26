@@ -9,6 +9,7 @@ import {
   ScrollView,
   SafeAreaView,
   KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {useCallback} from 'react';
@@ -88,7 +89,6 @@ export default function Register({navigation}) {
         setProfilePicture(''); // fallback
       }
     } catch (error) {
-      console.log('ImagePicker Error: ', error);
       setProfilePicture('');
     }
   };
@@ -106,8 +106,6 @@ export default function Register({navigation}) {
               lName: lastName,
               userImage: profilePicture || '', // ⚡ base64 или празно
             });
-
-            console.log('Registration Response:', response);
 
             if (response.status === 201) {
               setShowConfirmationCodeInput(true);

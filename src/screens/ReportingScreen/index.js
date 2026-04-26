@@ -43,7 +43,7 @@ const ReportingScreen = ({navigation}) => {
         setProfilePicture(base64Data);
       }
     } catch (error) {
-      console.warn('Media picker error:', error);
+      setProfilePicture(null);
     }
   };
 
@@ -70,7 +70,6 @@ const ReportingScreen = ({navigation}) => {
       setTimeout(() => setShowSuccessMessage(false), 2000);
       setIsButtonDisabled(false);
     } catch (error) {
-      console.log(error.response?.data);
       Alert.alert('Error', error.response?.data?.error || 'Server error');
       setIsButtonDisabled(false);
     }
