@@ -155,23 +155,16 @@ const ChatScreen = ({route}) => {
     React.useCallback(() => {
       NotificationService.setActiveConversation(conversationId);
 
-      markConversationRead();
-      markConversationDelivered();
-
       const intervalId = setInterval(() => {
         syncMessages();
       }, 10000);
 
       return () => {
-        markConversationRead();
-        markConversationDelivered();
         NotificationService.clearActiveConversation();
         clearInterval(intervalId);
       };
     }, [
       conversationId,
-      markConversationDelivered,
-      markConversationRead,
       syncMessages,
     ]),
   );
@@ -375,18 +368,28 @@ const ChatScreen = ({route}) => {
     const fetchMessages = async () => {
       try {
         await syncMessages();
-        await markConversationDelivered();
-        NotificationService.setActiveConversation(conversationId);
       } finally {
         setLoadingMessages(false); // ðŸ”¹ ÐºÑ€Ð°Ð¹ Ð½Ð° loader-Ð°
         setTimeout(() => {
           flatListRef.current?.scrollToEnd({animated: true});
         }, 100);
+
+        // Run read/delivered sync after the messages are already visible.
+        requestAnimationFrame(() => {
+          markConversationDelivered();
+          markConversationRead();
+          NotificationService.setActiveConversation(conversationId);
+        });
       }
     };
 
     fetchMessages();
-  }, [conversationId, markConversationDelivered, syncMessages]);
+  }, [
+    conversationId,
+    markConversationDelivered,
+    markConversationRead,
+    syncMessages,
+  ]);
 
   const sendMessage = async () => {
     if (!text.trim()) return;
