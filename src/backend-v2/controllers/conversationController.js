@@ -1,6 +1,7 @@
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 const {sendNotification} = require('./notificationController');
+const {sendPush} = require('../services/fcmService');
 
 const getRouteCityName = (route, key) =>
   route?.[key]?.name ||
@@ -227,7 +228,73 @@ exports.sendMessage = async (req, res) => {
         message,
       });
     }
+    setImmediate(async () => {
+      try {
+        const userDevice = await prisma.userDevice.findFirst({
+          where: {userId: receiverId},
+          orderBy: {createdAt: 'desc'},
+        });
 
+        if (!userDevice?.fcmToken) {
+          return;
+        }
+
+        const sender = await prisma.user.findUnique({
+          where: {id: Number(senderId)},
+          select: {fName: true, lName: true},
+        });
+
+        const senderName = `${sender?.fName || ''} ${
+          sender?.lName || ''
+        }`.trim();
+
+        const pushResult = await sendPush(
+          userDevice.fcmToken,
+          senderName ? `${senderName} sent you a message` : 'New message',
+          text,
+          {
+            screen: 'message',
+            type: 'chat',
+            conversationId: String(conversationId),
+            senderId: String(senderId),
+            messageId: String(message.id),
+          },
+        );
+
+        if (
+          !pushResult?.ok &&
+          pushResult?.code === 'messaging/registration-token-not-registered'
+        ) {
+          await prisma.userDevice.deleteMany({
+            where: {fcmToken: userDevice.fcmToken},
+          });
+          return;
+        }
+
+        if (!pushResult?.ok) {
+          return;
+        }
+
+        const deliveredUpdate = await prisma.message.updateMany({
+          where: {
+            id: message.id,
+            deliveredAt: null,
+          },
+          data: {
+            deliveredAt: new Date(),
+          },
+        });
+
+        if (deliveredUpdate.count > 0 && global.io) {
+          global.io.to('user_' + senderId).emit('messagesDelivered', {
+            conversationId,
+            messageId: message.id,
+          });
+        }
+      } catch (pushError) {
+        console.error('Chat push delivery error:', pushError);
+      }
+    });
     // 3️⃣ Auto-restore conversation, ако някой е скрил
     await prisma.conversation.update({
       where: {id: conversationId},
@@ -489,5 +556,7 @@ exports.getConversationById = async (req, res) => {
     return res.status(500).json({error: 'Server error'});
   }
 };
+
+
 
 
