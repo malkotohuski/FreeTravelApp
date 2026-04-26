@@ -108,6 +108,7 @@ const ConversationsScreen = ({navigation}) => {
           navigation.navigate('ChatScreen', {
             conversationId: conv.id,
             otherUser: conv.otherUser,
+            fromScreen: 'ConversationsScreen',
           });
         }
 
@@ -252,6 +253,7 @@ const ConversationsScreen = ({navigation}) => {
                 navigation.navigate('ChatScreen', {
                   conversationId: item.id,
                   otherUser: item.otherUser,
+                  fromScreen: 'ConversationsScreen',
                 });
 
                 setConversations(prev =>

@@ -45,6 +45,7 @@ import PrivacyPolicyScreen from '../screens/Settings/privacyPolicy';
 import TermsOfServiceScreen from '../screens/Settings/termsOfServiceScreen';
 import ContactUsScreen from '../screens/Settings/ContactUsScreen';
 import AboutUsScreen from '../screens/Settings/AboutUsScreen';
+import {getPreviousRouteName} from './NavigationService';
 
 const Drawer = createDrawerNavigator();
 
@@ -62,9 +63,17 @@ export const Navigator = () => {
     headerTintColor: darkMode ? '#f1f1f1' : '#F1F1F1',
   };
 
-  const navigateBack = (navigation, fallback = 'Home') => {
-    if (navigation.canGoBack()) {
-      navigation.goBack();
+  const navigateBack = (
+    navigation,
+    currentRouteName,
+    fallback = 'Home',
+    explicitFromScreen,
+  ) => {
+    const previousRouteName =
+      explicitFromScreen || getPreviousRouteName(currentRouteName);
+
+    if (previousRouteName && previousRouteName !== currentRouteName) {
+      navigation.navigate(previousRouteName);
       return;
     }
 
@@ -82,75 +91,103 @@ export const Navigator = () => {
     </TouchableOpacity>
   );
 
-  const renderBackButtonIcon = ({navigation}) => (
+  const renderBackButtonIcon = ({navigation, route, fallback = 'Home'}) => (
     <TouchableOpacity
       style={{marginRight: 16}}
       onPress={() => {
-        navigateBack(navigation, 'Home');
+        navigateBack(
+          navigation,
+          route?.name,
+          fallback,
+          route?.params?.fromScreen,
+        );
       }}>
       <Icons name="keyboard-backspace" size={24} color="white" />
     </TouchableOpacity>
   );
 
-  const renderBackButtonVehicle = ({navigation}) => (
+  const renderBackButtonVehicle = ({navigation, route, fallback = 'Home'}) => (
     <TouchableOpacity
       style={{
         marginRight: 16,
       }}
       onPress={() => {
-        navigateBack(navigation, 'Home');
+        navigateBack(
+          navigation,
+          route?.name,
+          fallback,
+          route?.params?.fromScreen,
+        );
       }}>
       <Icons name="keyboard-backspace" size={24} color="white" />
     </TouchableOpacity>
   );
 
-  const renderBackButtonAccountInfo = ({navigation}) => (
+  const renderBackButtonAccountInfo = ({
+    navigation,
+    route,
+    fallback = 'AccountManager',
+  }) => (
     <TouchableOpacity
       style={{
         marginRight: 16,
       }}
       onPress={() => {
-        navigateBack(navigation, 'AccountManager');
+        navigateBack(
+          navigation,
+          route?.name,
+          fallback,
+          route?.params?.fromScreen,
+        );
       }}>
       <Icons name="keyboard-backspace" size={24} color="white" />
     </TouchableOpacity>
   );
 
-  const BackButtonRouteRequests = ({navigation}) => (
+  const BackButtonRouteRequests = ({navigation, route, fallback = 'Home'}) => (
     <TouchableOpacity
       style={{marginRight: 16}}
       onPress={() => {
-        navigateBack(navigation, 'Home');
+        navigateBack(
+          navigation,
+          route?.name,
+          fallback,
+          route?.params?.fromScreen,
+        );
       }}>
       <Icons name="keyboard-backspace" size={24} color="white" />
     </TouchableOpacity>
   );
 
-  const BackButtonChatScreen = ({navigation}) => (
+  const BackButtonSettings = ({navigation, route, fallback = 'Settings'}) => (
     <TouchableOpacity
       style={{marginRight: 16}}
       onPress={() => {
-        navigateBack(navigation, 'ConversationsScreen');
+        navigateBack(
+          navigation,
+          route?.name,
+          fallback,
+          route?.params?.fromScreen,
+        );
       }}>
       <Icons name="keyboard-backspace" size={24} color="white" />
     </TouchableOpacity>
   );
 
-  const BackButtonSettings = ({navigation}) => (
+  const BackButtonRouteViewRoutes = ({
+    navigation,
+    route,
+    fallback = 'ViewRoutes',
+  }) => (
     <TouchableOpacity
       style={{marginRight: 16}}
       onPress={() => {
-        navigateBack(navigation, 'Settings');
-      }}>
-      <Icons name="keyboard-backspace" size={24} color="white" />
-    </TouchableOpacity>
-  );
-
-  const BackButtonRouteViewRoutes = ({navigation}) => (
-    <TouchableOpacity
-      style={{marginRight: 16}}
-      onPress={() => {
-        navigateBack(navigation, 'ViewRoutes');
+        navigateBack(
+          navigation,
+          route?.name,
+          fallback,
+          route?.params?.fromScreen,
+        );
       }}>
       <Icons name="keyboard-backspace" size={24} color="white" />
     </TouchableOpacity>
@@ -271,8 +308,6 @@ export const Navigator = () => {
             }}
             listeners={({navigation, route}) => ({
               focus: () => {
-                const fallbackScreen = route.params?.fromScreen || 'Home';
-
                 navigation.setOptions({
                   headerRight: () => (
                     <TouchableOpacity
@@ -281,7 +316,14 @@ export const Navigator = () => {
                         flexDirection: 'row',
                         alignItems: 'center',
                       }}
-                      onPress={() => navigation.navigate(fallbackScreen)}>
+                      onPress={() =>
+                        navigateBack(
+                          navigation,
+                          route.name,
+                          'Home',
+                          route.params?.fromScreen,
+                        )
+                      }>
                       <Icons
                         name="keyboard-backspace"
                         size={24}
@@ -305,7 +347,7 @@ export const Navigator = () => {
               },
               drawerItemStyle: {display: 'none'},
             }}
-            listeners={({navigation}) => ({
+            listeners={({navigation, route}) => ({
               focus: () => {
                 navigation.setOptions({
                   headerRight: () => (
@@ -315,7 +357,14 @@ export const Navigator = () => {
                         flexDirection: 'row',
                         alignItems: 'center',
                       }}
-                      onPress={() => navigateBack(navigation, 'Home')}
+                      onPress={() =>
+                        navigateBack(
+                          navigation,
+                          route.name,
+                          'Home',
+                          route.params?.fromScreen,
+                        )
+                      }
                     >
                       <Text
                         style={{color: 'white', marginRight: 8, fontSize: 18}}>
@@ -343,7 +392,7 @@ export const Navigator = () => {
               },
               drawerItemStyle: {display: 'none'},
             }}
-            listeners={({navigation}) => ({
+            listeners={({navigation, route}) => ({
               focus: () => {
                 navigation.setOptions({
                   headerRight: () => (
@@ -353,7 +402,14 @@ export const Navigator = () => {
                         flexDirection: 'row',
                         alignItems: 'center',
                       }}
-                      onPress={() => navigateBack(navigation, 'Vehicle')}
+                      onPress={() =>
+                        navigateBack(
+                          navigation,
+                          route.name,
+                          'Vehicle',
+                          route.params?.fromScreen,
+                        )
+                      }
                     >
                       <Text
                         style={{color: 'white', marginRight: 8, fontSize: 18}}>
@@ -381,10 +437,27 @@ export const Navigator = () => {
               },
               drawerItemStyle: {display: 'none'},
             }}
-            listeners={({navigation}) => ({
+            listeners={({navigation, route}) => ({
               focus: () => {
                 navigation.setOptions({
-                  headerRight: () => BackButtonChatScreen({navigation}),
+                  headerRight: () => (
+                    <TouchableOpacity
+                      style={{marginRight: 16}}
+                      onPress={() =>
+                        navigateBack(
+                          navigation,
+                          route.name,
+                          'ConversationsScreen',
+                          route.params?.fromScreen,
+                        )
+                      }>
+                      <Icons
+                        name="keyboard-backspace"
+                        size={24}
+                        color="white"
+                      />
+                    </TouchableOpacity>
+                  ),
                 });
               },
             })}
@@ -400,10 +473,11 @@ export const Navigator = () => {
               },
               drawerItemStyle: {display: 'none'},
             }}
-            listeners={({navigation}) => ({
+            listeners={({navigation, route}) => ({
               focus: () => {
                 navigation.setOptions({
-                  headerRight: () => BackButtonRouteRequests({navigation}),
+                  headerRight: () =>
+                    BackButtonRouteRequests({navigation, route}),
                 });
               },
             })}
@@ -443,7 +517,7 @@ export const Navigator = () => {
               },
               drawerItemStyle: {display: 'none'},
             }}
-            listeners={({navigation}) => ({
+            listeners={({navigation, route}) => ({
               focus: () => {
                 navigation.setOptions({
                   headerRight: () => (
@@ -453,7 +527,14 @@ export const Navigator = () => {
                         flexDirection: 'row',
                         alignItems: 'center',
                       }}
-                      onPress={() => navigateBack(navigation, 'Home')}
+                      onPress={() =>
+                        navigateBack(
+                          navigation,
+                          route.name,
+                          'Home',
+                          route.params?.fromScreen,
+                        )
+                      }
                     >
                       <Icons
                         name="keyboard-backspace"
@@ -477,10 +558,11 @@ export const Navigator = () => {
                 <Icon name="streetview" size={size} color={color} />
               ),
             }}
-            listeners={({navigation}) => ({
+            listeners={({navigation, route}) => ({
               focus: () => {
                 navigation.setOptions({
-                  headerRight: () => renderBackButtonVehicle({navigation}),
+                  headerRight: () =>
+                    renderBackButtonVehicle({navigation, route}),
                 });
               },
             })}
@@ -495,10 +577,11 @@ export const Navigator = () => {
                 <Icon name="report" size={size} color={color} />
               ),
             }}
-            listeners={({navigation}) => ({
+            listeners={({navigation, route}) => ({
               focus: () => {
                 navigation.setOptions({
-                  headerRight: () => renderBackButtonIcon({navigation}),
+                  headerRight: () =>
+                    renderBackButtonIcon({navigation, route}),
                 });
               },
             })}
@@ -547,10 +630,11 @@ export const Navigator = () => {
                 <Icons name="routes" size={size} color={color} />
               ),
             }}
-            listeners={({navigation}) => ({
+            listeners={({navigation, route}) => ({
               focus: () => {
                 navigation.setOptions({
-                  headerRight: () => BackButtonRouteRequests({navigation}),
+                  headerRight: () =>
+                    BackButtonRouteRequests({navigation, route}),
                 });
               },
             })}
@@ -565,10 +649,11 @@ export const Navigator = () => {
                 <Icons name="routes" size={size} color={color} />
               ),
             }}
-            listeners={({navigation}) => ({
+            listeners={({navigation, route}) => ({
               focus: () => {
                 navigation.setOptions({
-                  headerRight: () => BackButtonRouteRequests({navigation}),
+                  headerRight: () =>
+                    BackButtonRouteRequests({navigation, route}),
                 });
               },
             })}
@@ -610,10 +695,10 @@ export const Navigator = () => {
               },
               drawerItemStyle: {display: 'none'},
             }}
-            listeners={({navigation}) => ({
+            listeners={({navigation, route}) => ({
               focus: () => {
                 navigation.setOptions({
-                  headerRight: () => BackButtonSettings({navigation}),
+                  headerRight: () => BackButtonSettings({navigation, route}),
                 });
               },
             })}
@@ -627,10 +712,11 @@ export const Navigator = () => {
               ...screenStyles,
               drawerItemStyle: {display: 'none'},
             }}
-            listeners={({navigation}) => ({
+            listeners={({navigation, route}) => ({
               focus: () => {
                 navigation.setOptions({
-                  headerRight: () => BackButtonRouteRequests({navigation}),
+                  headerRight: () =>
+                    BackButtonRouteRequests({navigation, route}),
                 });
               },
             })}
@@ -644,10 +730,11 @@ export const Navigator = () => {
               ...screenStyles,
               drawerItemStyle: {display: 'none'},
             }}
-            listeners={({navigation}) => ({
+            listeners={({navigation, route}) => ({
               focus: () => {
                 navigation.setOptions({
-                  headerRight: () => renderBackButtonAccountInfo({navigation}),
+                  headerRight: () =>
+                    renderBackButtonAccountInfo({navigation, route}),
                 });
               },
             })}
@@ -681,10 +768,11 @@ export const Navigator = () => {
               ...screenStyles,
               drawerItemStyle: {display: 'none'},
             }}
-            listeners={({navigation}) => ({
+            listeners={({navigation, route}) => ({
               focus: () => {
                 navigation.setOptions({
-                  headerRight: () => BackButtonRouteViewRoutes({navigation}),
+                  headerRight: () =>
+                    BackButtonRouteViewRoutes({navigation, route}),
                 });
               },
             })}
@@ -707,10 +795,10 @@ export const Navigator = () => {
               ...screenStyles,
               drawerItemStyle: {display: 'none'},
             }}
-            listeners={({navigation}) => ({
+            listeners={({navigation, route}) => ({
               focus: () => {
                 navigation.setOptions({
-                  headerRight: () => BackButtonSettings({navigation}),
+                  headerRight: () => BackButtonSettings({navigation, route}),
                 });
               },
             })}
@@ -723,10 +811,10 @@ export const Navigator = () => {
               ...screenStyles,
               drawerItemStyle: {display: 'none'},
             }}
-            listeners={({navigation}) => ({
+            listeners={({navigation, route}) => ({
               focus: () => {
                 navigation.setOptions({
-                  headerRight: () => BackButtonSettings({navigation}),
+                  headerRight: () => BackButtonSettings({navigation, route}),
                 });
               },
             })}
@@ -741,10 +829,11 @@ export const Navigator = () => {
                 <Icon name="settings" size={size} color={color} />
               ),
             }}
-            listeners={({navigation}) => ({
+            listeners={({navigation, route}) => ({
               focus: () => {
                 navigation.setOptions({
-                  headerRight: () => BackButtonRouteRequests({navigation}),
+                  headerRight: () =>
+                    BackButtonRouteRequests({navigation, route}),
                 });
               },
             })}

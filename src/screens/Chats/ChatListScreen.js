@@ -145,7 +145,7 @@ const ChatScreen = ({route}) => {
       return () => {
         markConversationRead();
         markConversationDelivered();
-        NotificationService.currentConversationId = null;
+        NotificationService.clearActiveConversation();
         clearInterval(intervalId);
       };
     }, [
@@ -270,6 +270,33 @@ const ChatScreen = ({route}) => {
       flatListRef.current?.scrollToEnd({animated: true});
     }, 80);
   }, [messages.length]);
+
+  useEffect(() => {
+    if (!conversationId || !user?.id || messages.length === 0) {
+      return;
+    }
+
+    const hasUnreadIncoming = messages.some(
+      message => message.senderId !== user.id && !message.read,
+    );
+    const hasUndeliveredIncoming = messages.some(
+      message => message.senderId !== user.id && !message.deliveredAt,
+    );
+
+    if (hasUndeliveredIncoming) {
+      markConversationDelivered();
+    }
+
+    if (hasUnreadIncoming) {
+      markConversationRead();
+    }
+  }, [
+    conversationId,
+    markConversationDelivered,
+    markConversationRead,
+    messages,
+    user?.id,
+  ]);
 
   useEffect(() => {
     const handler = ({conversationId: convId}) => {

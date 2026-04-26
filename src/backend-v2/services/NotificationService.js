@@ -61,7 +61,10 @@ class NotificationService {
 
     if (screen === 'message' && conversationId) {
       this.setActiveConversation(conversationId);
-      navigate('ChatScreen', {conversationId});
+      navigate('ChatScreen', {
+        conversationId,
+        fromScreen: 'ConversationsScreen',
+      });
     }
 
     if (screen === 'request' && routeId) {

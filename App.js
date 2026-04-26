@@ -14,6 +14,7 @@ import {ChatProvider} from './src/context/ChatContext';
 import {
   navigationRef,
   handlePendingNavigation,
+  trackCurrentRoute,
 } from './src/navigation/NavigationService';
 
 import NotificationService from './src/backend-v2/services/NotificationService';
@@ -32,7 +33,11 @@ function App() {
             <NavigationContainer
               ref={navigationRef}
               onReady={() => {
+                trackCurrentRoute();
                 handlePendingNavigation();
+              }}
+              onStateChange={() => {
+                trackCurrentRoute();
               }}>
               <RouteProvider>
                 <Navigator />
