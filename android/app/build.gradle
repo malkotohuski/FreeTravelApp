@@ -38,7 +38,7 @@ android {
         applicationId "com.freetravelapp3"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 61
+        versionCode 62
         versionName "1.2.4"
     }
 

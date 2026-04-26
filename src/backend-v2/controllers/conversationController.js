@@ -200,7 +200,12 @@ exports.sendMessage = async (req, res) => {
         ? conversation.user2Id
         : conversation.user1Id;
     const receiverOnline = isUserOnline(receiverId);
-    const deliveredAt = receiverOnline ? new Date() : null;
+    const receiverDevice = await prisma.userDevice.findFirst({
+      where: {userId: receiverId},
+      select: {id: true},
+    });
+    const isDeliveredToDevice = receiverOnline || Boolean(receiverDevice);
+    const deliveredAt = isDeliveredToDevice ? new Date() : null;
 
     // 1ï¸âƒ£ Ð¡ÑŠÐ·Ð´Ð°Ð²Ð°Ð¼Ðµ ÑÑŠÐ¾Ð±Ñ‰ÐµÐ½Ð¸ÐµÑ‚Ð¾
     const message = await prisma.message.create({
@@ -230,7 +235,7 @@ exports.sendMessage = async (req, res) => {
         message,
       });
 
-      if (receiverOnline) {
+      if (isDeliveredToDevice) {
         global.io.to('user_' + senderId).emit('messagesDelivered', {
           conversationId,
           messageId: message.id,
