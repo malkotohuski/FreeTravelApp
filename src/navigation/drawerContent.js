@@ -62,6 +62,15 @@ export const Navigator = () => {
     headerTintColor: darkMode ? '#f1f1f1' : '#F1F1F1',
   };
 
+  const navigateBack = (navigation, fallback = 'Home') => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+      return;
+    }
+
+    navigation.navigate(fallback);
+  };
+
   const renderManageAccountsIcon = ({navigation}) => (
     <TouchableOpacity
       style={{marginRight: 16}}
@@ -77,7 +86,7 @@ export const Navigator = () => {
     <TouchableOpacity
       style={{marginRight: 16}}
       onPress={() => {
-        navigation.navigate('Home');
+        navigateBack(navigation, 'Home');
       }}>
       <Icons name="keyboard-backspace" size={24} color="white" />
     </TouchableOpacity>
@@ -89,7 +98,7 @@ export const Navigator = () => {
         marginRight: 16,
       }}
       onPress={() => {
-        navigation.navigate('Home');
+        navigateBack(navigation, 'Home');
       }}>
       <Icons name="keyboard-backspace" size={24} color="white" />
     </TouchableOpacity>
@@ -101,7 +110,7 @@ export const Navigator = () => {
         marginRight: 16,
       }}
       onPress={() => {
-        navigation.navigate('AccountManager');
+        navigateBack(navigation, 'AccountManager');
       }}>
       <Icons name="keyboard-backspace" size={24} color="white" />
     </TouchableOpacity>
@@ -111,7 +120,7 @@ export const Navigator = () => {
     <TouchableOpacity
       style={{marginRight: 16}}
       onPress={() => {
-        navigation.navigate('Home');
+        navigateBack(navigation, 'Home');
       }}>
       <Icons name="keyboard-backspace" size={24} color="white" />
     </TouchableOpacity>
@@ -121,7 +130,7 @@ export const Navigator = () => {
     <TouchableOpacity
       style={{marginRight: 16}}
       onPress={() => {
-        navigation.navigate('ConversationsScreen');
+        navigateBack(navigation, 'ConversationsScreen');
       }}>
       <Icons name="keyboard-backspace" size={24} color="white" />
     </TouchableOpacity>
@@ -131,7 +140,7 @@ export const Navigator = () => {
     <TouchableOpacity
       style={{marginRight: 16}}
       onPress={() => {
-        navigation.navigate('Settings');
+        navigateBack(navigation, 'Settings');
       }}>
       <Icons name="keyboard-backspace" size={24} color="white" />
     </TouchableOpacity>
@@ -141,7 +150,7 @@ export const Navigator = () => {
     <TouchableOpacity
       style={{marginRight: 16}}
       onPress={() => {
-        navigation.navigate('ViewRoutes');
+        navigateBack(navigation, 'ViewRoutes');
       }}>
       <Icons name="keyboard-backspace" size={24} color="white" />
     </TouchableOpacity>
@@ -270,7 +279,7 @@ export const Navigator = () => {
                         flexDirection: 'row',
                         alignItems: 'center',
                       }}
-                      onPress={() => navigation.navigate('Home')}>
+                      onPress={() => navigateBack(navigation, 'Home')}>
                       <Icons
                         name="keyboard-backspace"
                         size={24}
@@ -304,7 +313,7 @@ export const Navigator = () => {
                         flexDirection: 'row',
                         alignItems: 'center',
                       }}
-                      onPress={() => navigation.navigate('Home')} // или друга логика за връщане
+                      onPress={() => navigateBack(navigation, 'Home')}
                     >
                       <Text
                         style={{color: 'white', marginRight: 8, fontSize: 18}}>
@@ -342,7 +351,7 @@ export const Navigator = () => {
                         flexDirection: 'row',
                         alignItems: 'center',
                       }}
-                      onPress={() => navigation.navigate('Vehicle')} // или друга логика за връщане
+                      onPress={() => navigateBack(navigation, 'Vehicle')}
                     >
                       <Text
                         style={{color: 'white', marginRight: 8, fontSize: 18}}>
@@ -442,7 +451,7 @@ export const Navigator = () => {
                         flexDirection: 'row',
                         alignItems: 'center',
                       }}
-                      onPress={() => navigation.navigate('Home')} // или друга логика за връщане
+                      onPress={() => navigateBack(navigation, 'Home')}
                     >
                       <Icons
                         name="keyboard-backspace"
