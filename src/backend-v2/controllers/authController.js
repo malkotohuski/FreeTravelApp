@@ -3,12 +3,11 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
-const {Resend} = require('resend');
-const resend = process.env.RESEND_API_KEY
-  ? new Resend(process.env.RESEND_API_KEY)
-  : null;
 const crypto = require('crypto');
-const sendResetEmail = require('../utils/mailer');
+const {
+  sendConfirmationEmail,
+  sendResetEmail,
+} = require('../utils/mailer');
 
 const SALT_ROUNDS = 12;
 if (!process.env.JWT_SECRET) {
@@ -155,28 +154,7 @@ exports.register = async (req, res) => {
     });
 
     try {
-      if (resend) {
-        const {error} = await resend.emails.send({
-          from: 'noreply@freetravelapp.it.com',
-          to: useremail,
-          subject: 'FreeTravelApp - Confirmation Code',
-          html: `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-      <h2>FreeTravelApp</h2>
-      <p>Thank you for registering. Your confirmation code is:</p>
-      <p style="font-size: 32px; font-weight: bold; letter-spacing: 6px; color: #333;">
-        ${confirmationCode}
-      </p>
-      <p>This code expires in 10 minutes.</p>
-      <p>If you did not create an account, please ignore this email.</p>
-    </div>
-  `,
-        });
-
-        if (error) {
-          console.error('Confirmation email send failed:', error);
-        }
-      }
+      await sendConfirmationEmail(useremail, confirmationCode);
     } catch (err) {
       console.error('Confirmation email exception:', err.message);
     }

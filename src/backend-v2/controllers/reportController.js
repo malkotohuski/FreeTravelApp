@@ -1,77 +1,6 @@
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
-const nodemailer = require('nodemailer');
-
-// Helper функция за изпращане на email уведомление
-async function sendStatusEmail(report, reporterEmail) {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) return;
-
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
-
-  let message;
-  let statusColor;
-
-  if (report.status === 'RESOLVED') {
-    message =
-      'Your report has been reviewed and appropriate action has been taken.';
-    statusColor = '#28a745'; // зелено
-  } else if (report.status === 'REJECTED') {
-    message = 'Your report has been reviewed but no violation was found.';
-    statusColor = '#dc3545'; // червено
-  } else {
-    message = `Status updated to: ${report.status}`;
-    statusColor = '#6c757d'; // сиво
-  }
-
-  const htmlContent = `
-    <div style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 30px;">
-      <div style="max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
-        
-        <h2 style="color: #333;">Report Status Update</h2>
-        
-        <p>Hello <strong>${report.reporter.username}</strong>,</p>
-        
-        <p>${message}</p>
-
-        <div style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-          <p><strong>Report ID:</strong> ${report.id}</p>
-          <p><strong>Reported User:</strong> ${report.reported.username}</p>
-          <p>
-            <strong>Status:</strong> 
-            <span style="color: ${statusColor}; font-weight: bold;">
-              ${report.status}
-            </span>
-          </p>
-        </div>
-
-        <p style="font-size: 14px; color: #777;">
-          If you have further concerns, feel free to contact support.
-        </p>
-
-        <hr style="margin: 25px 0;" />
-
-        <p style="font-size: 12px; color: #999;">
-          © ${new Date().getFullYear()} FreeTravelApp. All rights reserved.
-        </p>
-
-      </div>
-    </div>
-  `;
-
-  await transporter.sendMail({
-    from: process.env.EMAIL_USER,
-    to: reporterEmail,
-    subject: `🚨 Report #${report.id} Status Updated`,
-    text: message, // fallback plain text
-    html: htmlContent, // красивият HTML
-  });
-}
+const {sendReportStatusEmail} = require('../utils/mailer');
 
 // POST /api/report
 exports.sendReport = async (req, res) => {
@@ -84,7 +13,6 @@ exports.sendReport = async (req, res) => {
         .json({error: 'Reported username and text are required.'});
     }
 
-    // Намираме потребителя по username
     const reportedUser = await prisma.user.findUnique({
       where: {username: reportedUsername},
     });
@@ -97,13 +25,12 @@ exports.sendReport = async (req, res) => {
       return res.status(400).json({error: 'You cannot report yourself.'});
     }
 
-    // Rate limit – 3 на ден per reporter
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const reportsToday = await prisma.report.count({
       where: {
-        reporterId: req.user.id, // броим само докладите на този, който праща
+        reporterId: req.user.id,
         createdAt: {gte: today},
       },
     });
@@ -118,7 +45,7 @@ exports.sendReport = async (req, res) => {
       data: {
         text,
         image: image || null,
-        reporterId: req.user.id, // ← правилното
+        reporterId: req.user.id,
         reportedId: reportedUser.id,
       },
     });
@@ -165,8 +92,8 @@ exports.updateReportStatus = async (req, res) => {
       return res.status(400).json({error: 'Invalid status value.'});
     }
 
-    const reportId = parseInt(id);
-    if (isNaN(reportId)) {
+    const reportId = parseInt(id, 10);
+    if (Number.isNaN(reportId)) {
       return res.status(400).json({error: 'Invalid report ID.'});
     }
 
@@ -191,8 +118,7 @@ exports.updateReportStatus = async (req, res) => {
       },
     });
 
-    // ✨ Email уведомление към reporter
-    await sendStatusEmail(updatedReport, updatedReport.reporter.email);
+    await sendReportStatusEmail(updatedReport, updatedReport.reporter.email);
 
     return res.status(200).json({
       message: 'Report status updated.',
