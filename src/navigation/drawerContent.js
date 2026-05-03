@@ -561,8 +561,17 @@ export const Navigator = () => {
             listeners={({navigation, route}) => ({
               focus: () => {
                 navigation.setOptions({
-                  headerRight: () =>
-                    renderBackButtonVehicle({navigation, route}),
+                  headerRight: () => (
+                    <TouchableOpacity
+                      style={{marginRight: 16}}
+                      onPress={() => navigation.navigate('Home')}>
+                      <Icons
+                        name="keyboard-backspace"
+                        size={24}
+                        color="white"
+                      />
+                    </TouchableOpacity>
+                  ),
                 });
               },
             })}

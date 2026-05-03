@@ -240,7 +240,7 @@ function ViewRoutes({navigation}) {
                     : ''}
                 </Text>
                 <Text style={[styles.routeInfo, {color: theme.textPrimary}]}>
-                  {route.departureCity} â†’ {route.arrivalCity}
+                  {departureCityName} - {arrivalCityName}
                 </Text>
                 <View style={styles.creatorContainer}>
                   {route.owner?.userImage ? (
