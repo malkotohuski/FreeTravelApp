@@ -4,6 +4,7 @@ import {
   Alert,
   Image,
   Linking,
+  RefreshControl,
   SafeAreaView,
   Share,
   ScrollView,
@@ -41,15 +42,19 @@ const AdminReportsScreen = ({navigation}) => {
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
   const [activeFilter, setActiveFilter] = useState('PENDING');
+  const [refreshing, setRefreshing] = useState(false);
 
-  const fetchReports = useCallback(async () => {
+  const fetchReports = useCallback(async (showLoader = true) => {
     if (!user?.isAdmin) {
       setLoading(false);
+      setRefreshing(false);
       return;
     }
 
     try {
-      setLoading(true);
+      if (showLoader) {
+        setLoading(true);
+      }
       const response = await api.get('/api/reports/admin/all');
       const nextReports = Array.isArray(response.data)
         ? response.data
@@ -60,6 +65,7 @@ const AdminReportsScreen = ({navigation}) => {
       Alert.alert('Error', 'Could not load reports.');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }, [user?.isAdmin]);
 
@@ -147,7 +153,18 @@ const AdminReportsScreen = ({navigation}) => {
           <ActivityIndicator size="large" color={theme.primaryButton} />
         </View>
       ) : (
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => {
+                setRefreshing(true);
+                fetchReports(false);
+              }}
+              tintColor={theme.primaryButton}
+            />
+          }>
           <View style={styles.filterRow}>
             {FILTER_OPTIONS.map(option => {
               const isActive = activeFilter === option;

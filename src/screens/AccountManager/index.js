@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback, useState} from 'react';
 import {
   View,
   Text,
@@ -8,39 +8,37 @@ import {
   SafeAreaView,
   Dimensions,
   ScrollView,
+  RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import {useTranslation} from 'react-i18next';
-import StarRating from 'react-native-star-rating-widget';
+import {useFocusEffect} from '@react-navigation/native';
 import {useAuth} from '../../context/AuthContext';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useTheme} from '../../theme/useTheme';
+import api from '../../api/api';
 
-const {width, height} = Dimensions.get('window'); // За адаптивност на различни екрани
+const {height} = Dimensions.get('window');
 
 const StarRatingDisplay = ({rating, size = 50}) => {
   const stars = [];
-  // Закръгляне до най-близка половинка
   const roundedRating = Math.round(rating * 2) / 2;
 
   const fullStars = Math.floor(roundedRating);
   const hasHalfStar = roundedRating % 1 !== 0;
 
-  // Пълни звезди
-  for (let i = 0; i < fullStars; i++) {
+  for (let i = 0; i < fullStars; i += 1) {
     stars.push(
       <Icons key={`full-${i}`} name="star" size={size} color="gold" />,
     );
   }
 
-  // Половин звезда
   if (hasHalfStar) {
     stars.push(<Icons key="half" name="star-half" size={size} color="gold" />);
   }
 
   return (
-    <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-      {stars}
-    </View>
+    <View style={{flexDirection: 'row', justifyContent: 'center'}}>{stars}</View>
   );
 };
 
@@ -48,6 +46,9 @@ const AccountManager = ({navigation}) => {
   const {user} = useAuth();
   const theme = useTheme();
   const styles = createStyles(theme);
+  const [profileData, setProfileData] = useState(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const defaultProfilePicture = require('../../../images/emptyUserImage.png');
   const {t} = useTranslation();
@@ -57,50 +58,99 @@ const AccountManager = ({navigation}) => {
     navigation.navigate('AccountSettings');
   const handlerHomeScreen = () => navigation.navigate('Home');
 
+  const fetchProfile = useCallback(async () => {
+    if (!user?.id) {
+      setLoadingProfile(false);
+      setRefreshing(false);
+      return;
+    }
+
+    try {
+      const response = await api.get(`/api/users/${user.id}`);
+      setProfileData(response.data);
+    } catch (error) {
+      console.error('Failed to load account profile:', error);
+    } finally {
+      setLoadingProfile(false);
+      setRefreshing(false);
+    }
+  }, [user?.id]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchProfile();
+    }, [fetchProfile]),
+  );
+
+  const displayedUser = profileData || user;
+  const displayedAverageRating = displayedUser?.averageRating || 0;
+
+  if (loadingProfile) {
+    return (
+      <SafeAreaView
+        style={{
+          flex: 1,
+          backgroundColor: theme.gradient[0],
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
+        <ActivityIndicator size="large" color={theme.primaryButton} />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView
       style={{
         flex: 1,
         backgroundColor: theme.gradient[0],
       }}>
-      <ScrollView contentContainerStyle={{flexGrow: 1}}>
+      <ScrollView
+        contentContainerStyle={{flexGrow: 1}}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => {
+              setRefreshing(true);
+              fetchProfile();
+            }}
+            tintColor={theme.primaryButton}
+          />
+        }>
         <View style={styles.mainContainer}>
           <View style={styles.overlay} />
-          {/* Profile Picture Section */}
 
           <View style={styles.profilePictureContainer}>
             <Image
               source={
-                user?.userImage
-                  ? {uri: user.userImage} // Използва снимката от userImage, ако съществува
-                  : defaultProfilePicture // В противен случай, използва снимката по подразбиране
+                displayedUser?.userImage
+                  ? {uri: displayedUser.userImage}
+                  : defaultProfilePicture
               }
               style={styles.profilePicture}
             />
           </View>
 
-          {/* User Info */}
           <View style={styles.userInfoSection}>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>{t('Username')}:</Text>
-              <Text style={styles.infoText}>{user?.username}</Text>
+              <Text style={styles.infoText}>{displayedUser?.username}</Text>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>{t('Names')}:</Text>
               <Text style={styles.infoText}>
-                {user?.fName} {user?.lName}
+                {displayedUser?.fName} {displayedUser?.lName}
               </Text>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>{t('Email')}:</Text>
-              <Text style={styles.infoText}>{user?.email}</Text>
+              <Text style={styles.infoText}>{displayedUser?.email}</Text>
             </View>
           </View>
 
-          {/* Rating Section */}
           <View style={styles.ratingSection}>
             <Text style={styles.ratingTitle}>{t('Your rating')}</Text>
-            <StarRatingDisplay rating={user?.averageRating || 0} size={50} />
+            <StarRatingDisplay rating={displayedAverageRating} size={50} />
           </View>
           <Text
             style={{
@@ -109,9 +159,9 @@ const AccountManager = ({navigation}) => {
               fontSize: 20,
               fontWeight: 'bold',
             }}>
-            ({user?.averageRating?.toFixed(2) || '0.00'})
+            ({displayedAverageRating.toFixed(2)})
           </Text>
-          {/* Buttons Section */}
+
           <View style={styles.buttonsContainer}>
             <TouchableOpacity
               style={styles.button}
@@ -139,7 +189,7 @@ const createStyles = theme =>
       flex: 1,
       backgroundColor: '#1e1e1e',
       alignItems: 'center',
-      justifyContent: 'space-between', // Прави подравняване на секциите по вертикала
+      justifyContent: 'space-between',
     },
     mainContainer: {
       flex: 1,
@@ -192,7 +242,9 @@ const createStyles = theme =>
     },
     infoText: {
       fontSize: 16,
-      color: '#080808',
+      color: theme.textPrimary,
+      flexShrink: 1,
+      textAlign: 'right',
     },
     userInfoText: {
       fontSize: 18,

@@ -8,6 +8,7 @@ import {
   FlatList,
   Modal,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
@@ -26,10 +27,13 @@ const Notifications = ({navigation}) => {
   const [notifications, setNotifications] = useState([]);
   const [visibleModalId, setVisibleModalId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = async (showLoader = true) => {
     try {
-      setLoading(true);
+      if (showLoader) {
+        setLoading(true);
+      }
       const response = await api.get('/api/notifications');
       const activeNotifications = response.data
         .filter(n => n.status === 'active' && !n.conversationId) // âŒ Ð´Ð¾Ð±Ð°Ð²Ð¸ !n.conversationId
@@ -47,6 +51,7 @@ const Notifications = ({navigation}) => {
       console.error('Failed to fetch notifications:', error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -196,6 +201,16 @@ const Notifications = ({navigation}) => {
           <FlatList
             data={notifications}
             keyExtractor={item => item.id.toString()}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={() => {
+                  setRefreshing(true);
+                  fetchNotifications(false);
+                }}
+                tintColor={theme.primaryButton}
+              />
+            }
             contentContainerStyle={{
               paddingVertical: 20,
               paddingHorizontal: 16,

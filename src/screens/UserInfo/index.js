@@ -1,9 +1,10 @@
-﻿import React, {
+import React, {
   useEffect,
   useState,
   useLayoutEffect,
   useRef,
   useContext,
+  useCallback,
 } from 'react';
 import {
   View,
@@ -14,6 +15,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Animated,
+  RefreshControl,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import api from '../../api/api';
@@ -27,7 +29,7 @@ const renderStars = rating => {
   const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
 
   const stars = [];
-  for (let i = 0; i < fullStars; i++) {
+  for (let i = 0; i < fullStars; i += 1) {
     stars.push(
       <Icon key={`full-${i}`} name="star" size={20} color="#FFD700" />,
     );
@@ -35,7 +37,7 @@ const renderStars = rating => {
   if (halfStar) {
     stars.push(<Icon key="half" name="star-half" size={20} color="#FFD700" />);
   }
-  for (let i = 0; i < emptyStars; i++) {
+  for (let i = 0; i < emptyStars; i += 1) {
     stars.push(
       <Icon key={`empty-${i}`} name="star-border" size={20} color="#FFD700" />,
     );
@@ -64,6 +66,7 @@ const UserInfo = ({route, navigation}) => {
 
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const fadeAnims = useRef([]).current;
 
@@ -116,24 +119,27 @@ const UserInfo = ({route, navigation}) => {
     darkMode,
   ]);
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const res = await api.get(`/api/users/${userId}`);
-        setUserData(res.data);
-      } catch (err) {
-        console.error('Error loading user:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUserData();
+  const fetchUserData = useCallback(async () => {
+    try {
+      const res = await api.get(`/api/users/${userId}`);
+      setUserData(res.data);
+    } catch (err) {
+      console.error('Error loading user:', err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   }, [userId]);
 
   useEffect(() => {
+    fetchUserData();
+  }, [fetchUserData]);
+
+  useEffect(() => {
     if (userData?.receivedRatings) {
-      userData.receivedRatings.forEach((_, i) => {
-        fadeAnims[i] = new Animated.Value(0);
+      fadeAnims.length = 0;
+      userData.receivedRatings.forEach((_, index) => {
+        fadeAnims[index] = new Animated.Value(0);
       });
       const animations = fadeAnims.map((fadeAnim, index) =>
         Animated.timing(fadeAnim, {
@@ -170,7 +176,7 @@ const UserInfo = ({route, navigation}) => {
           {backgroundColor: darkMode ? '#1c1c1c' : '#fff'},
         ]}>
         <Text style={{color: 'red', fontSize: 18}}>
-          ÐŸÐ¾Ñ‚Ñ€ÐµÐ±Ð¸Ñ‚ÐµÐ»ÑÑ‚ Ð½Ðµ Ð±ÐµÑˆÐµ Ð½Ð°Ð¼ÐµÑ€ÐµÐ½.
+          {t('User not found.')}
         </Text>
       </View>
     );
@@ -178,12 +184,13 @@ const UserInfo = ({route, navigation}) => {
 
   const {averageRating, receivedRatings = []} = userData;
 
-  const renderComment = (c, index) => {
+  const renderComment = (comment, index) => {
     const fadeAnim = fadeAnims[index] || new Animated.Value(1);
-    const author = c.rater || {};
+    const author = comment.rater || {};
+
     return (
       <Animated.View
-        key={c.id || index}
+        key={comment.id || index}
         style={[
           styles.commentCard,
           {
@@ -200,20 +207,12 @@ const UserInfo = ({route, navigation}) => {
           },
         ]}>
         <View style={styles.commentHeader}>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <View style={styles.commentAuthorRow}>
             {author.userImage ? (
               <Image source={{uri: author.userImage}} style={styles.avatar} />
             ) : (
-              <View
-                style={[
-                  styles.avatar,
-                  {
-                    backgroundColor: '#555',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  },
-                ]}>
-                <Text style={{color: '#fff', fontWeight: 'bold'}}>
+              <View style={styles.avatarFallback}>
+                <Text style={styles.avatarFallbackText}>
                   {author.username?.slice(0, 2).toUpperCase() || 'AN'}
                 </Text>
               </View>
@@ -221,13 +220,13 @@ const UserInfo = ({route, navigation}) => {
             <Text
               style={[
                 styles.username,
-                {color: darkMode ? '#ffa726' : '#f4511e', marginLeft: 10},
+                {color: darkMode ? '#ffa726' : '#f4511e'},
               ]}>
-              {author.username || 'ÐÐ½Ð¾Ð½Ð¸Ð¼ÐµÐ½'}
+              {author.username || t('Anonymous')}
             </Text>
           </View>
           <Text style={{color: darkMode ? '#ccc' : '#666', fontSize: 12}}>
-            {new Date(c.createdAt).toLocaleDateString('bg-BG', {
+            {new Date(comment.createdAt).toLocaleDateString('bg-BG', {
               day: 'numeric',
               month: 'long',
               year: 'numeric',
@@ -236,14 +235,16 @@ const UserInfo = ({route, navigation}) => {
             })}
           </Text>
         </View>
+
         <Text style={[styles.commentText, {color: darkMode ? '#fff' : '#000'}]}>
-          {c.comment}
+          {comment.comment}
         </Text>
-        {c.score !== undefined && (
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            {renderStars(c.score)}
+
+        {comment.score !== undefined && (
+          <View style={styles.commentRatingRow}>
+            {renderStars(comment.score)}
             <Text style={{marginLeft: 6, color: darkMode ? '#ccc' : '#333'}}>
-              ({c.score})
+              ({comment.score})
             </Text>
           </View>
         )}
@@ -255,7 +256,18 @@ const UserInfo = ({route, navigation}) => {
     <LinearGradient
       colors={darkMode ? ['#1c1c1c', '#3a3a3a'] : ['#f5f5f5', '#e0e0e0']}
       style={styles.mainContainer}>
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => {
+              setRefreshing(true);
+              fetchUserData();
+            }}
+            tintColor={darkMode ? '#ffa726' : '#f4511e'}
+          />
+        }>
         <Image source={{uri: userData.userImage}} style={styles.avatarLarge} />
         <Text style={[styles.name, {color: darkMode ? '#fff' : '#000'}]}>
           {userData.userFname} {userData.userLname}
@@ -264,12 +276,7 @@ const UserInfo = ({route, navigation}) => {
           style={[styles.usernameText, {color: darkMode ? '#ccc' : '#000'}]}>
           @{username}
         </Text>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            marginVertical: 12,
-          }}>
+        <View style={styles.averageRatingRow}>
           {renderStars(averageRating || 0)}
           <Text style={{marginLeft: 6, color: darkMode ? '#ccc' : '#000'}}>
             ({averageRating?.toFixed(2) || '0.00'})
@@ -278,7 +285,7 @@ const UserInfo = ({route, navigation}) => {
 
         <Text
           style={[styles.commentsHeader, {color: darkMode ? '#fff' : '#000'}]}>
-          ðŸ’¬ {t('Comments')}
+          {t('Comments')}
         </Text>
 
         {receivedRatings.length > 0 ? (
@@ -290,7 +297,7 @@ const UserInfo = ({route, navigation}) => {
               marginTop: 20,
               color: darkMode ? '#ccc' : '#080808',
             }}>
-            ÐÑÐ¼Ð° Ð½Ð°Ð»Ð¸Ñ‡Ð½Ð¸ ÐºÐ¾Ð¼ÐµÐ½Ñ‚Ð°Ñ€Ð¸.
+            {t('No comments available.')}
           </Text>
         )}
       </ScrollView>
@@ -311,6 +318,11 @@ const styles = StyleSheet.create({
   },
   name: {fontSize: 20, fontWeight: 'bold'},
   usernameText: {fontSize: 16, marginBottom: 10},
+  averageRatingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 12,
+  },
   commentsHeader: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -334,10 +346,33 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     alignItems: 'center',
   },
-  username: {fontSize: 14, fontWeight: 'bold'},
+  commentAuthorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  username: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginLeft: 10,
+  },
   commentText: {fontSize: 15, marginVertical: 6},
+  commentRatingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   avatar: {width: 40, height: 40, borderRadius: 20},
+  avatarFallback: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#555',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarFallbackText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
 });
 
 export default UserInfo;
-

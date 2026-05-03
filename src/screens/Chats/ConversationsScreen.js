@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Alert,
   Image,
+  RefreshControl,
 } from 'react-native';
 import {useAuth} from '../../context/AuthContext';
 import api from '../../api/api';
@@ -23,6 +24,7 @@ const ConversationsScreen = ({navigation}) => {
   const [conversations, setConversations] = useState([]);
   const [page, setPage] = useState(0);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const LIMIT = 20;
   const {refreshChatCount} = useChat();
 
@@ -43,6 +45,8 @@ const ConversationsScreen = ({navigation}) => {
       setPage(1);
     } catch (err) {
       console.error(err);
+    } finally {
+      setRefreshing(false);
     }
   }, [LIMIT, user.id]);
 
@@ -234,6 +238,17 @@ const ConversationsScreen = ({navigation}) => {
       <FlatList
         data={conversations}
         keyExtractor={item => item.id.toString()}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => {
+              setRefreshing(true);
+              fetchConversations();
+              refreshChatCount();
+            }}
+            tintColor={theme.primaryButton}
+          />
+        }
         renderItem={({item}) => {
           const lastMessage =
             item.messages && item.messages.length > 0
