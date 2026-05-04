@@ -20,6 +20,7 @@ import Confirm from '../screens/Confirm';
 import ViewRoutes from '../screens/ViewRoutes';
 import ReportingScreen from '../screens/ReportingScreen';
 import AdminReportsScreen from '../screens/AdminReportsScreen';
+import AdminBugReportsScreen from '../screens/AdminBugReportsScreen';
 import RouteRequestScreen from '../screens/RouteRequest';
 import AccountManager from '../screens/AccountManager';
 import Messages from '../screens/Chats/Messages';
@@ -601,6 +602,17 @@ export const Navigator = () => {
               component={AdminReportsScreen}
               options={{
                 title: 'Admin Reports',
+                ...screenStyles,
+                drawerItemStyle: {display: 'none'},
+              }}
+            />
+          ) : null}
+          {user?.isAdmin ? (
+            <Drawer.Screen
+              name="AdminBugReports"
+              component={AdminBugReportsScreen}
+              options={{
+                title: 'Admin Bug Reports',
                 ...screenStyles,
                 drawerItemStyle: {display: 'none'},
               }}

@@ -82,3 +82,82 @@ exports.submitBugReport = async (req, res) => {
     return res.status(500).json({error: 'Server error'});
   }
 };
+
+exports.getAllBugReports = async (req, res) => {
+  try {
+    const bugReports = await prisma.bugReport.findMany({
+      orderBy: {createdAt: 'desc'},
+    });
+
+    const userIds = [...new Set(bugReports.map(report => report.userId))];
+    const users = userIds.length
+      ? await prisma.user.findMany({
+          where: {id: {in: userIds}},
+          select: {
+            id: true,
+            username: true,
+            email: true,
+            fName: true,
+            lName: true,
+            userImage: true,
+          },
+        })
+      : [];
+
+    const userMap = new Map(users.map(user => [user.id, user]));
+
+    const reportsWithUsers = bugReports.map(report => ({
+      ...report,
+      reporter: userMap.get(report.userId) || null,
+    }));
+
+    return res.json({reports: reportsWithUsers});
+  } catch (error) {
+    console.error('Get bug reports error:', error);
+    return res.status(500).json({error: 'Server error'});
+  }
+};
+
+exports.updateBugReportStatus = async (req, res) => {
+  try {
+    const reportId = Number(req.params.id);
+    const {status} = req.body;
+
+    if (!reportId || !status) {
+      return res.status(400).json({error: 'Report id and status are required'});
+    }
+
+    const allowedStatuses = ['open', 'in_review', 'resolved'];
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({error: 'Invalid status'});
+    }
+
+    const updatedReport = await prisma.bugReport.update({
+      where: {id: reportId},
+      data: {status},
+    });
+
+    const reporter = await prisma.user.findUnique({
+      where: {id: updatedReport.userId},
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        fName: true,
+        lName: true,
+        userImage: true,
+      },
+    });
+
+    return res.json({
+      report: {
+        ...updatedReport,
+        reporter,
+      },
+    });
+  } catch (error) {
+    console.error('Update bug report status error:', error);
+    return res.status(500).json({error: 'Server error'});
+  }
+};

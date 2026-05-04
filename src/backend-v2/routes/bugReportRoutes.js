@@ -2,7 +2,12 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const authenticateJWT = require('../middlewares/authenticateJWT');
-const {submitBugReport} = require('../controllers/bugReportController');
+const isAdmin = require('../middlewares/isAdmin');
+const {
+  submitBugReport,
+  getAllBugReports,
+  updateBugReportStatus,
+} = require('../controllers/bugReportController');
 
 const upload = multer({
   dest: 'tmp/',
@@ -21,6 +26,13 @@ router.post(
   authenticateJWT,
   upload.single('image'),
   submitBugReport,
+);
+router.get('/bug-reports/admin/all', authenticateJWT, isAdmin, getAllBugReports);
+router.patch(
+  '/bug-reports/:id/status',
+  authenticateJWT,
+  isAdmin,
+  updateBugReportStatus,
 );
 
 module.exports = router;

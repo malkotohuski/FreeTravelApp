@@ -40,6 +40,10 @@ function CustomerDrawer({navigation}) {
     navigation.navigate('AdminReports');
   };
 
+  const handlerAdminBugReports = () => {
+    navigation.navigate('AdminBugReports');
+  };
+
   /*   const handlerRequest = () => {
     navigation.navigate('Route request');
   }; */
@@ -106,6 +110,16 @@ function CustomerDrawer({navigation}) {
                   onPress={handlerAdminReports}>
                   <Icons name="shield-account" size={30} color="#0721B6" />
                   <Text style={styles.textButtons}>Admin Reports</Text>
+                </TouchableOpacity>
+              </View>
+            ) : null}
+            {user?.isAdmin ? (
+              <View style={styles.topLeft}>
+                <TouchableOpacity
+                  style={styles.drawerScreen}
+                  onPress={handlerAdminBugReports}>
+                  <Icons name="bug" size={30} color="#0721B6" />
+                  <Text style={styles.textButtons}>Admin Bug Reports</Text>
                 </TouchableOpacity>
               </View>
             ) : null}
