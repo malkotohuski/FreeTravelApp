@@ -12,6 +12,39 @@ cloudinary.config({
   api_secret: process.env.CLOUD_API_SECRET,
 });
 
+const getCurrentUserSelect = {
+  id: true,
+  username: true,
+  email: true,
+  fName: true,
+  lName: true,
+  userImage: true,
+  averageRating: true,
+  isAdmin: true,
+  accountStatus: true,
+};
+
+exports.getCurrentUser = async (req, res) => {
+  try {
+    const user = await prisma.user.findFirst({
+      where: {
+        id: req.user.id,
+        accountStatus: 'active',
+      },
+      select: getCurrentUserSelect,
+    });
+
+    if (!user) {
+      return res.status(404).json({message: 'User not found'});
+    }
+
+    return res.json(user);
+  } catch (error) {
+    console.error('Get current user error:', error);
+    return res.status(500).json({error: 'Internal server error.'});
+  }
+};
+
 exports.getUserById = async (req, res) => {
   try {
     const userId = Number(req.params.id);

@@ -1,9 +1,10 @@
-﻿import React, {
+import React, {
   createContext,
   useReducer,
   useContext,
   useState,
   useEffect,
+  useCallback,
 } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api, {setLogoutHandler} from '../api/api';
@@ -39,6 +40,31 @@ export const AuthProvider = ({children}) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
   const [loading, setLoading] = useState(true);
 
+  const hydrateCurrentUser = useCallback(async (token, fallbackUser) => {
+    try {
+      const response = await api.get('/api/users/me');
+      const nextUser = response.data;
+
+      dispatch({type: LOGIN, payload: {user: nextUser, token}});
+      await AsyncStorage.setItem('@user', JSON.stringify(nextUser));
+      return nextUser;
+    } catch (error) {
+      if (fallbackUser) {
+        dispatch({
+          type: LOGIN,
+          payload: {
+            user: fallbackUser,
+            token,
+          },
+        });
+        await AsyncStorage.setItem('@user', JSON.stringify(fallbackUser));
+        return fallbackUser;
+      }
+
+      throw error;
+    }
+  }, []);
+
   useEffect(() => {
     const loadUser = async () => {
       try {
@@ -49,8 +75,8 @@ export const AuthProvider = ({children}) => {
           const user = JSON.parse(userString);
 
           api.defaults.headers.common.Authorization = `Bearer ${token}`;
-
           dispatch({type: LOGIN, payload: {user, token}});
+          await hydrateCurrentUser(token, user);
           await NotificationService.syncDeviceToken();
         }
       } catch (err) {
@@ -69,7 +95,7 @@ export const AuthProvider = ({children}) => {
       delete api.defaults.headers.common.Authorization;
       dispatch({type: LOGOUT});
     });
-  }, []);
+  }, [hydrateCurrentUser]);
 
   useEffect(() => {
     if (!state.user?.id) {
@@ -90,15 +116,14 @@ export const AuthProvider = ({children}) => {
 
   const login = async (user, token, refreshToken) => {
     api.defaults.headers.common.Authorization = `Bearer ${token}`;
-
+    await AsyncStorage.setItem('@token', token);
+    await AsyncStorage.setItem('@refreshToken', refreshToken);
     dispatch({
       type: LOGIN,
       payload: {user, token},
     });
-
     await AsyncStorage.setItem('@user', JSON.stringify(user));
-    await AsyncStorage.setItem('@token', token);
-    await AsyncStorage.setItem('@refreshToken', refreshToken);
+    await hydrateCurrentUser(token, user);
     await NotificationService.syncDeviceToken();
   };
 
@@ -139,7 +164,9 @@ export const AuthProvider = ({children}) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within an AuthProvider');
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
 
   const getToken = () => {
     return context.token;

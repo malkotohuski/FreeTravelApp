@@ -372,6 +372,17 @@ exports.getUserConversations = async (req, res) => {
         };
       }),
     );
+    conversationsWithExtras.sort((a, b) => {
+      const aLastActivity = new Date(
+        a.messages?.[0]?.createdAt || a.createdAt,
+      ).getTime();
+      const bLastActivity = new Date(
+        b.messages?.[0]?.createdAt || b.createdAt,
+      ).getTime();
+
+      return bLastActivity - aLastActivity;
+    });
+
     return res.json(conversationsWithExtras);
   } catch (error) {
     console.error('Get user conversations error:', error);

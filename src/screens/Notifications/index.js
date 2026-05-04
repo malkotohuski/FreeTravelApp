@@ -1,4 +1,4 @@
-﻿import React, {useState, useContext, useCallback, useEffect} from 'react';
+import React, {useState, useCallback, useEffect} from 'react';
 import {
   View,
   Text,
@@ -17,7 +17,8 @@ import api from '../../api/api';
 import {useAuth} from '../../context/AuthContext';
 import {useTheme} from '../../theme/useTheme';
 import socket from '../../socket/socket';
-import Toast from 'react-native-toast-message';
+
+const BULGARIAN_RATING_NOTIFICATION_REGEX = /\u043e\u0446\u0435\u043d\u0438.*\u043f\u044a\u0442\u0443\u0432\u0430\u043d\u0435\u0442\u043e/iu;
 
 const Notifications = ({navigation}) => {
   const {user} = useAuth();
@@ -36,7 +37,7 @@ const Notifications = ({navigation}) => {
       }
       const response = await api.get('/api/notifications');
       const activeNotifications = response.data
-        .filter(n => n.status === 'active' && !n.conversationId) // âŒ Ð´Ð¾Ð±Ð°Ð²Ð¸ !n.conversationId
+        .filter(n => n.status === 'active' && !n.conversationId) // ❌ добави !n.conversationId
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
       const uniqueNotifications = activeNotifications.filter(
@@ -61,7 +62,7 @@ const Notifications = ({navigation}) => {
     }, []),
   );
 
-  // --- SOCKET LISTENER Ð·Ð° Ð½Ð¾Ð²Ð¸ ÑƒÐ²ÐµÐ´Ð¾Ð¼Ð»ÐµÐ½Ð¸Ñ ---
+  // --- SOCKET LISTENER за нови уведомления ---
   useEffect(() => {
     if (!user?.id) return;
 
@@ -107,13 +108,13 @@ const Notifications = ({navigation}) => {
       }
 
       const message = notification.message.toLowerCase();
+      const isRatingNotification =
+        BULGARIAN_RATING_NOTIFICATION_REGEX.test(notification.message) ||
+        message.includes('rate the trip') ||
+        message.includes('rate your passenger');
 
       // RATE
-      if (
-        message.includes('Ð¾Ñ†ÐµÐ½Ð¸ Ð¿ÑŠÑ‚ÑƒÐ²Ð°Ð½ÐµÑ‚Ð¾') ||
-        message.includes('rate the trip') ||
-        message.includes('rate your passenger')
-      ) {
+      if (isRatingNotification) {
         navigation.navigate('RateUser', {
           routeId: notification.routeId,
           ratedId: notification.senderId,
@@ -130,7 +131,7 @@ const Notifications = ({navigation}) => {
         navigation.navigate('RouteRequest', {fromNotification: true});
       }
 
-      // APPROVED â†’ CHAT
+      // APPROVED → CHAT
       else if (
         message.includes('approved') &&
         notification.recipientId === user.id
@@ -182,7 +183,7 @@ const Notifications = ({navigation}) => {
     backgroundColor: theme.firstButton,
   });
 
-  // Ð’ÑŠÑ‚Ñ€Ðµ Ð²ÑŠÐ² Notifications
+  // Вътре във Notifications
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: theme.gradient[0]}}>
       <View style={{flex: 1}}>
@@ -256,7 +257,7 @@ const Notifications = ({navigation}) => {
                   {isNewNotification(item.createdAt) ? t('New') : t('Earlier')}
                 </Text>
 
-                {/* Ð”Ð¾Ñ‚Ñ Ð±ÑƒÑ‚Ð¾Ð½ */}
+                {/* Дотс бутон */}
                 <TouchableOpacity
                   onPress={() => setVisibleModalId(item.id)}
                   style={{padding: 8}}>
@@ -334,7 +335,7 @@ const styles = StyleSheet.create({
   },
   notificationList: {padding: 16},
   notification: {
-    width: '100%', // ÑÐµÐ³Ð° Ð²ÐµÑ‡Ðµ Ð·Ð°ÐµÐ¼Ð° Ð¿Ð¾Ñ‡Ñ‚Ð¸ Ñ†ÐµÐ»Ð¸Ñ ÐºÐ¾Ð½Ñ‚ÐµÐ¹Ð½ÐµÑ€
+    width: '100%', // сега вече заема почти целия контейнер
     paddingVertical: 14,
     paddingHorizontal: 16,
     borderRadius: 12,
@@ -392,7 +393,7 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: 'center',
     elevation: 5,
-    backgroundColor: 'white', // Ñ‰Ðµ override-Ð½ÐµÐ¼ Ñ theme.cardBackground
+    backgroundColor: 'white', // ще override-нем с theme.cardBackground
   },
   modalTitle: {fontSize: 18, fontWeight: 'bold', marginBottom: 10},
   modalMessage: {fontSize: 16, marginBottom: 20, textAlign: 'center'},
@@ -407,5 +408,7 @@ const styles = StyleSheet.create({
 });
 
 export default Notifications;
+
+
 
 

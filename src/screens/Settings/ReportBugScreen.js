@@ -1,4 +1,4 @@
-﻿import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback} from 'react';
 import {
   View,
   Text,
@@ -28,7 +28,6 @@ const ReportBugScreen = () => {
   const systemVersion = DeviceInfo.getSystemVersion();
   const deviceModel = DeviceInfo.getModel();
 
-  // Reset Ð¿Ð¾Ð»ÐµÑ‚Ð° Ð¿Ñ€Ð¸ Ð²Ð»Ð¸Ð·Ð°Ð½Ðµ Ð² ÐµÐºÑ€Ð°Ð½Ð°
   useFocusEffect(
     useCallback(() => {
       setTitle('');
@@ -41,17 +40,14 @@ const ReportBugScreen = () => {
   const pickImage = async () => {
     const result = await launchImageLibrary({
       mediaType: 'photo',
-      quality: 0.5, // Ð¿Ð¾-Ð½Ð¸ÑÐºÐ° ÐºÐ°Ñ‡ÐµÑÑ‚Ð²ÐµÐ½Ð¾ÑÑ‚ â†’ Ð¿Ð¾-Ð¼Ð°Ð»ÑŠÐº Ñ€Ð°Ð·Ð¼ÐµÑ€
-      includeBase64: true,
+      quality: 0.5,
+      includeBase64: false,
     });
 
     if (!result.didCancel && result.assets?.length) {
       const asset = result.assets[0];
 
-      // ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð´Ð°Ð»Ð¸ Base64 Ð½Ðµ Ðµ Ñ‚Ð²ÑŠÑ€Ð´Ðµ Ð³Ð¾Ð»ÑÐ¼Ð¾
-      const base64SizeKB = (asset.base64.length * (3 / 4)) / 1024; // approx KB
-      if (base64SizeKB > 1000) {
-        // >1 MB
+      if ((asset.fileSize || 0) > 5 * 1024 * 1024) {
         Alert.alert(
           'Error',
           'Image is too large. Please select a smaller one.',
@@ -71,16 +67,23 @@ const ReportBugScreen = () => {
 
     setLoading(true);
 
-    const payload = {
-      title: title.trim(),
-      description: description.trim(),
-      steps: steps.trim(),
-      image: screenshots.length ? screenshots[0].base64 : null, // âš¡ Ð¸Ð·Ð¿Ð¾Ð»Ð·Ð²Ð°Ð¼Ðµ "image"
-      appVersion,
-      platform: Platform.OS,
-      systemVersion,
-      deviceModel,
-    };
+    const payload = new FormData();
+    payload.append('title', title.trim());
+    payload.append('description', description.trim());
+    payload.append('steps', steps.trim());
+    payload.append('appVersion', appVersion);
+    payload.append('platform', Platform.OS);
+    payload.append('systemVersion', systemVersion);
+    payload.append('deviceModel', deviceModel);
+
+    if (screenshots.length > 0) {
+      const screenshot = screenshots[0];
+      payload.append('image', {
+        uri: screenshot.uri,
+        type: screenshot.type || 'image/jpeg',
+        name: screenshot.fileName || `bug-report-${Date.now()}.jpg`,
+      });
+    }
 
     try {
       await submitBugReport(payload);
@@ -92,12 +95,11 @@ const ReportBugScreen = () => {
     } catch (error) {
       console.error('Bug submit error:', error?.response?.data || error);
 
-      // ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð·Ð° Ð»Ð¸Ð¼Ð¸Ñ‚ ÑÑŠÐ¾Ð±Ñ‰ÐµÐ½Ð¸Ðµ
       if (
         error.response?.data?.error ===
         'You can only submit 2 bug reports per day'
       ) {
-        Alert.alert(t('Error'), t('dailyLimitReached')); // Ð´Ð¾Ð±Ð°Ð²ÑÑˆ t('dailyLimitReached') Ð² i18n
+        Alert.alert(t('Error'), t('dailyLimitReached'));
       } else {
         Alert.alert(t('error'), t('bugSendFailed'));
       }
@@ -192,4 +194,3 @@ const styles = StyleSheet.create({
 });
 
 export default ReportBugScreen;
-

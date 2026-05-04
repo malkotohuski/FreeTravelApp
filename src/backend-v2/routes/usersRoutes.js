@@ -17,6 +17,7 @@ const upload = multer({
   },
 });
 
+router.get('/me', authenticateJWT, usersController.getCurrentUser);
 router.get('/:id', usersController.getUserById);
 router.patch('/profile', authenticateJWT, usersController.updateProfileData);
 router.patch(
