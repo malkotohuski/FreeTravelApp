@@ -439,15 +439,11 @@ const ChatScreen = ({route}) => {
     }
 
     if (isYesterday) {
-      // Ð’Ñ‡ÐµÑ€Ð° -> Ð¿Ð¾ÐºÐ°Ð·Ð²Ð°Ð¼Ðµ "Ð’Ñ‡ÐµÑ€Ð°" + Ñ‡Ð°Ñ Ð¸ Ð¼Ð¸Ð½ÑƒÑ‚Ð¸
-      return (
-        'Ð’Ñ‡ÐµÑ€Ð° ' +
-        messageDate.toLocaleTimeString('bg-BG', {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false,
-        })
-      );
+      return `${t('yesterday')} ${messageDate.toLocaleTimeString('bg-BG', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      })}`;
     }
 
     if (isThisYear) {
