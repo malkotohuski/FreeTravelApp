@@ -6,7 +6,9 @@ const prisma = new PrismaClient();
 
 const datasetPath = path.resolve(__dirname, './data/cities.bg.json');
 const dataset = JSON.parse(fs.readFileSync(datasetPath, 'utf8'));
-const datasetByName = new Map(dataset.map(city => [city.name, city]));
+const datasetByEkatteCode = new Map(
+  dataset.map(city => [city.ekatteCode, city]),
+);
 
 const normalizeSearch = value =>
   value
@@ -20,6 +22,7 @@ async function main() {
     orderBy: {id: 'asc'},
     select: {
       id: true,
+      ekatteCode: true,
       name: true,
       normalizedName: true,
       region: true,
@@ -30,7 +33,9 @@ async function main() {
   let updatedCount = 0;
 
   for (const city of cities) {
-    const datasetCity = datasetByName.get(city.name);
+    const datasetCity = city.ekatteCode
+      ? datasetByEkatteCode.get(city.ekatteCode)
+      : null;
     const nextNormalizedName =
       datasetCity?.normalizedName || normalizeSearch(city.name);
     const nextRegion = datasetCity?.region || city.region;
@@ -38,8 +43,10 @@ async function main() {
       city.popularity || 0,
       datasetCity?.popularity || 0,
     );
+    const nextEkatteCode = datasetCity?.ekatteCode || city.ekatteCode;
 
     if (
+      city.ekatteCode !== nextEkatteCode ||
       city.normalizedName !== nextNormalizedName ||
       city.region !== nextRegion ||
       city.popularity !== nextPopularity
@@ -47,6 +54,7 @@ async function main() {
       await prisma.city.update({
         where: {id: city.id},
         data: {
+          ekatteCode: nextEkatteCode,
           normalizedName: nextNormalizedName,
           region: nextRegion,
           popularity: nextPopularity,

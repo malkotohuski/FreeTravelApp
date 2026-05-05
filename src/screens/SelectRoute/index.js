@@ -22,7 +22,7 @@ import {searchCities as searchCitiesApi} from '../../api/cities.api';
 import {useTheme} from '../../theme/useTheme';
 
 function SelectRouteScreen({route, navigation}) {
-  const {t, i18n} = useTranslation();
+  const {t} = useTranslation();
   const {selectedVehicle, registrationNumber} = route.params;
   const theme = useTheme();
   const minSearchLength = 2;
@@ -125,7 +125,7 @@ function SelectRouteScreen({route, navigation}) {
         </TouchableOpacity>
       ),
     });
-  }, [navigation, selectedVehicle, registrationNumber, theme]);
+  }, [navigation, registrationNumber, selectedVehicle, t, theme]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -148,7 +148,7 @@ function SelectRouteScreen({route, navigation}) {
       setSelectedDateTime(null);
       setDate(new Date());
       setRouteTitle('');
-    }, [i18n.language]),
+    }, []),
   );
 
   useEffect(() => {
@@ -526,8 +526,9 @@ function SelectRouteScreen({route, navigation}) {
                       )
                     }
                     renderItem={({item}) => {
+                      const cityLabel = item.displayName || item.name;
                       const isMatch = departureSearchText
-                        ? item.name
+                        ? cityLabel
                             .toLowerCase()
                             .includes(departureSearchText.toLowerCase())
                         : false;
@@ -544,7 +545,7 @@ function SelectRouteScreen({route, navigation}) {
                           activeOpacity={0.6}
                           onPress={() => {
                             setDepartureCityId(item.id);
-                            setDepartureCity(item.name);
+                            setDepartureCity(cityLabel);
                             closeDepartureModal();
                           }}>
                           <Text
@@ -553,8 +554,8 @@ function SelectRouteScreen({route, navigation}) {
                               fontSize: 16,
                           }}>
                             {isMatch
-                              ? highlightMatch(item.name, departureSearchText)
-                              : item.name}
+                              ? highlightMatch(cityLabel, departureSearchText)
+                              : cityLabel}
                           </Text>
                         </TouchableOpacity>
                       );
@@ -642,8 +643,9 @@ function SelectRouteScreen({route, navigation}) {
                       )
                     }
                     renderItem={({item}) => {
+                      const cityLabel = item.displayName || item.name;
                       const isMatch = arrivalSearchText
-                        ? item.name
+                        ? cityLabel
                             .toLowerCase()
                             .includes(arrivalSearchText.toLowerCase())
                         : false;
@@ -660,7 +662,7 @@ function SelectRouteScreen({route, navigation}) {
                           activeOpacity={0.6}
                           onPress={() => {
                             setArrivalCityId(item.id);
-                            setArrivalCity(item.name);
+                            setArrivalCity(cityLabel);
                             closeArrivalModal();
                           }}>
                           <Text
@@ -669,8 +671,8 @@ function SelectRouteScreen({route, navigation}) {
                               fontSize: 16,
                           }}>
                             {isMatch
-                              ? highlightMatch(item.name, arrivalSearchText)
-                              : item.name}
+                              ? highlightMatch(cityLabel, arrivalSearchText)
+                              : cityLabel}
                           </Text>
                         </TouchableOpacity>
                       );

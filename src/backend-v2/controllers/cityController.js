@@ -215,7 +215,20 @@ exports.searchCities = async (req, res) => {
           .slice(0, 10)
       : cities;
 
-    return res.json(rankedCities);
+    const duplicateNameCounts = rankedCities.reduce((counts, city) => {
+      counts[city.name] = (counts[city.name] || 0) + 1;
+      return counts;
+    }, {});
+
+    return res.json(
+      rankedCities.map(city => ({
+        ...city,
+        displayName:
+          duplicateNameCounts[city.name] > 1 && city.region
+            ? `${city.name} (${city.region})`
+            : city.name,
+      })),
+    );
   } catch (error) {
     console.error('searchCities error:', error);
     return res.status(500).json({error: 'Server error'});

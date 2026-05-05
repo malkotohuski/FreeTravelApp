@@ -53,26 +53,14 @@ const buildNormalizedName = (displayName, bulgarianName) => {
 
 function main() {
   const source = JSON.parse(fs.readFileSync(sourcePath, 'utf8'));
-  const rowsByDisplayName = new Map();
 
-  source.forEach(row => {
-    if (!row?.name) {
-      return;
-    }
-
-    const displayName = (row.name_en || row.name).trim();
-    const current = rowsByDisplayName.get(displayName);
-
-    if (!current || getRowScore(row) > getRowScore(current)) {
-      rowsByDisplayName.set(displayName, row);
-    }
-  });
-
-  const dataset = [...rowsByDisplayName.values()]
+  const dataset = source
+    .filter(row => row?.name && row?.ekatte)
     .map(row => {
       const displayName = (row.name_en || row.name).trim();
 
       return {
+        ekatteCode: String(row.ekatte),
         name: displayName,
         normalizedName: buildNormalizedName(displayName, row.name),
         region: cleanRegion(row.oblast_name),
@@ -80,7 +68,14 @@ function main() {
           getBasePopularity(row) + getMajorCityPopularity(displayName),
       };
     })
-    .sort((a, b) => a.name.localeCompare(b.name, 'en'));
+    .sort((a, b) => {
+      const nameComparison = a.name.localeCompare(b.name, 'en');
+      if (nameComparison !== 0) {
+        return nameComparison;
+      }
+
+      return (a.region || '').localeCompare(b.region || '', 'bg');
+    });
 
   fs.writeFileSync(outputPath, JSON.stringify(dataset, null, 2) + '\n', 'utf8');
   console.log(`Built ${dataset.length} official city records at ${outputPath}`);

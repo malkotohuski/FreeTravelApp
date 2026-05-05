@@ -242,22 +242,24 @@ model UserDevice {
 }
 
 model City {
-  id             Int     @id @default(autoincrement())
-  name           String  @unique
+  id             Int      @id @default(autoincrement())
+  ekatteCode     String?  @unique
+  name           String
   normalizedName String
-  countryCode    String  @default("BG")
+  countryCode    String   @default("BG")
   region         String?
-  isActive       Boolean @default(true)
-  popularity     Int     @default(0)
+  isActive       Boolean  @default(true)
+  popularity     Int      @default(0)
   createdAt      DateTime @default(now())
-  departingRoutes Route[] @relation("RouteDepartureCity")
-  arrivingRoutes  Route[] @relation("RouteArrivalCity")
-  departureRequests Request[] @relation("RequestDepartureCity")
-  arrivalRequests   Request[] @relation("RequestArrivalCity")
+  departingRoutes  Route[]         @relation("RouteDepartureCity")
+  arrivingRoutes   Route[]         @relation("RouteArrivalCity")
+  departureRequests Request[]      @relation("RequestDepartureCity")
+  arrivalRequests   Request[]      @relation("RequestArrivalCity")
   departureSeekers  SeekerRequest[] @relation("SeekerDepartureCity")
   arrivalSeekers    SeekerRequest[] @relation("SeekerArrivalCity")
 
   @@index([name])
+  @@index([name, region])
   @@index([normalizedName])
   @@index([isActive, popularity])
 }

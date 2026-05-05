@@ -235,11 +235,11 @@ function Looking({navigation}) {
       style={[styles.cityItem, {borderColor: theme.cardBorder}]}
       onPress={() => {
         setCityId(item.id);
-        setCity(item.name);
+        setCity(item.displayName || item.name);
         closeModal();
       }}>
       <Text style={[styles.cityItemText, {color: theme.textPrimary}]}>
-        {item.name}
+        {item.displayName || item.name}
       </Text>
     </TouchableOpacity>
   );
