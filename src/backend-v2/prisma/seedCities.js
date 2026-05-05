@@ -4,42 +4,32 @@ const {PrismaClient} = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
-const sanitizeCityName = value =>
-  value
-    .replace(/_/g, ' ')
-    .replace(/Ðµ/g, 'е')
-    .replace(/\s+/g, ' ')
-    .trim();
-
-const normalizeCityName = value =>
-  sanitizeCityName(value)
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
-
 async function main() {
-  const legacySelectorPath = path.resolve(
+  const officialDatasetPath = path.resolve(
     __dirname,
-    './data/cities.js',
+    './data/cities.bg.json',
   );
 
-  const source = fs.readFileSync(legacySelectorPath, 'utf8');
-  const matches = [...source.matchAll(/t\('([^']+)'\)/g)];
-  const uniqueNames = [
-    ...new Set(matches.map(match => sanitizeCityName(match[1]))),
-  ].filter(Boolean);
+  const cityRows = JSON.parse(fs.readFileSync(officialDatasetPath, 'utf8'));
 
-  const cityRows = uniqueNames.map(name => ({
-    name,
-    normalizedName: normalizeCityName(name),
-  }));
-
-  await prisma.city.createMany({
-    data: cityRows,
-    skipDuplicates: true,
+  await prisma.city.updateMany({
+    data: {
+      isActive: false,
+    },
   });
 
-  console.log(`Seeded ${cityRows.length} cities from legacy CitySelector.`);
+  for (const cityRow of cityRows) {
+    await prisma.city.upsert({
+      where: {name: cityRow.name},
+      update: {
+        ...cityRow,
+        isActive: true,
+      },
+      create: cityRow,
+    });
+  }
+
+  console.log(`Synced ${cityRows.length} cities from official EKATTE dataset.`);
 }
 
 main()

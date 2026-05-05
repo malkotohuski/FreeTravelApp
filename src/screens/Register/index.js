@@ -19,6 +19,7 @@ import {useTranslation} from 'react-i18next';
 import i18next from 'i18next';
 import ImagePicker from 'react-native-image-crop-picker';
 import TermsModal from '../../componets/TermsModal';
+import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export default function Register({navigation}) {
   const {t} = useTranslation();
@@ -29,6 +30,8 @@ export default function Register({navigation}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [confirmationCode, setConfirmationCode] = useState('');
   const [showConfirmationCodeInput, setShowConfirmationCodeInput] =
     useState(false);
@@ -67,6 +70,8 @@ export default function Register({navigation}) {
       setEmail('');
       setPassword('');
       setConfirmPassword('');
+      setShowPassword(false);
+      setShowConfirmPassword(false);
       setConfirmationCode('');
       setProfilePicture('');
       setShowConfirmationCodeInput(false);
@@ -254,22 +259,46 @@ export default function Register({navigation}) {
               value={email}
               onChangeText={setEmail}
             />
-            <TextInput
-              placeholderTextColor={'#F5FDFE'}
-              style={styles.input}
-              placeholder={t('Password')}
-              secureTextEntry={true}
-              value={password}
-              onChangeText={text => setPassword(text)}
-            />
-            <TextInput
-              placeholderTextColor={'#F5FDFE'}
-              style={styles.input}
-              placeholder={t('Confirm Password')}
-              secureTextEntry={true}
-              value={confirmPassword}
-              onChangeText={text => setConfirmPassword(text)}
-            />
+            <View style={styles.passwordInputWrapper}>
+              <TextInput
+                placeholderTextColor={'#F5FDFE'}
+                style={styles.passwordInput}
+                placeholder={t('Password')}
+                secureTextEntry={!showPassword}
+                value={password}
+                onChangeText={text => setPassword(text)}
+              />
+              <TouchableOpacity
+                style={styles.passwordToggleButton}
+                onPress={() => setShowPassword(prev => !prev)}>
+                <Icons
+                  name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                  size={22}
+                  color="#fff"
+                />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.passwordInputWrapper}>
+              <TextInput
+                placeholderTextColor={'#F5FDFE'}
+                style={styles.passwordInput}
+                placeholder={t('Confirm Password')}
+                secureTextEntry={!showConfirmPassword}
+                value={confirmPassword}
+                onChangeText={text => setConfirmPassword(text)}
+              />
+              <TouchableOpacity
+                style={styles.passwordToggleButton}
+                onPress={() => setShowConfirmPassword(prev => !prev)}>
+                <Icons
+                  name={
+                    showConfirmPassword ? 'eye-off-outline' : 'eye-outline'
+                  }
+                  size={22}
+                  color="#fff"
+                />
+              </TouchableOpacity>
+            </View>
             {showConfirmationCodeInput && (
               <TextInput
                 placeholderTextColor={'#F5FDFE'}

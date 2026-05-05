@@ -143,11 +143,6 @@ export default StyleSheet.create({
   loginBars: {
     flex: 1,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
   input: {
     width: 200,
     height: 40,
@@ -158,6 +153,29 @@ export default StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: 'white',
+  },
+  passwordInputWrapper: {
+    width: 200,
+    height: 40,
+    borderWidth: 1,
+    borderColor: 'white',
+    marginBottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: 10,
+  },
+  passwordInput: {
+    flex: 1,
+    height: '100%',
+    paddingHorizontal: 10,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  passwordToggleButton: {
+    paddingLeft: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   buttonSeparator: {
     height: 5,
@@ -200,11 +218,6 @@ export default StyleSheet.create({
     flex: 1,
     paddingBottom: 10,
     marginTop: 10,
-  },
-  label: {
-    fontSize: 24,
-    marginBottom: 8,
-    fontWeight: 'bold',
   },
   topLeft: {
     position: 'absolute',

@@ -16,22 +16,20 @@ import styles from './styles';
 import i18next from 'i18next';
 import {useAuth} from '../../context/AuthContext';
 import api from '../../api/api';
-import NotificationService from '../../backend-v2/services/NotificationService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-export default function Login({navigation, route}) {
+export default function Login({navigation}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const {t} = useTranslation();
   const {login} = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const opacity = useState(new Animated.Value(0))[0];
 
-  const [isBulgaria, setisBulgaria] = useState(false);
-
   const changeLanguage = lng => {
     i18next.changeLanguage(lng);
-    setisBulgaria(lng === 'bg');
   };
 
   useEffect(() => {
@@ -55,10 +53,11 @@ export default function Login({navigation, route}) {
         ]),
       ).start();
     };
+
     animateOpacity();
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [opacity]);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -75,26 +74,24 @@ export default function Login({navigation, route}) {
 
       if (response.status === 200) {
         const user = response.data.user;
-
-        // ⚠ ВАЖНО: токените идват от data.token и data.refreshToken
         const token = response.data.accessToken;
         const refreshToken = response.data.refreshToken;
 
         if (!token || !refreshToken) {
-          throw new Error('Token или RefreshToken липсва!');
+          throw new Error('Token or refresh token is missing.');
         }
 
         await AsyncStorage.setItem('@token', token);
         await AsyncStorage.setItem('@refreshToken', refreshToken);
         await AsyncStorage.setItem('@user', JSON.stringify(user));
 
-        login(user, token, refreshToken); // update AuthContext
+        login(user, token, refreshToken);
       }
     } catch (error) {
       console.error('Login failed:', error);
       Toast.show({
         type: 'error',
-        text1: 'Email или password е грешен. Опитай пак.',
+        text1: t('Email or password is incorrect. Please try again.'),
       });
     } finally {
       setIsLoading(false);
@@ -103,7 +100,8 @@ export default function Login({navigation, route}) {
 
   useFocusEffect(
     React.useCallback(() => {
-      setPassword(''); // чистим само паролата
+      setPassword('');
+      setShowPassword(false);
     }, []),
   );
 
@@ -159,24 +157,34 @@ export default function Login({navigation, route}) {
                   </TouchableOpacity>
                 </View>
               </View>
-              {/*  <TouchableOpacity onPress={skipLogin}>
-                <Text style={styles.title}>{t('Login')}</Text>
-              </TouchableOpacity> */}
               <TextInput
                 placeholderTextColor={'white'}
                 style={styles.input}
                 placeholder={t('Email')}
                 value={email}
-                onChangeText={text => setEmail(text)}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
               />
-              <TextInput
-                placeholderTextColor={'white'}
-                style={styles.input}
-                placeholder={t('Password')}
-                secureTextEntry={true}
-                value={password}
-                onChangeText={text => setPassword(text)}
-              />
+              <View style={styles.passwordInputWrapper}>
+                <TextInput
+                  placeholderTextColor={'white'}
+                  style={styles.passwordInput}
+                  placeholder={t('Password')}
+                  secureTextEntry={!showPassword}
+                  value={password}
+                  onChangeText={setPassword}
+                />
+                <TouchableOpacity
+                  style={styles.passwordToggleButton}
+                  onPress={() => setShowPassword(prev => !prev)}>
+                  <Icons
+                    name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                    size={22}
+                    color="#fff"
+                  />
+                </TouchableOpacity>
+              </View>
               <View style={styles.buttonsContent}>
                 <TouchableOpacity
                   style={styles.loginButtons}

@@ -108,14 +108,21 @@ const getSearchVariants = value => {
   ].filter((variant, index, all) => variant && all.indexOf(variant) === index);
 };
 
-const getCityForms = cityName => {
-  const normalizedName = normalizeSearch(cityName);
+const getCityForms = city => {
+  const baseForms = [city.name];
+  const normalizedForms =
+    typeof city.normalizedName === 'string'
+      ? city.normalizedName.split('|')
+      : [];
 
-  return [
-    normalizedName,
-    normalizeSearch(transliterateCyrToLat(normalizedName)),
-    normalizeSearch(transliterateLatToCyr(normalizedName)),
-  ].filter((variant, index, all) => variant && all.indexOf(variant) === index);
+  return [...baseForms, ...normalizedForms]
+    .map(value => normalizeSearch(value))
+    .flatMap(normalizedValue => [
+      normalizedValue,
+      normalizeSearch(transliterateCyrToLat(normalizedValue)),
+      normalizeSearch(transliterateLatToCyr(normalizedValue)),
+    ])
+    .filter((variant, index, all) => variant && all.indexOf(variant) === index);
 };
 
 const getMatchScore = (cityForm, searchVariant) => {
@@ -135,7 +142,7 @@ const getMatchScore = (cityForm, searchVariant) => {
 };
 
 const getCityScore = (city, searchVariants) => {
-  const cityForms = getCityForms(city.name);
+  const cityForms = getCityForms(city);
   let bestScore = 0;
 
   searchVariants.forEach(searchVariant => {

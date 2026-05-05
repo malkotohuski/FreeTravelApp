@@ -66,7 +66,7 @@ const AccountManager = ({navigation}) => {
     }
 
     try {
-      const response = await api.get(`/api/users/${user.id}`);
+      const response = await api.get('/api/users/me');
       setProfileData(response.data);
     } catch (error) {
       console.error('Failed to load account profile:', error);
@@ -144,7 +144,9 @@ const AccountManager = ({navigation}) => {
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>{t('Email')}:</Text>
-              <Text style={styles.infoText}>{displayedUser?.email}</Text>
+              <Text style={styles.infoText}>
+                {displayedUser?.email || user?.email || '-'}
+              </Text>
             </View>
           </View>
 
