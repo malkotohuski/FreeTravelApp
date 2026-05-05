@@ -25,13 +25,12 @@ import {searchCities} from '../../api/cities.api';
 
 function Looking({navigation}) {
   const {t, i18n} = useTranslation();
-  const {user, token} = useAuth();
+  const {token} = useAuth();
   const theme = useTheme();
   const minSearchLength = 2;
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
 
   const [departureCityId, setDepartureCityId] = useState(null);
   const [departureCity, setDepartureCity] = useState(null);
@@ -197,8 +196,6 @@ function Looking({navigation}) {
 
       const responseData = response.data;
 
-      setSuccessMessage(t('The route has been created!'));
-
       Alert.alert(
         t('Success'),
         t('The route has been created!'),
@@ -206,7 +203,6 @@ function Looking({navigation}) {
           {
             text: t('OK'),
             onPress: () => {
-              setSuccessMessage('');
               setIsGenerating(false);
               setIsSubmitting(false);
               navigation.navigate('Seekers', {seeker: responseData});
