@@ -17,6 +17,7 @@ const ChatContext = createContext();
 export const ChatProvider = ({children}) => {
   const {user, isAuthenticated} = useAuth();
   const [chatCount, setChatCount] = useState(0);
+  const [newChatCount, setNewChatCount] = useState(0);
   const [activeConversation, setActiveConversation] = useState(null);
   const deliveredEndpointAvailableRef = useRef(true);
 
@@ -73,7 +74,7 @@ export const ChatProvider = ({children}) => {
         return;
       }
 
-      setChatCount(prev => prev + 1);
+      setNewChatCount(prev => prev + 1);
 
       Toast.show({
         type: 'success',
@@ -134,16 +135,23 @@ export const ChatProvider = ({children}) => {
 
   const resetChat = () => {
     setChatCount(0);
+    setNewChatCount(0);
+  };
+
+  const clearNewChatCount = () => {
+    setNewChatCount(0);
   };
 
   return (
     <ChatContext.Provider
       value={{
         chatCount,
+        newChatCount,
         setChatCount,
         activeConversation,
         setActiveConversation,
         resetChat,
+        clearNewChatCount,
         refreshChatCount,
       }}>
       {children}

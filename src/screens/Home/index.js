@@ -38,7 +38,9 @@ function HomePage({navigation}) {
   const [isBulgaria, setisBulgaria] = useState(false);
   const [notificationCount, setNotificationCount] = useState(0);
   const [reqestsCount, setReqestsCount] = useState(0);
-  const {chatCount, refreshChatCount} = useChat();
+  const {chatCount, newChatCount, clearNewChatCount, refreshChatCount} =
+    useChat();
+  const hasChatAttention = chatCount > 0 || newChatCount > 0;
 
   const loginUser = user?.username;
 
@@ -78,7 +80,7 @@ function HomePage({navigation}) {
       pulseLoopRef.current = null;
     }
 
-    if (chatCount > 0) {
+    if (hasChatAttention) {
       const loop = Animated.loop(
         Animated.parallel([
           Animated.sequence([
@@ -122,7 +124,7 @@ function HomePage({navigation}) {
         pulseLoopRef.current = null;
       }
     };
-  }, [chatCount, glowAnim, pulseAnim]);
+  }, [glowAnim, hasChatAttention, pulseAnim]);
 
   // =================== Fetch notifications ===================
   useEffect(() => {
@@ -217,6 +219,7 @@ function HomePage({navigation}) {
   const handlerSeekers = () => navigation.navigate('Seekers');
   const handlerRouteViewer = () => navigation.navigate('ViewRoutes');
   const handlerChatScreen = () => {
+    clearNewChatCount();
     navigation.navigate('ConversationsScreen');
   };
   const handlerNotificationScreen = async () => {
@@ -495,15 +498,21 @@ function HomePage({navigation}) {
                 size={34}
                 color={darkMode ? '#f1f1f1' : '#010101'}
               />
-              {chatCount > 0 && (
+              {chatCount > 0 ? (
                 <View
                   style={[
                     styles.notificationBadge,
                     {backgroundColor: '#bd0e05'},
                   ]}>
-                  <Text>{chatCount > 9 ? '9+' : chatCount}</Text>
+                  <Text style={styles.notificationText}>
+                    {chatCount > 9 ? '9+' : chatCount}
+                  </Text>
                 </View>
-              )}
+              ) : newChatCount > 0 ? (
+                <View style={styles.chatNewBadge}>
+                  <Text style={styles.chatNewText}>NEW</Text>
+                </View>
+              ) : null}
             </TouchableOpacity>
           </Animated.View>
         </View>

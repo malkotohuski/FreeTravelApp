@@ -158,6 +158,23 @@ export default StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
   },
+  chatNewBadge: {
+    position: 'absolute',
+    top: -6,
+    right: -18,
+    backgroundColor: '#0f9d58',
+    borderRadius: 10,
+    minWidth: 34,
+    height: 20,
+    paddingHorizontal: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  chatNewText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
   buttonContent: {
     flexDirection: 'row',
     alignItems: 'center',

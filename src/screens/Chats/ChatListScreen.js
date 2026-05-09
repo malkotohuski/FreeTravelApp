@@ -32,7 +32,8 @@ const ChatScreen = ({route}) => {
   const theme = useTheme();
 
   const [conversationInfo, setConversationInfo] = useState(null);
-  const {refreshChatCount, setActiveConversation} = useChat();
+  const {refreshChatCount, setActiveConversation, clearNewChatCount} =
+    useChat();
 
   const flatListRef = useRef(null);
   const deliveredEndpointAvailableRef = useRef(true);
@@ -177,12 +178,13 @@ const ChatScreen = ({route}) => {
   useEffect(() => {
     setActiveConversation(conversationId);
     NotificationService.setActiveConversation(conversationId);
+    clearNewChatCount();
 
     return () => {
       setActiveConversation(null);
       NotificationService.setActiveConversation(null);
     };
-  }, [conversationId, setActiveConversation]);
+  }, [clearNewChatCount, conversationId, setActiveConversation]);
 
   useEffect(() => {
     socket.emit('joinConversation', {userId: user.id, conversationId});

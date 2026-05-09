@@ -34,8 +34,12 @@ exports.createRequest = async (req, res) => {
       dataTime,
       requestComment,
     } = req.body;
+    const parsedRouteId = routeId ? Number(routeId) : null;
+    const parsedSeekerRequestId = seekerRequestId
+      ? Number(seekerRequestId)
+      : null;
 
-    if (!routeId && !seekerRequestId)
+    if (!parsedRouteId && !parsedSeekerRequestId)
       return res
         .status(400)
         .json({error: 'Route ID or SeekerRequest ID is required.'});
@@ -45,8 +49,8 @@ exports.createRequest = async (req, res) => {
         userID: userId,
         status: {not: 'rejected'},
         OR: [
-          {routeId: routeId || undefined},
-          {seekerRequestId: seekerRequestId || undefined},
+          {routeId: parsedRouteId || undefined},
+          {seekerRequestId: parsedSeekerRequestId || undefined},
         ],
       },
     });
@@ -77,18 +81,18 @@ exports.createRequest = async (req, res) => {
       return res.status(404).json({error: 'User not found'});
     }
 
-    if (routeId) {
+    if (parsedRouteId) {
       route = await prisma.route.findUnique({
-        where: {id: routeId},
+        where: {id: parsedRouteId},
         include: {owner: true, departureCityRef: true, arrivalCityRef: true},
       });
       if (!route) return res.status(404).json({error: 'Route not found'});
       ownerId = route.owner.id;
     }
 
-    if (seekerRequestId) {
+    if (parsedSeekerRequestId) {
       seeker = await prisma.seekerRequest.findUnique({
-        where: {id: seekerRequestId},
+        where: {id: parsedSeekerRequestId},
         include: {
           user: true,
           departureCityRef: true,

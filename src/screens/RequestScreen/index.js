@@ -23,15 +23,28 @@ function RouteDetails({route}) {
   const {t} = useTranslation();
   const navigation = useNavigation();
   const {user} = useAuth();
-  const {username, userFname, userLname, userEmail, routeId} = route.params;
+  const params = route.params || {};
+  const details = params.routeDetailsData || {};
+  const owner = details.owner || {};
+  const routeId = params.routeId ?? details.routeId ?? details.id;
+  const username = params.username ?? owner.username ?? details.username;
+  const userFname = params.userFname ?? owner.fName ?? details.userFname;
+  const userLname = params.userLname ?? owner.lName ?? details.userLname;
+  const userEmail = params.userEmail ?? owner.email ?? details.userEmail;
   const [loading, setLoading] = useState(false);
 
   const requesterUsername = user?.username;
-  const departureCityId = route.params.departureCityId || null;
-  const arrivalCityId = route.params.arrivalCityId || null;
+  const departureCityId = params.departureCityId || details.departureCityId || null;
+  const arrivalCityId = params.arrivalCityId || details.arrivalCityId || null;
 
-  const departureCity = route.params.departureCity;
-  const arrivalCity = route.params.arrivalCity;
+  const departureCity =
+    params.departureCity ||
+    details.departureCityRef?.name ||
+    details.departureCity;
+  const arrivalCity =
+    params.arrivalCity ||
+    details.arrivalCityRef?.name ||
+    details.arrivalCity;
 
   const [tripRequestText, setTripRequestText] = useState('');
   const [hasRequested, setHasRequested] = useState(false);
@@ -86,6 +99,11 @@ function RouteDetails({route}) {
       return;
     }
 
+    if (!routeId) {
+      Alert.alert(t('Error'), t('Route ID is missing. Please reopen the route.'));
+      return;
+    }
+
     if (!tripRequestText.trim()) {
       Alert.alert(t('Error'), t('Please enter a comment before submitting.'));
       return;
@@ -109,12 +127,12 @@ function RouteDetails({route}) {
                 userFname: user.fName,
                 userLname: user.lName,
                 userEmail: user.email,
-                userRouteId: route.params?.userId || 0,
+                userRouteId: params.userId || owner.id || details.userId || 0,
                 departureCityId,
                 departureCity: departureCity || '',
                 arrivalCityId,
                 arrivalCity: arrivalCity || '',
-                dataTime: route.params?.selectedDateTime,
+                dataTime: params.selectedDateTime || details.selectedDateTime,
                 requestComment: tripRequestText,
               };
 
@@ -186,18 +204,22 @@ function RouteDetails({route}) {
             style={styles.buttonUserInfo}
             onPress={() =>
               navigation.navigate('UserInfo', {
-                userId: route.params.userId,
+                userId: params.userId || owner.id || details.userId,
                 username: username,
                 userFname: userFname,
                 userLname: userLname,
                 userEmail: userEmail,
                 departureCityId,
-                departureCity: route.params.departureCity,
+                departureCity,
                 arrivalCityId,
-                arrivalCity: route.params.arrivalCity,
-                selectedVehicle: route.params.selectedVehicle,
-                registrationNumber: route.params.registrationNumber,
-                routeDetailsData: route.params.routeDetailsData,
+                arrivalCity,
+                selectedVehicle: params.selectedVehicle || details.selectedVehicle,
+                registrationNumber:
+                  params.registrationNumber || details.registrationNumber,
+                selectedDateTime: params.selectedDateTime || details.selectedDateTime,
+                routeTitle: params.routeTitle || details.routeTitle,
+                routeId,
+                routeDetailsData: details,
               })
             }>
             <Text style={styles.infoButtonText}>{t('viewUserInfo')}</Text>

@@ -26,7 +26,7 @@ const ConversationsScreen = ({navigation}) => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const LIMIT = 20;
-  const {refreshChatCount} = useChat();
+  const {refreshChatCount, clearNewChatCount} = useChat();
 
   const theme = useTheme();
 
@@ -74,6 +74,7 @@ const ConversationsScreen = ({navigation}) => {
     React.useCallback(() => {
       fetchConversations();
       refreshChatCount();
+      clearNewChatCount();
 
       const delayedRefreshId = setTimeout(() => {
         fetchConversations();
@@ -89,7 +90,7 @@ const ConversationsScreen = ({navigation}) => {
         clearTimeout(delayedRefreshId);
         clearInterval(intervalId);
       };
-    }, [fetchConversations, refreshChatCount]),
+    }, [clearNewChatCount, fetchConversations, refreshChatCount]),
   );
 
   useEffect(() => {

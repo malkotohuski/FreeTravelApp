@@ -219,6 +219,7 @@ function ViewRoutes({navigation}) {
                     userEmail: route.owner.email,
                     routeId: route.id,
                     user_id: route.userId,
+                    routeDetailsData: route,
                   })
                 }>
                 <Text style={[styles.routeTitle, {color: theme.textPrimary}]}>
