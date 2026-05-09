@@ -20,19 +20,40 @@ export const ChatProvider = ({children}) => {
   const [newChatCount, setNewChatCount] = useState(0);
   const [activeConversation, setActiveConversation] = useState(null);
   const deliveredEndpointAvailableRef = useRef(true);
+  const knownConversationIdsRef = useRef(new Set());
+  const hasSyncedConversationsRef = useRef(false);
 
   const refreshChatCount = useCallback(async () => {
     if (!user?.id || !isAuthenticated) {
       setChatCount(0);
+      setNewChatCount(0);
+      knownConversationIdsRef.current = new Set();
+      hasSyncedConversationsRef.current = false;
       return 0;
     }
 
     try {
       const res = await api.get(`/api/conversations/user/${user.id}`);
+      const conversationIds = new Set(
+        res.data.map(conversation => String(conversation.id)),
+      );
+      const newConversationIds = [...conversationIds].filter(
+        id => !knownConversationIdsRef.current.has(id),
+      );
       const totalUnread = res.data.reduce(
         (sum, conv) => sum + (conv.unreadCount || 0),
         0,
       );
+
+      if (
+        hasSyncedConversationsRef.current &&
+        newConversationIds.length > 0
+      ) {
+        setNewChatCount(prev => prev + newConversationIds.length);
+      }
+
+      knownConversationIdsRef.current = conversationIds;
+      hasSyncedConversationsRef.current = true;
       setChatCount(totalUnread);
       return totalUnread;
     } catch (error) {
@@ -44,6 +65,18 @@ export const ChatProvider = ({children}) => {
   useEffect(() => {
     refreshChatCount();
   }, [refreshChatCount]);
+
+  useEffect(() => {
+    if (!user?.id || !isAuthenticated) {
+      return undefined;
+    }
+
+    const intervalId = setInterval(() => {
+      refreshChatCount();
+    }, 10000);
+
+    return () => clearInterval(intervalId);
+  }, [isAuthenticated, refreshChatCount, user?.id]);
 
   useEffect(() => {
     if (!user?.id || !isAuthenticated) {
@@ -69,12 +102,17 @@ export const ChatProvider = ({children}) => {
 
     const newConversationHandler = conv => {
       const currentActive = NotificationService.getActiveConversation();
+      const conversationId = String(conv.id);
 
       if (currentActive && String(currentActive) === String(conv.id)) {
+        knownConversationIdsRef.current.add(conversationId);
         return;
       }
 
-      setNewChatCount(prev => prev + 1);
+      if (!knownConversationIdsRef.current.has(conversationId)) {
+        knownConversationIdsRef.current.add(conversationId);
+        setNewChatCount(prev => prev + 1);
+      }
 
       Toast.show({
         type: 'success',
@@ -85,6 +123,8 @@ export const ChatProvider = ({children}) => {
         autoHide: true,
         topOffset: 60,
       });
+
+      refreshChatCount();
     };
 
     const newMessageHandler = ({conversationId, message}) => {
@@ -114,14 +154,17 @@ export const ChatProvider = ({children}) => {
       }
 
       if (String(currentActive) === String(conversationId)) {
+        refreshChatCount();
         return;
       }
 
       if (message?.senderId === user.id) {
+        refreshChatCount();
         return;
       }
 
       setChatCount(prev => prev + 1);
+      refreshChatCount();
     };
 
     socket.on('newConversation', newConversationHandler);
@@ -131,7 +174,7 @@ export const ChatProvider = ({children}) => {
       socket.off('newConversation', newConversationHandler);
       socket.off('newMessage', newMessageHandler);
     };
-  }, [isAuthenticated, user?.id]);
+  }, [isAuthenticated, refreshChatCount, user?.id]);
 
   const resetChat = () => {
     setChatCount(0);
