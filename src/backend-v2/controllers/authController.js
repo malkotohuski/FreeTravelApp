@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken');
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 const crypto = require('crypto');
-const fs = require('fs');
 const cloudinary = require('cloudinary').v2;
 const {
   sendConfirmationEmail,
@@ -26,6 +25,24 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 function generateConfirmationCode() {
   return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+function uploadBufferToCloudinary(buffer, options) {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      options,
+      (error, result) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+
+        resolve(result);
+      },
+    );
+
+    uploadStream.end(buffer);
+  });
 }
 
 async function deleteInactiveAccountsOlderThanOneDay() {
@@ -147,8 +164,8 @@ exports.register = async (req, res) => {
 
     const confirmationCode = generateConfirmationCode();
 
-    if (req.file?.path) {
-      const uploadResult = await cloudinary.uploader.upload(req.file.path, {
+    if (req.file?.buffer) {
+      const uploadResult = await uploadBufferToCloudinary(req.file.buffer, {
         folder: 'avatars',
         transformation: [
           {width: 300, height: 300, crop: 'fill', gravity: 'face'},
@@ -158,7 +175,6 @@ exports.register = async (req, res) => {
 
       uploadedImageUrl = uploadResult.secure_url;
       uploadedImagePublicId = uploadResult.public_id;
-      fs.unlink(req.file.path, () => {});
     }
 
     const newUser = await prisma.user.create({
@@ -200,9 +216,6 @@ exports.register = async (req, res) => {
       user: safeUser,
     });
   } catch (error) {
-    if (req.file?.path) {
-      fs.unlink(req.file.path, () => {});
-    }
     console.error('Register error:', error);
     return res.status(500).json({error: 'Internal server error.'});
   }

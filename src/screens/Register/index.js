@@ -21,6 +21,8 @@ import ImagePicker from 'react-native-image-crop-picker';
 import TermsModal from '../../componets/TermsModal';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 
+const toUploadUri = uri => (uri?.startsWith('/') ? `file://${uri}` : uri);
+
 export default function Register({navigation}) {
   const {t} = useTranslation();
 
@@ -73,7 +75,7 @@ export default function Register({navigation}) {
       setShowPassword(false);
       setShowConfirmPassword(false);
       setConfirmationCode('');
-      setProfilePicture('');
+      setProfilePicture(null);
       setShowConfirmationCodeInput(false);
     }, []),
   );
@@ -106,13 +108,15 @@ export default function Register({navigation}) {
 
             if (profilePicture?.path) {
               formData.append('avatar', {
-                uri: profilePicture.path,
+                uri: toUploadUri(profilePicture.path),
                 type: profilePicture.mime || 'image/jpeg',
                 name: `avatar-${Date.now()}.jpg`,
               });
             }
 
-            const response = await api.post('/api/auth/register', formData);
+            const response = await api.post('/api/auth/register', formData, {
+              timeout: 30000,
+            });
 
             if (response.status === 201) {
               setShowConfirmationCodeInput(true);

@@ -5,7 +5,7 @@ const authenticateJWT = require('../middlewares/authenticateJWT');
 const multer = require('multer');
 
 const upload = multer({
-  dest: 'tmp/',
+  storage: multer.memoryStorage(),
   limits: {fileSize: 5 * 1024 * 1024},
   fileFilter: (req, file, cb) => {
     if (!file.mimetype.startsWith('image/')) {

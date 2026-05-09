@@ -18,6 +18,8 @@ import {DarkModeContext} from '../../navigation/DarkModeContext';
 import ProblemInput from '../../componets/ProblemInput';
 import api from '../../api/api';
 
+const toUploadUri = uri => (uri?.startsWith('/') ? `file://${uri}` : uri);
+
 const ReportingScreen = ({navigation}) => {
   const {darkMode} = useContext(DarkModeContext);
   const [problemDescription, setProblemDescription] = useState('');
@@ -59,13 +61,13 @@ const ReportingScreen = ({navigation}) => {
 
       if (profilePicture?.path) {
         formData.append('image', {
-          uri: profilePicture.path,
+          uri: toUploadUri(profilePicture.path),
           type: profilePicture.mime || 'image/jpeg',
           name: `report-${Date.now()}.jpg`,
         });
       }
 
-      await api.post('/api/report', formData);
+      await api.post('/api/report', formData, {timeout: 30000});
 
       setShowSuccessMessage(true);
       setProblemDescription('');

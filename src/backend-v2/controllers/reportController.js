@@ -1,6 +1,5 @@
 const {PrismaClient} = require('@prisma/client');
 const cloudinary = require('cloudinary').v2;
-const fs = require('fs');
 const prisma = new PrismaClient();
 const {
   sendAdminReportEmail,
@@ -13,6 +12,24 @@ cloudinary.config({
   api_key: process.env.CLOUD_API_KEY,
   api_secret: process.env.CLOUD_API_SECRET,
 });
+
+function uploadBufferToCloudinary(buffer, options) {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      options,
+      (error, result) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+
+        resolve(result);
+      },
+    );
+
+    uploadStream.end(buffer);
+  });
+}
 
 // POST /api/report
 exports.sendReport = async (req, res) => {
@@ -55,13 +72,12 @@ exports.sendReport = async (req, res) => {
 
     let uploadedImageUrl = null;
 
-    if (req.file?.path) {
-      const uploadResult = await cloudinary.uploader.upload(req.file.path, {
+    if (req.file?.buffer) {
+      const uploadResult = await uploadBufferToCloudinary(req.file.buffer, {
         folder: 'reports',
         transformation: [{fetch_format: 'auto', quality: 'auto'}],
       });
       uploadedImageUrl = uploadResult.secure_url;
-      fs.unlink(req.file.path, () => {});
     } else if (typeof image === 'string' && image.startsWith('http')) {
       uploadedImageUrl = image;
     }
@@ -94,9 +110,6 @@ exports.sendReport = async (req, res) => {
       image: report.image,
     });
   } catch (err) {
-    if (req.file?.path) {
-      fs.unlink(req.file.path, () => {});
-    }
     console.error('Report error:', err);
     return res.status(500).json({error: 'Internal Server Error'});
   }
