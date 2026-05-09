@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {useCallback} from 'react';
-import api from '../../api/api';
+import api, {API_BASE_URL} from '../../api/api';
 import styles from './styles';
 import {useTranslation} from 'react-i18next';
 import i18next from 'i18next';
@@ -22,6 +22,23 @@ import TermsModal from '../../componets/TermsModal';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const toUploadUri = uri => (uri?.startsWith('/') ? `file://${uri}` : uri);
+
+const registerWithAvatar = async formData => {
+  const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const error = new Error(data?.error || 'Registration failed');
+    error.response = {status: response.status, data};
+    throw error;
+  }
+
+  return {status: response.status, data};
+};
 
 export default function Register({navigation}) {
   const {t} = useTranslation();
@@ -99,24 +116,35 @@ export default function Register({navigation}) {
       if (password === confirmPassword) {
         if (email.includes('@') && email.includes('.') && email.length >= 5) {
           try {
-            const formData = new FormData();
-            formData.append('username', name);
-            formData.append('useremail', email);
-            formData.append('userpassword', password);
-            formData.append('fName', firstName);
-            formData.append('lName', lastName);
+            let response;
 
             if (profilePicture?.path) {
+              const formData = new FormData();
+              formData.append('username', name);
+              formData.append('useremail', email);
+              formData.append('userpassword', password);
+              formData.append('fName', firstName);
+              formData.append('lName', lastName);
               formData.append('avatar', {
                 uri: toUploadUri(profilePicture.path),
                 type: profilePicture.mime || 'image/jpeg',
                 name: `avatar-${Date.now()}.jpg`,
               });
-            }
 
-            const response = await api.post('/api/auth/register', formData, {
-              timeout: 30000,
-            });
+              response = await registerWithAvatar(formData);
+            } else {
+              response = await api.post(
+                '/api/auth/register',
+                {
+                  username: name,
+                  useremail: email,
+                  userpassword: password,
+                  fName: firstName,
+                  lName: lastName,
+                },
+                {timeout: 30000},
+              );
+            }
 
             if (response.status === 201) {
               setShowConfirmationCodeInput(true);
@@ -127,7 +155,12 @@ export default function Register({navigation}) {
               );
             }
           } catch (error) {
-            console.error('Registration Error:', error);
+            console.error('Registration Error:', {
+              message: error.message,
+              status: error.response?.status,
+              data: error.response?.data,
+              code: error.code,
+            });
 
             if (
               error.response &&

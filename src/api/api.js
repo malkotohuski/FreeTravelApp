@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 let onLogoutCallback = null;
 
-const API_BASE_URL = 'https://freetravelapp-production.up.railway.app';
+export const API_BASE_URL = 'https://freetravelapp-production.up.railway.app';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
