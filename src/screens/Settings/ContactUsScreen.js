@@ -23,7 +23,7 @@ export default function ContactUsScreen() {
       duration: 800,
       useNativeDriver: true,
     }).start();
-  }, []);
+  }, [fadeAnim]);
 
   const handleEmailPress = () => {
     const subject = encodeURIComponent('FreeTravelApp Support');

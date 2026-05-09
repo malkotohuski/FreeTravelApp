@@ -21,7 +21,7 @@ export default function AboutUsScreen() {
       duration: 1000,
       useNativeDriver: true,
     }).start();
-  }, []);
+  }, [fadeAnim]);
 
   return (
     <LinearGradient

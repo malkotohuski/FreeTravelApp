@@ -266,6 +266,8 @@ exports.softDeleteAccount = async (req, res) => {
       where: {id: userId},
       data: {
         accountStatus: 'deleted',
+        refreshToken: null,
+        refreshTokenExpiresAt: null,
       },
     });
 

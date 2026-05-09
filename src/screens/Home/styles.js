@@ -67,9 +67,6 @@ export default StyleSheet.create({
     fontWeight: 'bold',
     color: '#FAFAFA',
   },
-  languageButton: {
-    alignItems: 'center',
-  },
   menuImages: {
     paddingVertical: 20,
     paddingBottom: 20,

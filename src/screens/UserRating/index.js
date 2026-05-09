@@ -41,7 +41,7 @@ const RateUserScreen = ({navigation}) => {
     };
 
     if (ratedId) fetchUser();
-  }, [ratedId]);
+  }, [ratedId, t]);
 
   useFocusEffect(
     useCallback(() => {

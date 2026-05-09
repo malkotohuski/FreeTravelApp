@@ -122,7 +122,7 @@ function HomePage({navigation}) {
         pulseLoopRef.current = null;
       }
     };
-  }, [chatCount]);
+  }, [chatCount, glowAnim, pulseAnim]);
 
   // =================== Fetch notifications ===================
   useEffect(() => {
@@ -148,7 +148,7 @@ function HomePage({navigation}) {
   }, [loginUser]);
 
   // =================== Fetch route requests ===================
-  const fetchRequests = async () => {
+  const fetchRequests = useCallback(async () => {
     const userId = user?.id;
     if (!userId) return;
 
@@ -165,16 +165,16 @@ function HomePage({navigation}) {
     } catch (error) {
       console.error('Failed to fetch route requests:', error);
     }
-  };
+  }, [user?.id]);
 
   useEffect(() => {
     fetchRequests();
-  }, [user?.id]);
+  }, [fetchRequests]);
 
   useFocusEffect(
     useCallback(() => {
       fetchRequests();
-    }, [user?.id]),
+    }, [fetchRequests]),
   );
   useFocusEffect(
     useCallback(() => {

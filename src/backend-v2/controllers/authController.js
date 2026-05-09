@@ -4,10 +4,18 @@ const jwt = require('jsonwebtoken');
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 const crypto = require('crypto');
+const fs = require('fs');
+const cloudinary = require('cloudinary').v2;
 const {
   sendConfirmationEmail,
   sendResetEmail,
 } = require('../utils/mailer');
+
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUD_API_KEY,
+  api_secret: process.env.CLOUD_API_SECRET,
+});
 
 const SALT_ROUNDS = 12;
 if (!process.env.JWT_SECRET) {
@@ -95,6 +103,8 @@ exports.register = async (req, res) => {
 
     const {username, useremail, userpassword, fName, lName, userImage} =
       req.body;
+    let uploadedImageUrl = null;
+    let uploadedImagePublicId = null;
 
     // 1️⃣ Basic validation
     if (!username || !useremail || !userpassword) {
@@ -137,6 +147,20 @@ exports.register = async (req, res) => {
 
     const confirmationCode = generateConfirmationCode();
 
+    if (req.file?.path) {
+      const uploadResult = await cloudinary.uploader.upload(req.file.path, {
+        folder: 'avatars',
+        transformation: [
+          {width: 300, height: 300, crop: 'fill', gravity: 'face'},
+          {fetch_format: 'auto', quality: 'auto'},
+        ],
+      });
+
+      uploadedImageUrl = uploadResult.secure_url;
+      uploadedImagePublicId = uploadResult.public_id;
+      fs.unlink(req.file.path, () => {});
+    }
+
     const newUser = await prisma.user.create({
       data: {
         username,
@@ -144,7 +168,12 @@ exports.register = async (req, res) => {
         password: hashedPassword,
         fName: fName || null,
         lName: lName || null,
-        userImage: userImage || null,
+        userImage:
+          uploadedImageUrl ||
+          (typeof userImage === 'string' && userImage.startsWith('http')
+            ? userImage
+            : null),
+        userImagePublicId: uploadedImagePublicId,
         confirmationCode,
         confirmationCodeExpiresAt: new Date(Date.now() + 10 * 60 * 1000),
         isActive: false,
@@ -171,6 +200,9 @@ exports.register = async (req, res) => {
       user: safeUser,
     });
   } catch (error) {
+    if (req.file?.path) {
+      fs.unlink(req.file.path, () => {});
+    }
     console.error('Register error:', error);
     return res.status(500).json({error: 'Internal server error.'});
   }
@@ -249,15 +281,21 @@ exports.login = async (req, res) => {
       return res.status(401).json({error: 'Invalid credentials.'});
     }
 
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      return res.status(401).json({error: 'Invalid credentials.'});
+    }
+
     if (user.accountStatus !== 'active') {
       return res.status(403).json({
         error: 'Your account has been deactivated.',
       });
     }
 
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    if (!passwordMatch) {
-      return res.status(401).json({error: 'Invalid credentials.'});
+    if (!user.isActive) {
+      return res.status(403).json({
+        error: 'Please confirm your email before logging in.',
+      });
     }
 
     // ✅ Генериране на краткосрочен access token (15 мин)
@@ -317,6 +355,18 @@ exports.refreshToken = async (req, res) => {
     }
 
     // ✅ Провери дали е изтекъл
+    if (!user.isActive || user.accountStatus !== 'active') {
+      await prisma.user.update({
+        where: {id: user.id},
+        data: {
+          refreshToken: null,
+          refreshTokenExpiresAt: null,
+        },
+      });
+
+      return res.status(401).json({error: 'Account is not active.'});
+    }
+
     if (user.refreshTokenExpiresAt < new Date()) {
       return res
         .status(401)

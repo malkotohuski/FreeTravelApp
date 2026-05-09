@@ -6,7 +6,7 @@ const {sendPush} = require('../services/fcmService');
 const getRouteCityName = (route, key) =>
   route?.[key]?.name ||
   route?.[key === 'departureCityRef' ? 'departureCity' : 'arrivalCity'] ||
-  'Unknown';
+  '';
 
 const buildConversationPayloads = conversation => {
   const convForUser1 = {
@@ -28,19 +28,54 @@ exports.startConversation = async (req, res) => {
   const user1Id = req.user.id;
 
   try {
-    if (!user2Id) {
+    const hasRouteId = routeId !== null && routeId !== undefined && routeId !== '';
+    const parsedRouteId = hasRouteId ? Number(routeId) : null;
+    const parsedUser2Id = Number(user2Id);
+
+    if ((hasRouteId && !parsedRouteId) || !parsedUser2Id) {
       return res
         .status(400)
-        .json({error: 'Cannot start chat: senderId missing'});
+        .json({error: 'Cannot start chat: routeId or recipient missing'});
+    }
+
+    if (parsedUser2Id === user1Id) {
+      return res.status(400).json({error: 'Cannot start chat with yourself'});
+    }
+
+    const approvedRequest = await prisma.request.findFirst({
+      where: {
+        routeId: parsedRouteId,
+        status: 'approved',
+        OR: [
+          {userID: user1Id, toUserId: parsedUser2Id},
+          {userID: parsedUser2Id, toUserId: user1Id},
+        ],
+      },
+      include: {
+        departureCityRef: true,
+        arrivalCityRef: true,
+        seekerRequest: {
+          include: {
+            departureCityRef: true,
+            arrivalCityRef: true,
+          },
+        },
+      },
+    });
+
+    if (!approvedRequest) {
+      return res.status(403).json({
+        error: 'Chat can be started only after an approved route request',
+      });
     }
 
     // Проверка за съществуващ разговор
     let conversation = await prisma.conversation.findFirst({
       where: {
-        routeId,
+        routeId: parsedRouteId,
         OR: [
-          {user1Id, user2Id},
-          {user1Id: user2Id, user2Id: user1Id},
+          {user1Id, user2Id: parsedUser2Id},
+          {user1Id: parsedUser2Id, user2Id: user1Id},
         ],
       },
       include: {
@@ -50,29 +85,44 @@ exports.startConversation = async (req, res) => {
       },
     });
 
-    const route = await prisma.route.findUnique({
-      where: {id: routeId},
-      include: {
-        departureCityRef: true,
-        arrivalCityRef: true,
-      },
-    });
+    let route = null;
+    if (parsedRouteId) {
+      route = await prisma.route.findUnique({
+        where: {id: parsedRouteId},
+        include: {
+          departureCityRef: true,
+          arrivalCityRef: true,
+        },
+      });
 
-    if (!route) {
-      return res.status(404).json({error: 'Route not found'});
+      if (!route) {
+        return res.status(404).json({error: 'Route not found'});
+      }
     }
 
-    const departureCityName = getRouteCityName(route, 'departureCityRef');
-    const arrivalCityName = getRouteCityName(route, 'arrivalCityRef');
+    const departureCityName =
+      getRouteCityName(route, 'departureCityRef') ||
+      approvedRequest.departureCityRef?.name ||
+      approvedRequest.seekerRequest?.departureCityRef?.name ||
+      approvedRequest.departureCity ||
+      approvedRequest.seekerRequest?.departureCity ||
+      'Unknown';
+    const arrivalCityName =
+      getRouteCityName(route, 'arrivalCityRef') ||
+      approvedRequest.arrivalCityRef?.name ||
+      approvedRequest.seekerRequest?.arrivalCityRef?.name ||
+      approvedRequest.arrivalCity ||
+      approvedRequest.seekerRequest?.arrivalCity ||
+      'Unknown';
 
     // Ако няма - създаваме
     if (!conversation) {
       // 1️⃣ създаваме conversation
       const newConversation = await prisma.conversation.create({
         data: {
-          routeId,
+          routeId: parsedRouteId,
           user1Id,
-          user2Id,
+          user2Id: parsedUser2Id,
           departureCity: departureCityName,
           arrivalCity: arrivalCityName,
         },
@@ -103,7 +153,9 @@ exports.startConversation = async (req, res) => {
       // 5️⃣ socket emit
       if (global.io) {
         global.io.to('user_' + user1Id).emit('newConversation', convForUser1);
-        global.io.to('user_' + user2Id).emit('newConversation', convForUser2);
+        global.io
+          .to('user_' + parsedUser2Id)
+          .emit('newConversation', convForUser2);
       }
 
       // важно
@@ -546,6 +598,8 @@ exports.getConversationById = async (req, res) => {
         arrivalCity: true,
         user1Id: true,
         user2Id: true,
+        user1: {select: {id: true, username: true, userImage: true}},
+        user2: {select: {id: true, username: true, userImage: true}},
       },
     });
 
@@ -561,6 +615,10 @@ exports.getConversationById = async (req, res) => {
       id: conversation.id,
       departureCity: conversation.departureCity,
       arrivalCity: conversation.arrivalCity,
+      otherUser:
+        conversation.user1Id === req.user.id
+          ? conversation.user2
+          : conversation.user1,
     });
   } catch (error) {
     console.error('Get conversation error:', error);

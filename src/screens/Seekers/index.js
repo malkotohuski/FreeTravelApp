@@ -41,7 +41,7 @@ export default function Seekers({navigation}) {
     route?.[key === 'departureCityRef' ? 'departureCity' : 'arrivalCity'] ||
     '';
 
-  const fetchSeekers = async () => {
+  const fetchSeekers = useCallback(async () => {
     try {
       setLoading(true);
       const response = await api.get('/api/seekers');
@@ -69,12 +69,12 @@ export default function Seekers({navigation}) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
 
   useFocusEffect(
     useCallback(() => {
       fetchSeekers();
-    }, []),
+    }, [fetchSeekers]),
   );
 
   useEffect(() => {

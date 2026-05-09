@@ -1,5 +1,6 @@
 const {PrismaClient} = require('@prisma/client');
 const cloudinary = require('cloudinary').v2;
+const fs = require('fs');
 const prisma = new PrismaClient();
 const {
   sendAdminReportEmail,
@@ -54,12 +55,15 @@ exports.sendReport = async (req, res) => {
 
     let uploadedImageUrl = null;
 
-    if (image) {
-      const uploadResult = await cloudinary.uploader.upload(image, {
+    if (req.file?.path) {
+      const uploadResult = await cloudinary.uploader.upload(req.file.path, {
         folder: 'reports',
         transformation: [{fetch_format: 'auto', quality: 'auto'}],
       });
       uploadedImageUrl = uploadResult.secure_url;
+      fs.unlink(req.file.path, () => {});
+    } else if (typeof image === 'string' && image.startsWith('http')) {
+      uploadedImageUrl = image;
     }
 
     const report = await prisma.report.create({
@@ -90,6 +94,9 @@ exports.sendReport = async (req, res) => {
       image: report.image,
     });
   } catch (err) {
+    if (req.file?.path) {
+      fs.unlink(req.file.path, () => {});
+    }
     console.error('Report error:', err);
     return res.status(500).json({error: 'Internal Server Error'});
   }

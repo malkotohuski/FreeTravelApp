@@ -44,12 +44,6 @@ export default StyleSheet.create({
     alignItems: 'center',
   },
 
-  languageSwitchContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 40,
-  },
-
   profilePictureContainerCenter: {
     alignSelf: 'center',
     marginTop: 20,
@@ -164,11 +158,6 @@ export default StyleSheet.create({
   loginBars: {
     flex: 1,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
   input: {
     width: 200,
     height: 40,
@@ -221,11 +210,6 @@ export default StyleSheet.create({
     flex: 1,
     paddingBottom: 10,
     marginTop: 10,
-  },
-  label: {
-    fontSize: 24,
-    marginBottom: 8,
-    fontWeight: 'bold',
   },
   topLeft: {
     position: 'absolute',

@@ -3,11 +3,29 @@ const router = express.Router();
 const reportController = require('../controllers/reportController');
 const authenticateJWT = require('../middlewares/authenticateJWT');
 const isAdmin = require('../middlewares/isAdmin');
+const multer = require('multer');
 
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
+const upload = multer({
+  dest: 'tmp/',
+  limits: {fileSize: 5 * 1024 * 1024},
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith('image/')) {
+      cb(new Error('Only image files are allowed.'));
+    } else {
+      cb(null, true);
+    }
+  },
+});
+
 // POST /api/report
-router.post('/report', authenticateJWT, reportController.sendReport);
+router.post(
+  '/report',
+  authenticateJWT,
+  upload.single('image'),
+  reportController.sendReport,
+);
 
 // GET /api/report/all - admin only
 router.get('/admin/all', authenticateJWT, isAdmin, async (req, res) => {

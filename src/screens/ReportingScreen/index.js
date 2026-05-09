@@ -32,16 +32,13 @@ const ReportingScreen = ({navigation}) => {
     try {
       const media = await ImagePicker.openPicker({
         mediaType: 'photo',
-        includeBase64: true,
+        includeBase64: false,
         compressImageQuality: 0.7,
         maxWidth: 1600,
         maxHeight: 1600,
       });
 
-      if (media.data) {
-        const base64Data = `data:${media.mime};base64,${media.data}`;
-        setProfilePicture(base64Data);
-      }
+      setProfilePicture(media?.path ? media : null);
     } catch (error) {
       setProfilePicture(null);
     }
@@ -56,11 +53,19 @@ const ReportingScreen = ({navigation}) => {
     try {
       setIsButtonDisabled(true);
 
-      await api.post('/api/report', {
-        reportedUsername: reportedUsername.trim(),
-        text: problemDescription,
-        image: profilePicture || null,
-      });
+      const formData = new FormData();
+      formData.append('reportedUsername', reportedUsername.trim());
+      formData.append('text', problemDescription);
+
+      if (profilePicture?.path) {
+        formData.append('image', {
+          uri: profilePicture.path,
+          type: profilePicture.mime || 'image/jpeg',
+          name: `report-${Date.now()}.jpg`,
+        });
+      }
+
+      await api.post('/api/report', formData);
 
       setShowSuccessMessage(true);
       setProblemDescription('');
@@ -130,7 +135,7 @@ const ReportingScreen = ({navigation}) => {
         {profilePicture && (
           <View style={styles.previewContainer}>
             <Image
-              source={{uri: profilePicture}}
+              source={{uri: profilePicture.path}}
               style={styles.attachmentPreview}
             />
           </View>

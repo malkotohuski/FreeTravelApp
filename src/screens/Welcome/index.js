@@ -26,7 +26,7 @@ const WelcomeScreen = ({navigation}) => {
       duration: 800,
       useNativeDriver: true,
     }).start();
-  }, []);
+  }, [captionAnim]);
 
   const handleContinue = () => {
     navigation.navigate('Home');

@@ -92,11 +92,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
-  label: {
-    fontSize: 24,
-    marginBottom: 8,
-    fontWeight: 'bold',
-  },
   topLeftUserNames: {
     position: 'absolute',
     top: 15,

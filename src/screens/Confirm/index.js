@@ -1,4 +1,4 @@
-import React, {useState, useLayoutEffect, useRef, useEffect} from 'react';
+import React, {useState, useLayoutEffect, useRef, useEffect, useMemo} from 'react';
 import Icons from 'react-native-vector-icons/MaterialIcons';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {
@@ -33,9 +33,13 @@ function Confirm() {
   const {user, token} = useAuth();
   const route = useRoute();
 
-  const selectedDateTime = route.params.selectedDateTime
-    ? new Date(route.params.selectedDateTime)
-    : null;
+  const selectedDateTime = useMemo(
+    () =>
+      route.params.selectedDateTime
+        ? new Date(route.params.selectedDateTime)
+        : null,
+    [route.params.selectedDateTime],
+  );
 
   // Генерираме уникален key за фронтенд защита
   useEffect(() => {
@@ -204,7 +208,7 @@ function Confirm() {
         </TouchableOpacity>
       ),
     });
-  }, [navigation, selectedVehicle, registrationNumber]);
+  }, [navigation, selectedVehicle, registrationNumber, t]);
 
   return (
     <View style={{flex: 1}} pointerEvents={isSubmitting ? 'none' : 'auto'}>

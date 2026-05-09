@@ -20,6 +20,8 @@ import {useTranslation} from 'react-i18next';
 import LinearGradient from 'react-native-linear-gradient';
 import {useTheme} from '../../theme/useTheme';
 
+const REGISTRATION_NUMBER_REGEX = /^[\u0410-\u042fA-Z]{1,2}\d{4}[\u0410-\u042fA-Z]{2}$/;
+
 const MarkSeatsScreen = () => {
   const {t} = useTranslation();
   const navigation = useNavigation();
@@ -29,10 +31,8 @@ const MarkSeatsScreen = () => {
   const selectedVehicle = route.params?.selectedVehicle;
   const [registrationNumber, setRegistrationNumber] = useState('');
 
-  const regex = /^[А-ЯA-Z]{1,2}\d{4}[А-ЯA-Z]{2}$/;
-
   const isValidRegistrationNumber = useCallback(
-    () => regex.test(registrationNumber.trim()),
+    () => REGISTRATION_NUMBER_REGEX.test(registrationNumber.trim()),
     [registrationNumber],
   );
 

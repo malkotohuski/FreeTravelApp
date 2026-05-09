@@ -35,7 +35,7 @@ export default function Register({navigation}) {
   const [confirmationCode, setConfirmationCode] = useState('');
   const [showConfirmationCodeInput, setShowConfirmationCodeInput] =
     useState(false);
-  const [profilePicture, setProfilePicture] = useState('');
+  const [profilePicture, setProfilePicture] = useState(null);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [termsType, setTermsType] = useState('terms'); // 'terms' или 'privacy'
   const [isBulgaria, setisBulgaria] = useState(false);
@@ -84,33 +84,35 @@ export default function Register({navigation}) {
         width: 300,
         height: 300,
         cropping: true,
-        includeBase64: true, // ✅ Вземаме base64 данни
+        includeBase64: false,
       });
 
-      if (image.data) {
-        const base64Image = `data:${image.mime};base64,${image.data}`;
-        setProfilePicture(base64Image); // ⚡ Сега сме готови за бекенд
-      } else {
-        setProfilePicture(''); // fallback
-      }
+      setProfilePicture(image?.path ? image : null);
     } catch (error) {
-      setProfilePicture('');
+      setProfilePicture(null);
     }
   };
-
   const handleRegister = async () => {
     if (!showConfirmationCodeInput) {
       if (password === confirmPassword) {
         if (email.includes('@') && email.includes('.') && email.length >= 5) {
           try {
-            const response = await api.post('/api/auth/register', {
-              username: name,
-              useremail: email,
-              userpassword: password,
-              fName: firstName,
-              lName: lastName,
-              userImage: profilePicture || '', // ⚡ base64 или празно
-            });
+            const formData = new FormData();
+            formData.append('username', name);
+            formData.append('useremail', email);
+            formData.append('userpassword', password);
+            formData.append('fName', firstName);
+            formData.append('lName', lastName);
+
+            if (profilePicture?.path) {
+              formData.append('avatar', {
+                uri: profilePicture.path,
+                type: profilePicture.mime || 'image/jpeg',
+                name: `avatar-${Date.now()}.jpg`,
+              });
+            }
+
+            const response = await api.post('/api/auth/register', formData);
 
             if (response.status === 201) {
               setShowConfirmationCodeInput(true);
@@ -220,7 +222,7 @@ export default function Register({navigation}) {
                 style={styles.profilePictureContainer}>
                 {profilePicture ? (
                   <Image
-                    source={{uri: profilePicture}}
+                    source={{uri: profilePicture.path}}
                     style={styles.profilePicture}
                   />
                 ) : (

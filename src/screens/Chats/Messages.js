@@ -146,7 +146,6 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     color: '#050505FF',
     fontSize: 17,
-    fontWeight: 'bold',
     backgroundColor: '#fff',
     padding: 5,
     borderRadius: 8,

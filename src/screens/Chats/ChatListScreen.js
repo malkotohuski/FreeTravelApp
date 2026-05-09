@@ -38,6 +38,25 @@ const ChatScreen = ({route}) => {
   const deliveredEndpointAvailableRef = useRef(true);
   const pendingDeliveredMessageIdsRef = useRef(new Set());
 
+  const applyPendingDeliveredState = useCallback(message => {
+    if (!message) {
+      return message;
+    }
+
+    if (
+      pendingDeliveredMessageIdsRef.current.has(message.id) &&
+      !message.deliveredAt
+    ) {
+      pendingDeliveredMessageIdsRef.current.delete(message.id);
+      return {
+        ...message,
+        deliveredAt: new Date().toISOString(),
+      };
+    }
+
+    return message;
+  }, []);
+
   const syncMessages = useCallback(async () => {
     if (!conversationId) {
       return;
@@ -131,25 +150,6 @@ const ChatScreen = ({route}) => {
 
     return {icon: '✓', color: 'rgba(255,255,255,0.55)'};
   };
-
-  const applyPendingDeliveredState = useCallback(message => {
-    if (!message) {
-      return message;
-    }
-
-    if (
-      pendingDeliveredMessageIdsRef.current.has(message.id) &&
-      !message.deliveredAt
-    ) {
-      pendingDeliveredMessageIdsRef.current.delete(message.id);
-      return {
-        ...message,
-        deliveredAt: new Date().toISOString(),
-      };
-    }
-
-    return message;
-  }, []);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -474,6 +474,8 @@ const ChatScreen = ({route}) => {
     );
   };
 
+  const displayedOtherUser = conversationInfo?.otherUser || otherUser;
+
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: theme.gradient[0]}}>
       <KeyboardAvoidingView
@@ -489,9 +491,9 @@ const ChatScreen = ({route}) => {
             },
           ]}>
           <View style={[styles.avatar, {backgroundColor: theme.highlight}]}>
-            {otherUser?.userImage ? (
+            {displayedOtherUser?.userImage ? (
               <Image
-                source={{uri: otherUser.userImage}}
+                source={{uri: displayedOtherUser.userImage}}
                 style={styles.avatarImage}
               />
             ) : (
@@ -506,7 +508,7 @@ const ChatScreen = ({route}) => {
 
           <View style={{flex: 1}}>
             <Text style={[styles.username, {color: theme.textPrimary}]}>
-              {otherUser?.username}
+              {displayedOtherUser?.username}
             </Text>
 
             <Text style={[styles.routeText, {color: theme.highlight}]}>
@@ -546,7 +548,7 @@ const ChatScreen = ({route}) => {
                       <Image
                         source={{
                           uri:
-                            otherUser?.userImage ||
+                            displayedOtherUser?.userImage ||
                             'https://res.cloudinary.com/dqxczsig5/image/upload/v1774361343/avatars/mazhsnugabcw9spsvm50.jpg',
                         }}
                         style={styles.avatarSmallImage}

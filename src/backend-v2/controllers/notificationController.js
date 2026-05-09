@@ -23,14 +23,19 @@ exports.sendNotification = async ({
     return null;
   }
 
-  const existing = await prisma.notification.findFirst({
-    where: {
-      recipientId: Number(recipientId),
-      routeId,
-      message,
-      status: 'active',
-    },
-  });
+  const existing =
+    routeId || conversationId
+      ? await prisma.notification.findFirst({
+          where: {
+            recipientId: Number(recipientId),
+            ...(conversationId
+              ? {conversationId: String(conversationId)}
+              : {routeId}),
+            message,
+            status: 'active',
+          },
+        })
+      : null;
 
   const getNotificationTitle = (notificationType, senderName = '') => {
     switch (notificationType) {

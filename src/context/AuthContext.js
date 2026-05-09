@@ -15,6 +15,10 @@ const LOGIN = 'LOGIN';
 const LOGOUT = 'LOGOUT';
 const UPDATE_USER = 'UPDATE_USER';
 const initialState = {isAuthenticated: false, user: null, token: null};
+const AUTH_STATE_INVALID_STATUSES = [401, 403, 404];
+
+const isAuthStateInvalid = error =>
+  AUTH_STATE_INVALID_STATUSES.includes(error?.response?.status);
 
 const authReducer = (state, action) => {
   switch (action.type) {
@@ -49,6 +53,10 @@ export const AuthProvider = ({children}) => {
       await AsyncStorage.setItem('@user', JSON.stringify(nextUser));
       return nextUser;
     } catch (error) {
+      if (isAuthStateInvalid(error)) {
+        throw error;
+      }
+
       if (fallbackUser) {
         dispatch({
           type: LOGIN,
@@ -80,7 +88,15 @@ export const AuthProvider = ({children}) => {
           await NotificationService.syncDeviceToken();
         }
       } catch (err) {
-        console.error('Error loading persisted user:', err);
+        if (isAuthStateInvalid(err)) {
+          await AsyncStorage.removeItem('@token');
+          await AsyncStorage.removeItem('@refreshToken');
+          await AsyncStorage.removeItem('@user');
+          delete api.defaults.headers.common.Authorization;
+          dispatch({type: LOGOUT});
+        } else {
+          console.error('Error loading persisted user:', err);
+        }
       } finally {
         setLoading(false);
       }
@@ -115,16 +131,28 @@ export const AuthProvider = ({children}) => {
   }, [state.user?.id]);
 
   const login = async (user, token, refreshToken) => {
-    api.defaults.headers.common.Authorization = `Bearer ${token}`;
-    await AsyncStorage.setItem('@token', token);
-    await AsyncStorage.setItem('@refreshToken', refreshToken);
-    dispatch({
-      type: LOGIN,
-      payload: {user, token},
-    });
-    await AsyncStorage.setItem('@user', JSON.stringify(user));
-    await hydrateCurrentUser(token, user);
-    await NotificationService.syncDeviceToken();
+    try {
+      api.defaults.headers.common.Authorization = `Bearer ${token}`;
+      await AsyncStorage.setItem('@token', token);
+      await AsyncStorage.setItem('@refreshToken', refreshToken);
+      dispatch({
+        type: LOGIN,
+        payload: {user, token},
+      });
+      await AsyncStorage.setItem('@user', JSON.stringify(user));
+      await hydrateCurrentUser(token, user);
+      await NotificationService.syncDeviceToken();
+    } catch (error) {
+      if (isAuthStateInvalid(error)) {
+        await AsyncStorage.removeItem('@token');
+        await AsyncStorage.removeItem('@refreshToken');
+        await AsyncStorage.removeItem('@user');
+        delete api.defaults.headers.common.Authorization;
+        dispatch({type: LOGOUT});
+      }
+
+      throw error;
+    }
   };
 
   const logout = async () => {
