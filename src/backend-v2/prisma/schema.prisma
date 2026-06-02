@@ -169,6 +169,7 @@ model Request {
   arrivalCity      String
   dataTime         DateTime
   requestComment   String
+  requestedSeats   Int            @default(1)
   status           String         @default("pending")
   rateCreator      Boolean        @default(false)
   rateUser         Boolean        @default(false)

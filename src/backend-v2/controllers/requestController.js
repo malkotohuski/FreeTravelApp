@@ -33,11 +33,23 @@ exports.createRequest = async (req, res) => {
       arrivalCity,
       dataTime,
       requestComment,
+      requestedSeats = 1,
     } = req.body;
     const parsedRouteId = routeId ? Number(routeId) : null;
     const parsedSeekerRequestId = seekerRequestId
       ? Number(seekerRequestId)
       : null;
+    const parsedRequestedSeats = Number(requestedSeats);
+
+    if (
+      !Number.isInteger(parsedRequestedSeats) ||
+      parsedRequestedSeats < 1 ||
+      parsedRequestedSeats > 60
+    ) {
+      return res.status(400).json({
+        error: 'Requested seats must be between 1 and 60.',
+      });
+    }
 
     if (!parsedRouteId && !parsedSeekerRequestId)
       return res
@@ -89,10 +101,10 @@ exports.createRequest = async (req, res) => {
       if (!route) return res.status(404).json({error: 'Route not found'});
       if (
         route.selectedVehicle !== 'seeking-driver' &&
-        route.availableSeats <= 0
+        route.availableSeats < parsedRequestedSeats
       ) {
         return res.status(400).json({
-          error: 'No free seats left for this route.',
+          error: 'Not enough free seats left for this route.',
         });
       }
       ownerId = route.owner.id;
@@ -161,6 +173,7 @@ exports.createRequest = async (req, res) => {
         arrivalCity: resolvedArrivalCityName,
         dataTime: parsedDate,
         requestComment: requestComment || '',
+        requestedSeats: route ? parsedRequestedSeats : 1,
         status: 'pending',
         toUserId: ownerId,
       },
@@ -275,15 +288,17 @@ exports.makeDecision = async (req, res) => {
           const seatUpdate = await tx.route.updateMany({
             where: {
               id: request.routeId,
-              availableSeats: {gt: 0},
+              availableSeats: {gte: request.requestedSeats},
             },
             data: {
-              availableSeats: {decrement: 1},
+              availableSeats: {decrement: request.requestedSeats},
             },
           });
 
           if (seatUpdate.count === 0) {
-            const noSeatsError = new Error('No free seats left for this route.');
+            const noSeatsError = new Error(
+              'Not enough free seats left for this route.',
+            );
             noSeatsError.statusCode = 400;
             throw noSeatsError;
           }

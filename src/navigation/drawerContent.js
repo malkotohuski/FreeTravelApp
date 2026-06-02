@@ -195,7 +195,11 @@ export const Navigator = () => {
   );
 
   return (
-    <Drawer.Navigator drawerContent={CustomerDrawer}>
+    <Drawer.Navigator
+      key={isAuthenticated ? 'authenticated-drawer' : 'guest-drawer'}
+      initialRouteName={isAuthenticated ? 'Home' : 'Login'}
+      backBehavior="history"
+      drawerContent={CustomerDrawer}>
       {/* ======= PUBLIC SCREENS ======= */}
       {!isAuthenticated && (
         <>

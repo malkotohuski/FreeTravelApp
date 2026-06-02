@@ -50,16 +50,27 @@ function RouteDetails({route}) {
   const availableSeats =
     params.availableSeats ?? details.availableSeats ?? totalSeats;
   const hasFreeSeats = Number(availableSeats) > 0;
+  const maxRequestedSeats = Math.max(1, Number(availableSeats) || 1);
 
   const [tripRequestText, setTripRequestText] = useState('');
+  const [requestedSeats, setRequestedSeats] = useState(1);
   const [hasRequested, setHasRequested] = useState(false);
   const isOwnRoute = requesterUsername === username;
 
   useFocusEffect(
     useCallback(() => {
       setTripRequestText(''); // нулира стойността всеки път при фокус
+      setRequestedSeats(1);
     }, []),
   );
+
+  const updateRequestedSeats = nextSeats => {
+    const safeSeats = Math.min(
+      Math.max(Number(nextSeats) || 1, 1),
+      maxRequestedSeats,
+    );
+    setRequestedSeats(safeSeats);
+  };
 
   // Проверка за съществуваща заявка
   useEffect(() => {
@@ -114,6 +125,11 @@ function RouteDetails({route}) {
       return;
     }
 
+    if (requestedSeats > Number(availableSeats)) {
+      Alert.alert(t('Error'), t('Not enough free seats left for this route.'));
+      return;
+    }
+
     if (!tripRequestText.trim()) {
       Alert.alert(t('Error'), t('Please enter a comment before submitting.'));
       return;
@@ -144,6 +160,7 @@ function RouteDetails({route}) {
                 arrivalCity: arrivalCity || '',
                 dataTime: params.selectedDateTime || details.selectedDateTime,
                 requestComment: tripRequestText,
+                requestedSeats,
               };
 
               await api.post('/api/send-request-to-user', payload);
@@ -204,6 +221,39 @@ function RouteDetails({route}) {
             <Text style={styles.seatsText}>
               {t('Free seats')}: {formatSeatsLabel(availableSeats, totalSeats)}
             </Text>
+          </View>
+
+          <View style={styles.requestedSeatsCard}>
+            <Text style={styles.requestedSeatsTitle}>{t('Seats needed')}</Text>
+            <Text style={styles.requestedSeatsHint}>
+              {t('Choose how many seats you need for this trip.')}
+            </Text>
+            <View style={styles.seatStepper}>
+              <TouchableOpacity
+                style={[
+                  styles.seatButton,
+                  requestedSeats <= 1 && styles.seatButtonDisabled,
+                ]}
+                disabled={requestedSeats <= 1}
+                onPress={() => updateRequestedSeats(requestedSeats - 1)}>
+                <Text style={styles.seatButtonText}>-</Text>
+              </TouchableOpacity>
+
+              <View style={styles.seatCountPill}>
+                <Text style={styles.seatCountText}>{requestedSeats}</Text>
+              </View>
+
+              <TouchableOpacity
+                style={[
+                  styles.seatButton,
+                  requestedSeats >= maxRequestedSeats &&
+                    styles.seatButtonDisabled,
+                ]}
+                disabled={requestedSeats >= maxRequestedSeats}
+                onPress={() => updateRequestedSeats(requestedSeats + 1)}>
+                <Text style={styles.seatButtonText}>+</Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           <TextInput
@@ -366,6 +416,66 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '700',
     fontSize: 16,
+  },
+  requestedSeatsCard: {
+    alignSelf: 'center',
+    width: '90%',
+    marginTop: 12,
+    padding: 14,
+    backgroundColor: '#242424',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#4a4a4a',
+  },
+  requestedSeatsTitle: {
+    color: '#f1f1f1',
+    fontWeight: '700',
+    fontSize: 17,
+    textAlign: 'center',
+  },
+  requestedSeatsHint: {
+    color: '#b9b9b9',
+    marginTop: 6,
+    fontSize: 13,
+    textAlign: 'center',
+  },
+  seatStepper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 18,
+    marginTop: 14,
+  },
+  seatButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#27ae60',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  seatButtonDisabled: {
+    backgroundColor: '#777',
+  },
+  seatButtonText: {
+    color: '#fff',
+    fontSize: 28,
+    lineHeight: 30,
+    fontWeight: '800',
+  },
+  seatCountPill: {
+    minWidth: 64,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 18,
+  },
+  seatCountText: {
+    color: '#27ae60',
+    fontSize: 25,
+    fontWeight: '800',
   },
   infoButtonText: {
     color: '#464646',

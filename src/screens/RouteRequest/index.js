@@ -130,7 +130,7 @@ function RouteRequestScreen({route, navigation}) {
   const hasNoFreeSeats = request =>
     request?.route &&
     request.route.selectedVehicle !== 'seeking-driver' &&
-    Number(request.route.availableSeats) <= 0;
+    Number(request.route.availableSeats) < Number(request.requestedSeats || 1);
 
   const renderRoutes = () => {
     return routeRequests.length > 0 ? (
@@ -180,6 +180,9 @@ function RouteRequestScreen({route, navigation}) {
               )}
             </Text>
           ) : null}
+          <Text style={[styles.text, {color: theme.textSecondary}]}>
+            {t('Requested seats')}: {request.requestedSeats || 1}
+          </Text>
         </TouchableOpacity>
       ))
     ) : (
@@ -257,22 +260,37 @@ function RouteRequestScreen({route, navigation}) {
                     </Text>
 
                     {selectedRequest.route ? (
-                      <Text
-                        style={[
-                          styles.modalText,
-                          {
-                            marginTop: 10,
-                            color: hasNoFreeSeats(selectedRequest)
-                              ? theme.warning
-                              : theme.textSecondary,
-                          },
-                        ]}>
-                        {t('Free seats')}:{' '}
-                        {formatSeatsLabel(
-                          selectedRequest.route.availableSeats,
-                          selectedRequest.route.totalSeats,
-                        )}
-                      </Text>
+                      <>
+                        <Text
+                          style={[
+                            styles.modalText,
+                            {
+                              marginTop: 10,
+                              color: hasNoFreeSeats(selectedRequest)
+                                ? theme.warning
+                                : theme.textSecondary,
+                            },
+                          ]}>
+                          {t('Free seats')}:{' '}
+                          {formatSeatsLabel(
+                            selectedRequest.route.availableSeats,
+                            selectedRequest.route.totalSeats,
+                          )}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.modalText,
+                            {
+                              marginTop: 6,
+                              color: hasNoFreeSeats(selectedRequest)
+                                ? theme.warning
+                                : theme.textSecondary,
+                            },
+                          ]}>
+                          {t('Requested seats')}:{' '}
+                          {selectedRequest.requestedSeats || 1}
+                        </Text>
+                      </>
                     ) : null}
 
                     <Text style={[styles.modalText, {marginTop: 15}]}>
