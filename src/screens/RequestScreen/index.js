@@ -18,6 +18,7 @@ import {useAuth} from '../../context/AuthContext';
 import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
 import api from '../../api/api';
+import {formatSeatsLabel} from '../../utils/seatPolicy';
 
 function RouteDetails({route}) {
   const {t} = useTranslation();
@@ -45,6 +46,10 @@ function RouteDetails({route}) {
     params.arrivalCity ||
     details.arrivalCityRef?.name ||
     details.arrivalCity;
+  const totalSeats = params.totalSeats ?? details.totalSeats ?? 1;
+  const availableSeats =
+    params.availableSeats ?? details.availableSeats ?? totalSeats;
+  const hasFreeSeats = Number(availableSeats) > 0;
 
   const [tripRequestText, setTripRequestText] = useState('');
   const [hasRequested, setHasRequested] = useState(false);
@@ -101,6 +106,11 @@ function RouteDetails({route}) {
 
     if (!routeId) {
       Alert.alert(t('Error'), t('Route ID is missing. Please reopen the route.'));
+      return;
+    }
+
+    if (!hasFreeSeats) {
+      Alert.alert(t('Error'), t('No free seats left for this route.'));
       return;
     }
 
@@ -190,6 +200,11 @@ function RouteDetails({route}) {
           <Text style={styles.text}>
             {t('Route')} : {departureCity}-{arrivalCity}
           </Text>
+          <View style={styles.seatsCard}>
+            <Text style={styles.seatsText}>
+              {t('Free seats')}: {formatSeatsLabel(availableSeats, totalSeats)}
+            </Text>
+          </View>
 
           <TextInput
             style={[styles.input, {minHeight: 80, maxHeight: 200}]}
@@ -218,6 +233,8 @@ function RouteDetails({route}) {
                   params.registrationNumber || details.registrationNumber,
                 selectedDateTime: params.selectedDateTime || details.selectedDateTime,
                 routeTitle: params.routeTitle || details.routeTitle,
+                totalSeats,
+                availableSeats,
                 routeId,
                 routeDetailsData: details,
               })
@@ -231,6 +248,7 @@ function RouteDetails({route}) {
               (isOwnRoute || hasRequested || loading) && {
                 backgroundColor: '#ccc',
               },
+              !hasFreeSeats && {backgroundColor: '#999'},
             ]}
             onPress={() => {
               if (isOwnRoute) {
@@ -243,11 +261,13 @@ function RouteDetails({route}) {
                   t('Error'),
                   t('You have already submitted a request for this route.'),
                 );
+              } else if (!hasFreeSeats) {
+                Alert.alert(t('Error'), t('No free seats left for this route.'));
               } else {
                 handlerTripRequest();
               }
             }}
-            disabled={isOwnRoute || hasRequested || loading}>
+            disabled={isOwnRoute || hasRequested || loading || !hasFreeSeats}>
             <Text style={styles.buttonText}>
               {loading ? 'Sending...' : t('Trip request')}
             </Text>
@@ -333,6 +353,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     width: '90%',
     borderRadius: 10,
+  },
+  seatsCard: {
+    alignSelf: 'center',
+    marginTop: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    backgroundColor: '#1f6f43',
+    borderRadius: 999,
+  },
+  seatsText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 16,
   },
   infoButtonText: {
     color: '#464646',

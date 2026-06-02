@@ -1,5 +1,6 @@
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
+const {validateSeatCount} = require('../utils/seatPolicy');
 
 const getCityName = cityRef => cityRef?.name || null;
 
@@ -14,6 +15,15 @@ exports.createRoute = async (req, res) => {
 
     if (!route.departureCityId || !route.arrivalCityId) {
       return res.status(400).json({error: 'Departure and arrival city IDs are required'});
+    }
+
+    const seatValidation = validateSeatCount(
+      route.totalSeats || route.availableSeats || 1,
+      route.selectedVehicle,
+    );
+
+    if (!seatValidation.isValid) {
+      return res.status(400).json({error: seatValidation.error});
     }
 
     const [departureCityRecord, arrivalCityRecord] = await Promise.all([
@@ -64,6 +74,8 @@ exports.createRoute = async (req, res) => {
         ownerId: userId,
         selectedVehicle: route.selectedVehicle,
         registrationNumber: route.registrationNumber,
+        totalSeats: seatValidation.seats,
+        availableSeats: seatValidation.seats,
         departureCityId: departureCityRecord.id,
         departureCity: departureCityRecord.name,
         departureStreet: route.departureStreet,
@@ -105,6 +117,10 @@ exports.getActiveRoutes = async (req, res) => {
           gte: now,
         },
         status: 'active',
+        OR: [
+          {selectedVehicle: 'seeking-driver'},
+          {availableSeats: {gt: 0}},
+        ],
       },
       orderBy: {
         selectedDateTime: 'asc',

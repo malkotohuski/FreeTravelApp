@@ -17,6 +17,7 @@ import {useAuth} from '../../context/AuthContext';
 import api from '../../api/api';
 import {DarkModeContext} from '../../navigation/DarkModeContext';
 import Toast from 'react-native-toast-message';
+import {formatSeatsLabel} from '../../utils/seatPolicy';
 
 const RouteHistory = ({navigation}) => {
   const {user} = useAuth();
@@ -226,6 +227,12 @@ const RouteHistory = ({navigation}) => {
                 <Text style={styles.routeText}>
                   {getCityName(route, 'departureCityRef')}-
                   {getCityName(route, 'arrivalCityRef')}
+                </Text>
+                <Text style={styles.routeText}>
+                  {t('Free seats')}: {formatSeatsLabel(
+                    route.availableSeats,
+                    route.totalSeats,
+                  )}
                 </Text>
                 <View style={styles.buttonContainer}>
                   <TouchableOpacity

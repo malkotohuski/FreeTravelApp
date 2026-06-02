@@ -71,6 +71,15 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  passwordHelpText: {
+    width: 200,
+    color: '#F5FDFE',
+    fontSize: 12,
+    lineHeight: 16,
+    marginTop: -4,
+    marginBottom: 8,
+    opacity: 0.9,
+  },
   buttonsContent: {
     marginTop: 30,
     width: '100%',

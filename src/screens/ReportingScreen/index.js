@@ -13,12 +13,12 @@ import {
 } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import * as Animatable from 'react-native-animatable';
-import {useAuth} from '../../context/AuthContext';
 import {DarkModeContext} from '../../navigation/DarkModeContext';
 import ProblemInput from '../../componets/ProblemInput';
 import api from '../../api/api';
 
 const toUploadUri = uri => (uri?.startsWith('/') ? `file://${uri}` : uri);
+const normalizeUsername = username => username.trim().replace(/^@+/, '');
 
 const ReportingScreen = ({navigation}) => {
   const {darkMode} = useContext(DarkModeContext);
@@ -28,7 +28,6 @@ const ReportingScreen = ({navigation}) => {
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const {t} = useTranslation();
-  const {user} = useAuth();
 
   const chooseMedia = async () => {
     try {
@@ -40,6 +39,11 @@ const ReportingScreen = ({navigation}) => {
         maxHeight: 1600,
       });
 
+      if ((media?.size || 0) > 5 * 1024 * 1024) {
+        Alert.alert('Error', 'Image is too large. Please select a smaller one.');
+        return;
+      }
+
       setProfilePicture(media?.path ? media : null);
     } catch (error) {
       setProfilePicture(null);
@@ -47,7 +51,10 @@ const ReportingScreen = ({navigation}) => {
   };
 
   const sendReport = async () => {
-    if (!problemDescription.trim() || !reportedUsername.trim()) {
+    const trimmedText = problemDescription.trim();
+    const normalizedReportedUsername = normalizeUsername(reportedUsername);
+
+    if (!trimmedText || !normalizedReportedUsername) {
       Alert.alert('Error', 'Please fill all fields');
       return;
     }
@@ -55,19 +62,30 @@ const ReportingScreen = ({navigation}) => {
     try {
       setIsButtonDisabled(true);
 
-      const formData = new FormData();
-      formData.append('reportedUsername', reportedUsername.trim());
-      formData.append('text', problemDescription);
-
       if (profilePicture?.path) {
+        const formData = new FormData();
+        formData.append('reportedUsername', normalizedReportedUsername);
+        formData.append('text', trimmedText);
         formData.append('image', {
           uri: toUploadUri(profilePicture.path),
           type: profilePicture.mime || 'image/jpeg',
           name: `report-${Date.now()}.jpg`,
         });
-      }
 
-      await api.post('/api/report', formData, {timeout: 30000});
+        await api.post('/api/report', formData, {
+          headers: {'Content-Type': 'multipart/form-data'},
+          timeout: 30000,
+        });
+      } else {
+        await api.post(
+          '/api/report',
+          {
+            reportedUsername: normalizedReportedUsername,
+            text: trimmedText,
+          },
+          {timeout: 30000},
+        );
+      }
 
       setShowSuccessMessage(true);
       setProblemDescription('');
@@ -75,9 +93,12 @@ const ReportingScreen = ({navigation}) => {
       setProfilePicture(null);
 
       setTimeout(() => setShowSuccessMessage(false), 2000);
-      setIsButtonDisabled(false);
     } catch (error) {
-      Alert.alert('Error', error.response?.data?.error || 'Server error');
+      Alert.alert(
+        'Error',
+        error.response?.data?.error || error.message || 'Server error',
+      );
+    } finally {
       setIsButtonDisabled(false);
     }
   };

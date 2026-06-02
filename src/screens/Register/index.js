@@ -20,6 +20,11 @@ import i18next from 'i18next';
 import ImagePicker from 'react-native-image-crop-picker';
 import TermsModal from '../../componets/TermsModal';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {
+  getPasswordPolicyMessage,
+  getPasswordRequirementsText,
+  validatePassword,
+} from '../../utils/passwordPolicy';
 
 const toUploadUri = uri => (uri?.startsWith('/') ? `file://${uri}` : uri);
 
@@ -41,7 +46,7 @@ const registerWithAvatar = async formData => {
 };
 
 export default function Register({navigation}) {
-  const {t} = useTranslation();
+  const {t, i18n} = useTranslation();
 
   const [name, setName] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -66,7 +71,9 @@ export default function Register({navigation}) {
 
   const resendConfirmationCode = async () => {
     try {
-      const response = await api.post('/resend-confirmation-code', {email});
+      const response = await api.post('/api/auth/resend-confirmation-code', {
+        email,
+      });
       if (response.status === 200) {
         Alert.alert(
           t('Code resent'),
@@ -114,6 +121,12 @@ export default function Register({navigation}) {
   const handleRegister = async () => {
     if (!showConfirmationCodeInput) {
       if (password === confirmPassword) {
+        const passwordValidation = validatePassword(password);
+        if (!passwordValidation.isValid) {
+          Alert.alert(t('Error'), getPasswordPolicyMessage(i18n.language));
+          return;
+        }
+
         if (email.includes('@') && email.includes('.') && email.length >= 5) {
           try {
             let response;
@@ -317,6 +330,9 @@ export default function Register({navigation}) {
                 />
               </TouchableOpacity>
             </View>
+            <Text style={styles.passwordHelpText}>
+              {getPasswordRequirementsText(i18n.language)}
+            </Text>
             <View style={styles.passwordInputWrapper}>
               <TextInput
                 placeholderTextColor={'#F5FDFE'}

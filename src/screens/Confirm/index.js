@@ -51,6 +51,7 @@ function Confirm() {
   const {
     selectedVehicle,
     registrationNumber,
+    totalSeats = 1,
     departureCityId,
     departureCity,
     departureStreet,
@@ -128,6 +129,7 @@ function Confirm() {
       const newRoute = {
         selectedVehicle,
         registrationNumber,
+        totalSeats,
         selectedDateTime,
         departureCityId,
         departureCity,
@@ -199,6 +201,7 @@ function Confirm() {
             navigation.navigate('SelectRoute', {
               selectedVehicle,
               registrationNumber,
+              totalSeats,
             })
           }>
           <Text style={{color: 'white', marginRight: 8, fontSize: 18}}>
@@ -208,7 +211,7 @@ function Confirm() {
         </TouchableOpacity>
       ),
     });
-  }, [navigation, selectedVehicle, registrationNumber, t]);
+  }, [navigation, selectedVehicle, registrationNumber, t, totalSeats]);
 
   return (
     <View style={{flex: 1}} pointerEvents={isSubmitting ? 'none' : 'auto'}>
@@ -233,6 +236,24 @@ function Confirm() {
               </Text>
               <Text style={[styles.text, {color: getSecondaryTextColor()}]}>
                 {t('Names')}: {userFname} {userLname}
+              </Text>
+            </View>
+
+            <View style={getCardStyle()}>
+              <View style={styles.cardHeaderRow}>
+                <Icon name="car-seat" size={24} color="#f4511e" />
+                <Text style={[styles.cardHeader, {color: getTextColor()}]}>
+                  {t('Vehicle and seats')}
+                </Text>
+              </View>
+              <Text style={[styles.text, {color: getSecondaryTextColor()}]}>
+                {t('Vehicle')}: {t(selectedVehicle)}
+              </Text>
+              <Text style={[styles.text, {color: getSecondaryTextColor()}]}>
+                {t('Registration Number')}: {registrationNumber}
+              </Text>
+              <Text style={[styles.text, {color: getSecondaryTextColor()}]}>
+                {t('Free seats')}: {totalSeats}
               </Text>
             </View>
 

@@ -15,6 +15,7 @@ import {useAuth} from '../../context/AuthContext';
 import api from '../../api/api';
 import LinearGradient from 'react-native-linear-gradient';
 import {useTheme} from '../../theme/useTheme';
+import {formatSeatsLabel} from '../../utils/seatPolicy';
 
 function ViewRoutes({navigation}) {
   const {t, i18n} = useTranslation();
@@ -112,6 +113,7 @@ function ViewRoutes({navigation}) {
       isFuture &&
       route.status !== 'completed' &&
       route.selectedVehicle !== 'seeking-driver' &&
+      Number(route.availableSeats ?? route.totalSeats ?? 1) > 0 &&
       depMatch &&
       arrMatch
     );
@@ -200,7 +202,8 @@ function ViewRoutes({navigation}) {
                 onPress={() =>
                   handlerSeeView({
                     selectedVehicle: route.selectedVehicle,
-                    markedSeats: route.markedSeats,
+                    totalSeats: route.totalSeats,
+                    availableSeats: route.availableSeats,
                     registrationNumber: route.registrationNumber,
                     selectedDateTime: route.selectedDateTime,
                     departureCityId: route.departureCityId,
@@ -243,6 +246,18 @@ function ViewRoutes({navigation}) {
                 <Text style={[styles.routeInfo, {color: theme.textPrimary}]}>
                   {departureCityName} - {arrivalCityName}
                 </Text>
+                <View
+                  style={[
+                    styles.seatsBadge,
+                    {backgroundColor: theme.primaryButton},
+                  ]}>
+                  <Text style={styles.seatsBadgeText}>
+                    {t('Free seats')}: {formatSeatsLabel(
+                      route.availableSeats,
+                      route.totalSeats,
+                    )}
+                  </Text>
+                </View>
                 <View style={styles.creatorContainer}>
                   {route.owner?.userImage ? (
                     <Image
@@ -300,6 +315,18 @@ const createStyles = theme =>
     routeTitle: {fontSize: 20, fontWeight: '700'},
     routeDate: {fontSize: 16, marginTop: 4},
     routeInfo: {fontSize: 17, marginTop: 4},
+    seatsBadge: {
+      alignSelf: 'flex-start',
+      borderRadius: 999,
+      paddingHorizontal: 12,
+      paddingVertical: 5,
+      marginTop: 8,
+    },
+    seatsBadgeText: {
+      color: '#fff',
+      fontWeight: '700',
+      fontSize: 13,
+    },
     scrollView: {flex: 1},
     modalContainer: {flex: 1, justifyContent: 'center', paddingHorizontal: 20},
     modalContent: {padding: 25, borderRadius: 15},

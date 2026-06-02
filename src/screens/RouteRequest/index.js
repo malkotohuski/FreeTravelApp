@@ -21,6 +21,7 @@ import {useAuth} from '../../context/AuthContext';
 import {useRouteContext} from '../../context/RouteContext';
 import api from '../../api/api';
 import {useTheme} from '../../theme/useTheme';
+import {formatSeatsLabel} from '../../utils/seatPolicy';
 
 const colors = [
   '#f44336',
@@ -126,6 +127,11 @@ function RouteRequestScreen({route, navigation}) {
     setModalVisible(true);
   };
 
+  const hasNoFreeSeats = request =>
+    request?.route &&
+    request.route.selectedVehicle !== 'seeking-driver' &&
+    Number(request.route.availableSeats) <= 0;
+
   const renderRoutes = () => {
     return routeRequests.length > 0 ? (
       routeRequests.map(request => (
@@ -157,6 +163,23 @@ function RouteRequestScreen({route, navigation}) {
             {t('Direction')}:{' '}
             {t(`${request.departureCity}-${request.arrivalCity}`)}
           </Text>
+          {request.route ? (
+            <Text
+              style={[
+                styles.text,
+                {
+                  color: hasNoFreeSeats(request)
+                    ? theme.warning
+                    : theme.textSecondary,
+                },
+              ]}>
+              {t('Free seats')}:{' '}
+              {formatSeatsLabel(
+                request.route.availableSeats,
+                request.route.totalSeats,
+              )}
+            </Text>
+          ) : null}
         </TouchableOpacity>
       ))
     ) : (
@@ -233,6 +256,25 @@ function RouteRequestScreen({route, navigation}) {
                       }"`}
                     </Text>
 
+                    {selectedRequest.route ? (
+                      <Text
+                        style={[
+                          styles.modalText,
+                          {
+                            marginTop: 10,
+                            color: hasNoFreeSeats(selectedRequest)
+                              ? theme.warning
+                              : theme.textSecondary,
+                          },
+                        ]}>
+                        {t('Free seats')}:{' '}
+                        {formatSeatsLabel(
+                          selectedRequest.route.availableSeats,
+                          selectedRequest.route.totalSeats,
+                        )}
+                      </Text>
+                    ) : null}
+
                     <Text style={[styles.modalText, {marginTop: 15}]}>
                       {t('Personal message (optional)')}:
                     </Text>
@@ -278,10 +320,13 @@ function RouteRequestScreen({route, navigation}) {
                           styles.modalButton,
                           {
                             backgroundColor: '#4CAF50',
-                            opacity: isProcessing ? 0.6 : 1,
+                            opacity:
+                              isProcessing || hasNoFreeSeats(selectedRequest)
+                                ? 0.6
+                                : 1,
                           },
                         ]}
-                        disabled={isProcessing}
+                        disabled={isProcessing || hasNoFreeSeats(selectedRequest)}
                         onPress={() => {
                           Keyboard.dismiss();
                           setModalVisible(false);

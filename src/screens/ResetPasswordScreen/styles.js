@@ -25,6 +25,14 @@ export default StyleSheet.create({
     color: '#fff',
   },
 
+  passwordHelpText: {
+    color: '#d8d8d8',
+    fontSize: 12,
+    lineHeight: 16,
+    marginTop: -8,
+    marginBottom: 8,
+  },
+
   mainButton: {
     backgroundColor: '#f4511e',
     paddingVertical: 14,

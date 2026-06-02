@@ -18,6 +18,10 @@ const upload = multer({
 
 router.post('/register', upload.single('avatar'), authController.register);
 router.post('/confirm', authController.confirmEmail);
+router.post(
+  '/resend-confirmation-code',
+  authController.resendConfirmationCode,
+);
 router.post('/login', authController.login);
 router.post('/forgot-password', authController.forgotPassword);
 router.post('/reset-password', authController.resetPassword);

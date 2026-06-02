@@ -19,6 +19,8 @@ import {
 import {useTranslation} from 'react-i18next';
 import LinearGradient from 'react-native-linear-gradient';
 import {useTheme} from '../../theme/useTheme';
+import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {clampSeatCount, getSeatLimitForVehicle} from '../../utils/seatPolicy';
 
 const REGISTRATION_NUMBER_REGEX = /^[\u0410-\u042fA-Z]{1,2}\d{4}[\u0410-\u042fA-Z]{2}$/;
 
@@ -29,7 +31,10 @@ const MarkSeatsScreen = () => {
   const theme = useTheme();
 
   const selectedVehicle = route.params?.selectedVehicle;
+  const initialSeats = clampSeatCount(route.params?.totalSeats || 1, selectedVehicle);
   const [registrationNumber, setRegistrationNumber] = useState('');
+  const [totalSeats, setTotalSeats] = useState(initialSeats);
+  const maxSeats = getSeatLimitForVehicle(selectedVehicle);
 
   const isValidRegistrationNumber = useCallback(
     () => REGISTRATION_NUMBER_REGEX.test(registrationNumber.trim()),
@@ -38,8 +43,16 @@ const MarkSeatsScreen = () => {
 
   useFocusEffect(
     useCallback(() => {
-      setRegistrationNumber('');
-    }, []),
+      setRegistrationNumber(route.params?.registrationNumber || '');
+      setTotalSeats(initialSeats);
+    }, [initialSeats, route.params?.registrationNumber]),
+  );
+
+  const handleSeatChange = useCallback(
+    nextValue => {
+      setTotalSeats(clampSeatCount(nextValue, selectedVehicle));
+    },
+    [selectedVehicle],
   );
 
   const handleContinue = useCallback(() => {
@@ -54,12 +67,14 @@ const MarkSeatsScreen = () => {
     navigation.navigate('SelectRoute', {
       selectedVehicle,
       registrationNumber,
+      totalSeats,
     });
   }, [
     isValidRegistrationNumber,
     registrationNumber,
     navigation,
     selectedVehicle,
+    totalSeats,
     t,
   ]);
 
@@ -123,6 +138,58 @@ const MarkSeatsScreen = () => {
                     {t('invalidFormatExample')}
                   </Text>
                 )}
+
+              <View
+                style={[
+                  styles.seatsCard,
+                  {
+                    backgroundColor: theme.inputBackground,
+                    borderColor: theme.inputBorder,
+                  },
+                ]}>
+                <Text style={[styles.seatsLabel, {color: theme.textPrimary}]}>
+                  {t('Free seats for passengers')}
+                </Text>
+                <Text style={[styles.seatsHint, {color: theme.textSecondary}]}>
+                  {t('How many people can join this trip?')}
+                </Text>
+
+                <View style={styles.seatStepper}>
+                  <TouchableOpacity
+                    style={[
+                      styles.seatButton,
+                      {
+                        backgroundColor:
+                          totalSeats > 1 ? theme.primaryButton : '#777',
+                      },
+                    ]}
+                    disabled={totalSeats <= 1}
+                    onPress={() => handleSeatChange(totalSeats - 1)}>
+                    <Icons name="minus" size={26} color="#fff" />
+                  </TouchableOpacity>
+
+                  <View style={styles.seatCountPill}>
+                    <Text style={styles.seatCount}>{totalSeats}</Text>
+                  </View>
+
+                  <TouchableOpacity
+                    style={[
+                      styles.seatButton,
+                      {
+                        backgroundColor:
+                          totalSeats < maxSeats ? theme.primaryButton : '#777',
+                      },
+                    ]}
+                    disabled={totalSeats >= maxSeats}
+                    onPress={() => handleSeatChange(totalSeats + 1)}>
+                    <Icons name="plus" size={26} color="#fff" />
+                  </TouchableOpacity>
+                </View>
+
+                <Text style={[styles.seatsHint, {color: theme.textSecondary}]}>
+                  {t('Maximum for this vehicle')}: {maxSeats}
+                </Text>
+              </View>
 
               <View style={styles.buttonsContainer}>
                 <TouchableOpacity
@@ -188,6 +255,52 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginVertical: 15,
+  },
+  seatsCard: {
+    width: '90%',
+    borderWidth: 1,
+    borderRadius: 14,
+    padding: 16,
+    marginTop: 8,
+    alignItems: 'center',
+  },
+  seatsLabel: {
+    fontSize: 18,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  seatsHint: {
+    marginTop: 6,
+    fontSize: 13,
+    textAlign: 'center',
+  },
+  seatStepper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 14,
+    gap: 18,
+  },
+  seatButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  seatCountPill: {
+    minWidth: 72,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 18,
+  },
+  seatCount: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#f4511e',
   },
   buttonsContainer: {
     marginTop: 30,

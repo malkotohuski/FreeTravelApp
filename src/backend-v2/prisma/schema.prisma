@@ -19,7 +19,7 @@ model User {
   confirmationCodeExpiresAt DateTime?
   lastConfirmationResend    DateTime?
   isActive                  Boolean         @default(false)
-  refreshToken              String? 
+  refreshToken              String?
   refreshTokenExpiresAt     DateTime?
   createdAt                 DateTime        @default(now())
   accountStatus             String          @default("active")
@@ -79,6 +79,8 @@ model Route {
   ownerId            Int
   selectedVehicle    String
   registrationNumber String?
+  totalSeats         Int             @default(1)
+  availableSeats     Int             @default(1)
   departureCityId    Int?
   departureCity      String
   departureStreet    String?
@@ -153,33 +155,33 @@ model BugReport {
 }
 
 model Request {
-  id              Int            @id @default(autoincrement())
-  routeId         Int?
-  userID          Int
-  username        String
-  userFname       String
-  userLname       String
-  userEmail       String
-  userRouteId     Int
-  departureCityId Int?
-  departureCity   String
-  arrivalCityId   Int?
-  arrivalCity     String
-  dataTime        DateTime
-  requestComment  String
-  status          String         @default("pending")
-  rateCreator     Boolean        @default(false)
-  rateUser        Boolean        @default(false)
-  createdAt       DateTime       @default(now())
-  toUserId        Int
-  decidedAt       DateTime?
-  read            Boolean        @default(false)
-  seekerRequestId Int?
-  route           Route?         @relation("RouteRequests", fields: [routeId], references: [id])
-  seekerRequest   SeekerRequest? @relation(fields: [seekerRequestId], references: [id])
-  departureCityRef City?         @relation("RequestDepartureCity", fields: [departureCityId], references: [id])
-  arrivalCityRef   City?         @relation("RequestArrivalCity", fields: [arrivalCityId], references: [id])
-  user            User           @relation("UserRequests", fields: [userID], references: [id])
+  id               Int            @id @default(autoincrement())
+  routeId          Int?
+  userID           Int
+  username         String
+  userFname        String
+  userLname        String
+  userEmail        String
+  userRouteId      Int
+  departureCityId  Int?
+  departureCity    String
+  arrivalCityId    Int?
+  arrivalCity      String
+  dataTime         DateTime
+  requestComment   String
+  status           String         @default("pending")
+  rateCreator      Boolean        @default(false)
+  rateUser         Boolean        @default(false)
+  createdAt        DateTime       @default(now())
+  toUserId         Int
+  decidedAt        DateTime?
+  read             Boolean        @default(false)
+  seekerRequestId  Int?
+  route            Route?         @relation("RouteRequests", fields: [routeId], references: [id])
+  seekerRequest    SeekerRequest? @relation(fields: [seekerRequestId], references: [id])
+  departureCityRef City?          @relation("RequestDepartureCity", fields: [departureCityId], references: [id])
+  arrivalCityRef   City?          @relation("RequestArrivalCity", fields: [arrivalCityId], references: [id])
+  user             User           @relation("UserRequests", fields: [userID], references: [id])
 }
 
 model Notification {
@@ -224,14 +226,15 @@ model Message {
   senderId       Int
   text           String
   createdAt      DateTime     @default(now())
-    read           Boolean      @default(false)
-    conversation   Conversation @relation(fields: [conversationId], references: [id])
-    sender         User         @relation("SenderMessages", fields: [senderId], references: [id])
-    readAt         DateTime?
-    deliveredAt    DateTime?
-    @@index([conversationId])
-    @@index([senderId])
-  }
+  read           Boolean      @default(false)
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  sender         User         @relation("SenderMessages", fields: [senderId], references: [id])
+  readAt         DateTime?
+  deliveredAt    DateTime?
+
+  @@index([conversationId])
+  @@index([senderId])
+}
 
 model UserDevice {
   id        Int      @id @default(autoincrement())
@@ -242,19 +245,19 @@ model UserDevice {
 }
 
 model City {
-  id             Int      @id @default(autoincrement())
-  ekatteCode     String?  @unique
-  name           String
-  normalizedName String
-  countryCode    String   @default("BG")
-  region         String?
-  isActive       Boolean  @default(true)
-  popularity     Int      @default(0)
-  createdAt      DateTime @default(now())
-  departingRoutes  Route[]         @relation("RouteDepartureCity")
-  arrivingRoutes   Route[]         @relation("RouteArrivalCity")
-  departureRequests Request[]      @relation("RequestDepartureCity")
-  arrivalRequests   Request[]      @relation("RequestArrivalCity")
+  id                Int             @id @default(autoincrement())
+  ekatteCode        String?         @unique
+  name              String
+  normalizedName    String
+  countryCode       String          @default("BG")
+  region            String?
+  isActive          Boolean         @default(true)
+  popularity        Int             @default(0)
+  createdAt         DateTime        @default(now())
+  departingRoutes   Route[]         @relation("RouteDepartureCity")
+  arrivingRoutes    Route[]         @relation("RouteArrivalCity")
+  departureRequests Request[]       @relation("RequestDepartureCity")
+  arrivalRequests   Request[]       @relation("RequestArrivalCity")
   departureSeekers  SeekerRequest[] @relation("SeekerDepartureCity")
   arrivalSeekers    SeekerRequest[] @relation("SeekerArrivalCity")
 

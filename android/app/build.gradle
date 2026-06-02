@@ -38,8 +38,8 @@ android {
         applicationId "com.freetravelapp3"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 83
-        versionName "1.2.6"
+        versionCode 84
+        versionName "1.2.7"
     }
 
     signingConfigs {

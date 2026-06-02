@@ -3,6 +3,7 @@ const prisma = new PrismaClient();
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
+const {validatePassword} = require('../utils/passwordPolicy');
 
 const SALT_ROUNDS = 10;
 
@@ -220,10 +221,9 @@ exports.changePassword = async (req, res) => {
       return res.status(400).json({error: 'Current password is incorrect.'});
     }
 
-    if (newPassword.length < 8) {
-      return res
-        .status(400)
-        .json({error: 'New password must be at least 8 characters.'});
+    const passwordValidation = validatePassword(newPassword);
+    if (!passwordValidation.isValid) {
+      return res.status(400).json({error: passwordValidation.error});
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);

@@ -87,6 +87,14 @@ exports.createRequest = async (req, res) => {
         include: {owner: true, departureCityRef: true, arrivalCityRef: true},
       });
       if (!route) return res.status(404).json({error: 'Route not found'});
+      if (
+        route.selectedVehicle !== 'seeking-driver' &&
+        route.availableSeats <= 0
+      ) {
+        return res.status(400).json({
+          error: 'No free seats left for this route.',
+        });
+      }
       ownerId = route.owner.id;
     }
 
@@ -197,6 +205,16 @@ exports.getAllRequests = async (req, res) => {
         OR: [{userID: userId}, {toUserId: userId}],
       },
       orderBy: {createdAt: 'desc'},
+      include: {
+        route: {
+          select: {
+            id: true,
+            selectedVehicle: true,
+            totalSeats: true,
+            availableSeats: true,
+          },
+        },
+      },
     });
     return res.json(requests);
   } catch (err) {
@@ -246,10 +264,43 @@ exports.makeDecision = async (req, res) => {
         .json({error: 'Request has already been processed.'});
 
     // 1️⃣ Update на статус на заявката
-    const updatedRequest = await prisma.request.update({
-      where: {id: requestId},
-      data: {status: decision, decidedAt: new Date()},
-    });
+    let updatedRequest;
+    try {
+      updatedRequest = await prisma.$transaction(async tx => {
+        if (
+          decision === 'approved' &&
+          request.routeId &&
+          request.route?.selectedVehicle !== 'seeking-driver'
+        ) {
+          const seatUpdate = await tx.route.updateMany({
+            where: {
+              id: request.routeId,
+              availableSeats: {gt: 0},
+            },
+            data: {
+              availableSeats: {decrement: 1},
+            },
+          });
+
+          if (seatUpdate.count === 0) {
+            const noSeatsError = new Error('No free seats left for this route.');
+            noSeatsError.statusCode = 400;
+            throw noSeatsError;
+          }
+        }
+
+        return tx.request.update({
+          where: {id: requestId},
+          data: {status: decision, decidedAt: new Date()},
+        });
+      });
+    } catch (error) {
+      if (error.statusCode) {
+        return res.status(error.statusCode).json({error: error.message});
+      }
+
+      throw error;
+    }
 
     // 2️⃣ Изпращане на нотификация към кандидата
     await sendNotification({

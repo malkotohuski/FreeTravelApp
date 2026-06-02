@@ -12,9 +12,14 @@ import {
 import api from '../../api/api';
 import {useTranslation} from 'react-i18next';
 import styles from './styles';
+import {
+  getPasswordPolicyMessage,
+  getPasswordRequirementsText,
+  validatePassword,
+} from '../../utils/passwordPolicy';
 
 export default function ResetPassword({navigation}) {
-  const {t} = useTranslation();
+  const {t, i18n} = useTranslation();
 
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
@@ -76,8 +81,9 @@ export default function ResetPassword({navigation}) {
       return;
     }
 
-    if (newPassword.length < 8) {
-      Alert.alert(t('Error'), t('Password must be at least 8 characters'));
+    const passwordValidation = validatePassword(newPassword);
+    if (!passwordValidation.isValid) {
+      Alert.alert(t('Error'), getPasswordPolicyMessage(i18n.language));
       return;
     }
 
@@ -152,6 +158,9 @@ export default function ResetPassword({navigation}) {
             value={newPassword}
             onChangeText={setNewPassword}
           />
+          <Text style={styles.passwordHelpText}>
+            {getPasswordRequirementsText(i18n.language)}
+          </Text>
 
           <TouchableOpacity
             style={styles.mainButton}

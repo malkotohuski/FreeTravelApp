@@ -9,6 +9,7 @@ const {
   sendConfirmationEmail,
   sendResetEmail,
 } = require('../utils/mailer');
+const {validatePassword} = require('../utils/passwordPolicy');
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -25,6 +26,14 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 function generateConfirmationCode() {
   return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+function normalizeEmail(email) {
+  return email?.trim().toLowerCase();
+}
+
+function normalizeUsername(username) {
+  return username?.trim();
 }
 
 function uploadBufferToCloudinary(buffer, options) {
@@ -120,27 +129,34 @@ exports.register = async (req, res) => {
 
     const {username, useremail, userpassword, fName, lName, userImage} =
       req.body;
+    const normalizedEmail = normalizeEmail(useremail);
+    const normalizedUsername = normalizeUsername(username);
     let uploadedImageUrl = null;
     let uploadedImagePublicId = null;
 
     // 1️⃣ Basic validation
-    if (!username || !useremail || !userpassword) {
+    if (!normalizedUsername || !normalizedEmail || !userpassword) {
       return res.status(400).json({
         error: 'Invalid input. Please provide all required fields.',
       });
     }
 
     const emailRegex = /\S+@\S+\.\S+/;
-    if (!emailRegex.test(useremail)) {
+    if (!emailRegex.test(normalizedEmail)) {
       return res.status(400).json({
         error: 'Invalid email format.',
       });
     }
 
+    const passwordValidation = validatePassword(userpassword);
+    if (!passwordValidation.isValid) {
+      return res.status(400).json({error: passwordValidation.error});
+    }
+
     // 2️⃣ Check existing active user
     const existingActiveUser = await prisma.user.findFirst({
       where: {
-        OR: [{email: useremail}, {username: username}],
+        OR: [{email: normalizedEmail}, {username: normalizedUsername}],
         isActive: true,
       },
     });
@@ -154,7 +170,7 @@ exports.register = async (req, res) => {
     // 3️⃣ Delete inactive duplicate
     await prisma.user.deleteMany({
       where: {
-        OR: [{email: useremail}, {username: username}],
+        OR: [{email: normalizedEmail}, {username: normalizedUsername}],
         isActive: false,
       },
     });
@@ -179,8 +195,8 @@ exports.register = async (req, res) => {
 
     const newUser = await prisma.user.create({
       data: {
-        username,
-        email: useremail,
+        username: normalizedUsername,
+        email: normalizedEmail,
         password: hashedPassword,
         fName: fName || null,
         lName: lName || null,
@@ -199,7 +215,7 @@ exports.register = async (req, res) => {
     });
 
     try {
-      await sendConfirmationEmail(useremail, confirmationCode);
+      await sendConfirmationEmail(normalizedEmail, confirmationCode);
     } catch (err) {
       console.error('Confirmation email exception:', err.message);
     }
@@ -226,15 +242,16 @@ exports.register = async (req, res) => {
 exports.confirmEmail = async (req, res) => {
   try {
     const {email, confirmationCode} = req.body;
+    const normalizedEmail = normalizeEmail(email);
 
-    if (!email || !confirmationCode) {
+    if (!normalizedEmail || !confirmationCode) {
       return res
         .status(400)
         .json({error: 'Email and confirmation code are required.'});
     }
 
     const user = await prisma.user.findFirst({
-      where: {email, confirmationCode},
+      where: {email: normalizedEmail, confirmationCode},
     });
 
     if (!user) {
@@ -274,20 +291,76 @@ exports.confirmEmail = async (req, res) => {
   }
 };
 
+exports.resendConfirmationCode = async (req, res) => {
+  try {
+    const {email} = req.body;
+    const normalizedEmail = normalizeEmail(email);
+
+    if (!normalizedEmail) {
+      return res.status(400).json({error: 'Email is required.'});
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {email: normalizedEmail},
+    });
+
+    if (!user || user.isActive) {
+      return res.status(200).json({
+        message: 'If the account exists, a new confirmation code was sent.',
+      });
+    }
+
+    const resendCooldownMs = 60 * 1000;
+    if (
+      user.lastConfirmationResend &&
+      Date.now() - user.lastConfirmationResend.getTime() < resendCooldownMs
+    ) {
+      return res.status(429).json({
+        error: 'Please wait before requesting another confirmation code.',
+      });
+    }
+
+    const confirmationCode = generateConfirmationCode();
+
+    await prisma.user.update({
+      where: {id: user.id},
+      data: {
+        confirmationCode,
+        confirmationCodeExpiresAt: new Date(Date.now() + 10 * 60 * 1000),
+        lastConfirmationResend: new Date(),
+      },
+    });
+
+    try {
+      await sendConfirmationEmail(normalizedEmail, confirmationCode);
+    } catch (err) {
+      console.error('Resend confirmation email exception:', err.message);
+    }
+
+    return res.status(200).json({
+      message: 'If the account exists, a new confirmation code was sent.',
+    });
+  } catch (error) {
+    console.error('Resend confirmation code error:', error);
+    return res.status(500).json({error: 'Internal server error.'});
+  }
+};
+
 //Login----------------------------------------------------------------->>> Вход в системата !!!
 
 exports.login = async (req, res) => {
   try {
     const {email, password} = req.body;
+    const normalizedEmail = normalizeEmail(email);
 
-    if (!email || !password) {
+    if (!normalizedEmail || !password) {
       return res.status(400).json({
         error: 'Email and password are required.',
       });
     }
 
     const user = await prisma.user.findFirst({
-      where: {email},
+      where: {email: normalizedEmail},
     });
 
     if (!user) {
@@ -435,8 +508,15 @@ exports.logout = async (req, res) => {
 exports.forgotPassword = async (req, res) => {
   try {
     const {email} = req.body;
+    const normalizedEmail = normalizeEmail(email);
 
-    const user = await prisma.user.findUnique({where: {email}});
+    if (!normalizedEmail) {
+      return res
+        .status(200)
+        .json({message: 'If account exists, reset code sent.'});
+    }
+
+    const user = await prisma.user.findUnique({where: {email: normalizedEmail}});
 
     // Винаги security response
     if (!user) {
@@ -462,7 +542,7 @@ exports.forgotPassword = async (req, res) => {
 
     // Изпращане на имейл чрез utils/mailer
     try {
-      await sendResetEmail(email, plainCode);
+      await sendResetEmail(normalizedEmail, plainCode);
     } catch (err) {
       console.error('Error sending reset email:', err);
     }
@@ -481,8 +561,18 @@ exports.forgotPassword = async (req, res) => {
 exports.resetPassword = async (req, res) => {
   try {
     const {email, code, newPassword} = req.body;
+    const normalizedEmail = normalizeEmail(email);
 
-    const user = await prisma.user.findUnique({where: {email}});
+    if (!normalizedEmail || !code || !newPassword) {
+      return res.status(400).json({error: 'Invalid or expired code.'});
+    }
+
+    const passwordValidation = validatePassword(newPassword);
+    if (!passwordValidation.isValid) {
+      return res.status(400).json({error: passwordValidation.error});
+    }
+
+    const user = await prisma.user.findUnique({where: {email: normalizedEmail}});
     if (!user || !user.confirmationCode || !user.confirmationCodeExpiresAt) {
       return res.status(400).json({error: 'Invalid or expired code.'});
     }

@@ -23,7 +23,7 @@ import {useTheme} from '../../theme/useTheme';
 
 function SelectRouteScreen({route, navigation}) {
   const {t} = useTranslation();
-  const {selectedVehicle, registrationNumber} = route.params;
+  const {selectedVehicle, registrationNumber, totalSeats = 1} = route.params;
   const theme = useTheme();
   const minSearchLength = 2;
 
@@ -112,6 +112,7 @@ function SelectRouteScreen({route, navigation}) {
             navigation.navigate('Mark Seats', {
               selectedVehicle,
               registrationNumber,
+              totalSeats,
             })
           }>
           <Text style={[styles.headerText, {color: theme.textPrimary}]}>
@@ -125,7 +126,7 @@ function SelectRouteScreen({route, navigation}) {
         </TouchableOpacity>
       ),
     });
-  }, [navigation, registrationNumber, selectedVehicle, t, theme]);
+  }, [navigation, registrationNumber, selectedVehicle, t, theme, totalSeats]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -262,6 +263,7 @@ function SelectRouteScreen({route, navigation}) {
     navigation.navigate('Confirm', {
       selectedVehicle,
       registrationNumber,
+      totalSeats,
       departureCityId,
       selectedDateTime: formattedDateTime,
       departureCity,

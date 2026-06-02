@@ -35,15 +35,25 @@ function uploadBufferToCloudinary(buffer, options) {
 exports.sendReport = async (req, res) => {
   try {
     const {reportedUsername, text, image} = req.body;
+    const normalizedReportedUsername = reportedUsername
+      ?.trim()
+      .replace(/^@+/, '');
 
-    if (!reportedUsername || !text) {
+    if (!normalizedReportedUsername || !text?.trim()) {
       return res
         .status(400)
         .json({error: 'Reported username and text are required.'});
     }
 
-    const reportedUser = await prisma.user.findUnique({
-      where: {username: reportedUsername},
+    const reportedUser = await prisma.user.findFirst({
+      where: {
+        username: {
+          equals: normalizedReportedUsername,
+          mode: 'insensitive',
+        },
+        isActive: true,
+        accountStatus: 'active',
+      },
     });
 
     if (!reportedUser) {
@@ -73,18 +83,26 @@ exports.sendReport = async (req, res) => {
     let uploadedImageUrl = null;
 
     if (req.file?.buffer) {
-      const uploadResult = await uploadBufferToCloudinary(req.file.buffer, {
-        folder: 'reports',
-        transformation: [{fetch_format: 'auto', quality: 'auto'}],
-      });
-      uploadedImageUrl = uploadResult.secure_url;
+      try {
+        const uploadResult = await uploadBufferToCloudinary(req.file.buffer, {
+          folder: 'reports',
+          resource_type: 'image',
+          transformation: [{fetch_format: 'auto', quality: 'auto'}],
+        });
+        uploadedImageUrl = uploadResult.secure_url;
+      } catch (uploadError) {
+        console.error('Report image upload error:', uploadError);
+        return res.status(400).json({
+          error: 'Could not upload image. Please try a smaller image.',
+        });
+      }
     } else if (typeof image === 'string' && image.startsWith('http')) {
       uploadedImageUrl = image;
     }
 
     const report = await prisma.report.create({
       data: {
-        text,
+        text: text.trim(),
         image: uploadedImageUrl,
         reporterId: req.user.id,
         reportedId: reportedUser.id,

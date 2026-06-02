@@ -19,10 +19,15 @@ import ImagePicker from 'react-native-image-crop-picker';
 import {useAuth} from '../../context/AuthContext';
 import {useFocusEffect} from '@react-navigation/native';
 import {useTheme} from '../../theme/useTheme';
+import {
+  getPasswordPolicyMessage,
+  getPasswordRequirementsText,
+  validatePassword,
+} from '../../utils/passwordPolicy';
 
 const AccountSettings = () => {
   const {user, updateUserData} = useAuth();
-  const {t} = useTranslation();
+  const {t, i18n} = useTranslation();
   const theme = useTheme();
   const styles = createStyles(theme);
 
@@ -101,8 +106,9 @@ const AccountSettings = () => {
           Alert.alert(t('Error'), t('Passwords do not match'));
           return;
         }
-        if (newPassword.length < 8) {
-          Alert.alert(t('Error'), t('Password must be at least 8 characters'));
+        const passwordValidation = validatePassword(newPassword);
+        if (!passwordValidation.isValid) {
+          Alert.alert(t('Error'), getPasswordPolicyMessage(i18n.language));
           return;
         }
 
@@ -193,6 +199,7 @@ const AccountSettings = () => {
             value={newPassword}
             onChange={setNewPassword}
             styles={styles}
+            helperText={getPasswordRequirementsText(i18n.language)}
           />
           <PasswordInput
             label={t('Confirm new password')}
@@ -250,7 +257,7 @@ const TwoInputs = ({
   </View>
 );
 
-const PasswordInput = ({label, value, onChange, styles}) => (
+const PasswordInput = ({label, value, onChange, styles, helperText}) => (
   <View style={styles.inputContainer}>
     <Text style={styles.inputLabel}>{label}</Text>
     <TextInput
@@ -259,6 +266,9 @@ const PasswordInput = ({label, value, onChange, styles}) => (
       onChangeText={onChange}
       secureTextEntry={true}
     />
+    {helperText ? (
+      <Text style={styles.passwordHelpText}>{helperText}</Text>
+    ) : null}
   </View>
 );
 
@@ -307,6 +317,13 @@ const createStyles = theme =>
       borderRadius: 8,
       borderWidth: 1,
       borderColor: theme.cardBorder,
+    },
+    passwordHelpText: {
+      color: theme.textSecondary || theme.textPrimary,
+      fontSize: 12,
+      lineHeight: 16,
+      marginTop: 6,
+      opacity: 0.85,
     },
     rowInputsContainer: {flexDirection: 'row', width: '90%', gap: 10},
     halfInputContainer: {flex: 1},
