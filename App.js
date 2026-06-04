@@ -26,7 +26,7 @@ function App() {
   }, []);
 
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
+    <SafeAreaView style={{flex: 1, backgroundColor: '#5555'}}>
       <DarkModeProvider>
         <AuthProvider>
           <ChatProvider>
