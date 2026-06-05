@@ -185,98 +185,97 @@ function ViewRoutes({navigation}) {
             </Text>
           ) : (
             sortedRoutes.map((route, index) => {
-            const isOwnRoute = route.owner.id === user.id;
-            const departureCityName = getCityName(route, 'departureCityRef');
-            const arrivalCityName = getCityName(route, 'arrivalCityRef');
-            return (
-              <TouchableOpacity
-                key={index}
-                style={[
-                  styles.routeCard,
-                  {backgroundColor: theme.cardBackground},
-                  isOwnRoute && {
-                    borderColor: theme.primaryButton,
-                    borderWidth: 2,
-                  },
-                ]}
-                onPress={() =>
-                  handlerSeeView({
-                    selectedVehicle: route.selectedVehicle,
-                    totalSeats: route.totalSeats,
-                    availableSeats: route.availableSeats,
-                    registrationNumber: route.registrationNumber,
-                    selectedDateTime: route.selectedDateTime,
-                    departureCityId: route.departureCityId,
-                    departureCity: departureCityName,
-                    departureStreet: route.departureStreet,
-                    departureNumber: route.departureNumber,
-                    arrivalCityId: route.arrivalCityId,
-                    arrivalCity: arrivalCityName,
-                    arrivalStreet: route.arrivalStreet,
-                    arrivalNumber: route.arrivalNumber,
-                    routeTitle: route.routeTitle,
-                    userId: route.owner.id,
-                    username: route.owner.username,
-                    userFname: route.owner.fName,
-                    userLname: route.owner.lName,
-                    userEmail: route.owner.email,
-                    routeId: route.id,
-                    user_id: route.userId,
-                    routeDetailsData: route,
-                  })
-                }>
-                <Text style={[styles.routeTitle, {color: theme.textPrimary}]}>
-                  {route.routeTitle}
-                </Text>
-                <Text style={[styles.routeDate, {color: theme.textSecondary}]}>
-                  {route.selectedDateTime
-                    ? new Date(route.selectedDateTime).toLocaleString(
-                        i18n.language,
-                        {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          hour12: i18n.language !== 'bg',
-                        },
-                      )
-                    : ''}
-                </Text>
-                <Text style={[styles.routeInfo, {color: theme.textPrimary}]}>
-                  {departureCityName} - {arrivalCityName}
-                </Text>
-                <View
+              const isOwnRoute = route.owner.id === user.id;
+              const departureCityName = getCityName(route, 'departureCityRef');
+              const arrivalCityName = getCityName(route, 'arrivalCityRef');
+              return (
+                <TouchableOpacity
+                  key={index}
                   style={[
-                    styles.seatsBadge,
-                    {backgroundColor: theme.primaryButton},
-                  ]}>
-                  <Text style={styles.seatsBadgeText}>
-                    {t('Free seats')}: {formatSeatsLabel(
-                      route.availableSeats,
-                      route.totalSeats,
-                    )}
+                    styles.routeCard,
+                    {backgroundColor: theme.cardBackground},
+                    isOwnRoute && {
+                      borderColor: theme.primaryButton,
+                      borderWidth: 2,
+                    },
+                  ]}
+                  onPress={() =>
+                    handlerSeeView({
+                      selectedVehicle: route.selectedVehicle,
+                      totalSeats: route.totalSeats,
+                      availableSeats: route.availableSeats,
+                      registrationNumber: route.registrationNumber,
+                      selectedDateTime: route.selectedDateTime,
+                      departureCityId: route.departureCityId,
+                      departureCity: departureCityName,
+                      departureStreet: route.departureStreet,
+                      departureNumber: route.departureNumber,
+                      arrivalCityId: route.arrivalCityId,
+                      arrivalCity: arrivalCityName,
+                      arrivalStreet: route.arrivalStreet,
+                      arrivalNumber: route.arrivalNumber,
+                      routeTitle: route.routeTitle,
+                      userId: route.owner.id,
+                      username: route.owner.username,
+                      userFname: route.owner.fName,
+                      userLname: route.owner.lName,
+                      userEmail: route.owner.email,
+                      routeId: route.id,
+                      user_id: route.userId,
+                      routeDetailsData: route,
+                    })
+                  }>
+                  <Text style={[styles.routeTitle, {color: theme.textPrimary}]}>
+                    {route.routeTitle}
                   </Text>
-                </View>
-                <View style={styles.creatorContainer}>
-                  {route.owner?.userImage ? (
-                    <Image
-                      source={{uri: route.owner.userImage}}
-                      style={styles.userImage}
-                    />
-                  ) : (
-                    <View style={styles.placeholderImage} />
-                  )}
-
                   <Text
-                    style={[styles.creatorText, {color: theme.textPrimary}]}>
-                    {t('Created by')}: {route.owner.fName} {route.owner.lName}{' '}
-                    (@
-                    {route.owner.username})
+                    style={[styles.routeDate, {color: theme.textSecondary}]}>
+                    {route.selectedDateTime
+                      ? new Date(route.selectedDateTime).toLocaleString(
+                          i18n.language,
+                          {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: false,
+                          },
+                        )
+                      : ''}
                   </Text>
-                </View>
-              </TouchableOpacity>
-            );
+                  <Text style={[styles.routeInfo, {color: theme.textPrimary}]}>
+                    {departureCityName} - {arrivalCityName}
+                  </Text>
+                  <View
+                    style={[
+                      styles.seatsBadge,
+                      {backgroundColor: theme.primaryButton},
+                    ]}>
+                    <Text style={styles.seatsBadgeText}>
+                      {t('Free seats')}:{' '}
+                      {formatSeatsLabel(route.availableSeats, route.totalSeats)}
+                    </Text>
+                  </View>
+                  <View style={styles.creatorContainer}>
+                    {route.owner?.userImage ? (
+                      <Image
+                        source={{uri: route.owner.userImage}}
+                        style={styles.userImage}
+                      />
+                    ) : (
+                      <View style={styles.placeholderImage} />
+                    )}
+
+                    <Text
+                      style={[styles.creatorText, {color: theme.textPrimary}]}>
+                      {t('Created by')}: {route.owner.fName} {route.owner.lName}{' '}
+                      (@
+                      {route.owner.username})
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              );
             })
           )}
         </View>
@@ -401,4 +400,3 @@ const createStyles = theme =>
   });
 
 export default ViewRoutes;
-
