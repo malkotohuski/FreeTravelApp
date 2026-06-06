@@ -4,7 +4,7 @@ const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
   : null;
 
-const FROM_EMAIL = 'noreply@freetravelapp.it.com';
+const FROM_EMAIL = 'FreeTravelApp <info@freetravelapp.it.com>';
 const APP_NAME = 'FreeTravelApp';
 
 function getBaseTemplate({title, intro, body, footer}) {
@@ -41,7 +41,9 @@ async function sendEmail({to, subject, html, text}) {
 
   if (error) {
     throw new Error(
-      typeof error === 'string' ? error : error.message || 'Failed to send email.',
+      typeof error === 'string'
+        ? error
+        : error.message || 'Failed to send email.',
     );
   }
 }
@@ -106,8 +108,7 @@ async function sendReportReceivedEmail(report, reporterEmail) {
         <p style="margin: 0;"><strong>Status:</strong> <span style="color: #6b7280; font-weight: bold;">${report.status}</span></p>
       </div>
     `,
-    footer:
-      'We will review the case and get back to you as soon as possible.',
+    footer: 'We will review the case and get back to you as soon as possible.',
   });
 
   await sendEmail({
@@ -140,7 +141,8 @@ async function sendAdminReportEmail(report) {
         <p style="margin: 10px 0 0; white-space: pre-wrap; color: #374151;">${report.text}</p>
       </div>
     `,
-    footer: 'Review the report in the admin flow and update the status when ready.',
+    footer:
+      'Review the report in the admin flow and update the status when ready.',
   });
 
   await sendEmail({
