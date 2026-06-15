@@ -152,7 +152,7 @@ const AccountSettings = () => {
               styles={styles}
             />
             <InfoRow
-              label={t('Full Name')}
+              label={t('FullName')}
               value={`${user?.fName} ${user?.lName}`}
               styles={styles}
             />
@@ -182,27 +182,27 @@ const AccountSettings = () => {
           />
 
           <PrimaryButton
-            label={t('Save Profile')}
+            label={t('SaveProfile')}
             onPress={handleSaveChanges}
             styles={styles}
           />
 
           {/* PASSWORD */}
           <PasswordInput
-            label={t('Current password')}
+            label={t('CurrentPassword')}
             value={currentPassword}
             onChange={setCurrentPassword}
             styles={styles}
           />
           <PasswordInput
-            label={t('New password')}
+            label={t('NewPassword')}
             value={newPassword}
             onChange={setNewPassword}
             styles={styles}
             helperText={getPasswordRequirementsText(i18n.language)}
           />
           <PasswordInput
-            label={t('Confirm new password')}
+            label={t('ConfirmNewPassword')}
             value={confirmPassword}
             onChange={setConfirmPassword}
             styles={styles}

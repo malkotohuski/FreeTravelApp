@@ -292,7 +292,7 @@ function SelectRouteScreen({route, navigation}) {
               },
             ]}>
             <Text style={[styles.mainTitle, {color: theme.textPrimary}]}>
-              {t('Create Route')}
+              {t('CreateRoute')}
             </Text>
 
             <Text style={[styles.label, {color: theme.textSecondary}]}>
@@ -330,7 +330,7 @@ function SelectRouteScreen({route, navigation}) {
               />
 
               <TextInput
-                placeholder={t('No.')}
+                placeholder={t('No')}
                 placeholderTextColor={theme.placeholder}
                 value={departureNumber}
                 onChangeText={setDepartureNumber}
@@ -380,7 +380,7 @@ function SelectRouteScreen({route, navigation}) {
               />
 
               <TextInput
-                placeholder={t('No.')}
+                placeholder={t('No')}
                 placeholderTextColor={theme.placeholder}
                 value={arrivalNumber}
                 onChangeText={setArrivalNumber}
@@ -421,7 +421,7 @@ function SelectRouteScreen({route, navigation}) {
               ]}
               onPress={() => setOpen(true)}>
               <Text style={styles.primaryButtonText}>
-                {t('Select Date & Time')}
+                {t('SelectDateTime')}
               </Text>
             </TouchableOpacity>
 
@@ -554,7 +554,7 @@ function SelectRouteScreen({route, navigation}) {
                             style={{
                               color: theme.isDark ? '#fff' : '#000',
                               fontSize: 16,
-                          }}>
+                            }}>
                             {isMatch
                               ? highlightMatch(cityLabel, departureSearchText)
                               : cityLabel}
@@ -671,7 +671,7 @@ function SelectRouteScreen({route, navigation}) {
                             style={{
                               color: theme.isDark ? '#fff' : '#000',
                               fontSize: 16,
-                          }}>
+                            }}>
                             {isMatch
                               ? highlightMatch(cityLabel, arrivalSearchText)
                               : cityLabel}

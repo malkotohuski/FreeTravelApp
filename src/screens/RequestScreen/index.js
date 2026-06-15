@@ -35,7 +35,8 @@ function RouteDetails({route}) {
   const [loading, setLoading] = useState(false);
 
   const requesterUsername = user?.username;
-  const departureCityId = params.departureCityId || details.departureCityId || null;
+  const departureCityId =
+    params.departureCityId || details.departureCityId || null;
   const arrivalCityId = params.arrivalCityId || details.arrivalCityId || null;
 
   const departureCity =
@@ -43,9 +44,7 @@ function RouteDetails({route}) {
     details.departureCityRef?.name ||
     details.departureCity;
   const arrivalCity =
-    params.arrivalCity ||
-    details.arrivalCityRef?.name ||
-    details.arrivalCity;
+    params.arrivalCity || details.arrivalCityRef?.name || details.arrivalCity;
   const totalSeats = params.totalSeats ?? details.totalSeats ?? 1;
   const availableSeats =
     params.availableSeats ?? details.availableSeats ?? totalSeats;
@@ -116,7 +115,10 @@ function RouteDetails({route}) {
     }
 
     if (!routeId) {
-      Alert.alert(t('Error'), t('Route ID is missing. Please reopen the route.'));
+      Alert.alert(
+        t('Error'),
+        t('Route ID is missing. Please reopen the route.'),
+      );
       return;
     }
 
@@ -224,9 +226,9 @@ function RouteDetails({route}) {
           </View>
 
           <View style={styles.requestedSeatsCard}>
-            <Text style={styles.requestedSeatsTitle}>{t('Seats needed')}</Text>
+            <Text style={styles.requestedSeatsTitle}>{t('SeatsNeeded')}</Text>
             <Text style={styles.requestedSeatsHint}>
-              {t('Choose how many seats you need for this trip.')}
+              {t('ChooseHowManySeatsYouNeed')}
             </Text>
             <View style={styles.seatStepper}>
               <TouchableOpacity
@@ -278,10 +280,12 @@ function RouteDetails({route}) {
                 departureCity,
                 arrivalCityId,
                 arrivalCity,
-                selectedVehicle: params.selectedVehicle || details.selectedVehicle,
+                selectedVehicle:
+                  params.selectedVehicle || details.selectedVehicle,
                 registrationNumber:
                   params.registrationNumber || details.registrationNumber,
-                selectedDateTime: params.selectedDateTime || details.selectedDateTime,
+                selectedDateTime:
+                  params.selectedDateTime || details.selectedDateTime,
                 routeTitle: params.routeTitle || details.routeTitle,
                 totalSeats,
                 availableSeats,
@@ -312,7 +316,10 @@ function RouteDetails({route}) {
                   t('You have already submitted a request for this route.'),
                 );
               } else if (!hasFreeSeats) {
-                Alert.alert(t('Error'), t('No free seats left for this route.'));
+                Alert.alert(
+                  t('Error'),
+                  t('No free seats left for this route.'),
+                );
               } else {
                 handlerTripRequest();
               }

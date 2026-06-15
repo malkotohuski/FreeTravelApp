@@ -17,6 +17,8 @@ i18next.use(initReactI18next).init({
         writePersonalMessage: 'Write a personal message (optional)',
         dailyLimitReached:
           'You have reached the daily limit of bug reports. Please try again tomorrow.',
+        FreeSeats: 'Free seats for passengers',
+        HowManyPeopleCanJoinThisTrip: 'How many people can join this trip?',
         youHaveReachedMaximum:
           'You have reached the maximum of 3 routes per day.',
         areYouSureYouWantToDeleteThisConversation:
@@ -24,9 +26,14 @@ i18next.use(initReactI18next).init({
         Chat: 'Chat',
         letsStart: "Let's start!",
         LetTravel: "Let's travel",
+        SeatsNeeded: 'Seats needed',
+        ChooseHowManySeatsYouNeed:
+          'Choose how many seats you need for this trip.',
         discoverConnectTravel: 'Discover. Connect. Travel.',
         aboutTheApp: 'About the App',
         ourMission: 'Our Mission',
+        CreateRoute: 'Create Route',
+        SelectDateTime: 'Select Date & Time',
         ContactUsScreen: 'Contact Us',
         ourMissionText:
           'To connect travelers through shared experiences, reducing cars on the road, lowering carbon emissions, and driving a smarter, greener way to travel.',
@@ -36,6 +43,10 @@ i18next.use(initReactI18next).init({
           'To become a trusted platform for travelers worldwide, combining technology, security and inspiration.',
         Rate: 'Rate',
         Send: 'Send',
+        SaveProfile: 'Save Profile',
+        CurrentPassword: 'Current password',
+        NewPassword: 'New password',
+        ConfirmNewPassword: 'Confirm new password',
         createdBy: 'Created by',
         createdByText:
           'Built independently with a vision to combine technology, sustainability, and meaningful human connection.',
@@ -58,6 +69,7 @@ i18next.use(initReactI18next).init({
         sending: 'Sending...',
         'General Notifications': 'General Notifications',
         attachScreenshot: 'Attach screenshot',
+        MaximumForThisVehicle: 'Maximum for this vehicle',
         stepsReproduce: 'Steps to reproduce',
         viewUserInfo: 'User Info',
         pleaseSelectBothDepartureArrivalCities:
@@ -119,6 +131,8 @@ i18next.use(initReactI18next).init({
           'You cannot send an invitation to your own route.',
         'Selected Date:': 'Selected Date:',
         selectedDate: 'Selected Date',
+        No: 'No.',
+        VehicleAndSeats: 'Vehicle and seats:',
         'Send rating': 'Send rating',
         'Do you want to approve the request?':
           'Do you want to approve the request?',
@@ -165,6 +179,7 @@ i18next.use(initReactI18next).init({
         'Mark as Completed': 'Mark as Completed',
         Account: 'Account',
         'The route has been created!': 'The route has been created!',
+        FullName: 'Full Name',
         Video: 'Video',
         'Change photo': 'Change photo',
         'Describe the problem...': 'Describe the problem...',
@@ -199,6 +214,8 @@ i18next.use(initReactI18next).init({
         byCreatingAccount: 'By creating an account, you agree to our',
         'Please enter a valid registration number.':
           'Please enter a valid registration number.',
+        PleaseEnterValidRegistrationNumber:
+          'Please enter a valid registration number (e.g. CA1234AB).',
         Home: 'Home',
         'In process of development!': 'In process of development!',
         Register: 'Register',
@@ -5682,8 +5699,12 @@ i18next.use(initReactI18next).init({
         Content: 'Съдържание',
         Sounds: 'Звуци',
         Tools: 'Инструменти',
+        SeatsNeeded: 'Необходими места',
         'Report Bug': 'Докладване за грешка',
         'Contact Us': 'Свържете се с нас',
+        SelectDateTime: 'Изберете дата и час',
+        ChooseHowManySeatsYouNeed: 'Изберете колко места са ви необходими.',
+        No: 'Но.',
         Saved: 'Запазено',
         Download: 'Изтегли',
         Delete: 'Изтрий',
@@ -5702,10 +5723,17 @@ i18next.use(initReactI18next).init({
         'Complete the route': 'Завършете маршрута',
         'Are you sure you want to mark this route as completed?':
           'Сигурни ли сте, че искате да маркирате този маршрут като завършен?',
+        PleaseEnterValidRegistrationNumber:
+          'Моля, въведете валиден регистрационен номер (напр. CA1234AB).',
+        CreateRoute: 'Създай маршрут',
         Direction: 'Посока',
         'Delete Route': 'Изтриване на маршрут',
         'Selected route': 'Избран маршрут',
         writePersonalMessage: 'Напишете лично съобщение (по избор):',
+        VehicleAndSeats: 'Превозно средство и места:',
+        FreeSeats: 'Свободни места за пътници',
+        HowManyPeopleCanJoinThisTrip:
+          'Колко хора могат да се присъединят към това пътуване?',
         'No new requests.': 'Няма нови заявки.',
         dailyLimitReached: 'Достигнат дневен лимит',
         Filter: 'Филтър',
@@ -5716,10 +5744,16 @@ i18next.use(initReactI18next).init({
         'Sort by Oldest': 'Сортиране по Най-стари',
         Username: 'Потребителско име',
         'Sort by Newest': 'Сортиране по Най-нови',
+        FullName: 'Пълно име',
+        CurrentPassword: 'Текуща парола',
+        NewPassword: 'Нова парола',
+        ConfirmNewPassword: 'Потвърдете новата парола',
+        SaveProfile: 'Запази профила',
         'Clear Filters': 'Изчистване на филтри',
         Close: 'Затвори',
         'Would you like to submit a request for this route?':
           'Искате ли да пуснете заявка за този маршрут ?',
+        MaximumForThisVehicle: 'Максимум за това превозно средство',
         Cancel: 'Отказ',
         //нови
         'Ablanitsa oblast Pazardzhik': 'Абланица обл. Пазарджик',

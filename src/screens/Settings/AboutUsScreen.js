@@ -61,7 +61,7 @@ export default function AboutUsScreen() {
 
             {/* Version */}
             <Text style={styles.version}>
-              Version {DeviceInfo.getVersion()} ({DeviceInfo.getBuildNumber()})
+              Version {DeviceInfo.getVersion()}
             </Text>
           </Animated.View>
         </ScrollView>

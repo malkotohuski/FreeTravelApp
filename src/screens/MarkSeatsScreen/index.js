@@ -22,7 +22,8 @@ import {useTheme} from '../../theme/useTheme';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {clampSeatCount, getSeatLimitForVehicle} from '../../utils/seatPolicy';
 
-const REGISTRATION_NUMBER_REGEX = /^[\u0410-\u042fA-Z]{1,2}\d{4}[\u0410-\u042fA-Z]{2}$/;
+const REGISTRATION_NUMBER_REGEX =
+  /^[\u0410-\u042fA-Z]{1,2}\d{4}[\u0410-\u042fA-Z]{2}$/;
 
 const MarkSeatsScreen = () => {
   const {t} = useTranslation();
@@ -31,7 +32,10 @@ const MarkSeatsScreen = () => {
   const theme = useTheme();
 
   const selectedVehicle = route.params?.selectedVehicle;
-  const initialSeats = clampSeatCount(route.params?.totalSeats || 1, selectedVehicle);
+  const initialSeats = clampSeatCount(
+    route.params?.totalSeats || 1,
+    selectedVehicle,
+  );
   const [registrationNumber, setRegistrationNumber] = useState('');
   const [totalSeats, setTotalSeats] = useState(initialSeats);
   const maxSeats = getSeatLimitForVehicle(selectedVehicle);
@@ -59,7 +63,7 @@ const MarkSeatsScreen = () => {
     if (!isValidRegistrationNumber()) {
       Alert.alert(
         t('Invalid Registration Number'),
-        t('Please enter a valid registration number (e.g. CA1234AB).'),
+        t('PleaseEnterValidRegistrationNumber'),
       );
       return;
     }
@@ -148,10 +152,10 @@ const MarkSeatsScreen = () => {
                   },
                 ]}>
                 <Text style={[styles.seatsLabel, {color: theme.textPrimary}]}>
-                  {t('Free seats for passengers')}
+                  {t('FreeSeats')}
                 </Text>
                 <Text style={[styles.seatsHint, {color: theme.textSecondary}]}>
-                  {t('How many people can join this trip?')}
+                  {t('HowManyPeopleCanJoinThisTrip')}
                 </Text>
 
                 <View style={styles.seatStepper}>
@@ -187,7 +191,7 @@ const MarkSeatsScreen = () => {
                 </View>
 
                 <Text style={[styles.seatsHint, {color: theme.textSecondary}]}>
-                  {t('Maximum for this vehicle')}: {maxSeats}
+                  {t('MaximumForThisVehicle')}: {maxSeats}
                 </Text>
               </View>
 

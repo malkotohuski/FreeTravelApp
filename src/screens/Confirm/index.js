@@ -1,4 +1,10 @@
-import React, {useState, useLayoutEffect, useRef, useEffect, useMemo} from 'react';
+import React, {
+  useState,
+  useLayoutEffect,
+  useRef,
+  useEffect,
+  useMemo,
+} from 'react';
 import Icons from 'react-native-vector-icons/MaterialIcons';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {
@@ -24,7 +30,6 @@ function Confirm() {
   const {t} = useTranslation();
   const navigation = useNavigation();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
   const idempotencyKeyRef = useRef(null);
   const theme = useTheme();
 
@@ -165,7 +170,6 @@ function Confirm() {
       // Гарантира минимум 3 секунди анимация
       setTimeout(
         () => {
-          setSuccessMessage(t('The route has been created!'));
           navigation.navigate('ViewRoutes', {refresh: true});
         },
         remaining > 0 ? remaining : 0,
@@ -243,7 +247,7 @@ function Confirm() {
               <View style={styles.cardHeaderRow}>
                 <Icon name="car-seat" size={24} color="#f4511e" />
                 <Text style={[styles.cardHeader, {color: getTextColor()}]}>
-                  {t('Vehicle and seats')}
+                  {t('VehicleAndSeats')}
                 </Text>
               </View>
               <Text style={[styles.text, {color: getSecondaryTextColor()}]}>
@@ -341,10 +345,6 @@ function Confirm() {
                   </Text>
                 </View>
               </View>
-            )}
-
-            {successMessage && (
-              <Text style={styles.successMessage}>{successMessage}</Text>
             )}
           </ScrollView>
         </SafeAreaView>
