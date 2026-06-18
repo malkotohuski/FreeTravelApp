@@ -45,6 +45,14 @@ const RouteHistory = ({navigation}) => {
     backgroundColor: darkMode ? '#333232FF' : '#f4511e',
   });
 
+  // Проверка дали маршрутът може да бъде отбелязан като завършен
+  // (разрешено само след тръгване + 1 час)
+  const isCompletionAllowed = route => {
+    const departureTime = new Date(route.selectedDateTime).getTime();
+    const allowedTime = departureTime + 60 * 60 * 1000; // +1 час в милисекунди
+    return Date.now() >= allowedTime;
+  };
+
   useEffect(() => {
     const fetchRoutes = async () => {
       try {
@@ -213,46 +221,56 @@ const RouteHistory = ({navigation}) => {
             <ActivityIndicator size="large" color="#f4511e" />
           </View>
         ) : (
-        <ScrollView style={styles.scrollView}>
-          <View style={styles.container}>
-            {filteredRoutesState.length === 0 ? (
-              <Text style={styles.emptyText}>{t('No routes found')}</Text>
-            ) : (
-              filteredRoutesState.map((route, index) => (
-              <TouchableOpacity key={index} style={styles.routeContainer}>
-                <Text style={styles.routeText}>
-                  {new Date(route.selectedDateTime).toLocaleString()}{' '}
-                  {/* Displaying date without time */}
-                </Text>
-                <Text style={styles.routeText}>
-                  {getCityName(route, 'departureCityRef')}-
-                  {getCityName(route, 'arrivalCityRef')}
-                </Text>
-                <Text style={styles.routeText}>
-                  {t('Free seats')}: {formatSeatsLabel(
-                    route.availableSeats,
-                    route.totalSeats,
-                  )}
-                </Text>
-                <View style={styles.buttonContainer}>
-                  <TouchableOpacity
-                    style={styles.button_delete}
-                    onPress={() => handleDeleteRoute(route.id)}>
-                    <Text style={styles.buttonText}>{t('Delete Route')}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.button_completed}
-                    onPress={() => handleMarkAsCompleted(route.id)}>
-                    <Text style={styles.buttonText}>
-                      {t('Mark as Completed')}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </TouchableOpacity>
-              ))
-            )}
-          </View>
-        </ScrollView>
+          <ScrollView style={styles.scrollView}>
+            <View style={styles.container}>
+              {filteredRoutesState.length === 0 ? (
+                <Text style={styles.emptyText}>{t('No routes found')}</Text>
+              ) : (
+                filteredRoutesState.map((route, index) => {
+                  const completionAllowed = isCompletionAllowed(route);
+                  return (
+                    <TouchableOpacity key={index} style={styles.routeContainer}>
+                      <Text style={styles.routeText}>
+                        {new Date(route.selectedDateTime).toLocaleString()}{' '}
+                        {/* Displaying date without time */}
+                      </Text>
+                      <Text style={styles.routeText}>
+                        {getCityName(route, 'departureCityRef')}-
+                        {getCityName(route, 'arrivalCityRef')}
+                      </Text>
+                      <Text style={styles.routeText}>
+                        {t('Free seats')}:{' '}
+                        {formatSeatsLabel(
+                          route.availableSeats,
+                          route.totalSeats,
+                        )}
+                      </Text>
+                      <View style={styles.buttonContainer}>
+                        <TouchableOpacity
+                          style={styles.button_delete}
+                          onPress={() => handleDeleteRoute(route.id)}>
+                          <Text style={styles.buttonText}>
+                            {t('Delete Route')}
+                          </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={[
+                            styles.button_completed,
+                            !completionAllowed && styles.button_disabled,
+                          ]}
+                          disabled={!completionAllowed}
+                          onPress={() => handleMarkAsCompleted(route.id)}>
+                          <Text style={styles.buttonText}>
+                            {t('Mark as Completed')}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })
+              )}
+            </View>
+          </ScrollView>
         )}
       </View>
     </SafeAreaView>
@@ -346,6 +364,11 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     flexBasis: '48%', // за да стоят 2 бутона на ред
     alignItems: 'center',
+  },
+
+  button_disabled: {
+    backgroundColor: '#b0b0b0',
+    opacity: 0.6,
   },
 
   button_delete: {
