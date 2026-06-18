@@ -150,7 +150,8 @@ const ConversationsScreen = ({navigation}) => {
           unreadCount:
             isActiveChat || isMyMessage
               ? 0
-              : (currentConversation.unreadCount || 0) + (messageExists ? 0 : 1),
+              : (currentConversation.unreadCount || 0) +
+                (messageExists ? 0 : 1),
         };
 
         const next = [...prev];
@@ -314,7 +315,7 @@ const ConversationsScreen = ({navigation}) => {
                 ) : (
                   <Image
                     source={{
-                      uri: 'https://res.cloudinary.com/dqxczsig5/image/upload/v1774361343/avatars/mazhsnugabcw9spsvm50.jpg',
+                      uri: 'https://res.cloudinary.com/dqxczsig5/image/upload/v1781788960/defaultAvatar_lprvoi.png',
                     }}
                     style={styles.avatarImage}
                   />
@@ -508,4 +509,3 @@ const styles = StyleSheet.create({
   },
 });
 export default ConversationsScreen;
-

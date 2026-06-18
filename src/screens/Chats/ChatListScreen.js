@@ -64,7 +64,9 @@ const ChatScreen = ({route}) => {
     }
 
     try {
-      const res = await api.get(`/api/conversations/${conversationId}/messages`);
+      const res = await api.get(
+        `/api/conversations/${conversationId}/messages`,
+      );
 
       setMessages(prev => {
         const previousById = new Map(
@@ -124,7 +126,11 @@ const ChatScreen = ({route}) => {
   }, [conversationId, refreshChatCount, user?.id]);
 
   const markConversationDelivered = useCallback(async () => {
-    if (!conversationId || !user?.id || !deliveredEndpointAvailableRef.current) {
+    if (
+      !conversationId ||
+      !user?.id ||
+      !deliveredEndpointAvailableRef.current
+    ) {
       return;
     }
 
@@ -164,10 +170,7 @@ const ChatScreen = ({route}) => {
         NotificationService.clearActiveConversation();
         clearInterval(intervalId);
       };
-    }, [
-      conversationId,
-      syncMessages,
-    ]),
+    }, [conversationId, syncMessages]),
   );
 
   useEffect(() => {
@@ -501,7 +504,7 @@ const ChatScreen = ({route}) => {
             ) : (
               <Image
                 source={{
-                  uri: 'https://res.cloudinary.com/dqxczsig5/image/upload/v1774361343/avatars/mazhsnugabcw9spsvm50.jpg',
+                  uri: 'https://res.cloudinary.com/dqxczsig5/image/upload/v1781788960/defaultAvatar_lprvoi.png',
                 }}
                 style={styles.avatarImage}
               />
@@ -551,7 +554,7 @@ const ChatScreen = ({route}) => {
                         source={{
                           uri:
                             displayedOtherUser?.userImage ||
-                            'https://res.cloudinary.com/dqxczsig5/image/upload/v1774361343/avatars/mazhsnugabcw9spsvm50.jpg',
+                            'https://res.cloudinary.com/dqxczsig5/image/upload/v1781788960/defaultAvatar_lprvoi.png',
                         }}
                         style={styles.avatarSmallImage}
                       />
@@ -757,4 +760,3 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 });
-
