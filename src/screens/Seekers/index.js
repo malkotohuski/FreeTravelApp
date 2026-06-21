@@ -11,6 +11,8 @@ import {
   Image,
   ActivityIndicator,
   SafeAreaView,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -19,6 +21,8 @@ import {useFocusEffect} from '@react-navigation/native';
 import {useAuth} from '../../context/AuthContext';
 import api from '../../api/api';
 import {useTheme} from '../../theme/useTheme';
+
+const ACCENT = '#f4511e';
 
 export default function Seekers({navigation}) {
   const {t, i18n} = useTranslation();
@@ -81,7 +85,6 @@ export default function Seekers({navigation}) {
     const timeoutId = setTimeout(() => {
       setDebouncedSearchDeparture(searchDeparture);
     }, 250);
-
     return () => clearTimeout(timeoutId);
   }, [searchDeparture]);
 
@@ -89,7 +92,6 @@ export default function Seekers({navigation}) {
     const timeoutId = setTimeout(() => {
       setDebouncedSearchArrival(searchArrival);
     }, 250);
-
     return () => clearTimeout(timeoutId);
   }, [searchArrival]);
 
@@ -105,6 +107,31 @@ export default function Seekers({navigation}) {
       .includes(debouncedSearchArrival.toLowerCase());
     return isActive && isFuture && depMatch && arrMatch;
   });
+
+  // Помощни функции за дата/час - същите като ViewRoutes
+  const getDate = dateStr => {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    return `${String(d.getDate()).padStart(2, '0')}.${String(
+      d.getMonth() + 1,
+    ).padStart(2, '0')}`;
+  };
+
+  const getDayOfWeek = dateStr => {
+    if (!dateStr) return '';
+    return new Date(dateStr)
+      .toLocaleDateString(i18n.language, {weekday: 'long'})
+      .toUpperCase();
+  };
+
+  const getTime = dateStr => {
+    if (!dateStr) return '';
+    return new Date(dateStr).toLocaleTimeString(i18n.language, {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+  };
 
   const sendInvite = async () => {
     if (!selectedRoute) return;
@@ -128,7 +155,6 @@ export default function Seekers({navigation}) {
           text: 'OK',
           onPress: async () => {
             try {
-              // 1 Реалната заявка за маршрута
               const tripRequestPayload = {
                 seekerRequestId: selectedRoute.id,
                 routeId: selectedRoute.routeId,
@@ -146,7 +172,6 @@ export default function Seekers({navigation}) {
 
               await api.post('/api/send-request-to-user', tripRequestPayload);
 
-              // 2 UI update
               setSelectedRoute(null);
               setMessageInput('');
 
@@ -157,7 +182,6 @@ export default function Seekers({navigation}) {
               );
             } catch (err) {
               console.error('API error:', err);
-
               Alert.alert(
                 t('Error'),
                 err.response?.data?.error || 'Failed to send trip request.',
@@ -168,40 +192,141 @@ export default function Seekers({navigation}) {
       ],
     );
   };
+
   const renderRoute = ({item: route}) => {
-    const formattedDate = new Date(route.selectedDateTime).toLocaleDateString(
-      i18n.language,
-      {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      },
-    );
+    const isOwnRoute = route.username === user?.username;
+    const dateStr = route.selectedDateTime;
 
     return (
       <TouchableOpacity
-        style={[styles.routeCard, {backgroundColor: theme.cardBackground}]}
+        style={[
+          styles.routeCard,
+          {backgroundColor: theme.cardBackground},
+          isOwnRoute && {borderColor: ACCENT, borderWidth: 2},
+        ]}
         onPress={() => setSelectedRoute(route)}>
-        <Text style={[styles.routeTitle, {color: theme.textPrimary}]}>
-          {route.routeTitle}
-        </Text>
-        <Text style={[styles.dateText, {color: theme.textSecondary}]}>
-          {formattedDate}
-        </Text>
-        <Text style={[styles.routeInfo, {color: theme.textPrimary}]}>
-          {route.departureCity} ➝ {route.arrivalCity}
-        </Text>
-        <View style={styles.creatorContainer}>
+        {/* Header: Аватар + Инфо */}
+        <View style={styles.cardHeader}>
           {route.userImage ? (
-            <Image source={{uri: route.userImage}} style={styles.userImage} />
+            <Image source={{uri: route.userImage}} style={styles.avatar} />
           ) : (
-            <View style={styles.placeholderImage} />
+            <View
+              style={[
+                styles.avatarPlaceholder,
+                {backgroundColor: ACCENT + '33'},
+              ]}>
+              <Text style={[styles.avatarInitial, {color: ACCENT}]}>
+                {(route.userFname || route.username || '?')[0].toUpperCase()}
+              </Text>
+            </View>
           )}
-          <Text style={[styles.creatorText, {color: theme.textPrimary}]}>
-            {t('Created by')}: {route.userFname} {route.userLname} (@
-            {route.username})
-          </Text>
+          <View style={styles.headerInfo}>
+            <Text style={[styles.ownerName, {color: theme.textPrimary}]}>
+              {route.userFname} {route.userLname}
+            </Text>
+            <Text style={[styles.ownerUsername, {color: theme.textSecondary}]}>
+              @{route.username}
+            </Text>
+          </View>
+          {/* Passenger badge */}
+          <View style={[styles.passengerBadge, {backgroundColor: ACCENT}]}>
+            <Text style={styles.passengerBadgeText}>🧳</Text>
+            <Text style={styles.passengerLabel}>{t('Passenger')}</Text>
+          </View>
+        </View>
+
+        {/* Разделител */}
+        <View
+          style={[
+            styles.divider,
+            {
+              backgroundColor: theme.cardBorder || 'rgba(255,255,255,0.1)',
+            },
+          ]}
+        />
+
+        {/* Маршрут с точки */}
+        <View style={styles.routeRow}>
+          <View style={styles.routeIcons}>
+            <View style={[styles.dot, styles.dotGreen]} />
+            <View
+              style={[styles.routeLine, {backgroundColor: theme.textSecondary}]}
+            />
+            <View style={[styles.dot, {backgroundColor: ACCENT}]} />
+          </View>
+          <View style={styles.citiesColumn}>
+            <Text style={[styles.cityName, {color: theme.textPrimary}]}>
+              {route.departureCity}
+            </Text>
+            <Text style={[styles.cityName, {color: theme.textPrimary}]}>
+              {route.arrivalCity}
+            </Text>
+          </View>
+        </View>
+
+        {/* Разделител */}
+        <View
+          style={[
+            styles.divider,
+            {
+              backgroundColor: theme.cardBorder || 'rgba(255,255,255,0.1)',
+            },
+          ]}
+        />
+
+        {/* Дата / Ден / Час */}
+        <View style={styles.dateRow}>
+          <View style={styles.dateBlock}>
+            <Text style={[styles.dateValue, {color: ACCENT}]}>
+              {getDate(dateStr)}
+            </Text>
+            <Text style={[styles.dateSubLabel, {color: theme.textSecondary}]}>
+              {getDayOfWeek(dateStr)}
+            </Text>
+          </View>
+
+          <View
+            style={[
+              styles.dateSep,
+              {
+                backgroundColor: theme.cardBorder || 'rgba(255,255,255,0.1)',
+              },
+            ]}
+          />
+
+          <View style={styles.dateBlock}>
+            <Text style={[styles.dateValue, {color: ACCENT}]}>
+              {getTime(dateStr)}
+            </Text>
+            <Text style={[styles.dateSubLabel, {color: theme.textSecondary}]}>
+              {t('DEPARTURE TIME')}
+            </Text>
+          </View>
+
+          {route.routeTitle ? (
+            <>
+              <View
+                style={[
+                  styles.dateSep,
+                  {
+                    backgroundColor:
+                      theme.cardBorder || 'rgba(255,255,255,0.1)',
+                  },
+                ]}
+              />
+              <View style={[styles.dateBlock, {flex: 1.5}]}>
+                <Text
+                  style={[styles.routeTitleText, {color: theme.textPrimary}]}
+                  numberOfLines={1}>
+                  {route.routeTitle}
+                </Text>
+                <Text
+                  style={[styles.dateSubLabel, {color: theme.textSecondary}]}>
+                  {t('Route Title').toUpperCase()}
+                </Text>
+              </View>
+            </>
+          ) : null}
         </View>
       </TouchableOpacity>
     );
@@ -210,6 +335,7 @@ export default function Seekers({navigation}) {
   return (
     <LinearGradient colors={theme.gradient} style={styles.gradientBackground}>
       <SafeAreaView style={styles.container}>
+        {/* Search */}
         <View style={styles.searchContainer}>
           <TextInput
             style={[
@@ -268,116 +394,227 @@ export default function Seekers({navigation}) {
             data={filteredRoutes}
             renderItem={renderRoute}
             keyExtractor={route => route.id.toString()}
-            contentContainerStyle={{paddingBottom: 50}}
+            contentContainerStyle={{paddingBottom: 80, paddingHorizontal: 12}}
           />
         )}
 
         {/* Modal */}
         <Modal visible={!!selectedRoute} transparent animationType="slide">
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              {selectedRoute && (
-                <>
-                  <TextInput
-                    style={[
-                      styles.messageInput,
-                      {
-                        backgroundColor: theme.inputBackground,
-                        color: theme.textPrimary,
-                      },
-                    ]}
-                    placeholder={t('writePersonalMessage')}
-                    multiline
-                    numberOfLines={4}
-                    value={messageInput}
-                    onChangeText={setMessageInput}
-                    placeholderTextColor={theme.textSecondary}
-                  />
-                  <Text
-                    style={[
-                      styles.modalRouteTitle,
-                      {color: theme.textPrimary},
-                    ]}>
-                    {selectedRoute.routeTitle}
-                  </Text>
-                  <Text
-                    style={[styles.modalDate, {color: theme.textSecondary}]}>
-                    {new Date(
-                      selectedRoute.selectedDateTime,
-                    ).toLocaleDateString('bg-BG', {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
-                  </Text>
-                  <Text
-                    style={[styles.modalRouteText, {color: theme.textPrimary}]}>
-                    {selectedRoute.departureCity} ➝ {selectedRoute.arrivalCity}
-                  </Text>
-                  <TouchableOpacity
-                    style={[
-                      styles.viewProfileButton,
-                      {
-                        backgroundColor: theme.secondaryButton,
-                        marginBottom: 10,
-                      },
-                    ]}
-                    onPress={() => {
-                      setSelectedRoute(null); // затваряме modal-а
-
-                      navigation.navigate('UserInfo', {
-                        username: selectedRoute.username,
-                        userFname: selectedRoute.userFname,
-                        userLname: selectedRoute.userLname,
-                        userEmail: selectedRoute.userEmail,
-                        userId: selectedRoute.userId,
-
-                        // ако имаш тези данни ги подай, ако не – махни ги
-                        departureCityId: selectedRoute.departureCityId,
-                        departureCity: selectedRoute.departureCity,
-                        arrivalCityId: selectedRoute.arrivalCityId,
-                        arrivalCity: selectedRoute.arrivalCity,
-                        selectedVehicle: selectedRoute.selectedVehicle,
-                        registrationNumber: selectedRoute.registrationNumber,
-                        routeDetailsData: selectedRoute,
-                        fromScreen: 'Seekers',
-                      });
-                    }}>
-                    <View style={styles.creatorContainer}>
-                      <Text style={styles.buttonText}>{t('View Profile')}</Text>
+          <KeyboardAvoidingView
+            style={{flex: 1}}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+            <View style={styles.modalOverlay}>
+              <View
+                style={[
+                  styles.modalContent,
+                  {backgroundColor: theme.cardBackground},
+                ]}>
+                {selectedRoute && (
+                  <>
+                    {/* Modal Header */}
+                    <View style={styles.modalHeader}>
+                      {selectedRoute.userImage ? (
+                        <Image
+                          source={{uri: selectedRoute.userImage}}
+                          style={styles.modalAvatar}
+                        />
+                      ) : (
+                        <View
+                          style={[
+                            styles.modalAvatarPlaceholder,
+                            {backgroundColor: ACCENT + '33'},
+                          ]}>
+                          <Text
+                            style={[
+                              styles.modalAvatarInitial,
+                              {color: ACCENT},
+                            ]}>
+                            {(selectedRoute.userFname ||
+                              selectedRoute.username ||
+                              '?')[0].toUpperCase()}
+                          </Text>
+                        </View>
+                      )}
+                      <View style={{flex: 1, marginLeft: 12}}>
+                        <Text
+                          style={[
+                            styles.modalOwnerName,
+                            {color: theme.textPrimary},
+                          ]}>
+                          {selectedRoute.userFname} {selectedRoute.userLname}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.modalOwnerUsername,
+                            {color: theme.textSecondary},
+                          ]}>
+                          @{selectedRoute.username}
+                        </Text>
+                      </View>
                     </View>
-                  </TouchableOpacity>
-                  <View style={styles.modalButtons}>
-                    {selectedRoute.username !== user?.username ? (
-                      <TouchableOpacity
-                        style={[
-                          styles.mainButton,
-                          {backgroundColor: theme.primaryButton},
-                        ]}
-                        onPress={sendInvite}>
-                        <Text style={styles.buttonText}>{t('Invitation')}</Text>
-                      </TouchableOpacity>
-                    ) : (
-                      <Text
-                        style={[styles.infoText, {color: theme.textSecondary}]}>
-                        {t('You cannot send an invitation to your own route.')}
-                      </Text>
-                    )}
 
+                    <View
+                      style={[
+                        styles.divider,
+                        {backgroundColor: theme.cardBorder || '#444'},
+                      ]}
+                    />
+
+                    {/* Маршрут в модала */}
+                    <View style={[styles.routeRow, {paddingVertical: 12}]}>
+                      <View style={styles.routeIcons}>
+                        <View style={[styles.dot, styles.dotGreen]} />
+                        <View
+                          style={[
+                            styles.routeLine,
+                            {backgroundColor: theme.textSecondary},
+                          ]}
+                        />
+                        <View style={[styles.dot, {backgroundColor: ACCENT}]} />
+                      </View>
+                      <View style={styles.citiesColumn}>
+                        <Text
+                          style={[styles.cityName, {color: theme.textPrimary}]}>
+                          {selectedRoute.departureCity}
+                        </Text>
+                        <Text
+                          style={[styles.cityName, {color: theme.textPrimary}]}>
+                          {selectedRoute.arrivalCity}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View
+                      style={[
+                        styles.divider,
+                        {backgroundColor: theme.cardBorder || '#444'},
+                      ]}
+                    />
+
+                    {/* Дата в модала */}
+                    <View style={[styles.dateRow, {paddingVertical: 12}]}>
+                      <View style={styles.dateBlock}>
+                        <Text style={[styles.dateValue, {color: ACCENT}]}>
+                          {getDate(selectedRoute.selectedDateTime)}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.dateSubLabel,
+                            {color: theme.textSecondary},
+                          ]}>
+                          {getDayOfWeek(selectedRoute.selectedDateTime)}
+                        </Text>
+                      </View>
+                      <View
+                        style={[
+                          styles.dateSep,
+                          {backgroundColor: theme.cardBorder || '#444'},
+                        ]}
+                      />
+                      <View style={styles.dateBlock}>
+                        <Text style={[styles.dateValue, {color: ACCENT}]}>
+                          {getTime(selectedRoute.selectedDateTime)}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.dateSubLabel,
+                            {color: theme.textSecondary},
+                          ]}>
+                          {t('DEPARTURE TIME')}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View
+                      style={[
+                        styles.divider,
+                        {backgroundColor: theme.cardBorder || '#444'},
+                      ]}
+                    />
+
+                    {/* Коментар input */}
+                    <TextInput
+                      style={[
+                        styles.messageInput,
+                        {
+                          backgroundColor: theme.inputBackground,
+                          color: theme.textPrimary,
+                          borderColor: theme.cardBorder || '#444',
+                        },
+                      ]}
+                      placeholder={t('writePersonalMessage')}
+                      multiline
+                      numberOfLines={4}
+                      value={messageInput}
+                      onChangeText={setMessageInput}
+                      placeholderTextColor={theme.textSecondary}
+                    />
+
+                    {/* Бутони */}
                     <TouchableOpacity
                       style={[
-                        styles.secondaryButton,
+                        styles.viewProfileButton,
                         {backgroundColor: theme.secondaryButton},
                       ]}
-                      onPress={() => setSelectedRoute(null)}>
-                      <Text style={styles.buttonText}>{t('Back')}</Text>
+                      onPress={() => {
+                        setSelectedRoute(null);
+                        navigation.navigate('UserInfo', {
+                          username: selectedRoute.username,
+                          userFname: selectedRoute.userFname,
+                          userLname: selectedRoute.userLname,
+                          userEmail: selectedRoute.userEmail,
+                          userId: selectedRoute.userId,
+                          departureCityId: selectedRoute.departureCityId,
+                          departureCity: selectedRoute.departureCity,
+                          arrivalCityId: selectedRoute.arrivalCityId,
+                          arrivalCity: selectedRoute.arrivalCity,
+                          selectedVehicle: selectedRoute.selectedVehicle,
+                          registrationNumber: selectedRoute.registrationNumber,
+                          routeDetailsData: selectedRoute,
+                          fromScreen: 'Seekers',
+                        });
+                      }}>
+                      <Text style={styles.buttonText}>{t('View Profile')}</Text>
                     </TouchableOpacity>
-                  </View>
-                </>
-              )}
+
+                    <View style={styles.modalButtons}>
+                      {selectedRoute.username !== user?.username ? (
+                        <TouchableOpacity
+                          style={[
+                            styles.mainButton,
+                            {backgroundColor: theme.primaryButton},
+                          ]}
+                          onPress={sendInvite}>
+                          <Text style={styles.buttonText}>
+                            {t('Invitation')}
+                          </Text>
+                        </TouchableOpacity>
+                      ) : (
+                        <Text
+                          style={[
+                            styles.infoText,
+                            {color: theme.textSecondary},
+                          ]}>
+                          {t(
+                            'You cannot send an invitation to your own route.',
+                          )}
+                        </Text>
+                      )}
+
+                      <TouchableOpacity
+                        style={[
+                          styles.secondaryButton,
+                          {backgroundColor: theme.secondaryButton},
+                        ]}
+                        onPress={() => setSelectedRoute(null)}>
+                        <Text style={styles.buttonText}>{t('Back')}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </>
+                )}
+              </View>
             </View>
-          </View>
+          </KeyboardAvoidingView>
         </Modal>
 
         <TouchableOpacity
@@ -393,93 +630,181 @@ export default function Seekers({navigation}) {
 const createStyles = theme =>
   StyleSheet.create({
     gradientBackground: {flex: 1},
-    container: {flex: 1, padding: 16},
+    container: {flex: 1, paddingTop: 12},
+
     searchContainer: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      marginBottom: 16,
+      marginBottom: 12,
+      paddingHorizontal: 12,
+      gap: 8,
     },
-    searchInput: {flex: 1, padding: 10, borderRadius: 8, marginHorizontal: 5},
-    routeCard: {padding: 12, marginBottom: 12, borderRadius: 10},
-    routeTitle: {fontSize: 16, fontWeight: 'bold', marginBottom: 4},
-    dateText: {fontSize: 14, marginBottom: 4},
-    routeInfo: {fontSize: 14, marginBottom: 6},
-    creatorContainer: {flexDirection: 'row', alignItems: 'center'},
-    creatorText: {marginLeft: 8},
-    userImage: {width: 36, height: 36, borderRadius: 18},
-    placeholderImage: {
-      width: 36,
-      height: 36,
-      borderRadius: 18,
-      backgroundColor: '#666',
+    searchInput: {
+      flex: 1,
+      padding: 10,
+      borderRadius: 10,
+      fontSize: 15,
     },
+
+    // ── Карточка ──
+    routeCard: {
+      borderRadius: 16,
+      marginVertical: 8,
+      borderWidth: 1,
+      borderColor: 'rgba(255,255,255,0.08)',
+      overflow: 'hidden',
+    },
+
+    cardHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 14,
+      gap: 10,
+    },
+    avatar: {width: 46, height: 46, borderRadius: 23},
+    avatarPlaceholder: {
+      width: 46,
+      height: 46,
+      borderRadius: 23,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    avatarInitial: {fontSize: 20, fontWeight: '700'},
+    headerInfo: {flex: 1},
+    ownerName: {fontSize: 16, fontWeight: '700'},
+    ownerUsername: {fontSize: 13, marginTop: 1},
+
+    passengerBadge: {
+      borderRadius: 10,
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+      alignItems: 'center',
+      minWidth: 52,
+    },
+    passengerBadgeText: {fontSize: 16},
+    passengerLabel: {
+      color: 'rgba(255,255,255,0.85)',
+      fontSize: 9,
+      fontWeight: '600',
+      marginTop: 1,
+    },
+
+    divider: {height: 1},
+
+    routeRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+      gap: 12,
+    },
+    routeIcons: {
+      alignItems: 'center',
+      height: 52,
+      justifyContent: 'space-between',
+    },
+    dot: {width: 12, height: 12, borderRadius: 6},
+    dotGreen: {backgroundColor: '#2ecc71'},
+    routeLine: {
+      width: 2,
+      flex: 1,
+      marginVertical: 3,
+      opacity: 0.4,
+    },
+    citiesColumn: {
+      flex: 1,
+      justifyContent: 'space-between',
+      height: 52,
+    },
+    cityName: {fontSize: 17, fontWeight: '700'},
+
+    dateRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 14,
+      paddingVertical: 12,
+    },
+    dateBlock: {flex: 1, alignItems: 'center'},
+    dateValue: {fontSize: 18, fontWeight: '800'},
+    routeTitleText: {fontSize: 15, fontWeight: '700'},
+    dateSubLabel: {
+      fontSize: 9,
+      fontWeight: '600',
+      marginTop: 3,
+      letterSpacing: 0.5,
+    },
+    dateSep: {width: 1, height: 32, marginHorizontal: 4},
+
+    // ── Modal ──
     modalOverlay: {
       flex: 1,
       justifyContent: 'center',
       padding: 20,
-      backgroundColor: 'rgba(0,0,0,0.85)', // по-тъмен фон
+      backgroundColor: 'rgba(0,0,0,0.85)',
     },
     modalContent: {
-      borderRadius: 12,
+      borderRadius: 16,
       padding: 16,
-      backgroundColor: '#888888', // тъмен фон за модалната кутия
-      shadowColor: '#000',
-      shadowOffset: {width: 0, height: 2},
-      shadowOpacity: 0.5,
-      shadowRadius: 4,
-      elevation: 8,
+      borderWidth: 1,
+      borderColor: 'rgba(255,255,255,0.1)',
     },
-    modalRouteTitle: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      marginBottom: 4,
-      color: '#fff',
-    },
-    modalDate: {marginBottom: 4, color: '#ccc'},
-    modalRouteText: {marginBottom: 12, color: '#fff'},
-    modalButtons: {flexDirection: 'row', justifyContent: 'space-between'},
-    messageInput: {
-      padding: 10,
-      borderRadius: 8,
-      marginBottom: 12,
-      backgroundColor: '#2c2c2e',
-      color: '#fff',
-    },
-    buttonText: {color: '#fff', fontWeight: 'bold'},
-    mainButton: {
-      padding: 10,
-      borderRadius: 8,
-      flex: 1,
-      marginRight: 8,
+    modalHeader: {
+      flexDirection: 'row',
       alignItems: 'center',
-      shadowColor: '#000',
-      shadowOffset: {width: 0, height: 2},
-      shadowOpacity: 0.4,
-      shadowRadius: 3,
-      elevation: 5,
+      paddingBottom: 12,
     },
+    modalAvatar: {width: 48, height: 48, borderRadius: 24},
+    modalAvatarPlaceholder: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalAvatarInitial: {fontSize: 20, fontWeight: '700'},
+    modalOwnerName: {fontSize: 16, fontWeight: '700'},
+    modalOwnerUsername: {fontSize: 13, marginTop: 2},
+
+    messageInput: {
+      padding: 12,
+      borderRadius: 10,
+      marginVertical: 12,
+      borderWidth: 1,
+      minHeight: 80,
+      textAlignVertical: 'top',
+    },
+
     viewProfileButton: {
-      padding: 10,
-      borderRadius: 8,
+      padding: 12,
+      borderRadius: 10,
+      alignItems: 'center',
+      marginBottom: 10,
+    },
+    modalButtons: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      gap: 10,
+    },
+    mainButton: {
+      padding: 12,
+      borderRadius: 10,
+      flex: 1,
       alignItems: 'center',
     },
     secondaryButton: {
-      padding: 10,
-      borderRadius: 8,
+      padding: 12,
+      borderRadius: 10,
       flex: 1,
       alignItems: 'center',
-      shadowColor: '#000',
-      shadowOffset: {width: 0, height: 2},
-      shadowOpacity: 0.4,
-      shadowRadius: 3,
-      elevation: 5,
     },
-    infoText: {flex: 1, textAlign: 'center'},
+    buttonText: {color: '#fff', fontWeight: '700', fontSize: 15},
+    infoText: {flex: 1, textAlign: 'center', fontSize: 13},
+
     backButton: {
+      margin: 12,
+      padding: 14,
+      borderRadius: 10,
       alignItems: 'center',
-      bottom: 20,
-      padding: 12,
-      borderRadius: 8,
     },
-    backButtonText: {color: '#fff', fontWeight: 'bold'},
+    backButtonText: {color: '#fff', fontWeight: '700', fontSize: 16},
   });
