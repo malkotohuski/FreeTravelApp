@@ -14,6 +14,8 @@ import {
   ScrollView,
   SafeAreaView,
   TouchableWithoutFeedback,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import DatePicker from 'react-native-date-picker';
 import {useTranslation} from 'react-i18next';
@@ -115,14 +117,10 @@ function SelectRouteScreen({route, navigation}) {
               totalSeats,
             })
           }>
-          <Text style={[styles.headerText, {color: theme.textPrimary}]}>
+          <Text style={{color: 'white', marginRight: 8, fontSize: 18}}>
             {t('Step 3 of 4')}
           </Text>
-          <Icons
-            name="keyboard-backspace"
-            size={22}
-            color={theme.textPrimary}
-          />
+          <Icons name="keyboard-backspace" size={24} color="white" />
         </TouchableOpacity>
       ),
     });
@@ -279,430 +277,438 @@ function SelectRouteScreen({route, navigation}) {
 
   return (
     <LinearGradient colors={theme.gradient} style={{flex: 1}}>
-      <SafeAreaView style={{flex: 1}}>
-        <ScrollView
-          contentContainerStyle={styles.wrapper}
-          keyboardShouldPersistTaps="handled">
-          <View
-            style={[
-              styles.card,
-              {
-                backgroundColor: theme.cardBackground,
-                borderColor: theme.inputBorder,
-              },
-            ]}>
-            <Text style={[styles.mainTitle, {color: theme.textPrimary}]}>
-              {t('CreateRoute')}
-            </Text>
-
-            <Text style={[styles.label, {color: theme.textSecondary}]}>
-              {t('Departure')}
-            </Text>
-
-            <TouchableOpacity
+      <KeyboardAvoidingView
+        style={{flex: 1}}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <SafeAreaView style={{flex: 1}}>
+          <ScrollView
+            contentContainerStyle={styles.wrapper}
+            keyboardShouldPersistTaps="handled">
+            <View
               style={[
-                styles.selectBox,
+                styles.card,
                 {
-                  backgroundColor: theme.inputBackground,
+                  backgroundColor: theme.cardBackground,
                   borderColor: theme.inputBorder,
                 },
-              ]}
-              onPress={() => setModalVisibleDeparture(true)}>
-              <Text style={{color: theme.textPrimary}}>
-                {departureCity || t('Select City')}
+              ]}>
+              <Text style={[styles.mainTitle, {color: theme.textPrimary}]}>
+                {t('CreateRoute')}
               </Text>
-            </TouchableOpacity>
 
-            <View style={styles.inlineRow}>
-              <TextInput
-                placeholder={t('Street')}
-                placeholderTextColor={theme.placeholder}
-                value={departureStreet}
-                onChangeText={setDepartureStreet}
+              <Text style={[styles.label, {color: theme.textSecondary}]}>
+                {t('Departure')}
+              </Text>
+
+              <TouchableOpacity
                 style={[
-                  styles.input,
+                  styles.selectBox,
                   {
                     backgroundColor: theme.inputBackground,
                     borderColor: theme.inputBorder,
-                    color: theme.textPrimary,
                   },
                 ]}
-              />
+                onPress={() => setModalVisibleDeparture(true)}>
+                <Text style={{color: theme.textPrimary}}>
+                  {departureCity || t('Select City')}
+                </Text>
+              </TouchableOpacity>
 
-              <TextInput
-                placeholder={t('No')}
-                placeholderTextColor={theme.placeholder}
-                value={departureNumber}
-                onChangeText={setDepartureNumber}
-                style={[
-                  styles.inputSmall,
-                  {
-                    backgroundColor: theme.inputBackground,
-                    borderColor: theme.inputBorder,
-                    color: theme.textPrimary,
-                  },
-                ]}
-              />
-            </View>
-
-            <Text style={[styles.label, {color: theme.textSecondary}]}>
-              {t('Arrival')}
-            </Text>
-
-            <TouchableOpacity
-              style={[
-                styles.selectBox,
-                {
-                  backgroundColor: theme.inputBackground,
-                  borderColor: theme.inputBorder,
-                },
-              ]}
-              onPress={() => setModalVisibleArrival(true)}>
-              <Text style={{color: theme.textPrimary}}>
-                {arrivalCity || t('Select City')}
-              </Text>
-            </TouchableOpacity>
-
-            <View style={styles.inlineRow}>
-              <TextInput
-                placeholder={t('Street')}
-                placeholderTextColor={theme.placeholder}
-                value={arrivalStreet}
-                onChangeText={setArrivalStreet}
-                style={[
-                  styles.input,
-                  {
-                    backgroundColor: theme.inputBackground,
-                    borderColor: theme.inputBorder,
-                    color: theme.textPrimary,
-                  },
-                ]}
-              />
-
-              <TextInput
-                placeholder={t('No')}
-                placeholderTextColor={theme.placeholder}
-                value={arrivalNumber}
-                onChangeText={setArrivalNumber}
-                style={[
-                  styles.inputSmall,
-                  {
-                    backgroundColor: theme.inputBackground,
-                    borderColor: theme.inputBorder,
-                    color: theme.textPrimary,
-                  },
-                ]}
-              />
-            </View>
-
-            <Text style={[styles.label, {color: theme.textSecondary}]}>
-              {t('Route Title')}
-            </Text>
-
-            <TextInput
-              placeholder={t('Enter route title')}
-              placeholderTextColor={theme.placeholder}
-              value={routeTitle}
-              onChangeText={setRouteTitle}
-              style={[
-                styles.inputFull,
-                {
-                  backgroundColor: theme.inputBackground,
-                  borderColor: theme.inputBorder,
-                  color: theme.textPrimary,
-                },
-              ]}
-            />
-
-            <TouchableOpacity
-              style={[
-                styles.primaryButton,
-                {backgroundColor: theme.primaryButton},
-              ]}
-              onPress={() => setOpen(true)}>
-              <Text style={styles.primaryButtonText}>
-                {t('SelectDateTime')}
-              </Text>
-            </TouchableOpacity>
-
-            {selectedDateTime && (
-              <Text style={[styles.datePreview, {color: theme.textPrimary}]}>
-                {selectedDateTime.toLocaleString('bg-BG', {
-                  day: '2-digit',
-                  month: '2-digit',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: false,
-                })}
-              </Text>
-            )}
-
-            <TouchableOpacity
-              style={[
-                styles.continueButton,
-                {backgroundColor: theme.primaryButton},
-              ]}
-              onPress={handleContinue}>
-              <Text style={styles.continueText}>{t('Continue')}</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-
-        <Modal
-          transparent
-          visible={modalVisibleDeparture}
-          animationType="slide">
-          <TouchableWithoutFeedback onPress={closeDepartureModal}>
-            <View style={styles.modalOverlay}>
-              <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <View
+              <View style={styles.inlineRow}>
+                <TextInput
+                  placeholder={t('Street')}
+                  placeholderTextColor={theme.placeholder}
+                  value={departureStreet}
+                  onChangeText={setDepartureStreet}
                   style={[
-                    styles.modalContainer,
-                    {backgroundColor: theme.cardBackground},
-                  ]}>
+                    styles.input,
+                    {
+                      backgroundColor: theme.inputBackground,
+                      borderColor: theme.inputBorder,
+                      color: theme.textPrimary,
+                    },
+                  ]}
+                />
+
+                <TextInput
+                  placeholder={t('No')}
+                  placeholderTextColor={theme.placeholder}
+                  value={departureNumber}
+                  onChangeText={setDepartureNumber}
+                  style={[
+                    styles.inputSmall,
+                    {
+                      backgroundColor: theme.inputBackground,
+                      borderColor: theme.inputBorder,
+                      color: theme.textPrimary,
+                    },
+                  ]}
+                />
+              </View>
+
+              <Text style={[styles.label, {color: theme.textSecondary}]}>
+                {t('Arrival')}
+              </Text>
+
+              <TouchableOpacity
+                style={[
+                  styles.selectBox,
+                  {
+                    backgroundColor: theme.inputBackground,
+                    borderColor: theme.inputBorder,
+                  },
+                ]}
+                onPress={() => setModalVisibleArrival(true)}>
+                <Text style={{color: theme.textPrimary}}>
+                  {arrivalCity || t('Select City')}
+                </Text>
+              </TouchableOpacity>
+
+              <View style={styles.inlineRow}>
+                <TextInput
+                  placeholder={t('Street')}
+                  placeholderTextColor={theme.placeholder}
+                  value={arrivalStreet}
+                  onChangeText={setArrivalStreet}
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: theme.inputBackground,
+                      borderColor: theme.inputBorder,
+                      color: theme.textPrimary,
+                    },
+                  ]}
+                />
+
+                <TextInput
+                  placeholder={t('No')}
+                  placeholderTextColor={theme.placeholder}
+                  value={arrivalNumber}
+                  onChangeText={setArrivalNumber}
+                  style={[
+                    styles.inputSmall,
+                    {
+                      backgroundColor: theme.inputBackground,
+                      borderColor: theme.inputBorder,
+                      color: theme.textPrimary,
+                    },
+                  ]}
+                />
+              </View>
+
+              <Text style={[styles.label, {color: theme.textSecondary}]}>
+                {t('Route Title')}
+              </Text>
+
+              <TextInput
+                placeholder={t('Enter route title')}
+                placeholderTextColor={theme.placeholder}
+                value={routeTitle}
+                onChangeText={setRouteTitle}
+                style={[
+                  styles.inputFull,
+                  {
+                    backgroundColor: theme.inputBackground,
+                    borderColor: theme.inputBorder,
+                    color: theme.textPrimary,
+                  },
+                ]}
+              />
+
+              <TouchableOpacity
+                style={[
+                  styles.primaryButton,
+                  {backgroundColor: theme.primaryButton},
+                ]}
+                onPress={() => setOpen(true)}>
+                <Text style={styles.primaryButtonText}>
+                  {t('SelectDateTime')}
+                </Text>
+              </TouchableOpacity>
+
+              {selectedDateTime && (
+                <Text style={[styles.datePreview, {color: theme.textPrimary}]}>
+                  {selectedDateTime.toLocaleString('bg-BG', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false,
+                  })}
+                </Text>
+              )}
+
+              <TouchableOpacity
+                style={[
+                  styles.continueButton,
+                  {backgroundColor: theme.primaryButton},
+                ]}
+                onPress={handleContinue}>
+                <Text style={styles.continueText}>{t('Continue')}</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+
+          <Modal
+            transparent
+            visible={modalVisibleDeparture}
+            animationType="slide">
+            <TouchableWithoutFeedback onPress={closeDepartureModal}>
+              <View style={styles.modalOverlay}>
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                   <View
                     style={[
-                      styles.searchInputWrapper,
-                      {
-                        backgroundColor: theme.isDark ? '#333' : '#fff',
-                        borderColor: theme.isDark ? '#555' : '#ccc',
-                      },
+                      styles.modalContainer,
+                      {backgroundColor: theme.cardBackground},
                     ]}>
-                    <TextInput
-                      placeholder={t('Search City')}
-                      placeholderTextColor={theme.isDark ? '#aaa' : '#888'}
-                      value={departureSearchText}
-                      onChangeText={setDepartureSearchText}
-                      onBlur={clearDepartureSearch}
+                    <View
                       style={[
-                        styles.modalInput,
+                        styles.searchInputWrapper,
                         {
-                          color: theme.isDark ? '#fff' : '#000',
+                          backgroundColor: theme.isDark ? '#333' : '#fff',
+                          borderColor: theme.isDark ? '#555' : '#ccc',
                         },
-                      ]}
-                    />
-                    {departureSearchText ? (
-                      <TouchableOpacity
-                        onPress={clearDepartureSearch}
-                        hitSlop={{
-                          top: 10,
-                          bottom: 10,
-                          left: 10,
-                          right: 10,
-                        }}>
-                        <Icons
-                          name="close"
-                          size={20}
-                          color={theme.isDark ? '#aaa' : '#666'}
-                        />
-                      </TouchableOpacity>
-                    ) : null}
-                  </View>
-
-                  <FlatList
-                    data={departureCities}
-                    keyExtractor={item => String(item.id)}
-                    keyboardShouldPersistTaps="handled"
-                    showsVerticalScrollIndicator={false}
-                    ListEmptyComponent={
-                      departureLoading ? (
-                        <View style={styles.searchStateContainer}>
-                          <Text style={{color: theme.textSecondary}}>
-                            {t('Loading...')}
-                          </Text>
-                        </View>
-                      ) : departureSearchText.trim().length > 0 &&
-                        departureSearchText.trim().length < minSearchLength ? (
-                        <View style={styles.searchStateContainer}>
-                          <Text style={{color: theme.textSecondary}}>
-                            {t('Type at least 2 characters')}
-                          </Text>
-                        </View>
-                      ) : (
-                        <View style={styles.searchStateContainer}>
-                          <Text style={{color: theme.textSecondary}}>
-                            {t('No cities found')}
-                          </Text>
-                        </View>
-                      )
-                    }
-                    renderItem={({item}) => {
-                      const cityLabel = item.displayName || item.name;
-                      const isMatch = departureSearchText
-                        ? cityLabel
-                            .toLowerCase()
-                            .includes(departureSearchText.toLowerCase())
-                        : false;
-
-                      return (
+                      ]}>
+                      <TextInput
+                        placeholder={t('Search City')}
+                        placeholderTextColor={theme.isDark ? '#aaa' : '#888'}
+                        value={departureSearchText}
+                        onChangeText={setDepartureSearchText}
+                        onBlur={clearDepartureSearch}
+                        style={[
+                          styles.modalInput,
+                          {
+                            color: theme.isDark ? '#fff' : '#000',
+                          },
+                        ]}
+                      />
+                      {departureSearchText ? (
                         <TouchableOpacity
-                          style={{
-                            paddingVertical: 14,
-                            paddingHorizontal: 12,
-                            borderBottomWidth: 1,
-                            borderBottomColor: theme.isDark ? '#444' : '#ccc',
-                            backgroundColor: theme.isDark ? '#222' : '#fff',
-                          }}
-                          activeOpacity={0.6}
-                          onPress={() => {
-                            setDepartureCityId(item.id);
-                            setDepartureCity(cityLabel);
-                            closeDepartureModal();
+                          onPress={clearDepartureSearch}
+                          hitSlop={{
+                            top: 10,
+                            bottom: 10,
+                            left: 10,
+                            right: 10,
                           }}>
-                          <Text
-                            style={{
-                              color: theme.isDark ? '#fff' : '#000',
-                              fontSize: 16,
-                            }}>
-                            {isMatch
-                              ? highlightMatch(cityLabel, departureSearchText)
-                              : cityLabel}
-                          </Text>
+                          <Icons
+                            name="close"
+                            size={20}
+                            color={theme.isDark ? '#aaa' : '#666'}
+                          />
                         </TouchableOpacity>
-                      );
-                    }}
-                  />
-                </View>
-              </TouchableWithoutFeedback>
-            </View>
-          </TouchableWithoutFeedback>
-        </Modal>
+                      ) : null}
+                    </View>
 
-        <Modal transparent visible={modalVisibleArrival} animationType="slide">
-          <TouchableWithoutFeedback onPress={closeArrivalModal}>
-            <View style={styles.modalOverlay}>
-              <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <View
-                  style={[
-                    styles.modalContainer,
-                    {backgroundColor: theme.cardBackground},
-                  ]}>
+                    <FlatList
+                      data={departureCities}
+                      keyExtractor={item => String(item.id)}
+                      keyboardShouldPersistTaps="handled"
+                      showsVerticalScrollIndicator={false}
+                      ListEmptyComponent={
+                        departureLoading ? (
+                          <View style={styles.searchStateContainer}>
+                            <Text style={{color: theme.textSecondary}}>
+                              {t('Loading...')}
+                            </Text>
+                          </View>
+                        ) : departureSearchText.trim().length > 0 &&
+                          departureSearchText.trim().length <
+                            minSearchLength ? (
+                          <View style={styles.searchStateContainer}>
+                            <Text style={{color: theme.textSecondary}}>
+                              {t('Type at least 2 characters')}
+                            </Text>
+                          </View>
+                        ) : (
+                          <View style={styles.searchStateContainer}>
+                            <Text style={{color: theme.textSecondary}}>
+                              {t('No cities found')}
+                            </Text>
+                          </View>
+                        )
+                      }
+                      renderItem={({item}) => {
+                        const cityLabel = item.displayName || item.name;
+                        const isMatch = departureSearchText
+                          ? cityLabel
+                              .toLowerCase()
+                              .includes(departureSearchText.toLowerCase())
+                          : false;
+
+                        return (
+                          <TouchableOpacity
+                            style={{
+                              paddingVertical: 14,
+                              paddingHorizontal: 12,
+                              borderBottomWidth: 1,
+                              borderBottomColor: theme.isDark ? '#444' : '#ccc',
+                              backgroundColor: theme.isDark ? '#222' : '#fff',
+                            }}
+                            activeOpacity={0.6}
+                            onPress={() => {
+                              setDepartureCityId(item.id);
+                              setDepartureCity(cityLabel);
+                              closeDepartureModal();
+                            }}>
+                            <Text
+                              style={{
+                                color: theme.isDark ? '#fff' : '#000',
+                                fontSize: 16,
+                              }}>
+                              {isMatch
+                                ? highlightMatch(cityLabel, departureSearchText)
+                                : cityLabel}
+                            </Text>
+                          </TouchableOpacity>
+                        );
+                      }}
+                    />
+                  </View>
+                </TouchableWithoutFeedback>
+              </View>
+            </TouchableWithoutFeedback>
+          </Modal>
+
+          <Modal
+            transparent
+            visible={modalVisibleArrival}
+            animationType="slide">
+            <TouchableWithoutFeedback onPress={closeArrivalModal}>
+              <View style={styles.modalOverlay}>
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                   <View
                     style={[
-                      styles.searchInputWrapper,
-                      {
-                        backgroundColor: theme.isDark ? '#333' : '#fff',
-                        borderColor: theme.isDark ? '#555' : '#ccc',
-                      },
+                      styles.modalContainer,
+                      {backgroundColor: theme.cardBackground},
                     ]}>
-                    <TextInput
-                      placeholder={t('Search City')}
-                      placeholderTextColor={theme.isDark ? '#aaa' : '#888'}
-                      value={arrivalSearchText}
-                      onChangeText={setArrivalSearchText}
-                      onBlur={clearArrivalSearch}
+                    <View
                       style={[
-                        styles.modalInput,
+                        styles.searchInputWrapper,
                         {
-                          color: theme.isDark ? '#fff' : '#000',
+                          backgroundColor: theme.isDark ? '#333' : '#fff',
+                          borderColor: theme.isDark ? '#555' : '#ccc',
                         },
-                      ]}
-                    />
-                    {arrivalSearchText ? (
-                      <TouchableOpacity
-                        onPress={clearArrivalSearch}
-                        hitSlop={{
-                          top: 10,
-                          bottom: 10,
-                          left: 10,
-                          right: 10,
-                        }}>
-                        <Icons
-                          name="close"
-                          size={20}
-                          color={theme.isDark ? '#aaa' : '#666'}
-                        />
-                      </TouchableOpacity>
-                    ) : null}
-                  </View>
-
-                  <FlatList
-                    data={arrivalCities}
-                    keyExtractor={item => String(item.id)}
-                    keyboardShouldPersistTaps="handled"
-                    showsVerticalScrollIndicator={false}
-                    ListEmptyComponent={
-                      arrivalLoading ? (
-                        <View style={styles.searchStateContainer}>
-                          <Text style={{color: theme.textSecondary}}>
-                            {t('Loading...')}
-                          </Text>
-                        </View>
-                      ) : arrivalSearchText.trim().length > 0 &&
-                        arrivalSearchText.trim().length < minSearchLength ? (
-                        <View style={styles.searchStateContainer}>
-                          <Text style={{color: theme.textSecondary}}>
-                            {t('Type at least 2 characters')}
-                          </Text>
-                        </View>
-                      ) : (
-                        <View style={styles.searchStateContainer}>
-                          <Text style={{color: theme.textSecondary}}>
-                            {t('No cities found')}
-                          </Text>
-                        </View>
-                      )
-                    }
-                    renderItem={({item}) => {
-                      const cityLabel = item.displayName || item.name;
-                      const isMatch = arrivalSearchText
-                        ? cityLabel
-                            .toLowerCase()
-                            .includes(arrivalSearchText.toLowerCase())
-                        : false;
-
-                      return (
+                      ]}>
+                      <TextInput
+                        placeholder={t('Search City')}
+                        placeholderTextColor={theme.isDark ? '#aaa' : '#888'}
+                        value={arrivalSearchText}
+                        onChangeText={setArrivalSearchText}
+                        onBlur={clearArrivalSearch}
+                        style={[
+                          styles.modalInput,
+                          {
+                            color: theme.isDark ? '#fff' : '#000',
+                          },
+                        ]}
+                      />
+                      {arrivalSearchText ? (
                         <TouchableOpacity
-                          style={{
-                            paddingVertical: 14,
-                            paddingHorizontal: 12,
-                            borderBottomWidth: 1,
-                            borderBottomColor: theme.isDark ? '#444' : '#ccc',
-                            backgroundColor: theme.isDark ? '#222' : '#fff',
-                          }}
-                          activeOpacity={0.6}
-                          onPress={() => {
-                            setArrivalCityId(item.id);
-                            setArrivalCity(cityLabel);
-                            closeArrivalModal();
+                          onPress={clearArrivalSearch}
+                          hitSlop={{
+                            top: 10,
+                            bottom: 10,
+                            left: 10,
+                            right: 10,
                           }}>
-                          <Text
-                            style={{
-                              color: theme.isDark ? '#fff' : '#000',
-                              fontSize: 16,
-                            }}>
-                            {isMatch
-                              ? highlightMatch(cityLabel, arrivalSearchText)
-                              : cityLabel}
-                          </Text>
+                          <Icons
+                            name="close"
+                            size={20}
+                            color={theme.isDark ? '#aaa' : '#666'}
+                          />
                         </TouchableOpacity>
-                      );
-                    }}
-                  />
-                </View>
-              </TouchableWithoutFeedback>
-            </View>
-          </TouchableWithoutFeedback>
-        </Modal>
+                      ) : null}
+                    </View>
 
-        <DatePicker
-          modal
-          open={open}
-          date={date}
-          mode="datetime"
-          locale="bg-BG"
-          is24hour={true}
-          minimumDate={new Date()}
-          theme={theme.isDark ? 'dark' : 'light'}
-          onConfirm={selected => {
-            setOpen(false);
-            setDate(selected);
-            setSelectedDateTime(selected);
-          }}
-          onCancel={() => setOpen(false)}
-        />
-      </SafeAreaView>
+                    <FlatList
+                      data={arrivalCities}
+                      keyExtractor={item => String(item.id)}
+                      keyboardShouldPersistTaps="handled"
+                      showsVerticalScrollIndicator={false}
+                      ListEmptyComponent={
+                        arrivalLoading ? (
+                          <View style={styles.searchStateContainer}>
+                            <Text style={{color: theme.textSecondary}}>
+                              {t('Loading...')}
+                            </Text>
+                          </View>
+                        ) : arrivalSearchText.trim().length > 0 &&
+                          arrivalSearchText.trim().length < minSearchLength ? (
+                          <View style={styles.searchStateContainer}>
+                            <Text style={{color: theme.textSecondary}}>
+                              {t('Type at least 2 characters')}
+                            </Text>
+                          </View>
+                        ) : (
+                          <View style={styles.searchStateContainer}>
+                            <Text style={{color: theme.textSecondary}}>
+                              {t('No cities found')}
+                            </Text>
+                          </View>
+                        )
+                      }
+                      renderItem={({item}) => {
+                        const cityLabel = item.displayName || item.name;
+                        const isMatch = arrivalSearchText
+                          ? cityLabel
+                              .toLowerCase()
+                              .includes(arrivalSearchText.toLowerCase())
+                          : false;
+
+                        return (
+                          <TouchableOpacity
+                            style={{
+                              paddingVertical: 14,
+                              paddingHorizontal: 12,
+                              borderBottomWidth: 1,
+                              borderBottomColor: theme.isDark ? '#444' : '#ccc',
+                              backgroundColor: theme.isDark ? '#222' : '#fff',
+                            }}
+                            activeOpacity={0.6}
+                            onPress={() => {
+                              setArrivalCityId(item.id);
+                              setArrivalCity(cityLabel);
+                              closeArrivalModal();
+                            }}>
+                            <Text
+                              style={{
+                                color: theme.isDark ? '#fff' : '#000',
+                                fontSize: 16,
+                              }}>
+                              {isMatch
+                                ? highlightMatch(cityLabel, arrivalSearchText)
+                                : cityLabel}
+                            </Text>
+                          </TouchableOpacity>
+                        );
+                      }}
+                    />
+                  </View>
+                </TouchableWithoutFeedback>
+              </View>
+            </TouchableWithoutFeedback>
+          </Modal>
+
+          <DatePicker
+            modal
+            open={open}
+            date={date}
+            mode="datetime"
+            locale="bg-BG"
+            is24hour={true}
+            minimumDate={new Date()}
+            theme={theme.isDark ? 'dark' : 'light'}
+            onConfirm={selected => {
+              setOpen(false);
+              setDate(selected);
+              setSelectedDateTime(selected);
+            }}
+            onCancel={() => setOpen(false)}
+          />
+        </SafeAreaView>
+      </KeyboardAvoidingView>
     </LinearGradient>
   );
 }

@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useCallback} from 'react';
+import React, {useEffect, useState, useCallback, useRef} from 'react';
 import {
   View,
   Text,
@@ -23,6 +23,7 @@ import {formatSeatsLabel} from '../../utils/seatPolicy';
 function RouteDetails({route}) {
   const {t} = useTranslation();
   const navigation = useNavigation();
+  const scrollViewRef = useRef(null);
   const {user} = useAuth();
   const params = route.params || {};
   const details = params.routeDetailsData || {};
@@ -201,6 +202,7 @@ function RouteDetails({route}) {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <LinearGradient colors={['#1b1b1b', '#2a2a2a']} style={{flex: 1}}>
         <ScrollView
+          ref={scrollViewRef}
           contentContainerStyle={{
             flexGrow: 1,
             paddingHorizontal: 20,
@@ -265,6 +267,11 @@ function RouteDetails({route}) {
             placeholder={t('Enter your travel request comment here :')}
             multiline
             textAlignVertical="top"
+            onFocus={() => {
+              setTimeout(() => {
+                scrollViewRef.current?.scrollToEnd({animated: true});
+              }, 300);
+            }}
           />
 
           <TouchableOpacity

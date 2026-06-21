@@ -114,6 +114,7 @@ const ReportBugScreen = () => {
       <TextInput
         style={styles.input}
         placeholder={t('shortSummary')}
+        placeholderTextColor="#000"
         value={title}
         onChangeText={setTitle}
       />
@@ -165,7 +166,7 @@ const ReportBugScreen = () => {
 
 const styles = StyleSheet.create({
   container: {padding: 16},
-  label: {fontWeight: 'bold', marginTop: 15},
+  label: {fontWeight: 'bold', marginTop: 15, color: '#000'},
   input: {
     borderWidth: 1,
     borderColor: '#ccc',

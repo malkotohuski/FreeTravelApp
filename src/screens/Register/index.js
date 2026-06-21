@@ -212,7 +212,16 @@ export default function Register({navigation}) {
         });
 
         if (verificationResponse.status === 200) {
-          navigation.navigate('Login');
+          Alert.alert(
+            t('RegistrationSuccessful'),
+            t('YourAccountHasBeenCreatedSuccessfully'),
+            [
+              {
+                text: t('Login'),
+                onPress: () => navigation.navigate('Login'),
+              },
+            ],
+          );
         } else {
           Alert.alert(
             t('Verification Error'),
@@ -346,9 +355,7 @@ export default function Register({navigation}) {
                 style={styles.passwordToggleButton}
                 onPress={() => setShowConfirmPassword(prev => !prev)}>
                 <Icons
-                  name={
-                    showConfirmPassword ? 'eye-off-outline' : 'eye-outline'
-                  }
+                  name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
                   size={22}
                   color="#fff"
                 />

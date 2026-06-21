@@ -445,7 +445,7 @@ const styles = StyleSheet.create({
   generatingText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#070707',
     marginTop: 8,
   },
   successMessage: {

@@ -17,6 +17,8 @@ i18next.use(initReactI18next).init({
         writePersonalMessage: 'Write a personal message (optional)',
         dailyLimitReached:
           'You have reached the daily limit of bug reports. Please try again tomorrow.',
+        YourAccountHasBeenCreatedSuccessfully:
+          'Your account has been created successfully! You can now log in.',
         FreeSeats: 'Free seats for passengers',
         HowManyPeopleCanJoinThisTrip: 'How many people can join this trip?',
         youHaveReachedMaximum:
@@ -107,6 +109,7 @@ i18next.use(initReactI18next).init({
         'I will travel for...': 'I will travel for...',
         'Create request (Passenger)': 'Create request (Passenger)',
         'Searchers list': 'Searchers list',
+        RegistrationSuccessful: 'Registration successful!',
         'Answers to:': 'Answers to:',
         Decline: 'Decline',
         'Route Title': 'Route Title',
@@ -5647,6 +5650,9 @@ i18next.use(initReactI18next).init({
         'Account settings': 'Настройки на акаунта',
         Hold: 'Задръжте',
         'Deleting in {{count}}...': 'Изтриване в {{count}}...',
+        RegistrationSuccessful: 'Регистрация успешна!',
+        YourAccountHasBeenCreatedSuccessfully:
+          'Акаунтът ви беше създаден успешно! Вече можете да влезете.',
         'Created by': 'Създадено от',
         'No routes available.': 'Няма налични маршрути.',
         'Information about your account': 'Информация за вашият акаунт',
