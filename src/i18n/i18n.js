@@ -17,6 +17,11 @@ i18next.use(initReactI18next).init({
         writePersonalMessage: 'Write a personal message (optional)',
         dailyLimitReached:
           'You have reached the daily limit of bug reports. Please try again tomorrow.',
+        DepartureTimeRange: 'Departure time range',
+        FromTime: 'From time',
+        ToTime: 'To time',
+        PleaseSelectDepartureTimeRange: 'Please select a departure time range.',
+        EndTimeMustBeAfterStartTime: 'End time must be after start time.',
         YourAccountHasBeenCreatedSuccessfully:
           'Your account has been created successfully! You can now log in.',
         FreeSeats: 'Free seats for passengers',
@@ -5710,6 +5715,10 @@ i18next.use(initReactI18next).init({
         'Contact Us': 'Свържете се с нас',
         SelectDateTime: 'Изберете дата и час',
         ChooseHowManySeatsYouNeed: 'Изберете колко места са ви необходими.',
+        PleaseSelectDepartureTimeRange:
+          'Моля, изберете диапазон от часове на заминаване.',
+        EndTimeMustBeAfterStartTime:
+          'Времето за край трябва да бъде след времето за начало.',
         No: 'Но.',
         Saved: 'Запазено',
         Download: 'Изтегли',
@@ -5717,6 +5726,7 @@ i18next.use(initReactI18next).init({
         Storage: 'Съхранение',
         Info: 'Информация',
         'Route Details': 'Подробности за маршрута',
+        DepartureTimeRange: 'Диапазон на време за заминаване',
         'Trip request': 'Заявка за пътуване',
         'You have a new request for your route.':
           'Имате нова заявка за ваш маршрут .',
@@ -5738,6 +5748,8 @@ i18next.use(initReactI18next).init({
         writePersonalMessage: 'Напишете лично съобщение (по избор):',
         VehicleAndSeats: 'Превозно средство и места:',
         FreeSeats: 'Свободни места за пътници',
+        FromTimeToTime: 'От време до време',
+        ToTime: 'До',
         HowManyPeopleCanJoinThisTrip:
           'Колко хора могат да се присъединят към това пътуване?',
         'No new requests.': 'Няма нови заявки.',

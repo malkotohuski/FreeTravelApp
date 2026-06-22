@@ -284,20 +284,15 @@ function RouteDetails({route}) {
                   </Text>
                   <Text style={styles.dateSubLabel}>{t('DEPARTURE TIME')}</Text>
                 </View>
-                {routeTitle ? (
-                  <>
-                    <View style={styles.dateSep} />
-                    <View style={[styles.dateBlock, {flex: 1.5}]}>
-                      <Text style={styles.routeTitleText} numberOfLines={1}>
-                        {routeTitle}
-                      </Text>
-                      <Text style={styles.dateSubLabel}>
-                        {t('Route Title').toUpperCase()}
-                      </Text>
-                    </View>
-                  </>
-                ) : null}
               </View>
+              {routeTitle ? (
+                <View style={styles.routeTitleDetails}>
+                  <Text style={styles.routeTitleText}>{routeTitle}</Text>
+                  <Text style={styles.dateSubLabel}>
+                    {t('Route Title').toUpperCase()}
+                  </Text>
+                </View>
+              ) : null}
             </View>
           )}
 
@@ -597,6 +592,14 @@ const styles = StyleSheet.create({
     color: '#f0f0f0',
     fontSize: 15,
     fontWeight: '700',
+    textAlign: 'center',
+  },
+  routeTitleDetails: {
+    alignItems: 'center',
+    marginTop: 14,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#3a3a3a',
   },
   dateSubLabel: {
     color: '#666',

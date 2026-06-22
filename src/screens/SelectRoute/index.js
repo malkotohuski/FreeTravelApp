@@ -23,6 +23,8 @@ import LinearGradient from 'react-native-linear-gradient';
 import {searchCities as searchCitiesApi} from '../../api/cities.api';
 import {useTheme} from '../../theme/useTheme';
 
+const ROUTE_TITLE_MAX_LENGTH = 30;
+
 function SelectRouteScreen({route, navigation}) {
   const {t} = useTranslation();
   const {selectedVehicle, registrationNumber, totalSeats = 1} = route.params;
@@ -271,7 +273,7 @@ function SelectRouteScreen({route, navigation}) {
       arrivalCity,
       arrivalStreet,
       arrivalNumber,
-      routeTitle,
+      routeTitle: routeTitle.trim(),
     });
   };
 
@@ -404,7 +406,10 @@ function SelectRouteScreen({route, navigation}) {
                 placeholder={t('Enter route title')}
                 placeholderTextColor={theme.placeholder}
                 value={routeTitle}
-                onChangeText={setRouteTitle}
+                onChangeText={text =>
+                  setRouteTitle(text.slice(0, ROUTE_TITLE_MAX_LENGTH))
+                }
+                maxLength={ROUTE_TITLE_MAX_LENGTH}
                 style={[
                   styles.inputFull,
                   {
@@ -414,6 +419,13 @@ function SelectRouteScreen({route, navigation}) {
                   },
                 ]}
               />
+              <Text
+                style={[
+                  styles.characterCounter,
+                  {color: theme.textSecondary},
+                ]}>
+                {routeTitle.length}/{ROUTE_TITLE_MAX_LENGTH}
+              </Text>
 
               <TouchableOpacity
                 style={[
@@ -782,6 +794,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 15,
+  },
+
+  characterCounter: {
+    alignSelf: 'flex-end',
+    fontSize: 12,
+    marginTop: 4,
   },
 
   primaryButton: {

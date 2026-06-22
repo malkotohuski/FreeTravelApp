@@ -2,6 +2,8 @@ const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 const {validateSeatCount} = require('../utils/seatPolicy');
 
+const ROUTE_TITLE_MAX_LENGTH = 30;
+
 const getCityName = cityRef => cityRef?.name || null;
 
 exports.createRoute = async (req, res) => {
@@ -15,6 +17,15 @@ exports.createRoute = async (req, res) => {
 
     if (!route.departureCityId || !route.arrivalCityId) {
       return res.status(400).json({error: 'Departure and arrival city IDs are required'});
+    }
+
+    const routeTitle =
+      typeof route.routeTitle === 'string' ? route.routeTitle.trim() : '';
+
+    if (routeTitle.length > ROUTE_TITLE_MAX_LENGTH) {
+      return res.status(400).json({
+        error: `Route title must be ${ROUTE_TITLE_MAX_LENGTH} characters or less.`,
+      });
     }
 
     const seatValidation = validateSeatCount(
@@ -85,7 +96,7 @@ exports.createRoute = async (req, res) => {
         arrivalStreet: route.arrivalStreet,
         arrivalNumber: route.arrivalNumber,
         selectedDateTime: new Date(route.selectedDateTime),
-        routeTitle: route.routeTitle,
+        routeTitle: routeTitle || null,
       },
       include: {
         departureCityRef: true,

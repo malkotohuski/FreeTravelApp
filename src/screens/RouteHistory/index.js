@@ -268,7 +268,10 @@ const RouteHistory = ({navigation}) => {
                       </Text>
                       <View style={styles.buttonContainer}>
                         <TouchableOpacity
-                          style={styles.button_delete}
+                          style={[
+                            styles.routeActionButton,
+                            styles.button_delete,
+                          ]}
                           onPress={() => handleDeleteRoute(route.id)}>
                           <Text style={styles.buttonText}>
                             {t('Delete Route')}
@@ -385,12 +388,16 @@ const RouteHistory = ({navigation}) => {
 
                         {/* Share бутон - видим на екрана */}
                         <TouchableOpacity
-                          style={styles.button_share}
+                          style={[
+                            styles.routeActionButton,
+                            styles.button_share,
+                          ]}
                           onPress={() => handleShareRoute(route)}>
                           <Text style={styles.buttonText}>📤 Сподели</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                           style={[
+                            styles.routeActionButton,
                             styles.button_completed,
                             !completionAllowed && styles.button_disabled,
                           ]}
@@ -492,6 +499,17 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
 
+  routeActionButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+    flexGrow: 1,
+    flexBasis: '48%',
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
   button_completed: {
     backgroundColor: '#2ecc71',
     paddingVertical: 10,
@@ -529,7 +547,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 5,
-    marginTop: 8,
     alignItems: 'center',
   },
   shareCardHidden: {

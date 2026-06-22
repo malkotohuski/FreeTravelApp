@@ -29,6 +29,7 @@ function Looking({navigation}) {
   const {t, i18n} = useTranslation();
   const {token} = useAuth();
   const theme = useTheme();
+  const ACCENT = '#f4511e';
   const minSearchLength = 2;
 
   const [isGenerating, setIsGenerating] = useState(false);
@@ -54,6 +55,11 @@ function Looking({navigation}) {
   const [open, setOpen] = useState(false);
   const [selectedDateTime, setSelectedDateTime] = useState(null);
 
+  const [openFromTime, setOpenFromTime] = useState(false);
+  const [openToTime, setOpenToTime] = useState(false);
+  const [fromTime, setFromTime] = useState(null);
+  const [toTime, setToTime] = useState(null);
+
   const locale = i18n.language === 'bg' ? 'bg-BG' : 'en-US';
 
   useFocusEffect(
@@ -70,6 +76,8 @@ function Looking({navigation}) {
       setFilteredArrivalCities([]);
       setSelectedDateTime(null);
       setRouteTitle('');
+      setFromTime(null);
+      setToTime(null);
     }, []),
   );
 
@@ -178,6 +186,11 @@ function Looking({navigation}) {
       return;
     }
 
+    if (!fromTime) {
+      Alert.alert(t('Error'), t('PleaseSelectDepartureTimeRange'));
+      return;
+    }
+
     if (!token) {
       Alert.alert(t('Error'), t('User is not logged in.'));
       return;
@@ -193,6 +206,8 @@ function Looking({navigation}) {
         arrivalCityId,
         arrivalCity,
         selectedDateTime,
+        fromTime: fromTime?.toISOString(),
+        toTime: toTime?.toISOString(),
         routeTitle,
       });
 
@@ -504,39 +519,121 @@ function Looking({navigation}) {
               <Text style={styles.buttonText}>{t('selectDate')}</Text>
             </TouchableOpacity>
 
-            {/*  <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
-            <Text style={styles.searchButtonText}>{t('Continue')}</Text>
-          </TouchableOpacity> */}
+            {/* Времеви интервал */}
+            <Text style={[styles.label, {color: theme.textSecondary}]}>
+              {t('DepartureTimeRange')}
+            </Text>
 
-            {isGenerating ? (
-              <Text style={[styles.loadingText, {color: theme.primaryButton}]}>
-                {t('Generating route...')}
-              </Text>
-            ) : (
+            <View style={styles.timeRangeRow}>
               <TouchableOpacity
-                style={styles.searchButton}
-                onPress={handleSearch}>
-                <Text style={styles.searchButtonText}>{t('Continue')}</Text>
+                style={[
+                  styles.timeButton,
+                  {
+                    backgroundColor: theme.inputBackground,
+                    borderColor: theme.cardBorder,
+                  },
+                  fromTime && {borderColor: ACCENT},
+                ]}
+                onPress={() => setOpenFromTime(true)}>
+                <Text
+                  style={[
+                    styles.timeButtonLabel,
+                    {color: theme.textSecondary},
+                  ]}>
+                  {t('From')}
+                </Text>
+                <Text
+                  style={[
+                    styles.timeButtonValue,
+                    {color: fromTime ? ACCENT : theme.textSecondary},
+                  ]}>
+                  {fromTime
+                    ? fromTime.toLocaleTimeString(i18n.language, {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false,
+                      })
+                    : '--:--'}
+                </Text>
               </TouchableOpacity>
-            )}
 
+              <Text style={[styles.timeRangeSep, {color: theme.textSecondary}]}>
+                →
+              </Text>
+
+              <TouchableOpacity
+                style={[
+                  styles.timeButton,
+                  {
+                    backgroundColor: theme.inputBackground,
+                    borderColor: theme.cardBorder,
+                  },
+                  toTime && {borderColor: ACCENT},
+                ]}
+                onPress={() => setOpenToTime(true)}>
+                <Text
+                  style={[
+                    styles.timeButtonLabel,
+                    {color: theme.textSecondary},
+                  ]}>
+                  {t('To')}
+                </Text>
+                <Text
+                  style={[
+                    styles.timeButtonValue,
+                    {color: toTime ? ACCENT : theme.textSecondary},
+                  ]}>
+                  {toTime
+                    ? toTime.toLocaleTimeString(i18n.language, {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false,
+                      })
+                    : '--:--'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* DatePicker за "от" час */}
             <DatePicker
               modal
-              open={open}
-              date={date}
-              mode="date" // <- само дата, без час и минути
-              theme="dark"
-              minimumDate={new Date()}
+              open={openFromTime}
+              date={fromTime || new Date()}
+              mode="time"
+              is24hourSource="locale"
               locale={locale}
-              title={t('selectDate')}
+              title={t('FromTime')}
               cancelText={t('Cancel')}
               confirmText={t('Confirm')}
               onConfirm={selected => {
-                setOpen(false);
-                setDate(selected);
-                setSelectedDateTime(selected);
+                setOpenFromTime(false);
+                setFromTime(selected);
+                // Ако "до" е преди "от", нулираме "до"
+                if (toTime && selected > toTime) setToTime(null);
               }}
-              onCancel={() => setOpen(false)}
+              onCancel={() => setOpenFromTime(false)}
+            />
+
+            {/* DatePicker за "до" час */}
+            <DatePicker
+              modal
+              open={openToTime}
+              date={toTime || fromTime || new Date()}
+              mode="time"
+              is24hourSource="locale"
+              locale={locale}
+              title={t('ToTime')}
+              cancelText={t('Cancel')}
+              confirmText={t('Confirm')}
+              onConfirm={selected => {
+                if (fromTime && selected <= fromTime) {
+                  Alert.alert(t('Error'), t('EndTimeMustBeAfterStartTime'));
+                  return;
+                }
+                setOpenToTime(false);
+                setToTime(selected);
+              }}
+              onCancel={() => setOpenToTime(false)}
             />
           </ScrollView>
         </SafeAreaView>
@@ -632,6 +729,35 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   loadingText: {marginTop: 10, fontWeight: '600'},
+  timeRangeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    width: '90%',
+  },
+  timeButton: {
+    flex: 1,
+    height: 70,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 4,
+  },
+  timeButtonLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+  },
+  timeButtonValue: {
+    fontSize: 22,
+    fontWeight: '800',
+  },
+  timeRangeSep: {
+    fontSize: 20,
+    fontWeight: '700',
+  },
 });
 
 export default Looking;
