@@ -641,14 +641,44 @@ function Looking({navigation}) {
               cancelText={t('Cancel')}
               confirmText={t('Confirm')}
               onConfirm={selected => {
-                if (fromTime && selected <= fromTime) {
+                setOpenToTime(false);
+
+                if (!fromTime) {
+                  setToTime(selected);
+                  return;
+                }
+
+                const fromMinutes =
+                  fromTime.getHours() * 60 + fromTime.getMinutes();
+
+                const toMinutes =
+                  selected.getHours() * 60 + selected.getMinutes();
+
+                if (toMinutes <= fromMinutes) {
                   Alert.alert(t('Error'), t('EndTimeMustBeAfterStartTime'));
                   return;
                 }
-                setOpenToTime(false);
+
                 setToTime(selected);
               }}
               onCancel={() => setOpenToTime(false)}
+            />
+            <DatePicker
+              modal
+              open={open}
+              date={date}
+              mode="date"
+              locale={locale}
+              title={t('selectDate')}
+              cancelText={t('Cancel')}
+              confirmText={t('Confirm')}
+              minimumDate={new Date()}
+              onConfirm={selected => {
+                setOpen(false);
+                setDate(selected);
+                setSelectedDateTime(selected);
+              }}
+              onCancel={() => setOpen(false)}
             />
           </ScrollView>
         </SafeAreaView>
