@@ -595,6 +595,21 @@ function Looking({navigation}) {
             </View>
 
             {/* DatePicker за "от" час */}
+            <TouchableOpacity
+              style={[
+                styles.searchButton,
+                {backgroundColor: theme.primaryButton},
+                (isGenerating || isSubmitting) && styles.disabledButton,
+              ]}
+              disabled={isGenerating || isSubmitting}
+              onPress={handleSearch}>
+              {isGenerating || isSubmitting ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text style={styles.searchButtonText}>{t('Continue')}</Text>
+              )}
+            </TouchableOpacity>
+
             <DatePicker
               modal
               open={openFromTime}
@@ -721,6 +736,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 15,
+  },
+  disabledButton: {
+    opacity: 0.65,
   },
   searchButtonText: {
     fontSize: 18,

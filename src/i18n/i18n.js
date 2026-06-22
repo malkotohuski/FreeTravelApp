@@ -34,6 +34,7 @@ i18next.use(initReactI18next).init({
         letsStart: "Let's start!",
         LetTravel: "Let's travel",
         SeatsNeeded: 'Seats needed',
+        Share: 'Share',
         ChooseHowManySeatsYouNeed:
           'Choose how many seats you need for this trip.',
         discoverConnectTravel: 'Discover. Connect. Travel.',
@@ -5225,6 +5226,7 @@ i18next.use(initReactI18next).init({
         'Successfully rated the user.': 'Успешно оцени потребителя.',
         'Request from': 'Заявка от',
         AboutUsScreen: 'За нас',
+        Share: 'Сподели',
         'Arrival City': 'Град на пристигане',
         Search: 'Търсене ',
         'Your rating': 'Вашата оценка',

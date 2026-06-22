@@ -393,7 +393,7 @@ const RouteHistory = ({navigation}) => {
                             styles.button_share,
                           ]}
                           onPress={() => handleShareRoute(route)}>
-                          <Text style={styles.buttonText}>📤 Сподели</Text>
+                          <Text style={styles.buttonText}>📤 {t('Share')}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                           style={[
