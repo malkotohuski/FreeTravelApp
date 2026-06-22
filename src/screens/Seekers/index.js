@@ -317,7 +317,7 @@ export default function Seekers({navigation}) {
               <View style={[styles.dateBlock, {flex: 1.5}]}>
                 <Text
                   style={[styles.routeTitleText, {color: theme.textPrimary}]}
-                  numberOfLines={1}>
+                  numberOfLines={2}>
                   {route.routeTitle}
                 </Text>
                 <Text
