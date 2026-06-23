@@ -525,6 +525,34 @@ export default function Seekers({navigation}) {
                       </View>
                     </View>
 
+                    {/* ✅ НОВО: Route Title в модала */}
+                    {selectedRoute.routeTitle ? (
+                      <>
+                        <View
+                          style={[
+                            styles.divider,
+                            {backgroundColor: theme.cardBorder || '#444'},
+                          ]}
+                        />
+                        <View style={styles.routeTitleRow}>
+                          <Text
+                            style={[
+                              styles.dateSubLabel,
+                              {color: theme.textSecondary},
+                            ]}>
+                            {t('Route Title').toUpperCase()}
+                          </Text>
+                          <Text
+                            style={[
+                              styles.routeTitleValue,
+                              {color: theme.textPrimary},
+                            ]}>
+                            {selectedRoute.routeTitle}
+                          </Text>
+                        </View>
+                      </>
+                    ) : null}
+
                     <View
                       style={[
                         styles.divider,
@@ -644,6 +672,18 @@ const createStyles = theme =>
       padding: 10,
       borderRadius: 10,
       fontSize: 15,
+    },
+
+    routeTitleRow: {
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      alignItems: 'center',
+    },
+    routeTitleValue: {
+      fontSize: 16,
+      fontWeight: '700',
+      marginTop: 4,
+      textAlign: 'center',
     },
 
     // ── Карточка ──
