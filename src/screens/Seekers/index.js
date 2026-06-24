@@ -303,7 +303,7 @@ export default function Seekers({navigation}) {
                 : formatTime(dateStr)}
             </Text>
             <Text style={[styles.dateSubLabel, {color: theme.textSecondary}]}>
-              {t('DEPARTURE TIME')}
+              {t('DEPARTURETIME')}
             </Text>
           </View>
 
@@ -530,7 +530,7 @@ export default function Seekers({navigation}) {
                             styles.dateSubLabel,
                             {color: theme.textSecondary},
                           ]}>
-                          {t('DEPARTURE TIME')}
+                          {t('DEPARTURETIME')}
                         </Text>
                       </View>
                     </View>
@@ -612,7 +612,7 @@ export default function Seekers({navigation}) {
                           fromScreen: 'Seekers',
                         });
                       }}>
-                      <Text style={styles.buttonText}>{t('View Profile')}</Text>
+                      <Text style={styles.buttonText}>{t('viewProfile')}</Text>
                     </TouchableOpacity>
 
                     <View style={styles.modalButtons}>
@@ -645,7 +645,7 @@ export default function Seekers({navigation}) {
                           {backgroundColor: theme.secondaryButton},
                         ]}
                         onPress={() => setSelectedRoute(null)}>
-                        <Text style={styles.buttonText}>{t('Back')}</Text>
+                        <Text style={styles.buttonBackText}>{t('Back')}</Text>
                       </TouchableOpacity>
                     </View>
                   </>
@@ -854,6 +854,8 @@ const createStyles = theme =>
     },
     buttonText: {color: '#fff', fontWeight: '700', fontSize: 15},
     infoText: {flex: 1, textAlign: 'center', fontSize: 13},
+
+    buttonBackText: {color: '#ff6b6b', fontWeight: '700', fontSize: 15},
 
     backButton: {
       margin: 12,

@@ -18,6 +18,8 @@ i18next.use(initReactI18next).init({
         dailyLimitReached:
           'You have reached the daily limit of bug reports. Please try again tomorrow.',
         DepartureTimeRange: 'Departure time range',
+        DEPARTURETIME: 'DEPARTURE TIME:',
+        viewProfile: 'View Profile',
         FromTime: 'From time',
         ToTime: 'To time',
         PleaseSelectDepartureTimeRange: 'Please select a departure time range.',
@@ -5284,6 +5286,7 @@ i18next.use(initReactI18next).init({
         invalidFormatExample: 'Невалиден формат, пример: CA1234AB',
         lookingRorARoute: 'Търся маршрут',
         Answer: 'Отговор',
+        viewProfile: 'Виж профил',
         'Enter your travel request comment here :':
           'Въведете вашият коментар на заявка за пътуване тук : ',
         Home: 'Дом',
@@ -5373,6 +5376,7 @@ i18next.use(initReactI18next).init({
         'Please select a street!': 'Моля, изберете улица!',
         'Please enter a number!': 'Моля, посочете номер!',
         Comment: 'Коментар',
+        DEPARTURETIME: 'ВРЕМЕ НА ЗАМИНАВАНЕ',
         'Date/Time': 'Дата/час',
         'Please select a city!': 'Моля, изберете град!',
         'Please select a date and time!': 'Моля , изберете дата и час !',
