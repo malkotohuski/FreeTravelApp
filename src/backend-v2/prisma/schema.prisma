@@ -113,6 +113,8 @@ model SeekerRequest {
   userId           Int
   createdAt        DateTime  @default(now())
   selectedDateTime DateTime
+  fromTime         DateTime?   
+  toTime           DateTime?   
   status           String    @default("active")
   userEmail        String
   userFname        String

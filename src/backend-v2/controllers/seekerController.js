@@ -13,7 +13,12 @@ exports.createSeekerRequest = async (req, res) => {
       arrivalCity,
       selectedDateTime,
       routeTitle,
+      fromTime,
+      toTime,
     } = req.body;
+
+    console.log('fromTime от req.body:', fromTime); // ✅ добави това
+    console.log('toTime от req.body:', toTime);
 
     if (
       !departureCityId ||
@@ -77,6 +82,10 @@ exports.createSeekerRequest = async (req, res) => {
       },
     });
 
+    console.log('RAW fromTime:', fromTime, typeof fromTime);
+    console.log('RAW toTime:', toTime, typeof toTime);
+    console.log('PARSED fromTime:', fromTime ? new Date(fromTime) : null);
+
     const seeker = await prisma.seekerRequest.create({
       data: {
         routeId: newRoute.id,
@@ -85,6 +94,8 @@ exports.createSeekerRequest = async (req, res) => {
         arrivalCityId: arrivalCityRecord.id,
         arrivalCity: arrivalCityRecord.name,
         selectedDateTime: new Date(selectedDateTime),
+        fromTime: fromTime ? new Date(String(fromTime)) : null,
+        toTime: toTime ? new Date(String(toTime)) : null,
         routeTitle,
 
         userId: user.id,

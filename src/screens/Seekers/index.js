@@ -124,7 +124,7 @@ export default function Seekers({navigation}) {
       .toUpperCase();
   };
 
-  const getTime = dateStr => {
+  const formatTime = dateStr => {
     if (!dateStr) return '';
     return new Date(dateStr).toLocaleTimeString(i18n.language, {
       hour: '2-digit',
@@ -296,7 +296,11 @@ export default function Seekers({navigation}) {
 
           <View style={styles.dateBlock}>
             <Text style={[styles.dateValue, {color: ACCENT}]}>
-              {getTime(dateStr)}
+              {route.fromTime
+                ? `${formatTime(route.fromTime)}${
+                    route.toTime ? ' – ' + formatTime(route.toTime) : ''
+                  }`
+                : formatTime(dateStr)}
             </Text>
             <Text style={[styles.dateSubLabel, {color: theme.textSecondary}]}>
               {t('DEPARTURE TIME')}
@@ -513,7 +517,13 @@ export default function Seekers({navigation}) {
                       />
                       <View style={styles.dateBlock}>
                         <Text style={[styles.dateValue, {color: ACCENT}]}>
-                          {getTime(selectedRoute.selectedDateTime)}
+                          {selectedRoute.fromTime
+                            ? `${formatTime(selectedRoute.fromTime)}${
+                                selectedRoute.toTime
+                                  ? ' – ' + formatTime(selectedRoute.toTime)
+                                  : ''
+                              }`
+                            : formatTime(selectedRoute.selectedDateTime)}
                         </Text>
                         <Text
                           style={[
@@ -737,6 +747,11 @@ const createStyles = theme =>
       paddingHorizontal: 16,
       paddingVertical: 14,
       gap: 12,
+    },
+    timeRangeValue: {
+      fontSize: 13,
+      fontWeight: '800',
+      textAlign: 'center',
     },
     routeIcons: {
       alignItems: 'center',
