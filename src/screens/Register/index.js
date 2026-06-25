@@ -377,7 +377,7 @@ export default function Register({navigation}) {
                 <Text style={styles.textButtons}>
                   {!showConfirmationCodeInput
                     ? t('Continue')
-                    : t('Verify Confirmation Code')}
+                    : t('VerifyConfirmatioCode')}
                 </Text>
               </TouchableOpacity>
 
@@ -394,7 +394,7 @@ export default function Register({navigation}) {
                   style={styles.loginButtons}
                   onPress={resendConfirmationCode}>
                   <Text style={styles.textButtons}>
-                    {t('Resend confirmation code')}
+                    {t('ResendConfirmationCode')}
                   </Text>
                 </TouchableOpacity>
               )}

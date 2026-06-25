@@ -15,6 +15,8 @@ i18next.use(initReactI18next).init({
         Refresh: 'Refresh',
         limitReached: 'Limit Reached',
         writePersonalMessage: 'Write a personal message (optional)',
+        VerifyConfirmatioCode: 'Verify Confirmation Code',
+        ResendConfirmationCode: 'Resend confirmation code',
         dailyLimitReached:
           'You have reached the daily limit of bug reports. Please try again tomorrow.',
         DepartureTimeRange: 'Departure time range',
@@ -5261,6 +5263,7 @@ i18next.use(initReactI18next).init({
           'Искате ли да изтриете тази нотификация :',
         sending: 'Изпращане...',
         UserInfo: 'Информация за потребителя',
+        ResendConfirmationCode: 'Изпрати отново кода за потвърждение',
         Motorcycle: 'Мотоциклет',
         'A minibus': 'Микробус',
         'I will travel for...': 'Ще пътувам за...',
@@ -5289,6 +5292,7 @@ i18next.use(initReactI18next).init({
         'Please enter a valid registration number.':
           'Моля, въведете валиден регистрационен номер.',
         invalidFormatExample: 'Невалиден формат, пример: CA1234AB',
+        VerifyConfirmatioCode: 'Проверка на кода за потвърждение',
         lookingRorARoute: 'Търся маршрут',
         Answer: 'Отговор',
         viewProfile: 'Виж профил',
