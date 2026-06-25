@@ -181,7 +181,7 @@ function RouteRequestScreen({route, navigation}) {
             </Text>
           ) : null}
           <Text style={[styles.text, {color: theme.textSecondary}]}>
-            {t('Requested seats')}: {request.requestedSeats || 1}
+            {t('RequestedSeats')}: {request.requestedSeats || 1}
           </Text>
         </TouchableOpacity>
       ))
@@ -225,18 +225,12 @@ function RouteRequestScreen({route, navigation}) {
                       {selectedRequest.userLname}
                     </Text>
                     <Text
-                      style={[
-                        styles.modalText,
-                        {color: theme.textSecondary},
-                      ]}>
+                      style={[styles.modalText, {color: theme.textSecondary}]}>
                       {t('Direction')}: {selectedRequest.departureCity} -{' '}
                       {selectedRequest.arrivalCity}
                     </Text>
                     <Text
-                      style={[
-                        styles.modalText,
-                        {color: theme.textSecondary},
-                      ]}>
+                      style={[styles.modalText, {color: theme.textSecondary}]}>
                       {t('Date/Time')}:{' '}
                       {new Date(selectedRequest.dataTime).toLocaleString(
                         'bg-BG',
@@ -287,14 +281,14 @@ function RouteRequestScreen({route, navigation}) {
                                 : theme.textSecondary,
                             },
                           ]}>
-                          {t('Requested seats')}:{' '}
+                          {t('RequestedSeats')}:{' '}
                           {selectedRequest.requestedSeats || 1}
                         </Text>
                       </>
                     ) : null}
 
                     <Text style={[styles.modalText, {marginTop: 15}]}>
-                      {t('Personal message (optional)')}:
+                      {t('PersonalMessageOptional')}:
                     </Text>
 
                     <TextInput
@@ -306,7 +300,7 @@ function RouteRequestScreen({route, navigation}) {
                           color: theme.textPrimary,
                         },
                       ]}
-                      placeholder={t('Write a message...')}
+                      placeholder={t('WriteMessage')}
                       placeholderTextColor={theme.placeholder}
                       value={decisionMessage}
                       onChangeText={setDecisionMessage}
@@ -315,10 +309,7 @@ function RouteRequestScreen({route, navigation}) {
                     />
 
                     <TouchableOpacity
-                      style={[
-                        styles.modalButton,
-                        {backgroundColor: '#007AFF'},
-                      ]}
+                      style={[styles.modalButton, {backgroundColor: '#007AFF'}]}
                       onPress={() => {
                         Keyboard.dismiss();
                         setModalVisible(false);
@@ -344,7 +335,9 @@ function RouteRequestScreen({route, navigation}) {
                                 : 1,
                           },
                         ]}
-                        disabled={isProcessing || hasNoFreeSeats(selectedRequest)}
+                        disabled={
+                          isProcessing || hasNoFreeSeats(selectedRequest)
+                        }
                         onPress={() => {
                           Keyboard.dismiss();
                           setModalVisible(false);
@@ -556,4 +549,3 @@ const styles = StyleSheet.create({
 });
 
 export default RouteRequestScreen;
-
