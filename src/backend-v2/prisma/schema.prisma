@@ -18,6 +18,8 @@ model User {
   confirmationCode          String?
   confirmationCodeExpiresAt DateTime?
   lastConfirmationResend    DateTime?
+  resendCount               Int             @default(0)
+  resendWindowStart         DateTime?
   isActive                  Boolean         @default(false)
   refreshToken              String?
   refreshTokenExpiresAt     DateTime?

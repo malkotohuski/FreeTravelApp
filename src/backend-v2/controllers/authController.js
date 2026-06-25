@@ -5,10 +5,7 @@ const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 const crypto = require('crypto');
 const cloudinary = require('cloudinary').v2;
-const {
-  sendConfirmationEmail,
-  sendResetEmail,
-} = require('../utils/mailer');
+const {sendConfirmationEmail, sendResetEmail} = require('../utils/mailer');
 const {validatePassword} = require('../utils/passwordPolicy');
 
 cloudinary.config({
@@ -310,6 +307,7 @@ exports.resendConfirmationCode = async (req, res) => {
       });
     }
 
+    // ✅ Cooldown 60 секунди
     const resendCooldownMs = 60 * 1000;
     if (
       user.lastConfirmationResend &&
@@ -317,6 +315,20 @@ exports.resendConfirmationCode = async (req, res) => {
     ) {
       return res.status(429).json({
         error: 'Please wait before requesting another confirmation code.',
+      });
+    }
+
+    // ✅ Максимум 3 пъти на час
+    const now = Date.now();
+    const oneHourMs = 60 * 60 * 1000;
+    const windowStart = user.resendWindowStart?.getTime() || 0;
+    const isInSameWindow = now - windowStart < oneHourMs;
+    const currentCount = isInSameWindow ? user.resendCount : 0;
+
+    if (currentCount >= 3) {
+      return res.status(429).json({
+        error:
+          'You have reached the maximum resend limit. Try again in an hour.',
       });
     }
 
@@ -328,6 +340,8 @@ exports.resendConfirmationCode = async (req, res) => {
         confirmationCode,
         confirmationCodeExpiresAt: new Date(Date.now() + 10 * 60 * 1000),
         lastConfirmationResend: new Date(),
+        resendCount: currentCount + 1,
+        resendWindowStart: isInSameWindow ? user.resendWindowStart : new Date(),
       },
     });
 
@@ -516,7 +530,9 @@ exports.forgotPassword = async (req, res) => {
         .json({message: 'If account exists, reset code sent.'});
     }
 
-    const user = await prisma.user.findUnique({where: {email: normalizedEmail}});
+    const user = await prisma.user.findUnique({
+      where: {email: normalizedEmail},
+    });
 
     // Винаги security response
     if (!user) {
@@ -572,7 +588,9 @@ exports.resetPassword = async (req, res) => {
       return res.status(400).json({error: passwordValidation.error});
     }
 
-    const user = await prisma.user.findUnique({where: {email: normalizedEmail}});
+    const user = await prisma.user.findUnique({
+      where: {email: normalizedEmail},
+    });
     if (!user || !user.confirmationCode || !user.confirmationCodeExpiresAt) {
       return res.status(400).json({error: 'Invalid or expired code.'});
     }
