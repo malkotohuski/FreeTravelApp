@@ -282,7 +282,7 @@ function RouteDetails({route}) {
                   <Text style={styles.dateValue}>
                     {getTime(selectedDateTime)}
                   </Text>
-                  <Text style={styles.dateSubLabel}>{t('DEPARTURE TIME')}</Text>
+                  <Text style={styles.dateSubLabel}>{t('DEPARTURETIME')}</Text>
                 </View>
               </View>
               {routeTitle ? (
@@ -337,7 +337,7 @@ function RouteDetails({route}) {
               style={styles.input}
               onChangeText={text => setTripRequestText(text)}
               value={tripRequestText}
-              placeholder={t('Write something about yourself or your trip...')}
+              placeholder={t('WriteSomethingAboutYourselfOrYourTrip')}
               placeholderTextColor="#666"
               multiline
               textAlignVertical="top"

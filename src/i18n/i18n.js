@@ -157,6 +157,8 @@ i18next.use(initReactI18next).init({
         'User not found.': 'User not found.',
         'Please select a number of stars.': 'Please select a number of stars.',
         Other: 'Other',
+        StartConversationByRequestingOrOfferingARide:
+          'Start a conversation by requesting or offering a ride',
         Search: 'Search',
         Messages: 'Messages',
         Success: 'Success',
@@ -261,6 +263,7 @@ i18next.use(initReactI18next).init({
         'Selected Date and Time': 'Selected Date and Time',
         'Enter your travel request comment here :':
           'Enter your travel request comment here :',
+        NoConversationsYet: 'No conversations yet.',
         Type: 'Type',
         'Search...': 'Search...',
         'No new notifications': 'No new notifications',
@@ -521,6 +524,8 @@ i18next.use(initReactI18next).init({
         'Add Profile Picture': 'Add Profile Picture',
         'First Name': 'First Name',
         'Enter first name *': 'Enter first name *',
+        WriteSomethingAboutYourselfOrYourTrip:
+          'Write something about yourself or your trip...',
         'Last Name': 'Last Name',
         'Enter last name *': 'Enter last name *',
         'Phone Number': 'Phone Number',
@@ -5287,6 +5292,11 @@ i18next.use(initReactI18next).init({
         lookingRorARoute: 'Търся маршрут',
         Answer: 'Отговор',
         viewProfile: 'Виж профил',
+        WriteSomethingAboutYourselfOrYourTrip:
+          'Напишете нещо за себе си или за вашето пътуване...',
+        NoConversationsYet: 'Все още няма разговори.',
+        StartConversationByRequestingOrOfferingARide:
+          'Започнете разговор, като заявите или предложите пътуване:',
         'Enter your travel request comment here :':
           'Въведете вашият коментар на заявка за пътуване тук : ',
         Home: 'Дом',

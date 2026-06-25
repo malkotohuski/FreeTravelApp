@@ -240,6 +240,17 @@ const ConversationsScreen = ({navigation}) => {
       <FlatList
         data={conversations}
         keyExtractor={item => item.id.toString()}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyIcon}>💬</Text>
+            <Text style={[styles.emptyTitle, {color: theme.textPrimary}]}>
+              {t('NoConversationsYet')}
+            </Text>
+            <Text style={[styles.emptySubtitle, {color: theme.textSecondary}]}>
+              {t('StartConversationByRequestingOrOfferingARide')}
+            </Text>
+          </View>
+        }
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -395,6 +406,28 @@ const styles = StyleSheet.create({
 
   textSection: {
     flex: 1,
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 80,
+    paddingHorizontal: 30,
+  },
+  emptyIcon: {
+    fontSize: 52,
+    marginBottom: 16,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20,
   },
 
   rightSection: {

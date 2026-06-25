@@ -399,7 +399,7 @@ function ViewRoutes({navigation}) {
                           styles.dateSubLabel,
                           {color: theme.textSecondary},
                         ]}>
-                        {t('DEPARTURE TIME')}
+                        {t('DEPARTURETIME')}
                       </Text>
                     </View>
 
