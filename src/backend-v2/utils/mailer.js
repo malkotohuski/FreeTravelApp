@@ -4,7 +4,7 @@ const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
   : null;
 
-const FROM_EMAIL = 'FreeTravelApp <info@freetravelapp.it.com>';
+const FROM_EMAIL = 'FreeTravelApp <info@freeapptravel.com>';
 const APP_NAME = 'FreeTravelApp';
 
 function getBaseTemplate({title, intro, body, footer}) {
@@ -95,6 +95,7 @@ async function sendResetEmail(to, code) {
 }
 
 async function sendReportReceivedEmail(report, reporterEmail) {
+  АЦ;
   const html = getBaseTemplate({
     title: 'Report Received',
     intro: `Hello ${report.reporter.username},`,
