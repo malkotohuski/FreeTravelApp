@@ -1,4 +1,10 @@
-import React, {useState, useEffect, useContext, useRef} from 'react';
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useRef,
+  useCallback,
+} from 'react';
 import {useTranslation} from 'react-i18next';
 import ViewShot from 'react-native-view-shot';
 import Share from 'react-native-share';
@@ -14,6 +20,7 @@ import {
   TextInput,
   ActivityIndicator,
 } from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useAuth} from '../../context/AuthContext';
 import api from '../../api/api';
@@ -74,29 +81,29 @@ const RouteHistory = ({navigation}) => {
     return Date.now() >= allowedTime;
   };
 
-  useEffect(() => {
-    const fetchRoutes = async () => {
-      try {
-        setLoading(true);
-        const response = await api.get('/api/routes/my');
+  useFocusEffect(
+    useCallback(() => {
+      const fetchRoutes = async () => {
+        try {
+          setLoading(true);
+          const response = await api.get('/api/routes/my');
+          const routes = response.data.filter(
+            route => route.status === 'active',
+          );
+          setOriginalRoutesState(routes);
+          setFilteredRoutesState(routes);
+        } catch (error) {
+          console.error('Error fetching routes:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
 
-        const routes = response.data.filter(route => {
-          return route.status === 'active';
-        });
-
-        setOriginalRoutesState(routes);
-        setFilteredRoutesState(routes);
-      } catch (error) {
-        console.error('Error fetching routes:', error);
-      } finally {
-        setLoading(false);
+      if (user?.id) {
+        fetchRoutes();
       }
-    };
-
-    if (user?.id) {
-      fetchRoutes();
-    }
-  }, [user]);
+    }, [user?.id]),
+  );
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
