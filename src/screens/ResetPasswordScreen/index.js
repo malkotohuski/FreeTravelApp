@@ -2,7 +2,6 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import {useFocusEffect} from '@react-navigation/native';
 import React, {useState, useCallback} from 'react';
 import {
-  View,
   Text,
   TextInput,
   TouchableOpacity,
@@ -20,6 +19,7 @@ import {
 
 export default function ResetPassword({navigation}) {
   const {t, i18n} = useTranslation();
+  const emailRegex = /\S+@\S+\.\S+/;
 
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
@@ -45,15 +45,25 @@ export default function ResetPassword({navigation}) {
   );
 
   const sendResetCode = async () => {
-    if (!email.trim()) {
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (!normalizedEmail) {
       Alert.alert(t('Error'), t('Please enter your email'));
+      return;
+    }
+
+    if (!emailRegex.test(normalizedEmail)) {
+      Alert.alert(
+        t('Invalid email address'),
+        t('Please enter a valid email address.'),
+      );
       return;
     }
 
     try {
       setLoading(true);
 
-      await api.post('/api/auth/forgot-password', {email});
+      await api.post('/api/auth/forgot-password', {email: normalizedEmail});
 
       // ✅ ВИНАГИ показваме успех
       Alert.alert(
@@ -90,7 +100,7 @@ export default function ResetPassword({navigation}) {
     try {
       setLoading(true);
       await api.post('/api/auth/reset-password', {
-        email,
+        email: email.trim().toLowerCase(),
         code,
         newPassword,
       });

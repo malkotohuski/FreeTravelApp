@@ -19,6 +19,7 @@ import {
   SafeAreaView,
   TextInput,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -39,6 +40,7 @@ const RouteHistory = ({navigation}) => {
   const [debouncedDepartureText, setDebouncedDepartureText] = useState('');
   const [debouncedArrivalText, setDebouncedArrivalText] = useState('');
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const shareRefs = useRef({});
 
@@ -81,29 +83,47 @@ const RouteHistory = ({navigation}) => {
     return Date.now() >= allowedTime;
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      const fetchRoutes = async () => {
-        try {
+  const fetchRoutes = useCallback(
+    async ({showInitialLoader = false, showRefreshLoader = false} = {}) => {
+      try {
+        if (showInitialLoader) {
           setLoading(true);
-          const response = await api.get('/api/routes/my');
-          const routes = response.data.filter(
-            route => route.status === 'active',
-          );
-          setOriginalRoutesState(routes);
-          setFilteredRoutesState(routes);
-        } catch (error) {
-          console.error('Error fetching routes:', error);
-        } finally {
+        }
+        if (showRefreshLoader) {
+          setRefreshing(true);
+        }
+
+        const response = await api.get('/api/routes/my');
+        const routes = response.data.filter(route => route.status === 'active');
+        setOriginalRoutesState(routes);
+        setFilteredRoutesState(routes);
+      } catch (error) {
+        console.error('Error fetching routes:', error);
+      } finally {
+        if (showInitialLoader) {
           setLoading(false);
         }
-      };
-
-      if (user?.id) {
-        fetchRoutes();
+        if (showRefreshLoader) {
+          setRefreshing(false);
+        }
       }
-    }, [user?.id]),
+    },
+    [],
   );
+
+  useFocusEffect(
+    useCallback(() => {
+      if (user?.id) {
+        fetchRoutes({showInitialLoader: true});
+      }
+    }, [fetchRoutes, user?.id]),
+  );
+
+  const handleRefresh = useCallback(() => {
+    if (user?.id) {
+      fetchRoutes({showRefreshLoader: true});
+    }
+  }, [fetchRoutes, user?.id]);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -249,7 +269,16 @@ const RouteHistory = ({navigation}) => {
             <ActivityIndicator size="large" color="#f4511e" />
           </View>
         ) : (
-          <ScrollView style={styles.scrollView}>
+          <ScrollView
+            style={styles.scrollView}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={handleRefresh}
+                tintColor="#f4511e"
+                colors={['#f4511e']}
+              />
+            }>
             <View style={styles.container}>
               {filteredRoutesState.length === 0 ? (
                 <Text style={styles.emptyText}>{t('No routes found')}</Text>
