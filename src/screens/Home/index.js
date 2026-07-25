@@ -15,7 +15,6 @@ import {
   ScrollView,
   SafeAreaView,
   Animated,
-  Vibration,
 } from 'react-native';
 import {useTranslation} from 'react-i18next';
 import {useFocusEffect} from '@react-navigation/native';
@@ -25,8 +24,7 @@ import api from '../../api/api';
 import {useAuth} from '../../context/AuthContext';
 import {DarkModeContext} from '../../navigation/DarkModeContext';
 import socket from '../../socket/socket';
-import Toast from 'react-native-toast-message';
-import NotificationService from '../../backend-v2/services/NotificationService';
+
 import {useChat} from '../../context/ChatContext';
 
 function HomePage({navigation}) {
@@ -48,7 +46,6 @@ function HomePage({navigation}) {
   const glowAnim = useRef(new Animated.Value(0)).current;
   const bounceAnim = useRef(new Animated.Value(0)).current;
 
-  
   useEffect(() => {
     if (!user?.id) return;
 
@@ -71,7 +68,7 @@ function HomePage({navigation}) {
   }, [user?.id]);
 
   // â”€â”€â”€â”€â”€â”€â”€ ÐÐ¾Ð² useEffect Ð·Ð° messagesRead â”€â”€â”€â”€â”€â”€â”€
-  
+
   const pulseLoopRef = useRef(null);
 
   useEffect(() => {
@@ -263,7 +260,10 @@ function HomePage({navigation}) {
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 10,
-    color: darkMode ? '#FFFDFDFF' : '#000000',
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0,0,0,0.6)',
+    textShadowOffset: {width: 0, height: 1},
+    textShadowRadius: 3,
   });
 
   const getButtonStyle = (color = '#000') => ({
@@ -548,5 +548,3 @@ function HomePage({navigation}) {
 }
 
 export default HomePage;
-
-
