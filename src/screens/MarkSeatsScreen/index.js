@@ -238,11 +238,8 @@ const MarkSeatsScreen = () => {
 
               <View style={styles.preferencesHeader}>
                 <Text
-                  style={[
-                    styles.preferencesTitle,
-                    {color: theme.textPrimary},
-                  ]}>
-                  {t('Trip settings')}
+                  style={[styles.preferencesTitle, {color: theme.textPrimary}]}>
+                  {t('tripSettings')}
                 </Text>
                 <View style={styles.swipeHint}>
                   <Text
@@ -250,7 +247,7 @@ const MarkSeatsScreen = () => {
                       styles.swipeHintText,
                       {color: theme.textSecondary},
                     ]}>
-                    {t('Swipe for more')}
+                    {t('swipeForMore')}
                   </Text>
                   <Icons
                     name="gesture-swipe-horizontal"
@@ -274,7 +271,11 @@ const MarkSeatsScreen = () => {
                       borderColor: theme.inputBorder,
                     },
                   ]}>
-                  <Icons name="car-seat" size={30} color={theme.primaryButton} />
+                  <Icons
+                    name="car-seat"
+                    size={30}
+                    color={theme.primaryButton}
+                  />
                   <Text style={[styles.seatsLabel, {color: theme.textPrimary}]}>
                     {t('FreeSeats')}
                   </Text>
@@ -337,11 +338,11 @@ const MarkSeatsScreen = () => {
                   </Text>
                   <Text
                     style={[styles.seatsHint, {color: theme.textSecondary}]}>
-                    {t('Can passengers travel with pets?')}
+                    {t('canPassengersTravelWithPets')}
                   </Text>
                   <View style={styles.preferenceChips}>
                     {renderChoiceChip(
-                      {value: false, icon: 'dog', labelKey: 'Not allowed'},
+                      {value: false, icon: 'dog', labelKey: 'notAllowed'},
                       petsAllowed,
                       setPetsAllowed,
                     )}
@@ -371,11 +372,15 @@ const MarkSeatsScreen = () => {
                   </Text>
                   <Text
                     style={[styles.seatsHint, {color: theme.textSecondary}]}>
-                    {t('Smoking preference for this trip')}
+                    {t('smokingPreferenceForThisTrip')}
                   </Text>
                   <View style={styles.preferenceChips}>
                     {renderChoiceChip(
-                      {value: false, icon: 'smoking-off', labelKey: 'No smoking'},
+                      {
+                        value: false,
+                        icon: 'smoking-off',
+                        labelKey: 'NoSmoking',
+                      },
                       smokingAllowed,
                       setSmokingAllowed,
                     )}
@@ -396,18 +401,20 @@ const MarkSeatsScreen = () => {
                     },
                   ]}>
                   <Icons
-                    name={RIDE_PREFERENCES.find(
-                      option => option.value === ridePreference,
-                    )?.icon || 'chat-outline'}
+                    name={
+                      RIDE_PREFERENCES.find(
+                        option => option.value === ridePreference,
+                      )?.icon || 'chat-outline'
+                    }
                     size={30}
                     color={theme.primaryButton}
                   />
                   <Text style={[styles.seatsLabel, {color: theme.textPrimary}]}>
-                    {t('Ride vibe')}
+                    {t('rideVibe')}
                   </Text>
                   <Text
                     style={[styles.seatsHint, {color: theme.textSecondary}]}>
-                    {t('Choose the atmosphere in the car')}
+                    {t('chooseTheAtmosphereInTheCar')}
                   </Text>
                   <View style={styles.preferenceChips}>
                     {RIDE_PREFERENCES.map(option =>
@@ -429,18 +436,19 @@ const MarkSeatsScreen = () => {
                     },
                   ]}>
                   <Icons
-                    name={LUGGAGE_SIZES.find(
-                      option => option.value === luggageSize,
-                    )?.icon || 'bag-suitcase'}
+                    name={
+                      LUGGAGE_SIZES.find(option => option.value === luggageSize)
+                        ?.icon || 'bag-suitcase'
+                    }
                     size={30}
                     color={theme.primaryButton}
                   />
                   <Text style={[styles.seatsLabel, {color: theme.textPrimary}]}>
-                    {t('Max luggage')}
+                    {t('maxLuggage')}
                   </Text>
                   <Text
                     style={[styles.seatsHint, {color: theme.textSecondary}]}>
-                    {t('How much luggage can passengers bring?')}
+                    {t('howMuchLuggageCanPassengersBring')}
                   </Text>
                   <View style={styles.preferenceChips}>
                     {LUGGAGE_SIZES.map(option =>
@@ -458,17 +466,19 @@ const MarkSeatsScreen = () => {
                     },
                   ]}>
                   <Icons
-                    name={PRICE_TYPES.find(option => option.value === priceType)
-                      ?.icon || 'cash-off'}
+                    name={
+                      PRICE_TYPES.find(option => option.value === priceType)
+                        ?.icon || 'cash-off'
+                    }
                     size={30}
                     color={theme.primaryButton}
                   />
                   <Text style={[styles.seatsLabel, {color: theme.textPrimary}]}>
-                    {t('Trip cost')}
+                    {t('tripCost')}
                   </Text>
                   <Text
                     style={[styles.seatsHint, {color: theme.textSecondary}]}>
-                    {t('No payments are handled through the app.')}
+                    {t('noPaymentsAreHandledThroughTheApp')}
                   </Text>
                   <View style={styles.preferenceChips}>
                     {PRICE_TYPES.map(option =>
@@ -526,7 +536,7 @@ const MarkSeatsScreen = () => {
                     {backgroundColor: theme.secondaryButton},
                   ]}>
                   <Text style={[styles.buttonText, {color: theme.textPrimary}]}>
-                    {t('Back to Vehicle')}
+                    {t('backToVehicle')}
                   </Text>
                 </TouchableOpacity>
               </View>

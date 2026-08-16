@@ -308,7 +308,7 @@ function RouteDetails({route}) {
 
           {/* ── Карточка: Брой места ── */}
           <View style={styles.card}>
-            <Text style={styles.cardSectionLabel}>{t('Trip settings')}</Text>
+            <Text style={styles.cardSectionLabel}>{t('tripSettings')}</Text>
             <View style={styles.preferenceDetailsGrid}>
               {getRoutePreferenceItems(routePreferences, t).map(item => (
                 <View key={item.label} style={styles.preferenceDetailsItem}>
@@ -325,7 +325,7 @@ function RouteDetails({route}) {
               ))}
             </View>
             <Text style={styles.preferenceLegalHint}>
-              {t('No payments are handled through the app.')}
+              {t('noPaymentsAreHandledThroughTheApp')}
             </Text>
           </View>
 

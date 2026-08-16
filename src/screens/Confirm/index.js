@@ -299,7 +299,7 @@ function Confirm() {
               <View style={styles.cardHeaderRow}>
                 <Icon name="tune-variant" size={24} color="#f4511e" />
                 <Text style={[styles.cardHeader, {color: getTextColor()}]}>
-                  {t('Trip settings')}
+                  {t('tripSettings')}
                 </Text>
               </View>
               <View style={styles.preferenceSummaryGrid}>
@@ -325,8 +325,9 @@ function Confirm() {
                   </View>
                 ))}
               </View>
-              <Text style={[styles.legalHint, {color: getSecondaryTextColor()}]}>
-                {t('No payments are handled through the app.')}
+              <Text
+                style={[styles.legalHint, {color: getSecondaryTextColor()}]}>
+                {t('noPaymentsAreHandledThroughTheApp')}
               </Text>
             </View>
 
