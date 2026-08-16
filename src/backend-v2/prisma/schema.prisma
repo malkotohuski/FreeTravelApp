@@ -93,6 +93,12 @@ model Route {
   arrivalNumber      String?
   selectedDateTime   DateTime
   routeTitle         String?
+  petsAllowed        Boolean         @default(false)
+  smokingAllowed     Boolean         @default(false)
+  ridePreference     String          @default("conversation")
+  luggageSize        String          @default("small")
+  priceType          String          @default("free")
+  estimatedPrice     Int?
   status             String          @default("active")
   createdAt          DateTime        @default(now())
   isSeekerRoute      Boolean         @default(false)

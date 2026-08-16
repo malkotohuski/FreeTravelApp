@@ -3,8 +3,31 @@ const prisma = new PrismaClient();
 const {validateSeatCount} = require('../utils/seatPolicy');
 
 const ROUTE_TITLE_MAX_LENGTH = 30;
+const RIDE_PREFERENCES = new Set(['quiet', 'music', 'conversation']);
+const LUGGAGE_SIZES = new Set(['none', 'small', 'medium', 'large']);
+const PRICE_TYPES = new Set(['free', 'shared_cost', 'negotiable']);
+const MAX_ESTIMATED_PRICE = 999;
 
 const getCityName = cityRef => cityRef?.name || null;
+
+const pickAllowedValue = (value, allowedValues, fallback) =>
+  allowedValues.has(value) ? value : fallback;
+
+const parseBoolean = value => value === true;
+
+const parseEstimatedPrice = value => {
+  if (value === null || value === undefined || value === '') {
+    return null;
+  }
+
+  const parsedValue = Number(value);
+
+  if (!Number.isInteger(parsedValue) || parsedValue < 0) {
+    return null;
+  }
+
+  return Math.min(parsedValue, MAX_ESTIMATED_PRICE);
+};
 
 exports.createRoute = async (req, res) => {
   try {
@@ -27,6 +50,10 @@ exports.createRoute = async (req, res) => {
         error: `Route title must be ${ROUTE_TITLE_MAX_LENGTH} characters or less.`,
       });
     }
+
+    const priceType = pickAllowedValue(route.priceType, PRICE_TYPES, 'free');
+    const estimatedPrice =
+      priceType === 'free' ? null : parseEstimatedPrice(route.estimatedPrice);
 
     const seatValidation = validateSeatCount(
       route.totalSeats || route.availableSeats || 1,
@@ -97,6 +124,16 @@ exports.createRoute = async (req, res) => {
         arrivalNumber: route.arrivalNumber,
         selectedDateTime: new Date(route.selectedDateTime),
         routeTitle: routeTitle || null,
+        petsAllowed: parseBoolean(route.petsAllowed),
+        smokingAllowed: parseBoolean(route.smokingAllowed),
+        ridePreference: pickAllowedValue(
+          route.ridePreference,
+          RIDE_PREFERENCES,
+          'conversation',
+        ),
+        luggageSize: pickAllowedValue(route.luggageSize, LUGGAGE_SIZES, 'small'),
+        priceType,
+        estimatedPrice,
       },
       include: {
         departureCityRef: true,

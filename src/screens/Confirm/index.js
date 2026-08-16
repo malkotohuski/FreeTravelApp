@@ -24,6 +24,7 @@ import {useRouteContext} from '../../context/RouteContext';
 import {useAuth} from '../../context/AuthContext';
 import {useTheme} from '../../theme/useTheme';
 import api from '../../api/api';
+import {getRoutePreferenceItems} from '../../utils/routePreferences';
 
 function Confirm() {
   const submitLock = useRef(false); // предотвратява двойно изпращане
@@ -66,10 +67,25 @@ function Confirm() {
     arrivalStreet,
     arrivalNumber,
     routeTitle,
+    petsAllowed = false,
+    smokingAllowed = false,
+    ridePreference = 'conversation',
+    luggageSize = 'small',
+    priceType = 'free',
+    estimatedPrice = null,
     showConfirmButton = true,
     showChangesButton = true,
     showBackButton = false,
   } = route.params;
+
+  const routePreferences = {
+    petsAllowed,
+    smokingAllowed,
+    ridePreference,
+    luggageSize,
+    priceType,
+    estimatedPrice,
+  };
 
   const userId = user?.id;
   const username = user?.username;
@@ -145,6 +161,7 @@ function Confirm() {
         arrivalStreet,
         arrivalNumber,
         routeTitle,
+        ...routePreferences,
         username,
         userFname,
         userLname,
@@ -206,6 +223,7 @@ function Confirm() {
               selectedVehicle,
               registrationNumber,
               totalSeats,
+              ...routePreferences,
             })
           }>
           <Text style={{color: 'white', marginRight: 8, fontSize: 18}}>
@@ -215,7 +233,19 @@ function Confirm() {
         </TouchableOpacity>
       ),
     });
-  }, [navigation, selectedVehicle, registrationNumber, t, totalSeats]);
+  }, [
+    luggageSize,
+    navigation,
+    petsAllowed,
+    priceType,
+    registrationNumber,
+    ridePreference,
+    selectedVehicle,
+    smokingAllowed,
+    t,
+    totalSeats,
+    estimatedPrice,
+  ]);
 
   return (
     <View style={{flex: 1}} pointerEvents={isSubmitting ? 'none' : 'auto'}>
@@ -258,6 +288,41 @@ function Confirm() {
               </Text>
               <Text style={[styles.text, {color: getSecondaryTextColor()}]}>
                 {t('Free seats')}: {totalSeats}
+              </Text>
+            </View>
+
+            <View style={getCardStyle()}>
+              <View style={styles.cardHeaderRow}>
+                <Icon name="tune-variant" size={24} color="#f4511e" />
+                <Text style={[styles.cardHeader, {color: getTextColor()}]}>
+                  {t('Trip settings')}
+                </Text>
+              </View>
+              <View style={styles.preferenceSummaryGrid}>
+                {getRoutePreferenceItems(routePreferences, t).map(item => (
+                  <View key={item.label} style={styles.preferenceSummaryItem}>
+                    <Icon name={item.icon} size={19} color="#f4511e" />
+                    <View style={styles.preferenceSummaryText}>
+                      <Text
+                        style={[
+                          styles.preferenceLabel,
+                          {color: getSecondaryTextColor()},
+                        ]}>
+                        {item.label}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.preferenceValue,
+                          {color: getTextColor()},
+                        ]}>
+                        {item.value}
+                      </Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+              <Text style={[styles.legalHint, {color: getSecondaryTextColor()}]}>
+                {t('No payments are handled in the app')}
               </Text>
             </View>
 
@@ -398,6 +463,34 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#ddd',
     marginTop: 4,
+  },
+  preferenceSummaryGrid: {
+    marginTop: 10,
+    gap: 10,
+  },
+  preferenceSummaryItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  preferenceSummaryText: {
+    flex: 1,
+  },
+  preferenceLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+  },
+  preferenceValue: {
+    fontSize: 15,
+    fontWeight: '700',
+    marginTop: 1,
+  },
+  legalHint: {
+    marginTop: 12,
+    fontSize: 12,
+    fontStyle: 'italic',
+    textAlign: 'center',
   },
   buttonPrimary: {
     backgroundColor: '#f4511e',

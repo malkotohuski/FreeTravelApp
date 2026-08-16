@@ -20,6 +20,8 @@ import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
 import api from '../../api/api';
 import {formatSeatsLabel} from '../../utils/seatPolicy';
+import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {getRoutePreferenceItems} from '../../utils/routePreferences';
 
 function RouteDetails({route}) {
   const {t, i18n} = useTranslation();
@@ -55,6 +57,14 @@ function RouteDetails({route}) {
   const maxRequestedSeats = Math.max(1, Number(availableSeats) || 1);
   const selectedDateTime = params.selectedDateTime || details.selectedDateTime;
   const routeTitle = params.routeTitle || details.routeTitle;
+  const routePreferences = {
+    petsAllowed: params.petsAllowed ?? details.petsAllowed,
+    smokingAllowed: params.smokingAllowed ?? details.smokingAllowed,
+    ridePreference: params.ridePreference ?? details.ridePreference,
+    luggageSize: params.luggageSize ?? details.luggageSize,
+    priceType: params.priceType ?? details.priceType,
+    estimatedPrice: params.estimatedPrice ?? details.estimatedPrice,
+  };
 
   const [tripRequestText, setTripRequestText] = useState('');
   const [requestedSeats, setRequestedSeats] = useState(1);

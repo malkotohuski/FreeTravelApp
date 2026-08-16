@@ -27,7 +27,17 @@ const ROUTE_TITLE_MAX_LENGTH = 30;
 
 function SelectRouteScreen({route, navigation}) {
   const {t} = useTranslation();
-  const {selectedVehicle, registrationNumber, totalSeats = 1} = route.params;
+  const {
+    selectedVehicle,
+    registrationNumber,
+    totalSeats = 1,
+    petsAllowed = false,
+    smokingAllowed = false,
+    ridePreference = 'conversation',
+    luggageSize = 'small',
+    priceType = 'free',
+    estimatedPrice = null,
+  } = route.params;
   const theme = useTheme();
   const minSearchLength = 2;
 
@@ -117,6 +127,12 @@ function SelectRouteScreen({route, navigation}) {
               selectedVehicle,
               registrationNumber,
               totalSeats,
+              petsAllowed,
+              smokingAllowed,
+              ridePreference,
+              luggageSize,
+              priceType,
+              estimatedPrice,
             })
           }>
           <Text style={{color: 'white', marginRight: 8, fontSize: 18}}>
@@ -126,7 +142,19 @@ function SelectRouteScreen({route, navigation}) {
         </TouchableOpacity>
       ),
     });
-  }, [navigation, registrationNumber, selectedVehicle, t, theme, totalSeats]);
+  }, [
+    estimatedPrice,
+    luggageSize,
+    navigation,
+    petsAllowed,
+    priceType,
+    registrationNumber,
+    ridePreference,
+    selectedVehicle,
+    smokingAllowed,
+    t,
+    totalSeats,
+  ]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -264,6 +292,12 @@ function SelectRouteScreen({route, navigation}) {
       selectedVehicle,
       registrationNumber,
       totalSeats,
+      petsAllowed,
+      smokingAllowed,
+      ridePreference,
+      luggageSize,
+      priceType,
+      estimatedPrice,
       departureCityId,
       selectedDateTime: formattedDateTime,
       departureCity,

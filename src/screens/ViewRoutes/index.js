@@ -16,6 +16,8 @@ import api from '../../api/api';
 import LinearGradient from 'react-native-linear-gradient';
 import {useTheme} from '../../theme/useTheme';
 import {formatSeatsLabel} from '../../utils/seatPolicy';
+import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {getRoutePreferenceItems} from '../../utils/routePreferences';
 
 function ViewRoutes({navigation}) {
   const {t, i18n} = useTranslation();
@@ -239,6 +241,12 @@ function ViewRoutes({navigation}) {
                       arrivalStreet: route.arrivalStreet,
                       arrivalNumber: route.arrivalNumber,
                       routeTitle: route.routeTitle,
+                      petsAllowed: route.petsAllowed,
+                      smokingAllowed: route.smokingAllowed,
+                      ridePreference: route.ridePreference,
+                      luggageSize: route.luggageSize,
+                      priceType: route.priceType,
+                      estimatedPrice: route.estimatedPrice,
                       userId: route.owner.id,
                       username: route.owner.username,
                       userFname: route.owner.fName,
@@ -434,6 +442,36 @@ function ViewRoutes({navigation}) {
                       </>
                     ) : null}
                   </View>
+
+                  <View style={styles.preferenceRow}>
+                    {getRoutePreferenceItems(route, t).map(item => (
+                      <View
+                        key={`${route.id}-${item.label}`}
+                        style={[
+                          styles.preferencePill,
+                          {
+                            borderColor:
+                              theme.cardBorder || 'rgba(255,255,255,0.12)',
+                            backgroundColor:
+                              theme.inputBackground || theme.cardBackground,
+                          },
+                        ]}>
+                        <Icons
+                          name={item.icon}
+                          size={14}
+                          color={theme.primaryButton}
+                        />
+                        <Text
+                          style={[
+                            styles.preferencePillText,
+                            {color: theme.textSecondary},
+                          ]}
+                          numberOfLines={1}>
+                          {item.value}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
                 </TouchableOpacity>
               );
             })
@@ -606,6 +644,28 @@ const createStyles = theme =>
       width: 1,
       height: 32,
       marginHorizontal: 4,
+    },
+    preferenceRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 7,
+      paddingHorizontal: 14,
+      paddingBottom: 14,
+    },
+    preferencePill: {
+      maxWidth: '48%',
+      minHeight: 30,
+      borderRadius: 15,
+      borderWidth: 1,
+      paddingHorizontal: 9,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 5,
+    },
+    preferencePillText: {
+      flexShrink: 1,
+      fontSize: 11,
+      fontWeight: '700',
     },
   });
 
