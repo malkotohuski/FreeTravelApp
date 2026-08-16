@@ -76,7 +76,7 @@ export const getRoutePreferenceItems = (route, t) => {
         route?.priceType === 'free'
           ? t('Free ride')
           : hasEstimatedPrice
-          ? `${estimatedPrice} ${t('BGN')}`
+          ? `${estimatedPrice} ${t('EUR')}`
           : t(priceOption.labelKey),
     },
   ];

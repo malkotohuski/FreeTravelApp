@@ -87,7 +87,6 @@ function Confirm() {
     estimatedPrice,
   };
 
-  const userId = user?.id;
   const username = user?.username;
   const userFname = user?.fName;
   const userLname = user?.lName;
@@ -223,7 +222,12 @@ function Confirm() {
               selectedVehicle,
               registrationNumber,
               totalSeats,
-              ...routePreferences,
+              petsAllowed,
+              smokingAllowed,
+              ridePreference,
+              luggageSize,
+              priceType,
+              estimatedPrice,
             })
           }>
           <Text style={{color: 'white', marginRight: 8, fontSize: 18}}>
@@ -322,7 +326,7 @@ function Confirm() {
                 ))}
               </View>
               <Text style={[styles.legalHint, {color: getSecondaryTextColor()}]}>
-                {t('No payments are handled in the app')}
+                {t('No payments are handled through the app.')}
               </Text>
             </View>
 

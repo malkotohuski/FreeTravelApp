@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import {useAuth} from '../../context/AuthContext';
 import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
@@ -307,6 +307,28 @@ function RouteDetails({route}) {
           )}
 
           {/* ── Карточка: Брой места ── */}
+          <View style={styles.card}>
+            <Text style={styles.cardSectionLabel}>{t('Trip settings')}</Text>
+            <View style={styles.preferenceDetailsGrid}>
+              {getRoutePreferenceItems(routePreferences, t).map(item => (
+                <View key={item.label} style={styles.preferenceDetailsItem}>
+                  <Icons name={item.icon} size={18} color={ACCENT} />
+                  <View style={styles.preferenceDetailsText}>
+                    <Text style={styles.preferenceDetailsLabel}>
+                      {item.label}
+                    </Text>
+                    <Text style={styles.preferenceDetailsValue}>
+                      {item.value}
+                    </Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+            <Text style={styles.preferenceLegalHint}>
+              {t('No payments are handled through the app.')}
+            </Text>
+          </View>
+
           <View style={styles.card}>
             <Text style={styles.cardSectionLabel}>{t('SeatsNeeded')}</Text>
             <Text style={styles.cardHint}>
@@ -626,6 +648,45 @@ const styles = StyleSheet.create({
   },
 
   // ── Stepper ──
+  preferenceDetailsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  preferenceDetailsItem: {
+    width: '48%',
+    minHeight: 58,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#1a1a1a',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#333',
+    paddingHorizontal: 10,
+    paddingVertical: 9,
+  },
+  preferenceDetailsText: {
+    flex: 1,
+  },
+  preferenceDetailsLabel: {
+    color: '#888',
+    fontSize: 10,
+    fontWeight: '700',
+    marginBottom: 2,
+  },
+  preferenceDetailsValue: {
+    color: '#f0f0f0',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  preferenceLegalHint: {
+    color: '#777',
+    fontSize: 11,
+    fontWeight: '600',
+    marginTop: 10,
+    textAlign: 'center',
+  },
   seatStepper: {
     flexDirection: 'row',
     alignItems: 'center',

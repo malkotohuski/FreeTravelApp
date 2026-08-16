@@ -468,7 +468,7 @@ const MarkSeatsScreen = () => {
                   </Text>
                   <Text
                     style={[styles.seatsHint, {color: theme.textSecondary}]}>
-                    {t('No payments are handled in the app')}
+                    {t('No payments are handled through the app.')}
                   </Text>
                   <View style={styles.preferenceChips}>
                     {PRICE_TYPES.map(option =>
@@ -498,7 +498,7 @@ const MarkSeatsScreen = () => {
                           styles.priceCurrency,
                           {color: theme.textSecondary},
                         ]}>
-                        {t('BGN')}
+                        {t('EUR')}
                       </Text>
                     </View>
                   ) : null}
