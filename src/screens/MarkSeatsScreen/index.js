@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback, useRef} from 'react';
 import {
   View,
   Text,
@@ -37,7 +37,10 @@ const MarkSeatsScreen = () => {
   const route = useRoute();
   const theme = useTheme();
 
+  const preferencesScrollRef = useRef(null);
+  const lastRouteDraftIdRef = useRef(null);
   const selectedVehicle = route.params?.selectedVehicle;
+  const routeDraftId = route.params?.routeDraftId;
   const initialSeats = clampSeatCount(
     route.params?.totalSeats || 1,
     selectedVehicle,
@@ -59,6 +62,9 @@ const MarkSeatsScreen = () => {
 
   useFocusEffect(
     useCallback(() => {
+      const isNewDraft =
+        routeDraftId && lastRouteDraftIdRef.current !== routeDraftId;
+
       setRegistrationNumber(route.params?.registrationNumber || '');
       setTotalSeats(initialSeats);
       setPetsAllowed(route.params?.petsAllowed === true);
@@ -72,8 +78,19 @@ const MarkSeatsScreen = () => {
           ? ''
           : String(route.params.estimatedPrice),
       );
+
+      if (isNewDraft) {
+        requestAnimationFrame(() => {
+          preferencesScrollRef.current?.scrollTo({x: 0, animated: false});
+        });
+      }
+
+      if (routeDraftId) {
+        lastRouteDraftIdRef.current = routeDraftId;
+      }
     }, [
       initialSeats,
+      routeDraftId,
       route.params?.estimatedPrice,
       route.params?.luggageSize,
       route.params?.petsAllowed,
@@ -119,6 +136,7 @@ const MarkSeatsScreen = () => {
 
     navigation.navigate('SelectRoute', {
       selectedVehicle,
+      routeDraftId,
       registrationNumber,
       totalSeats,
       petsAllowed,
@@ -136,6 +154,7 @@ const MarkSeatsScreen = () => {
     navigation,
     petsAllowed,
     priceType,
+    routeDraftId,
     ridePreference,
     selectedVehicle,
     smokingAllowed,
@@ -258,6 +277,7 @@ const MarkSeatsScreen = () => {
               </View>
 
               <ScrollView
+                ref={preferencesScrollRef}
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.preferencesScroll}

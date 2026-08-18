@@ -56,6 +56,7 @@ function Confirm() {
 
   const {
     selectedVehicle,
+    routeDraftId,
     registrationNumber,
     totalSeats = 1,
     departureCityId,
@@ -220,6 +221,7 @@ function Confirm() {
           onPress={() =>
             navigation.navigate('SelectRoute', {
               selectedVehicle,
+              routeDraftId,
               registrationNumber,
               totalSeats,
               petsAllowed,
@@ -244,6 +246,7 @@ function Confirm() {
     priceType,
     registrationNumber,
     ridePreference,
+    routeDraftId,
     selectedVehicle,
     smokingAllowed,
     t,

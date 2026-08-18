@@ -38,6 +38,7 @@ const Vehicle = () => {
     navigation.navigate('Mark Seats', {
       selectedVehicle,
       vehicleTypes,
+      routeDraftId: `${Date.now()}-${Math.random()}`,
     });
   }, [selectedVehicle, navigation, t, vehicleTypes]);
 

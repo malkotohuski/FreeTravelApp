@@ -29,6 +29,7 @@ function SelectRouteScreen({route, navigation}) {
   const {t} = useTranslation();
   const {
     selectedVehicle,
+    routeDraftId,
     registrationNumber,
     totalSeats = 1,
     petsAllowed = false,
@@ -125,6 +126,7 @@ function SelectRouteScreen({route, navigation}) {
           onPress={() =>
             navigation.navigate('Mark Seats', {
               selectedVehicle,
+              routeDraftId,
               registrationNumber,
               totalSeats,
               petsAllowed,
@@ -150,6 +152,7 @@ function SelectRouteScreen({route, navigation}) {
     priceType,
     registrationNumber,
     ridePreference,
+    routeDraftId,
     selectedVehicle,
     smokingAllowed,
     t,
@@ -290,6 +293,7 @@ function SelectRouteScreen({route, navigation}) {
 
     navigation.navigate('Confirm', {
       selectedVehicle,
+      routeDraftId,
       registrationNumber,
       totalSeats,
       petsAllowed,
