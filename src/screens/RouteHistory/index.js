@@ -28,6 +28,7 @@ import api from '../../api/api';
 import {DarkModeContext} from '../../navigation/DarkModeContext';
 import Toast from 'react-native-toast-message';
 import {formatSeatsLabel} from '../../utils/seatPolicy';
+import {getRoutePreferenceItems} from '../../utils/routePreferences';
 
 const RouteHistory = ({navigation}) => {
   const {user} = useAuth();
@@ -285,6 +286,7 @@ const RouteHistory = ({navigation}) => {
               ) : (
                 filteredRoutesState.map((route, index) => {
                   const completionAllowed = isCompletionAllowed(route);
+                  const sharePreferenceItems = getRoutePreferenceItems(route, t);
                   return (
                     <TouchableOpacity key={index} style={styles.routeContainer}>
                       <Text style={styles.routeText}>
@@ -392,6 +394,17 @@ const RouteHistory = ({navigation}) => {
                                 </View>
                               </View>
 
+                              {route.routeTitle ? (
+                                <View style={styles.shareRouteTitleBox}>
+                                  <Text style={styles.shareRouteTitleLabel}>
+                                    📌 Заглавие
+                                  </Text>
+                                  <Text style={styles.shareRouteTitleText}>
+                                    {route.routeTitle}
+                                  </Text>
+                                </View>
+                              ) : null}
+
                               {/* Места */}
                               <View style={styles.shareSeatsRow}>
                                 <Text style={styles.shareSeatsText}>
@@ -403,11 +416,31 @@ const RouteHistory = ({navigation}) => {
                                 </Text>
                               </View>
 
-                              {route.routeTitle ? (
-                                <Text style={styles.shareRouteTitleText}>
-                                  📌 {route.routeTitle}
-                                </Text>
-                              ) : null}
+                              <View style={styles.sharePreferencesGrid}>
+                                {sharePreferenceItems.map(item => (
+                                  <View
+                                    key={item.label}
+                                    style={styles.sharePreferenceChip}>
+                                    <Icons
+                                      name={item.icon}
+                                      size={17}
+                                      color="#f4511e"
+                                    />
+                                    <View style={styles.sharePreferenceCopy}>
+                                      <Text
+                                        style={styles.sharePreferenceLabel}
+                                        numberOfLines={1}>
+                                        {item.label}
+                                      </Text>
+                                      <Text
+                                        style={styles.sharePreferenceValue}
+                                        numberOfLines={1}>
+                                        {item.value}
+                                      </Text>
+                                    </View>
+                                  </View>
+                                ))}
+                              </View>
                             </View>
 
                             {/* Footer */}
@@ -695,12 +728,59 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
   },
+  shareRouteTitleBox: {
+    backgroundColor: '#111a33',
+    borderRadius: 12,
+    padding: 10,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(244, 81, 30, 0.28)',
+  },
+  shareRouteTitleLabel: {
+    color: '#f4511e',
+    fontSize: 11,
+    fontWeight: '800',
+    marginBottom: 4,
+    textTransform: 'uppercase',
+  },
   shareRouteTitleText: {
-    color: '#ccc',
-    fontSize: 14,
-    fontWeight: '600',
-    textAlign: 'center',
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '700',
+    lineHeight: 20,
+  },
+  sharePreferencesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
     marginTop: 4,
+  },
+  sharePreferenceChip: {
+    width: '48.5%',
+    minHeight: 54,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#16213e',
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 9,
+    marginBottom: 8,
+  },
+  sharePreferenceCopy: {
+    flex: 1,
+    marginLeft: 8,
+  },
+  sharePreferenceLabel: {
+    color: '#96a0b8',
+    fontSize: 10,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+  },
+  sharePreferenceValue: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '800',
+    marginTop: 2,
   },
   shareCardFooter: {
     backgroundColor: '#0f3460',

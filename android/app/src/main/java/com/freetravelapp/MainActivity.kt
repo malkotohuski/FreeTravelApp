@@ -1,5 +1,6 @@
 package com.freetravelapp3
 import android.os.Bundle;
+import androidx.activity.enableEdgeToEdge
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
@@ -14,7 +15,8 @@ class MainActivity : ReactActivity() {
   override fun getMainComponentName(): String = "FreeTravelApp"
 
   override fun onCreate(savedInstanceState: Bundle?) {
-   super.onCreate(null)
+    enableEdgeToEdge()
+    super.onCreate(null)
   }
 
   /**
